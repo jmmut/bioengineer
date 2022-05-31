@@ -1,2 +1,4 @@
 /target
 .idea/
+export_html/bioengineer.wasm
+wasm.zip
