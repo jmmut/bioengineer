@@ -1,19 +1,30 @@
-use macroquad::prelude::*;
+use macroquad::prelude::next_frame;
+
+mod drawing;
+mod input;
+
+use input::InputSourceTrait;
+use input::input_macroquad::InputMacroquad as InputSource;
+
+use drawing::DrawingTrait;
+use drawing::drawing_macroquad::DrawingMacroquad as Drawing;
+
 
 #[macroquad::main("Bioengineer")]
 async fn main() {
-    loop {
-        on_frame();
+    let mut frame_index = 0;
+    while frame(&frame_index) {
+        frame_index = (frame_index + 1) % 1000;
         next_frame().await
     }
 }
 
-fn on_frame() {
-    clear_background(RED);
-
-    draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
-    draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
-    draw_circle(screen_width() - 30.0, screen_height() - 30.0, 15.0, YELLOW);
-
-    draw_text("IT WORKS!", 20.0, 20.0, 30.0, DARKGRAY);
+fn frame(frame_index: &i32) -> bool {
+    let input = InputSource::get_input();
+    if input.quit {
+        false
+    } else {
+        Drawing::draw(*frame_index);
+        true
+    }
 }
