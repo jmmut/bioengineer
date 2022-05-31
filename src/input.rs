@@ -1,4 +1,3 @@
-
 pub mod input_macroquad;
 
 pub trait InputSourceTrait {
@@ -6,9 +5,5 @@ pub trait InputSourceTrait {
 }
 
 pub struct Input {
-    pub quit: bool
+    pub quit: bool,
 }
-
-
-
-

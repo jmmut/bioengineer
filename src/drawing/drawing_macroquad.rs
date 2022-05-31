@@ -1,8 +1,8 @@
+use crate::DrawingTrait;
 use macroquad::color::colors::{BLACK, BLUE, GRAY, GREEN, YELLOW};
 use macroquad::shapes::{draw_circle, draw_line, draw_rectangle};
 use macroquad::text::draw_text;
 use macroquad::window::{clear_background, screen_height, screen_width};
-use crate::DrawingTrait;
 
 pub(crate) struct DrawingMacroquad;
 

@@ -1,4 +1,3 @@
-
 pub mod drawing_macroquad;
 
 pub trait DrawingTrait {
