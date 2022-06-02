@@ -1,24 +1,41 @@
-use crate::DrawingTrait;
-use macroquad::color::colors::{BLACK, BLUE, GRAY, GREEN, YELLOW};
-use macroquad::shapes::{draw_circle, draw_line, draw_rectangle};
+use macroquad::color::colors::GRAY;
+use macroquad::color::{BLACK, Color};
+use macroquad::miniquad::date::now;
+use macroquad::prelude::Texture2D;
 use macroquad::text::draw_text;
-use macroquad::window::{clear_background, screen_height, screen_width};
+use macroquad::texture::draw_texture;
+use macroquad::window::{clear_background, screen_width};
 
-pub(crate) struct DrawingMacroquad;
+use super::assets::load_tileset;
+use super::DrawingTrait;
+use super::super::game_state::GameState;
 
-impl DrawingTrait for DrawingMacroquad {
-    fn draw(frame_index: i32) {
-        draw(frame_index)
-    }
+pub struct DrawingMacroquad {
+    pub textures: Vec<Texture2D>,
 }
 
-pub fn draw(frame_index: i32) {
-    clear_background(GRAY);
+impl DrawingTrait for DrawingMacroquad {
+    fn new(tileset_path: &str) -> DrawingMacroquad {
+        let textures = load_tileset(tileset_path);
+        println!(
+            "got {} textures. The first one is {} by {} pixels",
+            textures.len(),
+            textures[0].width(),
+            textures[0].height()
+        );
+        DrawingMacroquad { textures }
+    }
 
-    draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
-    draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
-    draw_circle(screen_width() - 30.0, screen_height() - 30.0, 15.0, YELLOW);
+    fn draw(&self, game_state: &GameState) {
+        clear_background(GRAY);
 
-    let text = format!("IT WORKS! at frame {}", frame_index);
-    draw_text(text.as_str(), 20.0, 20.0, 30.0, BLACK);
+        // draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
+        // draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
+        // draw_circle(screen_width() - 30.0, screen_height() - 30.0, 15.0, YELLOW);
+        //
+        let text = format!("{:.0}", 1.0/(now() - game_state.previous_frame_ts));
+        let font_size = 30.0;
+        draw_text(text.as_str(), screen_width() - font_size *2.0, 20.0, font_size, BLACK);
+        draw_texture(self.textures[1], 0.0, 0.0, Color::new(1.0, 1.0, 1.0, 1.0));
+    }
 }
