@@ -31,44 +31,17 @@ impl DrawingTrait for DrawingMacroquad {
         }
     }
 
-    fn draw(&self, game_state: &GameState) {
-        clear_background(GRAY);
-
-        // draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
-        // draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
-        // draw_circle(screen_width() - 30.0, screen_height() - 30.0, 15.0, YELLOW);
-
-        let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
-        // println!(
-        //     "now - previous ts: {} - {}, fps: {}, frame: {}",
-        //     game_state.current_frame_ts, game_state.previous_frame_ts, fps, game_state.frame_index
-        // );
-
-        let text = format!("{:.0}", fps);
-        let font_size = 30.0;
-        draw_text(
-            text.as_str(),
-            screen_width() - font_size * 2.0,
-            20.0,
-            font_size,
-            BLACK,
-        );
-        for i in 0..self.textures.len() {
-            let tiles_per_line = screen_width() as usize / assets::PIXELS_PER_TILE_WIDTH as usize;
-            if tiles_per_line > 0 {
-                let lines = i / tiles_per_line;
-                let x = ((i % tiles_per_line) * assets::PIXELS_PER_TILE_WIDTH as usize) as f32;
-                let y = lines as f32 * assets::PIXELS_PER_TILE_HEIGHT as f32;
-                let mask_color = Color::new(1.0, 1.0, 1.0, 1.0);
-                draw_texture(self.textures[i], x, y, mask_color);
-            }
-        }
-        self.draw_map(game_state);
-    }
+    // fn draw(&self, game_state: &GameState) {
+    // self.debug_draw_all_textures();
+    // }
 
     fn draw_texture(&self, tile: TileType, x: f32, y: f32) {
         let mask_color = Color::new(1.0, 1.0, 1.0, 1.0);
         draw_texture(self.textures[tile as usize], x, y, mask_color);
+    }
+
+    fn clear_background(&self, color: Color) {
+        clear_background(color);
     }
 
     fn drawing(&self) -> &Drawing {
@@ -82,5 +55,23 @@ impl DrawingTrait for DrawingMacroquad {
     }
     fn screen_height(&self) -> f32 {
         screen_height()
+    }
+    fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
+        draw_text(text, x, y, font_size, color);
+    }
+}
+
+impl DrawingMacroquad {
+    fn debug_draw_all_textures(&self) {
+        for i in 0..self.textures.len() {
+            let tiles_per_line = screen_width() as usize / assets::PIXELS_PER_TILE_WIDTH as usize;
+            if tiles_per_line > 0 {
+                let lines = i / tiles_per_line;
+                let x = ((i % tiles_per_line) * assets::PIXELS_PER_TILE_WIDTH as usize) as f32;
+                let y = lines as f32 * assets::PIXELS_PER_TILE_HEIGHT as f32;
+                let mask_color = Color::new(1.0, 1.0, 1.0, 1.0);
+                draw_texture(self.textures[i], x, y, mask_color);
+            }
+        }
     }
 }

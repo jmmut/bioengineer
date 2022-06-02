@@ -8,10 +8,11 @@ mod external {
     pub mod input_macroquad;
 }
 
+use macroquad::color::Color;
 use macroquad::math::IVec3;
 use macroquad::miniquad::date::now;
 use macroquad::prelude::next_frame;
-use macroquad::prelude::Image;
+use macroquad::texture::Image;
 
 use external::assets_macroquad::load_tileset;
 use external::drawing_macroquad::DrawingMacroquad;
