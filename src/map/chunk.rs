@@ -1,7 +1,7 @@
-const CHUNK_SIZE_X: usize = 16;
-const CHUNK_SIZE_Y: usize = 4;
-const CHUNK_SIZE_Z: usize = 16;
-const CHUNK_SIZE: usize = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z;
+const SIZE_X: usize = 16;
+const SIZE_Y: usize = 4;
+const SIZE_Z: usize = 16;
+const SIZE: usize = SIZE_X * SIZE_Y * SIZE_Z;
 
 use super::{Cell, CellIndex};
 use crate::IVec3;
@@ -14,8 +14,8 @@ pub struct Chunk {
 
 impl Chunk {
     pub fn new() -> Self {
-        let mut cells = Vec::with_capacity(CHUNK_SIZE);
-        cells.resize(CHUNK_SIZE, Cell::default());
+        let mut cells = Vec::with_capacity(SIZE);
+        cells.resize(SIZE, Cell::default());
         Chunk { cells }
     }
     pub fn get_cell(&self, index: CellIndex) -> &Cell {
@@ -37,12 +37,8 @@ pub struct ChunkIter {
 impl ChunkIter {
     pub fn new(chunk_index: ChunkIndex) -> Self {
         ChunkIter {
-            i: CellIndex::new(
-                0,
-                0,
-                -1,
-            ),
-            chunk_index
+            i: CellIndex::new(0, 0, -1),
+            chunk_index,
         }
     }
 }
@@ -52,21 +48,21 @@ impl Iterator for ChunkIter {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.i.z += 1;
-        if self.i.z >= CHUNK_SIZE_Z as i32 {
+        if self.i.z >= SIZE_Z as i32 {
             self.i.z = 0;
             self.i.x += 1;
         }
-        if self.i.x >= CHUNK_SIZE_X as i32 {
+        if self.i.x >= SIZE_X as i32 {
             self.i.x = 0;
             self.i.y += 1;
         }
-        if self.i.y >= CHUNK_SIZE_Y as i32 {
+        if self.i.y >= SIZE_Y as i32 {
             Option::None
         } else {
             let absolute = CellIndex::new(
-                self.chunk_index.x * CHUNK_SIZE_X as i32 + self.i.x,
-                self.chunk_index.y * CHUNK_SIZE_Y as i32 + self.i.y,
-                self.chunk_index.z * CHUNK_SIZE_Z as i32 + self.i.z,
+                self.chunk_index.x * SIZE_X as i32 + self.i.x,
+                self.chunk_index.y * SIZE_Y as i32 + self.i.y,
+                self.chunk_index.z * SIZE_Z as i32 + self.i.z,
             );
             Option::Some(absolute)
         }
@@ -77,30 +73,30 @@ fn get_cell_index(index: CellIndex) -> usize {
     let chunk_index = get_chunk_index(index);
     let local_index = index - origin(chunk_index);
     assert!(
-        local_index.x >= 0 && local_index.x < CHUNK_SIZE_X as i32,
+        local_index.x >= 0 && local_index.x < SIZE_X as i32,
         "should all be in range {}",
         local_index
     );
     assert!(
-        local_index.y >= 0 && local_index.y < CHUNK_SIZE_Y as i32,
+        local_index.y >= 0 && local_index.y < SIZE_Y as i32,
         "should all be in range {}",
         local_index
     );
     assert!(
-        local_index.z >= 0 && local_index.z < CHUNK_SIZE_Z as i32,
+        local_index.z >= 0 && local_index.z < SIZE_Z as i32,
         "should all be in range {}",
         local_index
     );
-    local_index.y as usize * CHUNK_SIZE_X * CHUNK_SIZE_Z
-        + local_index.z as usize * CHUNK_SIZE_X
+    local_index.y as usize * SIZE_X * SIZE_Z
+        + local_index.z as usize * SIZE_X
         + local_index.x as usize
 }
 
 fn origin(chunk: ChunkIndex) -> CellIndex {
     CellIndex::new(
-        chunk.x * CHUNK_SIZE_X as i32,
-        chunk.y * CHUNK_SIZE_Y as i32,
-        chunk.z * CHUNK_SIZE_Z as i32,
+        chunk.x * SIZE_X as i32,
+        chunk.y * SIZE_Y as i32,
+        chunk.z * SIZE_Z as i32,
     )
 }
 
@@ -110,9 +106,9 @@ pub fn get_chunk_index(index: CellIndex) -> ChunkIndex {
 
 pub fn get_chunk_index_xyz(x: i32, y: i32, z: i32) -> ChunkIndex {
     ChunkIndex::new(
-        trunc_towards_neg_inf(x, CHUNK_SIZE_X as i32),
-        trunc_towards_neg_inf(y, CHUNK_SIZE_Y as i32),
-        trunc_towards_neg_inf(z, CHUNK_SIZE_Z as i32),
+        trunc_towards_neg_inf(x, SIZE_X as i32),
+        trunc_towards_neg_inf(y, SIZE_Y as i32),
+        trunc_towards_neg_inf(z, SIZE_Z as i32),
     )
 }
 
@@ -154,12 +150,12 @@ mod tests {
     use super::*;
 
     /// half and full chunk sizes
-    const H_X: i32 = CHUNK_SIZE_X as i32 / 2;
-    const H_Y: i32 = CHUNK_SIZE_Y as i32 / 2;
-    const H_Z: i32 = CHUNK_SIZE_Z as i32 / 2;
-    const F_X: i32 = CHUNK_SIZE_X as i32;
-    const F_Y: i32 = CHUNK_SIZE_Y as i32;
-    const F_Z: i32 = CHUNK_SIZE_Z as i32;
+    const H_X: i32 = SIZE_X as i32 / 2;
+    const H_Y: i32 = SIZE_Y as i32 / 2;
+    const H_Z: i32 = SIZE_Z as i32 / 2;
+    const F_X: i32 = SIZE_X as i32;
+    const F_Y: i32 = SIZE_Y as i32;
+    const F_Z: i32 = SIZE_Z as i32;
 
     #[test]
     fn trunc() {
@@ -267,32 +263,20 @@ mod tests {
     fn cell_index_basic() {
         assert_eq!(get_cell_index(CellIndex::new(0, 0, 0)), 0);
         assert_eq!(get_cell_index(CellIndex::new(1, 0, 0)), 1);
-        assert_eq!(
-            get_cell_index(CellIndex::new(0, 1, 0)),
-            CHUNK_SIZE_X * CHUNK_SIZE_Z
-        );
-        assert_eq!(get_cell_index(CellIndex::new(0, 0, 1)), CHUNK_SIZE_X);
+        assert_eq!(get_cell_index(CellIndex::new(0, 1, 0)), SIZE_X * SIZE_Z);
+        assert_eq!(get_cell_index(CellIndex::new(0, 0, 1)), SIZE_X);
 
-        assert_eq!(get_cell_index(CellIndex::new(CHUNK_SIZE_X as i32, 0, 0)), 0);
-        assert_eq!(get_cell_index(CellIndex::new(0, CHUNK_SIZE_Y as i32, 0)), 0);
-        assert_eq!(get_cell_index(CellIndex::new(0, 0, CHUNK_SIZE_Z as i32)), 0);
+        assert_eq!(get_cell_index(CellIndex::new(SIZE_X as i32, 0, 0)), 0);
+        assert_eq!(get_cell_index(CellIndex::new(0, SIZE_Y as i32, 0)), 0);
+        assert_eq!(get_cell_index(CellIndex::new(0, 0, SIZE_Z as i32)), 0);
 
-        assert_eq!(
-            get_cell_index(CellIndex::new(-(CHUNK_SIZE_X as i32), 0, 0)),
-            0
-        );
-        assert_eq!(
-            get_cell_index(CellIndex::new(0, -(CHUNK_SIZE_Y as i32), 0)),
-            0
-        );
-        assert_eq!(
-            get_cell_index(CellIndex::new(0, 0, -(CHUNK_SIZE_Z as i32))),
-            0
-        );
+        assert_eq!(get_cell_index(CellIndex::new(-(SIZE_X as i32), 0, 0)), 0);
+        assert_eq!(get_cell_index(CellIndex::new(0, -(SIZE_Y as i32), 0)), 0);
+        assert_eq!(get_cell_index(CellIndex::new(0, 0, -(SIZE_Z as i32))), 0);
 
         assert_eq!(
-            get_cell_index(CellIndex::new(1, 1, 1 - (CHUNK_SIZE_Z as i32))),
-            CHUNK_SIZE_X * CHUNK_SIZE_Z + CHUNK_SIZE_X + 1
+            get_cell_index(CellIndex::new(1, 1, 1 - (SIZE_Z as i32))),
+            SIZE_X * SIZE_Z + SIZE_X + 1
         );
     }
 }
