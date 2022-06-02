@@ -1,6 +1,7 @@
 mod drawing;
 mod game_state;
 mod input;
+mod map;
 
 use macroquad::prelude::next_frame;
 

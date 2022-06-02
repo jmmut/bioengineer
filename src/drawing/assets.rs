@@ -79,7 +79,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_get_pixels() {
+    fn get_pixels() {
         #[rustfmt::skip]
         let components = vec![
             10, 11, 12, 13, 14, 15, 16, 17,
