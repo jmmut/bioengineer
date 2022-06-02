@@ -56,22 +56,23 @@ pub struct Cell {
 
 #[derive(Clone, Copy)]
 pub enum TileType {
-    Unset,
-    WallRock = 17,
-    WallDirt = 25,
-    FloorRock = 18,
-    FloorDirt = 21,
-    Air = 27,
-    MachineAssembler = 13,
-    MachineDrill = 14,
-    MachineSolarPanel = 22,
-    MachineShip = 29,
+    Unset = -1,
+    // Helper = 2,
+    WallRock = 16,
+    WallDirt = 24,
+    FloorRock = 17,
+    FloorDirt = 20,
+    Air = 29,
+    MachineAssembler = 12,
+    MachineDrill = 13,
+    MachineSolarPanel = 21,
+    MachineShip = 28,
 }
 
 impl Default for Cell {
     fn default() -> Self {
         Cell {
-            tile_type: TileType::WallRock,
+            tile_type: TileType::Air,
         }
     }
 }
