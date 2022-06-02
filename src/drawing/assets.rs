@@ -2,8 +2,8 @@ use futures::executor::block_on;
 use macroquad::prelude::Image;
 use macroquad::texture::Texture2D;
 
-const PIXELS_PER_TILE_WIDTH: u16 = 64;
-const PIXELS_PER_TILE_HEIGHT: u16 = 64;
+pub const PIXELS_PER_TILE_WIDTH: u16 = 64;
+pub const PIXELS_PER_TILE_HEIGHT: u16 = 64;
 
 pub fn load_tileset(path: &str) -> Vec<Texture2D> {
     let image_future = macroquad::texture::load_image(path);
@@ -23,8 +23,8 @@ fn extract_images(
     let tiles_per_tile_line = image.width / pixels_per_tile_width;
     let tiles_per_tile_column = image.height / pixels_per_tile_height;
     let mut images = Vec::new();
-    for i_width in 0..tiles_per_tile_line {
-        for i_height in 0..tiles_per_tile_column {
+    for i_height in 0..tiles_per_tile_column {
+        for i_width in 0..tiles_per_tile_line {
             let components = get_components(
                 i_width,
                 i_height,

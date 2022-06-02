@@ -1,3 +1,4 @@
+use crate::drawing::assets;
 use macroquad::color::colors::GRAY;
 use macroquad::color::{Color, BLACK};
 use macroquad::miniquad::date::now;
@@ -42,6 +43,15 @@ impl DrawingTrait for DrawingMacroquad {
             font_size,
             BLACK,
         );
-        draw_texture(self.textures[1], 0.0, 0.0, Color::new(1.0, 1.0, 1.0, 1.0));
+        for i in 0..self.textures.len() {
+            let tiles_per_line = screen_width() as usize / assets::PIXELS_PER_TILE_WIDTH as usize;
+            if tiles_per_line > 0 {
+                let lines = i / tiles_per_line;
+                let x = ((i % tiles_per_line) * assets::PIXELS_PER_TILE_WIDTH as usize) as f32;
+                let y = lines as f32 * assets::PIXELS_PER_TILE_HEIGHT as f32;
+                let mask_color = Color::new(1.0, 1.0, 1.0, 1.0);
+                draw_texture(self.textures[i], x, y, mask_color);
+            }
+        }
     }
 }
