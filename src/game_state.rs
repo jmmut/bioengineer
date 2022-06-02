@@ -10,11 +10,13 @@ pub struct GameState {
 
 impl GameState {
     pub fn new() -> GameState {
+        let mut map = Map::new();
+        map.regenerate();
         GameState {
             frame_index: 0,
             previous_frame_ts: now() - 1.0,
             current_frame_ts: now(),
-            map: Map::new(),
+            map,
         }
     }
     pub fn advance_frame(&mut self) {

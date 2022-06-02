@@ -3,8 +3,8 @@ const CHUNK_SIZE_Y: usize = 4;
 const CHUNK_SIZE_Z: usize = 16;
 const CHUNK_SIZE: usize = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z;
 
-use crate::IVec3;
 use super::{Cell, CellIndex};
+use crate::IVec3;
 
 pub type ChunkIndex = IVec3;
 
@@ -23,6 +23,53 @@ impl Chunk {
     }
     pub fn get_cell_mut(&mut self, index: CellIndex) -> &mut Cell {
         self.cells.get_mut(get_cell_index(index)).unwrap()
+    }
+    pub fn iter(&self, chunk_index: ChunkIndex) -> ChunkIter {
+        ChunkIter::new(chunk_index)
+    }
+}
+
+pub struct ChunkIter {
+    i: CellIndex,
+    chunk_index: ChunkIndex,
+}
+
+impl ChunkIter {
+    pub fn new(chunk_index: ChunkIndex) -> Self {
+        ChunkIter {
+            i: CellIndex::new(
+                0,
+                0,
+                -1,
+            ),
+            chunk_index
+        }
+    }
+}
+
+impl Iterator for ChunkIter {
+    type Item = CellIndex;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.i.z += 1;
+        if self.i.z >= CHUNK_SIZE_Z as i32 {
+            self.i.z = 0;
+            self.i.x += 1;
+        }
+        if self.i.x >= CHUNK_SIZE_X as i32 {
+            self.i.x = 0;
+            self.i.y += 1;
+        }
+        if self.i.y >= CHUNK_SIZE_Y as i32 {
+            Option::None
+        } else {
+            let absolute = CellIndex::new(
+                self.chunk_index.x * CHUNK_SIZE_X as i32 + self.i.x,
+                self.chunk_index.y * CHUNK_SIZE_Y as i32 + self.i.y,
+                self.chunk_index.z * CHUNK_SIZE_Z as i32 + self.i.z,
+            );
+            Option::Some(absolute)
+        }
     }
 }
 
@@ -69,7 +116,7 @@ pub fn get_chunk_index_xyz(x: i32, y: i32, z: i32) -> ChunkIndex {
     )
 }
 
-fn trunc_towards_neg_inf(n: i32, chunk_size: i32) -> i32 {
+pub fn trunc_towards_neg_inf(n: i32, chunk_size: i32) -> i32 {
     if n >= 0 {
         n / chunk_size
     } else {

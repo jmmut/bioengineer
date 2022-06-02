@@ -1,6 +1,6 @@
+use crate::drawing::assets::{extract_images, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use futures::executor::block_on;
 use macroquad::texture::Texture2D;
-use crate::drawing::assets::{extract_images, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 
 pub fn load_tileset(path: &str) -> Vec<Texture2D> {
     let image_future = macroquad::texture::load_image(path);

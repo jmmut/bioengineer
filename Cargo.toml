@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 macroquad = "0.3"
 futures = "0.3"
+opensimplex_noise_rs = "0.3.0"

@@ -1,9 +1,7 @@
-
 use crate::Image;
 
 pub const PIXELS_PER_TILE_WIDTH: u16 = 64;
 pub const PIXELS_PER_TILE_HEIGHT: u16 = 64;
-
 
 pub fn extract_images(
     image: &Image,

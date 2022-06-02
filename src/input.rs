@@ -1,4 +1,3 @@
-
 pub trait InputSourceTrait {
     fn get_input() -> Input;
 }

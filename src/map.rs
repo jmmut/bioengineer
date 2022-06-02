@@ -1,8 +1,10 @@
 mod chunk;
 
-use crate::map::chunk::{get_chunk_index, get_required_chunks};
+use crate::map::chunk::{get_chunk_index, get_required_chunks, trunc_towards_neg_inf};
+use crate::map::TileType::{Air, FloorDirt, WallRock};
+use crate::{now, IVec3};
 use chunk::{Chunk, ChunkIndex};
-use crate::IVec3;
+use opensimplex_noise_rs::OpenSimplexNoise;
 use std::collections::HashMap;
 
 /// The axis are isometric:
@@ -13,12 +15,16 @@ pub type CellIndex = IVec3;
 
 const MAP_SIZE: i32 = 32;
 
+pub struct Map {
+    chunks: HashMap<ChunkIndex, Chunk>,
+}
+
 impl Map {
     pub fn new() -> Self {
         let mut chunks = HashMap::new();
         let chunk_indexes = get_required_chunks(
-            CellIndex::new(0, 0, 0),
-            CellIndex::new(MAP_SIZE - 1, MAP_SIZE - 1, MAP_SIZE - 1),
+            CellIndex::new(-MAP_SIZE / 2, -MAP_SIZE / 2, -MAP_SIZE / 2),
+            CellIndex::new(MAP_SIZE / 2 - 1, MAP_SIZE / 2 - 1, MAP_SIZE / 2 - 1),
         );
         for chunk_index in chunk_indexes {
             chunks.insert(chunk_index, Chunk::new());
@@ -43,10 +49,30 @@ impl Map {
             .get_mut(&get_chunk_index(index))
             .expect("Error: Making the map bigger dynamically is disabled.")
     }
+    pub fn regenerate(&mut self) {
+        // if not provided, default seed is equal to 0
+        let noise_generator = OpenSimplexNoise::new(Some(now() as i64));
+        let scale = 0.044;
+        for (chunk_index, chunk) in &mut self.chunks {
+            for cell_index in chunk.iter(*chunk_index) {
+                // -1 to 1
+                let value = noise_generator
+                    .eval_2d(cell_index.x as f64 * scale, cell_index.z as f64 * scale);
+                chunk.get_cell_mut(cell_index).tile_type = choose_tile(value, cell_index)
+            }
+        }
+    }
 }
 
-pub struct Map {
-    chunks: HashMap<ChunkIndex, Chunk>,
+fn choose_tile(value: f64, cell_index: CellIndex) -> TileType {
+    let surface_level = trunc_towards_neg_inf((value * MAP_SIZE as f64) as i32, 2);
+    if surface_level > cell_index.y {
+        WallRock
+    } else if surface_level < cell_index.y {
+        Air
+    } else {
+        FloorDirt
+    }
 }
 
 #[derive(Clone, Copy)]

@@ -8,10 +8,10 @@ mod external {
     pub mod input_macroquad;
 }
 
-use macroquad::prelude::next_frame as next_frame;
-use macroquad::math::IVec3 as IVec3;
-use macroquad::miniquad::date::now as now;
-use macroquad::prelude::Image as Image;
+use macroquad::math::IVec3;
+use macroquad::miniquad::date::now;
+use macroquad::prelude::next_frame;
+use macroquad::prelude::Image;
 
 use external::assets_macroquad::load_tileset;
 use external::drawing_macroquad::DrawingMacroquad;

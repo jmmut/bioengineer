@@ -44,6 +44,7 @@ version = "0.1.0"
 dependencies = [
  "futures",
  "macroquad",
+ "opensimplex_noise_rs",
 ]
 
 [[package]]
@@ -387,6 +388,12 @@ checksum = "13e571c3517af9e1729d4c63571a27edd660ade0667973bfc74a67c660c2b651"
 dependencies = [
  "byteorder",
 ]
+
+[[package]]
+name = "opensimplex_noise_rs"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba77c545f2291bb66897afe90c8583c4fdc427fae9cb552db032e74d7526e8b5"
 
 [[package]]
 name = "pin-project-lite"

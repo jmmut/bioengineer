@@ -12,8 +12,8 @@ pub struct Drawing {
 impl Drawing {
     pub fn new() -> Self {
         Drawing {
-            min_cell: CellIndex::new(0, 0, 0),
-            max_cell: CellIndex::new(15, 8, 15),
+            min_cell: CellIndex::new(0, -4, 0),
+            max_cell: CellIndex::new(15, 3, 15),
         }
     }
 }
@@ -26,7 +26,7 @@ pub trait DrawingTrait {
     fn drawing_mut(&mut self) -> &mut Drawing;
     fn screen_width(&self) -> f32;
     fn screen_height(&self) -> f32;
-    fn change_height_rel(& mut self, y :i32) {
+    fn change_height_rel(&mut self, y: i32) {
         self.drawing_mut().max_cell.y += y;
         self.drawing_mut().min_cell.y += y;
     }

@@ -8,8 +8,8 @@ use macroquad::texture::draw_texture;
 use macroquad::window::{clear_background, screen_height, screen_width};
 
 use super::super::game_state::GameState;
-use crate::load_tileset;
 use crate::drawing::DrawingTrait;
+use crate::load_tileset;
 
 pub struct DrawingMacroquad {
     pub drawing: Drawing,
