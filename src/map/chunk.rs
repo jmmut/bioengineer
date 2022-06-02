@@ -3,8 +3,8 @@ const CHUNK_SIZE_Y: usize = 4;
 const CHUNK_SIZE_Z: usize = 16;
 const CHUNK_SIZE: usize = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z;
 
+use crate::IVec3;
 use super::{Cell, CellIndex};
-use macroquad::math::IVec3;
 
 pub type ChunkIndex = IVec3;
 
@@ -25,6 +25,7 @@ impl Chunk {
         self.cells.get_mut(get_cell_index(index)).unwrap()
     }
 }
+
 fn get_cell_index(index: CellIndex) -> usize {
     let chunk_index = get_chunk_index(index);
     let local_index = index - origin(chunk_index);

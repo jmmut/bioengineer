@@ -1,5 +1,5 @@
 use super::map::Map;
-use macroquad::miniquad::date::now;
+use crate::now;
 
 pub struct GameState {
     pub frame_index: i32,

@@ -2,13 +2,23 @@ mod drawing;
 mod game_state;
 mod input;
 mod map;
+mod external {
+    pub mod assets_macroquad;
+    pub mod drawing_macroquad;
+    pub mod input_macroquad;
+}
 
-use macroquad::prelude::next_frame;
+use macroquad::prelude::next_frame as next_frame;
+use macroquad::math::IVec3 as IVec3;
+use macroquad::miniquad::date::now as now;
+use macroquad::prelude::Image as Image;
 
-use drawing::drawing_macroquad::DrawingMacroquad;
+use external::assets_macroquad::load_tileset;
+use external::drawing_macroquad::DrawingMacroquad;
+use external::input_macroquad::InputMacroquad as InputSource;
+
 use drawing::DrawingTrait;
 use game_state::GameState;
-use input::input_macroquad::InputMacroquad as InputSource;
 use input::InputSourceTrait;
 
 struct Implementations<D: DrawingTrait> {

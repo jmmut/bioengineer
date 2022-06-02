@@ -2,7 +2,7 @@ mod chunk;
 
 use crate::map::chunk::{get_chunk_index, get_required_chunks};
 use chunk::{Chunk, ChunkIndex};
-use macroquad::math::IVec3;
+use crate::IVec3;
 use std::collections::HashMap;
 
 /// The axis are isometric:
@@ -29,7 +29,7 @@ impl Map {
     pub fn get_cell(&self, index: CellIndex) -> &Cell {
         self.get_chunk(index).get_cell(index)
     }
-    pub fn get_cell_mut(&mut self, index: CellIndex) -> &mut Cell {
+    pub fn _get_cell_mut(&mut self, index: CellIndex) -> &mut Cell {
         self.get_chunk_mut(index).get_cell_mut(index)
     }
 

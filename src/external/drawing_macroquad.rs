@@ -2,15 +2,14 @@ use crate::drawing::{assets, Drawing};
 use crate::map::TileType;
 use macroquad::color::colors::GRAY;
 use macroquad::color::{Color, BLACK};
-use macroquad::miniquad::date::now;
 use macroquad::prelude::Texture2D;
 use macroquad::text::draw_text;
 use macroquad::texture::draw_texture;
 use macroquad::window::{clear_background, screen_height, screen_width};
 
 use super::super::game_state::GameState;
-use super::assets::load_tileset;
-use super::DrawingTrait;
+use crate::load_tileset;
+use crate::drawing::DrawingTrait;
 
 pub struct DrawingMacroquad {
     pub drawing: Drawing,

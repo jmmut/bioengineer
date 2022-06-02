@@ -1,8 +1,7 @@
-mod assets;
-pub mod drawing_macroquad;
+pub mod assets;
 
 use crate::game_state::GameState;
-use crate::map::{Cell, CellIndex, TileType};
+use crate::map::{CellIndex, TileType};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 
 pub struct Drawing {
@@ -71,7 +70,6 @@ fn get_tile_position(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use macroquad::math::IVec3;
 
     #[test]
     fn position_tile_basic() {

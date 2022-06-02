@@ -1,21 +1,11 @@
-use futures::executor::block_on;
-use macroquad::prelude::Image;
-use macroquad::texture::Texture2D;
+
+use crate::Image;
 
 pub const PIXELS_PER_TILE_WIDTH: u16 = 64;
 pub const PIXELS_PER_TILE_HEIGHT: u16 = 64;
 
-pub fn load_tileset(path: &str) -> Vec<Texture2D> {
-    let image_future = macroquad::texture::load_image(path);
-    let image = block_on(image_future).unwrap();
-    let images = extract_images(&image, PIXELS_PER_TILE_WIDTH, PIXELS_PER_TILE_HEIGHT);
-    images
-        .into_iter()
-        .map(|image| Texture2D::from_rgba8(image.width, image.height, &image.bytes))
-        .collect()
-}
 
-fn extract_images(
+pub fn extract_images(
     image: &Image,
     pixels_per_tile_width: u16,
     pixels_per_tile_height: u16,
