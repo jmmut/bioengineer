@@ -23,8 +23,13 @@ pub trait DrawingTrait {
     fn draw(&self, game_state: &GameState);
     fn draw_texture(&self, tile: TileType, x: f32, y: f32);
     fn drawing(&self) -> &Drawing;
+    fn drawing_mut(&mut self) -> &mut Drawing;
     fn screen_width(&self) -> f32;
     fn screen_height(&self) -> f32;
+    fn change_height_rel(& mut self, y :i32) {
+        self.drawing_mut().max_cell.y += y;
+        self.drawing_mut().min_cell.y += y;
+    }
     fn draw_map(&self, game_state: &GameState) {
         for i_y in self.drawing().min_cell.y..=self.drawing().max_cell.y {
             for i_z in self.drawing().min_cell.z..=self.drawing().max_cell.z {

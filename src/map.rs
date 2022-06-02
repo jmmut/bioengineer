@@ -72,7 +72,7 @@ pub enum TileType {
 impl Default for Cell {
     fn default() -> Self {
         Cell {
-            tile_type: TileType::Air,
+            tile_type: TileType::WallRock,
         }
     }
 }

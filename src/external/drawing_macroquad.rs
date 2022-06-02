@@ -74,6 +74,9 @@ impl DrawingTrait for DrawingMacroquad {
     fn drawing(&self) -> &Drawing {
         &self.drawing
     }
+    fn drawing_mut(&mut self) -> &mut Drawing {
+        &mut self.drawing
+    }
     fn screen_width(&self) -> f32 {
         screen_width()
     }

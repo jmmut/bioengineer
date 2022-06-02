@@ -29,11 +29,11 @@ struct Implementations<D: DrawingTrait> {
 #[macroquad::main("Bioengineer")]
 async fn main() {
     let Implementations {
-        drawer,
+        mut drawer,
         mut game_state,
     } = factory();
 
-    while frame(&mut game_state, &drawer) {
+    while frame(&mut game_state, &mut drawer) {
         next_frame().await
     }
 }
@@ -45,9 +45,10 @@ fn factory() -> Implementations<DrawingMacroquad> {
 }
 
 /// returns if should continue looping. In other words, if there should be another future frame.
-fn frame(game_state: &mut GameState, drawer: &impl DrawingTrait) -> bool {
+fn frame(game_state: &mut GameState, drawer: &mut impl DrawingTrait) -> bool {
     let input = InputSource::get_input();
     if !input.quit {
+        drawer.change_height_rel(input.change_height_rel);
         drawer.draw(&game_state);
     }
     game_state.advance_frame();
