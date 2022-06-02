@@ -1,20 +1,46 @@
 use crate::input::{Input, InputSourceTrait};
-use macroquad::input::{is_key_down, is_mouse_button_pressed, mouse_wheel, KeyCode};
+use macroquad::input::{
+    is_key_down, is_mouse_button_down, is_mouse_button_pressed, mouse_position, mouse_wheel,
+    KeyCode, MouseButton,
+};
 
-pub struct InputMacroquad;
+pub struct InputMacroquad {
+    previous_wheel_click_pos: (f32, f32),
+}
 
-impl InputSourceTrait for InputMacroquad {
-    fn get_input() -> Input {
-        get_input()
+impl InputMacroquad {
+    pub fn new() -> Self {
+        InputMacroquad {
+            previous_wheel_click_pos: (0.0, 0.0),
+        }
+    }
+
+    pub fn get_horizontal_move(&mut self) -> (f32, f32) {
+        let mut diff = (0.0, 0.0);
+        if is_mouse_button_pressed(MouseButton::Middle) {
+            self.previous_wheel_click_pos = mouse_position()
+        } else if is_mouse_button_down(MouseButton::Middle) {
+            let current_pos = mouse_position();
+            diff = (
+                current_pos.0 - self.previous_wheel_click_pos.0,
+                current_pos.1 - self.previous_wheel_click_pos.1,
+            );
+            self.previous_wheel_click_pos = current_pos;
+        }
+        diff
     }
 }
 
-fn get_input() -> Input {
-    let quit = is_key_down(KeyCode::Escape);
-    let (mouse_x, mouse_y) = mouse_wheel();
-    let change_height_rel = mouse_y as i32;
-    Input {
-        quit,
-        change_height_rel,
+impl InputSourceTrait for InputMacroquad {
+    fn get_input(&mut self) -> Input {
+        let quit = is_key_down(KeyCode::Escape);
+        let (mouse_x, mouse_y) = mouse_wheel();
+        let change_height_rel = mouse_y as i32;
+        let move_map_horizontally = self.get_horizontal_move();
+        Input {
+            quit,
+            change_height_rel,
+            move_map_horizontally,
+        }
     }
 }

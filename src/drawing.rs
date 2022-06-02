@@ -82,6 +82,50 @@ pub trait DrawingTrait {
             }
         }
     }
+    fn move_map_horizontally(&mut self, x_z: (f32, f32)) {
+        if x_z.0 != 0.0 {
+            let int_x = f32::trunc(x_z.0);
+            let mut decimal_x = x_z.0 - int_x;
+            if decimal_x < 0.01 {
+                decimal_x = 0.0;
+            }
+            let drawing_ = self.drawing_mut();
+            let min_cell = &mut drawing_.min_cell;
+            let max_cell = &mut drawing_.max_cell;
+            max_cell.x += int_x as i32;
+            min_cell.x += int_x as i32;
+            if min_cell.x < Map::min_cell().x {
+                let diff = Map::min_cell().x - min_cell.x;
+                min_cell.x += diff;
+                max_cell.x += diff;
+            } else if max_cell.x > Map::max_cell().x {
+                let diff = Map::max_cell().x - max_cell.x;
+                min_cell.x += diff;
+                max_cell.x += diff;
+            }
+        }
+        if x_z.1 != 0.0 {
+            let int_z = f32::trunc(x_z.1);
+            let mut decimal_z = x_z.0 - int_z;
+            if decimal_z < 0.01 {
+                decimal_z = 0.0;
+            }
+            let drawing_ = self.drawing_mut();
+            let min_cell = &mut drawing_.min_cell;
+            let max_cell = &mut drawing_.max_cell;
+            max_cell.z += int_z as i32;
+            min_cell.z += int_z as i32;
+            if min_cell.z < Map::min_cell().z {
+                let diff = Map::min_cell().z - min_cell.z;
+                min_cell.z += diff;
+                max_cell.z += diff;
+            } else if max_cell.z > Map::max_cell().z {
+                let diff = Map::max_cell().z - max_cell.z;
+                min_cell.z += diff;
+                max_cell.z += diff;
+            }
+        }
+    }
     fn draw_map(&self, game_state: &GameState) {
         let min_cell = &self.drawing().min_cell;
         let max_cell = &self.drawing().max_cell;

@@ -18,13 +18,15 @@ use external::assets_macroquad::load_tileset;
 use external::drawing_macroquad::DrawingMacroquad;
 use external::input_macroquad::InputMacroquad as InputSource;
 
+use crate::external::input_macroquad::InputMacroquad;
 use drawing::DrawingTrait;
 use game_state::GameState;
 use input::InputSourceTrait;
 
-struct Implementations<D: DrawingTrait> {
+struct Implementations<D: DrawingTrait, I: InputSourceTrait> {
     drawer: D,
     game_state: GameState,
+    input: I,
 }
 
 #[macroquad::main("Bioengineer")]
@@ -32,24 +34,35 @@ async fn main() {
     let Implementations {
         mut drawer,
         mut game_state,
+        mut input,
     } = factory();
 
-    while frame(&mut game_state, &mut drawer) {
+    while frame(&mut game_state, &mut drawer, &mut input) {
         next_frame().await
     }
 }
 
-fn factory() -> Implementations<DrawingMacroquad> {
+fn factory() -> Implementations<DrawingMacroquad, InputMacroquad> {
     let drawer = DrawingMacroquad::new("assets/image/tileset.png");
     let game_state = GameState::new();
-    Implementations { drawer, game_state }
+    let input = InputMacroquad::new();
+    Implementations {
+        drawer,
+        game_state,
+        input,
+    }
 }
 
 /// returns if should continue looping. In other words, if there should be another future frame.
-fn frame(game_state: &mut GameState, drawer: &mut impl DrawingTrait) -> bool {
-    let input = InputSource::get_input();
+fn frame(
+    game_state: &mut GameState,
+    drawer: &mut impl DrawingTrait,
+    input: &mut impl InputSourceTrait,
+) -> bool {
+    let input = input.get_input();
     if !input.quit {
         drawer.change_height_rel(input.change_height_rel);
+        drawer.move_map_horizontally(input.move_map_horizontally);
         drawer.draw(&game_state);
     }
     game_state.advance_frame();
