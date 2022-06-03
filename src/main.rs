@@ -61,8 +61,7 @@ fn frame(
 ) -> bool {
     let input = input.get_input();
     if !input.quit {
-        drawer.change_height_rel(input.change_height_rel);
-        drawer.move_map_horizontally(input.move_map_horizontally);
+        drawer.apply_input(&input);
         drawer.draw(&game_state);
     }
     game_state.advance_frame();

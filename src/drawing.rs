@@ -2,8 +2,9 @@ pub mod assets;
 
 use crate::game_state::GameState;
 use crate::map::{CellIndex, Map, TileType};
-use crate::Color;
+use crate::{input, Color, InputSourceTrait};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use input::Input;
 
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 const BLACK: Color = Color::new(0.0, 0.0, 0.0, 1.0);
@@ -12,19 +13,27 @@ const FONT_SIZE: f32 = 20.0;
 pub struct Drawing {
     min_cell: CellIndex,
     max_cell: CellIndex,
+    drawing_offset_x: f32,
+    drawing_offset_y: f32,
 }
 
 impl Drawing {
     pub fn new() -> Self {
         Drawing {
-            min_cell: CellIndex::new(-16, -4, -16),
-            max_cell: CellIndex::new(15, 3, 15),
+            min_cell: CellIndex::new(-8, -4, -8),
+            max_cell: CellIndex::new(7, 3, 7),
+            drawing_offset_x: 0.0,
+            drawing_offset_y: 0.0,
         }
     }
 }
 
 pub trait DrawingTrait {
     fn new(tileset_path: &str) -> Self;
+    fn apply_input(&mut self, input: &Input) {
+        self.change_height_rel(input.change_height_rel);
+        self.move_map_horizontally(input.move_map_horizontally);
+    }
     fn draw(&self, game_state: &GameState) {
         self.clear_background(GREY);
         self.draw_map(game_state);
@@ -82,18 +91,35 @@ pub trait DrawingTrait {
             }
         }
     }
-    fn move_map_horizontally(&mut self, x_z: (f32, f32)) {
-        if x_z.0 != 0.0 {
-            let int_x = f32::trunc(x_z.0);
-            let mut decimal_x = x_z.0 - int_x;
-            if decimal_x < 0.01 {
-                decimal_x = 0.0;
-            }
-            let drawing_ = self.drawing_mut();
+    fn move_map_horizontally(&mut self, x_y: (f32, f32)) {
+        let mut int_tiles_x = 0.0;
+        let mut int_tiles_y = 0.0;
+        let drawing_ = self.drawing_mut();
+        if x_y.0 != 0.0 {
+            let tiles_x =
+                (x_y.0 + drawing_.drawing_offset_x) / (assets::PIXELS_PER_TILE_WIDTH as f32);
+            int_tiles_x = f32::trunc(tiles_x);
+            drawing_.drawing_offset_x =
+                (tiles_x - int_tiles_x) * assets::PIXELS_PER_TILE_WIDTH as f32;
+        }
+        if x_y.1 != 0.0 {
+            let tiles_y =
+                (x_y.1 + drawing_.drawing_offset_y) / (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.5);
+            int_tiles_y = f32::trunc(tiles_y);
+            drawing_.drawing_offset_y =
+                (tiles_y - int_tiles_y) * assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.5;
+        }
+        let int_tiles_x = int_tiles_x as i32;
+        let int_tiles_y = int_tiles_y as i32;
+        if int_tiles_x != 0 || int_tiles_y != 0 {
             let min_cell = &mut drawing_.min_cell;
             let max_cell = &mut drawing_.max_cell;
-            max_cell.x += int_x as i32;
-            min_cell.x += int_x as i32;
+            let diff_x = int_tiles_x + int_tiles_y;
+            let diff_z = -int_tiles_x + int_tiles_y;
+            max_cell.x -= diff_x;
+            min_cell.x -= diff_x;
+            max_cell.z -= diff_z;
+            min_cell.z -= diff_z;
             if min_cell.x < Map::min_cell().x {
                 let diff = Map::min_cell().x - min_cell.x;
                 min_cell.x += diff;
@@ -103,18 +129,6 @@ pub trait DrawingTrait {
                 min_cell.x += diff;
                 max_cell.x += diff;
             }
-        }
-        if x_z.1 != 0.0 {
-            let int_z = f32::trunc(x_z.1);
-            let mut decimal_z = x_z.0 - int_z;
-            if decimal_z < 0.01 {
-                decimal_z = 0.0;
-            }
-            let drawing_ = self.drawing_mut();
-            let min_cell = &mut drawing_.min_cell;
-            let max_cell = &mut drawing_.max_cell;
-            max_cell.z += int_z as i32;
-            min_cell.z += int_z as i32;
             if min_cell.z < Map::min_cell().z {
                 let diff = Map::min_cell().z - min_cell.z;
                 min_cell.z += diff;
@@ -151,8 +165,11 @@ pub trait DrawingTrait {
         let pixels_half_tile_x = PIXELS_PER_TILE_WIDTH as f32 * 0.5;
         let pixels_half_tile_y = PIXELS_PER_TILE_HEIGHT as f32 * 0.5;
         let pixels_height_isometric = pixels_half_tile_y * 0.5;
-        x = f32::trunc(x * pixels_half_tile_x + self.screen_width() / 2.0 - pixels_half_tile_x);
-        y = f32::trunc(y * pixels_height_isometric);
+        x = f32::trunc(
+            x * pixels_half_tile_x + self.screen_width() / 2.0 - pixels_half_tile_x
+                + self.drawing().drawing_offset_x,
+        );
+        y = f32::trunc(y * pixels_height_isometric + self.drawing().drawing_offset_y);
         (x, y)
     }
 }
