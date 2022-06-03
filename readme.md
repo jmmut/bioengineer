@@ -29,6 +29,7 @@ cargo build -r --target wasm32-unknown-unknown
 
 # the folder export_html contains the html wrapper so that the wasm can be used
 cp -r target/wasm32-unknown-unknown/release/*.wasm export_html/
+cp -r assets/ export_html/
 
 # you can zip the folder and upload it to itch.io
 zip -r wasm.zip export_html/*

@@ -2,7 +2,7 @@ pub mod assets;
 
 use crate::game_state::GameState;
 use crate::map::{CellIndex, Map, TileType};
-use crate::{input, Color, InputSourceTrait};
+use crate::{input, Color, InputSourceTrait, Texture2D};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use input::Input;
 
@@ -29,7 +29,7 @@ impl Drawing {
 }
 
 pub trait DrawingTrait {
-    fn new(tileset_path: &str) -> Self;
+    fn new(textures: Vec<Texture2D>) -> Self;
     fn apply_input(&mut self, input: &Input) {
         self.change_height_rel(input.change_height_rel);
         self.move_map_horizontally(input.move_map_horizontally);

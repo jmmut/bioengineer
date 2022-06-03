@@ -13,6 +13,7 @@ use macroquad::math::IVec3;
 use macroquad::miniquad::date::now;
 use macroquad::prelude::next_frame;
 use macroquad::texture::Image;
+use macroquad::texture::Texture2D;
 
 use external::assets_macroquad::load_tileset;
 use external::drawing_macroquad::DrawingMacroquad;
@@ -35,15 +36,16 @@ async fn main() {
         mut drawer,
         mut game_state,
         mut input,
-    } = factory();
+    } = factory().await;
 
     while frame(&mut game_state, &mut drawer, &mut input) {
         next_frame().await
     }
 }
 
-fn factory() -> Implementations<DrawingMacroquad, InputMacroquad> {
-    let drawer = DrawingMacroquad::new("assets/image/tileset.png");
+async fn factory() -> Implementations<DrawingMacroquad, InputMacroquad> {
+    let tileset = load_tileset("assets/image/tileset.png");
+    let drawer = DrawingMacroquad::new(tileset.await);
     let game_state = GameState::new();
     let input = InputMacroquad::new();
     Implementations {

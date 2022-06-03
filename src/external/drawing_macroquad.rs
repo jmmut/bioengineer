@@ -17,8 +17,8 @@ pub struct DrawingMacroquad {
 }
 
 impl DrawingTrait for DrawingMacroquad {
-    fn new(tileset_path: &str) -> DrawingMacroquad {
-        let textures = load_tileset(tileset_path);
+    fn new(textures: Vec<Texture2D>) -> DrawingMacroquad {
+        // let textures = load_tileset(tileset_path);
         println!(
             "got {} textures. The first one is {} by {} pixels",
             textures.len(),

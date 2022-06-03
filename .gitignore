@@ -1,5 +1,6 @@
 /target
 .idea/
 export_html/bioengineer.wasm
+export_html/assets/
 wasm.zip
 assets/image/tileset.png.ln
