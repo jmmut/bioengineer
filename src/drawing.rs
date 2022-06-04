@@ -14,8 +14,7 @@ const FONT_SIZE: f32 = 20.0;
 pub struct Drawing {
     min_cell: CellIndex,
     max_cell: CellIndex,
-    drawing_offset_x: f32,
-    drawing_offset_y: f32,
+    drawing_offset: PixelPosition,
 }
 
 impl Drawing {
@@ -23,8 +22,7 @@ impl Drawing {
         Drawing {
             min_cell: CellIndex::new(-8, 0, -8),
             max_cell: CellIndex::new(7, 2, 7),
-            drawing_offset_x: 0.0,
-            drawing_offset_y: 0.0,
+            drawing_offset: PixelPosition::new(0.0, 0.0),
         }
     }
 }
@@ -95,18 +93,17 @@ pub trait DrawingTrait {
     }
     fn move_map_horizontally(&mut self, diff: PixelPosition) {
         let mut int_tiles_x = 0;
-        let mut int_tiles_y = 0.0;
+        let mut int_tiles_y = 0;
         let drawing_ = self.drawing_mut();
         if diff.x != 0.0 {
-            (int_tiles_x, drawing_.drawing_offset_x) =
-                Self::pixel_to_tile_offset_x(diff.x, drawing_.drawing_offset_x);
+            (int_tiles_x, drawing_.drawing_offset.x) =
+                pixel_to_tile_offset(diff.x + drawing_.drawing_offset.x,
+                                     assets::PIXELS_PER_TILE_WIDTH as f32);
         }
         if diff.y != 0.0 {
-            let tiles_y = (diff.y + drawing_.drawing_offset_y)
-                / (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.5);
-            int_tiles_y = f32::trunc(tiles_y);
-            drawing_.drawing_offset_y =
-                (tiles_y - int_tiles_y) * assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.5;
+            (int_tiles_y, drawing_.drawing_offset.y) =
+                pixel_to_tile_offset(diff.y + drawing_.drawing_offset.y,
+                                     assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5);
         }
         let int_tiles_x = int_tiles_x as i32;
         let int_tiles_y = int_tiles_y as i32;
@@ -140,14 +137,6 @@ pub trait DrawingTrait {
         }
     }
 
-    /// returns the integer and dcimal part of the offset
-    fn pixel_to_tile_offset_x(pixels_x: f32, drawing_offset_x: f32) -> (i32, f32) {
-        let tiles_x = (pixels_x + drawing_offset_x) / (assets::PIXELS_PER_TILE_WIDTH as f32);
-        let int_tiles_x = f32::trunc(tiles_x);
-        let new_drawing_offset_x = (tiles_x - int_tiles_x) * assets::PIXELS_PER_TILE_WIDTH as f32;
-        (int_tiles_x as i32, new_drawing_offset_x)
-    }
-
     fn draw_map(&self, game_state: &GameState) {
         let min_cell = &self.drawing().min_cell;
         let max_cell = &self.drawing().max_cell;
@@ -175,9 +164,9 @@ pub trait DrawingTrait {
         let pixels_height_isometric = pixels_half_tile_y * 0.5;
         x = f32::trunc(
             x * pixels_half_tile_x + self.screen_width() / 2.0 - pixels_half_tile_x
-                + self.drawing().drawing_offset_x,
+                + self.drawing().drawing_offset.x,
         );
-        y = f32::trunc(y * pixels_height_isometric + self.drawing().drawing_offset_y);
+        y = f32::trunc(y * pixels_height_isometric + self.drawing().drawing_offset.y);
         (x, y)
     }
 }
@@ -193,6 +182,13 @@ fn get_tile_position(
         ((i_x - min_cell.x) - (i_z - min_cell.z)) as f32,
         ((i_x - min_cell.x) + (i_z - min_cell.z) + 2 * (max_cell.y - i_y)) as f32,
     )
+}
+/// returns the integer and decimal part of the offset
+fn pixel_to_tile_offset(offset: f32, tile_size: f32) -> (i32, f32) {
+    let tiles_x = offset / tile_size;
+    let int_tiles_x = f32::trunc(tiles_x);
+    let new_drawing_offset_x = (tiles_x - int_tiles_x) * tile_size;
+    (int_tiles_x as i32, new_drawing_offset_x)
 }
 
 #[cfg(test)]
