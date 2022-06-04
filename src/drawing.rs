@@ -67,6 +67,7 @@ pub trait DrawingTrait {
         );
     }
     fn draw_texture(&self, tile: TileType, x: f32, y: f32);
+    fn draw_transparent_texture(&self, tile: TileType, x: f32, y: f32, opacity_coef: f32);
     fn clear_background(&self, color: Color);
     fn drawing(&self) -> &Drawing;
     fn drawing_mut(&mut self) -> &mut Drawing;
@@ -92,15 +93,12 @@ pub trait DrawingTrait {
         }
     }
     fn move_map_horizontally(&mut self, x_y: (f32, f32)) {
-        let mut int_tiles_x = 0.0;
+        let mut int_tiles_x = 0;
         let mut int_tiles_y = 0.0;
         let drawing_ = self.drawing_mut();
         if x_y.0 != 0.0 {
-            let tiles_x =
-                (x_y.0 + drawing_.drawing_offset_x) / (assets::PIXELS_PER_TILE_WIDTH as f32);
-            int_tiles_x = f32::trunc(tiles_x);
-            drawing_.drawing_offset_x =
-                (tiles_x - int_tiles_x) * assets::PIXELS_PER_TILE_WIDTH as f32;
+            (int_tiles_x, drawing_.drawing_offset_x) =
+                Self::pixel_to_tile_offset_x(x_y.0, drawing_.drawing_offset_x);
         }
         if x_y.1 != 0.0 {
             let tiles_y =
@@ -139,6 +137,15 @@ pub trait DrawingTrait {
                 max_cell.z += diff;
             }
         }
+    }
+
+    fn pixel_to_tile_offset_x(pixels_x: f32, drawing_offset_x: f32) -> (i32, f32) {
+        let tiles_x =
+            (pixels_x + drawing_offset_x) / (assets::PIXELS_PER_TILE_WIDTH as f32);
+        let int_tiles_x = f32::trunc(tiles_x);
+        let new_drawing_offset_x =
+            (tiles_x - int_tiles_x) * assets::PIXELS_PER_TILE_WIDTH as f32;
+        (int_tiles_x as i32, new_drawing_offset_x)
     }
     fn draw_map(&self, game_state: &GameState) {
         let min_cell = &self.drawing().min_cell;
@@ -189,6 +196,7 @@ fn get_tile_position(
 
 #[cfg(test)]
 mod tests {
+    use crate::IVec3;
     use super::*;
 
     #[test]
@@ -246,5 +254,28 @@ mod tests {
             ),
             get_tile_position(&min_cell, &max_cell, min_cell.x, max_cell.y - 1, min_cell.z)
         );
+    }
+
+    #[test]
+    fn transparency_border() {
+        let min_cell = CellIndex::new(-5, -25, -55);
+        let max_cell = CellIndex::new(5, -15, -45);
+        let mut cell = CellIndex::new(0, 0, 0);
+        let t = get_transparency(cell, min_cell, max_cell);
+        assert_eq!(t, 1.0);
+
+        cell.x = min_cell.x;
+        let t = get_transparency(cell, min_cell, max_cell);
+        assert_eq!(t, 0.0);
+    }
+
+    fn get_transparency(cell: CellIndex, min_cell: CellIndex, max_cell: CellIndex) -> f32 {
+        if cell.x == min_cell.x || cell.x == max_cell.x
+            || cell.y == min_cell.y || cell.y == max_cell.y
+            || cell.z == min_cell.z || cell.z == max_cell.z {
+            0.0
+        } else {
+            1.0
+        }
     }
 }
