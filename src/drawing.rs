@@ -1,5 +1,6 @@
 pub mod assets;
 
+use std::cmp::min;
 use crate::game_state::GameState;
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
 use crate::map::{CellIndex, Map, TileType};
@@ -102,20 +103,20 @@ pub trait DrawingTrait {
         let drawing_ = self.drawing_mut();
         let new_cell_offset = pixel_to_cell_offset_2(diff);
 
-        println!(
-            "pixel_diff: {}, new_cell_offset: {}",
-            diff, new_cell_offset
-        );
+        // println!(
+        //     "pixel_diff: {}, new_cell_offset: {}",
+        //     diff, new_cell_offset
+        // );
         let (cell_diff, subcell_diff) = truncate_cell_offset(new_cell_offset + drawing_.subcell_diff);
         drawing_.subcell_diff = subcell_diff;
 
         // let (cell_diff, subcell_diff) = pixel_to_cell_offset(diff, &drawing_.subtile_offset);
         // drawing_.subcell_diff = subcell_diff;
         drawing_.subtile_offset = subcell_to_subtile_offset(subcell_diff);
-        println!(
-            "cell_diff: {}\nsubcell_diff: {}\nsubtile_offset: {}\n ",
-            cell_diff, subcell_diff, drawing_.subtile_offset
-        );
+        // println!(
+        //     "cell_diff: {}\nsubcell_diff: {}\nsubtile_offset: {}\n ",
+        //     cell_diff, subcell_diff, drawing_.subtile_offset
+        // );
         // if tile_offset.x != 0 || tile_offset.y != 0 {
         let min_cell = &mut drawing_.min_cell;
         let max_cell = &mut drawing_.max_cell;
@@ -299,26 +300,27 @@ fn get_opacity(
     max_cell: &CellIndex,
     subcell_offset: &SubCellIndex,
 ) -> f32 {
-    if cell.x == min_cell.x {
-        assert_in_range_0_1(
-            // 1.0,
-            subcell_offset.x,
-        )
-    } else if cell.x == max_cell.x {
-        assert_in_range_0_1(
-            // 1.0,
-            1.0 - subcell_offset.x, // 1.0 - (drawing_offset.x - drawing_offset.y)/assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5
-        )
-    } else if cell.z == min_cell.z {
-        assert_in_range_0_1(
-            // 1.0,
-            subcell_offset.z,
-        )
-    } else if cell.z == max_cell.z {
-        assert_in_range_0_1(1.0 - subcell_offset.z)
-    } else {
-        1.0
-    }
+    assert_in_range_0_1(
+        if cell.x == min_cell.x && cell.z == min_cell.z {
+            f32::min(subcell_offset.x, subcell_offset.z)
+        } else if cell.x == min_cell.x && cell.z == max_cell.z {
+            f32::min(subcell_offset.x, 1.0 - subcell_offset.z)
+        } else if cell.x == max_cell.x && cell.z == min_cell.z{
+            f32::min(1.0 - subcell_offset.x, subcell_offset.z)
+        } else if cell.x == max_cell.x && cell.z == max_cell.z {
+            f32::min(1.0 - subcell_offset.x,1.0 - subcell_offset.z )
+        } else if cell.x == min_cell.x {
+            subcell_offset.x
+        } else if cell.x == max_cell.x {
+            1.0 - subcell_offset.x
+        } else if cell.z == min_cell.z {
+            subcell_offset.z
+        } else if cell.z == max_cell.z {
+            1.0 - subcell_offset.z
+        } else {
+            1.0
+        }
+    )
 }
 
 fn assert_in_range_0_1(x: f32) -> f32 {
@@ -417,8 +419,20 @@ mod tests {
         cell.x = min_cell.x;
         let t = get_opacity(&cell, &min_cell, &max_cell, &offset);
         assert_eq!(t, 0.5);
+    }
 
-        offset.x = 1.0;
+    #[test]
+    fn transparency_border_corner() {
+        let min_cell = CellIndex::new(-5, -25, -55);
+        let max_cell = CellIndex::new(5, -15, -45);
+        let mut cell = CellIndex::new(min_cell.x, 0, min_cell.z);
+        let mut offset = SubCellIndex::new(0.0, 0.0, 0.0);
+        let t = get_opacity(&cell, &min_cell, &max_cell, &offset);
+        assert_eq!(t, 0.0);
+
+        let mut offset = SubCellIndex::new(0.2, 0.0, 0.8);
+        let t = get_opacity(&cell, &min_cell, &max_cell, &offset);
+        assert_eq!(t, 0.2);
     }
 
     #[test]
