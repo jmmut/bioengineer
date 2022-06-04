@@ -1,7 +1,7 @@
 pub mod assets;
 
 use crate::game_state::GameState;
-use crate::map::trunc::trunc_towards_neg_inf;
+use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
 use crate::map::{CellIndex, Map, TileType};
 use crate::{input, Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
@@ -112,7 +112,7 @@ pub trait DrawingTrait {
                 assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5,
             );
         }
-        println!("subtile_offset: {}", drawing_.subtile_offset);
+        print!("subtile_offset: {}\r", drawing_.subtile_offset);
         if tile_offset.x != 0 || tile_offset.y != 0 {
             let min_cell = &mut drawing_.min_cell;
             let max_cell = &mut drawing_.max_cell;
@@ -211,10 +211,9 @@ fn pixel_to_tile_offset(
     tile_size: f32,
 ) -> (i32, f32) {
     let new_tile_offset = (new_pixel_offset + existing_subtile_offset * tile_size) / tile_size;
-    let int_tile_offset =
-        trunc_towards_neg_inf((new_tile_offset * tile_size) as i32, tile_size as i32) as f32
-            / tile_size;
+    let int_tile_offset = trunc_towards_neg_inf_f(new_tile_offset);
     let new_subtiles_offset = new_tile_offset - int_tile_offset;
+    assert_in_range_0_1(new_subtiles_offset);
     (int_tile_offset as i32, new_subtiles_offset)
 }
 
@@ -241,20 +240,24 @@ fn get_opacity(
 ) -> f32 {
     if cell.x == min_cell.x {
         assert_in_range_0_1(
-            1.0, // (subtile_offset.x + subtile_offset.y) *0.5 +0.5
+            // 1.0,
+            (subtile_offset.x + subtile_offset.y) *0.5
         )
     } else if cell.x == max_cell.x {
         assert_in_range_0_1(
-            1.0, // 1.0 - (drawing_offset.x + drawing_offset.y) / assets::PIXELS_PER_TILE_WIDTH as f32
+            // 1.0,
+            1.0 - (subtile_offset.x + subtile_offset.y) * 0.5
                 // 1.0 - (drawing_offset.x - drawing_offset.y)/assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5
         )
     } else if cell.z == min_cell.z {
         assert_in_range_0_1(
-            1.0, // (-drawing_offset.x + drawing_offset.y) / assets::PIXELS_PER_TILE_WIDTH as f32
+            // 1.0,
+            (-subtile_offset.x + subtile_offset.y) *0.5 +0.5
         )
     } else if cell.z == max_cell.z {
-        assert_in_range_0_1(1.0)
-        // 1.0 - (drawing_offset.x - drawing_offset.y)/assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5
+        assert_in_range_0_1(
+         1.0 - ((-subtile_offset.x + subtile_offset.y) * 0.5 + 0.5)
+        )
     } else {
         1.0
     }
@@ -335,11 +338,12 @@ mod tests {
         let min_cell = CellIndex::new(-5, -25, -55);
         let max_cell = CellIndex::new(5, -15, -45);
         let mut cell = CellIndex::new(0, 0, 0);
-        let t = get_opacity(&cell, &min_cell, &max_cell);
+        let no_offset = PixelPosition::new(0.0, 0.0);
+        let t = get_opacity(&cell, &min_cell, &max_cell, no_offset);
         assert_eq!(t, 1.0);
 
         cell.x = min_cell.x;
-        let t = get_opacity(&cell, &min_cell, &max_cell);
+        let t = get_opacity(&cell, &min_cell, &max_cell, no_offset);
         assert_eq!(t, 0.0);
     }
 }
