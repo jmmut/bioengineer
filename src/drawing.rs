@@ -20,8 +20,8 @@ pub struct Drawing {
 impl Drawing {
     pub fn new() -> Self {
         Drawing {
-            min_cell: CellIndex::new(-8, -4, -8),
-            max_cell: CellIndex::new(7, 3, 7),
+            min_cell: CellIndex::new(-8, 0, -8),
+            max_cell: CellIndex::new(7, 2, 7),
             drawing_offset_x: 0.0,
             drawing_offset_y: 0.0,
         }

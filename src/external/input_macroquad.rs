@@ -39,7 +39,7 @@ impl InputSourceTrait for InputMacroquad {
         let (mouse_x, mouse_y) = mouse_wheel();
         if mouse_x != 0.0 || mouse_y != 0.0 {
             // TODO how can I log in the js console_log?
-            eprintln!("mouse wheel: {}, {}", mouse_x, mouse_y);
+            // eprintln!("mouse wheel: {}, {}", mouse_x, mouse_y);
         }
         let change_height_rel = mouse_y as i32;
         let move_map_horizontally = self.get_horizontal_move();
