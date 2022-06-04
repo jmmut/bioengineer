@@ -15,7 +15,7 @@ pub use trunc::trunc_towards_neg_inf;
 /// - z: left towards camera
 pub type CellIndex = IVec3;
 
-const MAP_SIZE: i32 = 32;
+const MAP_SIZE: i32 = 64;
 
 pub struct Map {
     chunks: HashMap<ChunkIndex, Chunk>,

@@ -26,8 +26,8 @@ pub struct Drawing {
 impl Drawing {
     pub fn new() -> Self {
         Drawing {
-            min_cell: CellIndex::new(-8, 0, -8),
-            max_cell: CellIndex::new(7, 2, 7),
+            min_cell: CellIndex::new(-10, -1, -10),
+            max_cell: CellIndex::new(9, 1, 9),
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
         }
