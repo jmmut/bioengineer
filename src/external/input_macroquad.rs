@@ -1,9 +1,9 @@
+use crate::drawing::PixelPosition;
 use crate::input::{Input, InputSourceTrait};
 use macroquad::input::{
     is_key_down, is_mouse_button_down, is_mouse_button_pressed, mouse_position, mouse_wheel,
     KeyCode, MouseButton,
 };
-use crate::drawing::PixelPosition;
 
 pub struct InputMacroquad {
     previous_wheel_click_pos: (f32, f32),

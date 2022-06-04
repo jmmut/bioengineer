@@ -1,12 +1,16 @@
 pub mod assets;
 
 use crate::game_state::GameState;
+use crate::map::trunc::trunc_towards_neg_inf;
 use crate::map::{CellIndex, Map, TileType};
-use crate::{input, Color, Texture2D, Vec2};
+use crate::{input, Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use input::Input;
 
 pub type PixelPosition = Vec2;
+pub type TilePosition = IVec2;
+pub type SubTilePosition = Vec2;
+pub type SubCellIndex = Vec3;
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 const BLACK: Color = Color::new(0.0, 0.0, 0.0, 1.0);
 const FONT_SIZE: f32 = 20.0;
@@ -14,7 +18,7 @@ const FONT_SIZE: f32 = 20.0;
 pub struct Drawing {
     min_cell: CellIndex,
     max_cell: CellIndex,
-    drawing_offset: PixelPosition,
+    subtile_offset: PixelPosition,
 }
 
 impl Drawing {
@@ -22,7 +26,7 @@ impl Drawing {
         Drawing {
             min_cell: CellIndex::new(-8, 0, -8),
             max_cell: CellIndex::new(7, 2, 7),
-            drawing_offset: PixelPosition::new(0.0, 0.0),
+            subtile_offset: PixelPosition::new(0.0, 0.0),
         }
     }
 }
@@ -92,30 +96,33 @@ pub trait DrawingTrait {
         }
     }
     fn move_map_horizontally(&mut self, diff: PixelPosition) {
-        let mut int_tiles_x = 0;
-        let mut int_tiles_y = 0;
+        let mut tile_offset = TilePosition::new(0, 0);
         let drawing_ = self.drawing_mut();
         if diff.x != 0.0 {
-            (int_tiles_x, drawing_.drawing_offset.x) =
-                pixel_to_tile_offset(diff.x + drawing_.drawing_offset.x,
-                                     assets::PIXELS_PER_TILE_WIDTH as f32);
+            (tile_offset.x, drawing_.subtile_offset.x) = pixel_to_tile_offset(
+                diff.x,
+                drawing_.subtile_offset.x,
+                assets::PIXELS_PER_TILE_WIDTH as f32,
+            );
         }
         if diff.y != 0.0 {
-            (int_tiles_y, drawing_.drawing_offset.y) =
-                pixel_to_tile_offset(diff.y + drawing_.drawing_offset.y,
-                                     assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5);
+            (tile_offset.y, drawing_.subtile_offset.y) = pixel_to_tile_offset(
+                diff.y,
+                drawing_.subtile_offset.y,
+                assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5,
+            );
         }
-        let int_tiles_x = int_tiles_x as i32;
-        let int_tiles_y = int_tiles_y as i32;
-        if int_tiles_x != 0 || int_tiles_y != 0 {
+        println!("subtile_offset: {}", drawing_.subtile_offset);
+        if tile_offset.x != 0 || tile_offset.y != 0 {
             let min_cell = &mut drawing_.min_cell;
             let max_cell = &mut drawing_.max_cell;
-            let diff_x = int_tiles_x + int_tiles_y;
-            let diff_z = -int_tiles_x + int_tiles_y;
-            max_cell.x -= diff_x;
-            min_cell.x -= diff_x;
-            max_cell.z -= diff_z;
-            min_cell.z -= diff_z;
+            let cell_diff = tile_to_cell_offset(tile_offset);
+
+            // TODO: disallow sub-tile offset if already on a min_cell or max_cell
+            max_cell.x -= cell_diff.x;
+            min_cell.x -= cell_diff.x;
+            max_cell.z -= cell_diff.z;
+            min_cell.z -= cell_diff.z;
             if min_cell.x < Map::min_cell().x {
                 let diff = Map::min_cell().x - min_cell.x;
                 min_cell.x += diff;
@@ -145,7 +152,18 @@ pub trait DrawingTrait {
                 for i_x in min_cell.x..=max_cell.x {
                     let cell_index = CellIndex::new(i_x, i_y, i_z);
                     let (x, y) = self.get_draw_position(i_x, i_y, i_z);
-                    self.draw_texture(game_state.map.get_cell(cell_index).tile_type, x, y);
+                    let opacity = get_opacity(
+                        &cell_index,
+                        &min_cell,
+                        &max_cell,
+                        self.drawing().subtile_offset,
+                    );
+                    self.draw_transparent_texture(
+                        game_state.map.get_cell(cell_index).tile_type,
+                        x,
+                        y,
+                        opacity,
+                    );
                 }
             }
         }
@@ -164,9 +182,12 @@ pub trait DrawingTrait {
         let pixels_height_isometric = pixels_half_tile_y * 0.5;
         x = f32::trunc(
             x * pixels_half_tile_x + self.screen_width() / 2.0 - pixels_half_tile_x
-                + self.drawing().drawing_offset.x,
+                + self.drawing().subtile_offset.x * PIXELS_PER_TILE_WIDTH as f32,
         );
-        y = f32::trunc(y * pixels_height_isometric + self.drawing().drawing_offset.y);
+        y = f32::trunc(
+            y * pixels_height_isometric
+                + self.drawing().subtile_offset.y * PIXELS_PER_TILE_HEIGHT as f32 * 0.5,
+        );
         (x, y)
     }
 }
@@ -184,11 +205,67 @@ fn get_tile_position(
     )
 }
 /// returns the integer and decimal part of the offset
-fn pixel_to_tile_offset(offset: f32, tile_size: f32) -> (i32, f32) {
-    let tiles_x = offset / tile_size;
-    let int_tiles_x = f32::trunc(tiles_x);
-    let new_drawing_offset_x = (tiles_x - int_tiles_x) * tile_size;
-    (int_tiles_x as i32, new_drawing_offset_x)
+fn pixel_to_tile_offset(
+    new_pixel_offset: f32,
+    existing_subtile_offset: f32,
+    tile_size: f32,
+) -> (i32, f32) {
+    let new_tile_offset = (new_pixel_offset + existing_subtile_offset * tile_size) / tile_size;
+    let int_tile_offset =
+        trunc_towards_neg_inf((new_tile_offset * tile_size) as i32, tile_size as i32) as f32
+            / tile_size;
+    let new_subtiles_offset = new_tile_offset - int_tile_offset;
+    (int_tile_offset as i32, new_subtiles_offset)
+}
+
+fn tile_to_cell_offset(tile_offset: TilePosition) -> CellIndex {
+    CellIndex::new(
+        tile_offset.x + tile_offset.y,
+        0,
+        -tile_offset.x + tile_offset.y,
+    )
+}
+fn subtile_to_subcell_offset(subtile_offset: SubTilePosition) -> SubCellIndex {
+    SubCellIndex::new(
+        subtile_offset.x + subtile_offset.y,
+        0.0,
+        -subtile_offset.x + subtile_offset.y,
+    )
+}
+
+fn get_opacity(
+    cell: &CellIndex,
+    min_cell: &CellIndex,
+    max_cell: &CellIndex,
+    subtile_offset: PixelPosition,
+) -> f32 {
+    if cell.x == min_cell.x {
+        assert_in_range_0_1(
+            1.0, // (subtile_offset.x + subtile_offset.y) *0.5 +0.5
+        )
+    } else if cell.x == max_cell.x {
+        assert_in_range_0_1(
+            1.0, // 1.0 - (drawing_offset.x + drawing_offset.y) / assets::PIXELS_PER_TILE_WIDTH as f32
+                // 1.0 - (drawing_offset.x - drawing_offset.y)/assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5
+        )
+    } else if cell.z == min_cell.z {
+        assert_in_range_0_1(
+            1.0, // (-drawing_offset.x + drawing_offset.y) / assets::PIXELS_PER_TILE_WIDTH as f32
+        )
+    } else if cell.z == max_cell.z {
+        assert_in_range_0_1(1.0)
+        // 1.0 - (drawing_offset.x - drawing_offset.y)/assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5
+    } else {
+        1.0
+    }
+}
+
+fn assert_in_range_0_1(x: f32) -> f32 {
+    if x < 0.0 || x > 1.0 {
+        panic!("out of range: {}", x);
+    } else {
+        x
+    }
 }
 
 #[cfg(test)]
@@ -258,25 +335,11 @@ mod tests {
         let min_cell = CellIndex::new(-5, -25, -55);
         let max_cell = CellIndex::new(5, -15, -45);
         let mut cell = CellIndex::new(0, 0, 0);
-        let t = get_transparency(cell, min_cell, max_cell);
+        let t = get_opacity(&cell, &min_cell, &max_cell);
         assert_eq!(t, 1.0);
 
         cell.x = min_cell.x;
-        let t = get_transparency(cell, min_cell, max_cell);
+        let t = get_opacity(&cell, &min_cell, &max_cell);
         assert_eq!(t, 0.0);
-    }
-
-    fn get_transparency(cell: CellIndex, min_cell: CellIndex, max_cell: CellIndex) -> f32 {
-        if cell.x == min_cell.x
-            || cell.x == max_cell.x
-            || cell.y == min_cell.y
-            || cell.y == max_cell.y
-            || cell.z == min_cell.z
-            || cell.z == max_cell.z
-        {
-            0.0
-        } else {
-            1.0
-        }
     }
 }

@@ -3,6 +3,7 @@ const SIZE_Y: usize = 4;
 const SIZE_Z: usize = 16;
 const SIZE: usize = SIZE_X * SIZE_Y * SIZE_Z;
 
+use super::trunc::trunc_towards_neg_inf;
 use super::{Cell, CellIndex};
 use crate::IVec3;
 
@@ -112,14 +113,6 @@ pub fn get_chunk_index_xyz(x: i32, y: i32, z: i32) -> ChunkIndex {
     )
 }
 
-pub fn trunc_towards_neg_inf(n: i32, chunk_size: i32) -> i32 {
-    if n >= 0 {
-        n / chunk_size
-    } else {
-        (n + 1) / chunk_size - 1
-    }
-}
-
 pub fn get_required_chunks(min_cell: CellIndex, max_cell: CellIndex) -> Vec<ChunkIndex> {
     let assert_less_than = |min: i32, max: i32| {
         assert!(
@@ -157,21 +150,6 @@ mod tests {
     const F_Y: i32 = SIZE_Y as i32;
     const F_Z: i32 = SIZE_Z as i32;
 
-    #[test]
-    fn trunc() {
-        assert_eq!(trunc_towards_neg_inf(0, 5), 0);
-        assert_eq!(trunc_towards_neg_inf(1, 5), 0);
-        assert_eq!(trunc_towards_neg_inf(2, 5), 0);
-        assert_eq!(trunc_towards_neg_inf(3, 5), 0);
-        assert_eq!(trunc_towards_neg_inf(4, 5), 0);
-        assert_eq!(trunc_towards_neg_inf(5, 5), 1);
-        assert_eq!(trunc_towards_neg_inf(-1, 5), -1);
-        assert_eq!(trunc_towards_neg_inf(-2, 5), -1);
-        assert_eq!(trunc_towards_neg_inf(-3, 5), -1);
-        assert_eq!(trunc_towards_neg_inf(-4, 5), -1);
-        assert_eq!(trunc_towards_neg_inf(-5, 5), -1);
-        assert_eq!(trunc_towards_neg_inf(-6, 5), -2);
-    }
     #[test]
     fn get_chunk_index_basic() {
         assert_eq!(get_chunk_index_xyz(0, 0, 0), ChunkIndex::new(0, 0, 0));
