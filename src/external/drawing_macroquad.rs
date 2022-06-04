@@ -1,15 +1,12 @@
 use crate::drawing::{assets, Drawing};
 use crate::map::TileType;
-use macroquad::color::colors::GRAY;
-use macroquad::color::{Color, BLACK};
+use macroquad::color::Color;
 use macroquad::prelude::Texture2D;
 use macroquad::text::draw_text;
 use macroquad::texture::draw_texture;
 use macroquad::window::{clear_background, screen_height, screen_width};
 
-use super::super::game_state::GameState;
 use crate::drawing::DrawingTrait;
-use crate::load_tileset;
 
 pub struct DrawingMacroquad {
     pub drawing: Drawing,
@@ -62,7 +59,7 @@ impl DrawingTrait for DrawingMacroquad {
 }
 
 impl DrawingMacroquad {
-    fn debug_draw_all_textures(&self) {
+    fn _debug_draw_all_textures(&self) {
         for i in 0..self.textures.len() {
             let tiles_per_line = screen_width() as usize / assets::PIXELS_PER_TILE_WIDTH as usize;
             if tiles_per_line > 0 {

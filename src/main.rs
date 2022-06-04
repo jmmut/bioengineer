@@ -16,10 +16,9 @@ use macroquad::texture::Image;
 use macroquad::texture::Texture2D;
 
 use external::assets_macroquad::load_tileset;
-use external::drawing_macroquad::DrawingMacroquad;
+use external::drawing_macroquad::DrawingMacroquad as DrawingImpl;
 use external::input_macroquad::InputMacroquad as InputSource;
 
-use crate::external::input_macroquad::InputMacroquad;
 use drawing::DrawingTrait;
 use game_state::GameState;
 use input::InputSourceTrait;
@@ -43,11 +42,11 @@ async fn main() {
     }
 }
 
-async fn factory() -> Implementations<DrawingMacroquad, InputMacroquad> {
+async fn factory() -> Implementations<DrawingImpl, InputSource> {
     let tileset = load_tileset("assets/image/tileset.png");
-    let drawer = DrawingMacroquad::new(tileset.await);
+    let drawer = DrawingImpl::new(tileset.await);
     let game_state = GameState::new();
-    let input = InputMacroquad::new();
+    let input = InputSource::new();
     Implementations {
         drawer,
         game_state,

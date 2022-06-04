@@ -2,7 +2,7 @@ pub mod assets;
 
 use crate::game_state::GameState;
 use crate::map::{CellIndex, Map, TileType};
-use crate::{input, Color, InputSourceTrait, Texture2D};
+use crate::{input, Color, Texture2D};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use input::Input;
 
