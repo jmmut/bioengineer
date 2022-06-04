@@ -100,40 +100,50 @@ pub trait DrawingTrait {
     fn move_map_horizontally(&mut self, diff: PixelPosition) {
         // let mut tile_offset = TilePosition::new(0, 0);
         let drawing_ = self.drawing_mut();
-        println!("pixel_diff: {}, &drawing_.subtile_offset: {}", diff, &drawing_.subtile_offset);
-        let (cell_diff, subcell_diff) = pixel_to_cell_offset(diff, &drawing_.subtile_offset);
-        drawing_.subcell_diff = subcell_diff;
-        drawing_.subtile_offset = subcell_to_subtile_offset(subcell_diff);
-        println!("cell_diff: {}\nsubcell_diff: {}\nsubtile_offset: {}\n ", cell_diff, subcell_diff,
-               drawing_.subtile_offset);
-        // if tile_offset.x != 0 || tile_offset.y != 0 {
-            let min_cell = &mut drawing_.min_cell;
-            let max_cell = &mut drawing_.max_cell;
-            // let cell_diff = tile_to_cell_offset(tile_offset);
+        let new_cell_offset = pixel_to_cell_offset_2(diff);
 
-            // TODO: disallow sub-tile offset if already on a min_cell or max_cell
-            max_cell.x -= cell_diff.x+1;
-            min_cell.x -= cell_diff.x+1;
-            max_cell.z -= cell_diff.z+1;
-            min_cell.z -= cell_diff.z+1;
-            if min_cell.x < Map::min_cell().x {
-                let diff = Map::min_cell().x - min_cell.x;
-                min_cell.x += diff;
-                max_cell.x += diff;
-            } else if max_cell.x > Map::max_cell().x {
-                let diff = Map::max_cell().x - max_cell.x;
-                min_cell.x += diff;
-                max_cell.x += diff;
-            }
-            if min_cell.z < Map::min_cell().z {
-                let diff = Map::min_cell().z - min_cell.z;
-                min_cell.z += diff;
-                max_cell.z += diff;
-            } else if max_cell.z > Map::max_cell().z {
-                let diff = Map::max_cell().z - max_cell.z;
-                min_cell.z += diff;
-                max_cell.z += diff;
-            }
+        println!(
+            "pixel_diff: {}, new_cell_offset: {}",
+            diff, new_cell_offset
+        );
+        let (cell_diff, subcell_diff) = truncate_cell_offset(new_cell_offset + drawing_.subcell_diff);
+        drawing_.subcell_diff = subcell_diff;
+
+        // let (cell_diff, subcell_diff) = pixel_to_cell_offset(diff, &drawing_.subtile_offset);
+        // drawing_.subcell_diff = subcell_diff;
+        drawing_.subtile_offset = subcell_to_subtile_offset(subcell_diff);
+        println!(
+            "cell_diff: {}\nsubcell_diff: {}\nsubtile_offset: {}\n ",
+            cell_diff, subcell_diff, drawing_.subtile_offset
+        );
+        // if tile_offset.x != 0 || tile_offset.y != 0 {
+        let min_cell = &mut drawing_.min_cell;
+        let max_cell = &mut drawing_.max_cell;
+        // let cell_diff = tile_to_cell_offset(tile_offset);
+
+        // TODO: disallow sub-tile offset if already on a min_cell or max_cell
+        max_cell.x -= cell_diff.x;
+        min_cell.x -= cell_diff.x;
+        max_cell.z -= cell_diff.z;
+        min_cell.z -= cell_diff.z;
+        if min_cell.x < Map::min_cell().x {
+            let diff = Map::min_cell().x - min_cell.x;
+            min_cell.x += diff;
+            max_cell.x += diff;
+        } else if max_cell.x > Map::max_cell().x {
+            let diff = Map::max_cell().x - max_cell.x;
+            min_cell.x += diff;
+            max_cell.x += diff;
+        }
+        if min_cell.z < Map::min_cell().z {
+            let diff = Map::min_cell().z - min_cell.z;
+            min_cell.z += diff;
+            max_cell.z += diff;
+        } else if max_cell.z > Map::max_cell().z {
+            let diff = Map::max_cell().z - max_cell.z;
+            min_cell.z += diff;
+            max_cell.z += diff;
+        }
         // }
     }
 
@@ -198,22 +208,24 @@ fn get_tile_position(
     )
 }
 
-fn pixel_to_cell_offset(pixel_diff: PixelPosition, subtile_offset: &SubTilePosition)
-        -> (CellIndex, SubCellIndex) {
+fn pixel_to_cell_offset(
+    pixel_diff: PixelPosition,
+    subtile_offset: &SubTilePosition,
+) -> (CellIndex, SubCellIndex) {
     let mut new_subtile_offset = SubTilePosition::new(0.0, 0.0);
     // if diff.x != 0.0 {
-        new_subtile_offset.x = pixel_to_tile_offset(
-            pixel_diff.x,
-            subtile_offset.x,
-            assets::PIXELS_PER_TILE_WIDTH as f32,
-        );
+    new_subtile_offset.x = pixel_to_tile_offset(
+        pixel_diff.x,
+        subtile_offset.x,
+        assets::PIXELS_PER_TILE_WIDTH as f32,
+    );
     // }
     // if diff.y != 0.0 {
-        new_subtile_offset.y = pixel_to_tile_offset(
-            pixel_diff.y,
-            subtile_offset.y,
-            assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5,
-        );
+    new_subtile_offset.y = pixel_to_tile_offset(
+        pixel_diff.y,
+        subtile_offset.y,
+        assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5,
+    );
     // }
     let mut subcell_offset = subtile_to_subcell_offset(new_subtile_offset);
     // subcell_offset += SubCellIndex::new(0.5, 0.0, 0.5);
@@ -222,6 +234,20 @@ fn pixel_to_cell_offset(pixel_diff: PixelPosition, subtile_offset: &SubTilePosit
     (cell_diff.x, subcell_diff.x) = trunc_tile_offset(subcell_offset.x);
     (cell_diff.z, subcell_diff.z) = trunc_tile_offset(subcell_offset.z);
     (cell_diff, subcell_diff)
+}
+
+fn pixel_to_cell_offset_2(pixel_diff: PixelPosition) -> SubCellIndex {
+    let subtile = SubTilePosition::new(pixel_diff.x / assets::PIXELS_PER_TILE_WIDTH as f32,
+                                       pixel_diff.y / assets::PIXELS_PER_TILE_HEIGHT as f32*2.0);
+    subtile_to_subcell_offset(subtile)
+}
+
+fn truncate_cell_offset(subcell_diff: SubCellIndex) -> (CellIndex, SubCellIndex) {
+    let mut cell_diff = CellIndex::new(0, 0, 0);
+    let mut mew_subcell_diff = SubCellIndex::new(0.0, 0.0, 0.0);
+    (cell_diff.x, mew_subcell_diff.x) = trunc_tile_offset(subcell_diff.x);
+    (cell_diff.z, mew_subcell_diff.z) = trunc_tile_offset(subcell_diff.z);
+    (cell_diff, mew_subcell_diff)
 }
 
 fn pixel_to_tile_offset(
@@ -233,9 +259,7 @@ fn pixel_to_tile_offset(
 }
 
 /// returns the integer and decimal part of the offset
-fn trunc_tile_offset(
-    new_tile_offset: f32,
-) -> (i32, f32) {
+fn trunc_tile_offset(new_tile_offset: f32) -> (i32, f32) {
     let int_tile_offset = trunc_towards_neg_inf_f(new_tile_offset);
     let new_subtiles_offset = new_tile_offset - int_tile_offset;
     assert_in_range_0_1(new_subtiles_offset);
@@ -257,7 +281,12 @@ fn subtile_to_subcell_offset(subtile_offset: SubTilePosition) -> SubCellIndex {
     )
 }
 fn subcell_to_subtile_offset(subcell_diff: SubCellIndex) -> SubTilePosition {
-    let modulo = if subcell_diff.x < subcell_diff.z { 1.0 } else { 0.0 };
+    // let modulo = if subcell_diff.x < subcell_diff.z {
+    //     1.0
+    // } else {
+    //     0.0
+    // };
+    let modulo = 0.0;
     SubTilePosition::new(
         (subcell_diff.x - subcell_diff.z + modulo) * 0.5,
         (subcell_diff.x + subcell_diff.z) * 0.25,
@@ -273,23 +302,20 @@ fn get_opacity(
     if cell.x == min_cell.x {
         assert_in_range_0_1(
             // 1.0,
-            subcell_offset.x
+            subcell_offset.x,
         )
     } else if cell.x == max_cell.x {
         assert_in_range_0_1(
             // 1.0,
-            1.0 - subcell_offset.x
-                // 1.0 - (drawing_offset.x - drawing_offset.y)/assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5
+            1.0 - subcell_offset.x, // 1.0 - (drawing_offset.x - drawing_offset.y)/assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5
         )
     } else if cell.z == min_cell.z {
         assert_in_range_0_1(
             // 1.0,
-            subcell_offset.z
+            subcell_offset.z,
         )
     } else if cell.z == max_cell.z {
-        assert_in_range_0_1(
-         1.0 - subcell_offset.z
-        )
+        assert_in_range_0_1(1.0 - subcell_offset.z)
     } else {
         1.0
     }
