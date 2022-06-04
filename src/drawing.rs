@@ -2,10 +2,11 @@ pub mod assets;
 
 use crate::game_state::GameState;
 use crate::map::{CellIndex, Map, TileType};
-use crate::{input, Color, Texture2D};
+use crate::{input, Color, Texture2D, Vec2};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use input::Input;
 
+pub type PixelPosition = Vec2;
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 const BLACK: Color = Color::new(0.0, 0.0, 0.0, 1.0);
 const FONT_SIZE: f32 = 20.0;
@@ -92,17 +93,17 @@ pub trait DrawingTrait {
             }
         }
     }
-    fn move_map_horizontally(&mut self, x_y: (f32, f32)) {
+    fn move_map_horizontally(&mut self, diff: PixelPosition) {
         let mut int_tiles_x = 0;
         let mut int_tiles_y = 0.0;
         let drawing_ = self.drawing_mut();
-        if x_y.0 != 0.0 {
+        if diff.x != 0.0 {
             (int_tiles_x, drawing_.drawing_offset_x) =
-                Self::pixel_to_tile_offset_x(x_y.0, drawing_.drawing_offset_x);
+                Self::pixel_to_tile_offset_x(diff.x, drawing_.drawing_offset_x);
         }
-        if x_y.1 != 0.0 {
-            let tiles_y =
-                (x_y.1 + drawing_.drawing_offset_y) / (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.5);
+        if diff.y != 0.0 {
+            let tiles_y = (diff.y + drawing_.drawing_offset_y)
+                / (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.5);
             int_tiles_y = f32::trunc(tiles_y);
             drawing_.drawing_offset_y =
                 (tiles_y - int_tiles_y) * assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.5;
@@ -139,14 +140,14 @@ pub trait DrawingTrait {
         }
     }
 
+    /// returns the integer and dcimal part of the offset
     fn pixel_to_tile_offset_x(pixels_x: f32, drawing_offset_x: f32) -> (i32, f32) {
-        let tiles_x =
-            (pixels_x + drawing_offset_x) / (assets::PIXELS_PER_TILE_WIDTH as f32);
+        let tiles_x = (pixels_x + drawing_offset_x) / (assets::PIXELS_PER_TILE_WIDTH as f32);
         let int_tiles_x = f32::trunc(tiles_x);
-        let new_drawing_offset_x =
-            (tiles_x - int_tiles_x) * assets::PIXELS_PER_TILE_WIDTH as f32;
+        let new_drawing_offset_x = (tiles_x - int_tiles_x) * assets::PIXELS_PER_TILE_WIDTH as f32;
         (int_tiles_x as i32, new_drawing_offset_x)
     }
+
     fn draw_map(&self, game_state: &GameState) {
         let min_cell = &self.drawing().min_cell;
         let max_cell = &self.drawing().max_cell;
@@ -196,8 +197,8 @@ fn get_tile_position(
 
 #[cfg(test)]
 mod tests {
-    use crate::IVec3;
     use super::*;
+    use crate::IVec3;
 
     #[test]
     fn position_tile_basic() {
@@ -270,9 +271,13 @@ mod tests {
     }
 
     fn get_transparency(cell: CellIndex, min_cell: CellIndex, max_cell: CellIndex) -> f32 {
-        if cell.x == min_cell.x || cell.x == max_cell.x
-            || cell.y == min_cell.y || cell.y == max_cell.y
-            || cell.z == min_cell.z || cell.z == max_cell.z {
+        if cell.x == min_cell.x
+            || cell.x == max_cell.x
+            || cell.y == min_cell.y
+            || cell.y == max_cell.y
+            || cell.z == min_cell.z
+            || cell.z == max_cell.z
+        {
             0.0
         } else {
             1.0

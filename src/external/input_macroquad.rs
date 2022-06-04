@@ -3,6 +3,7 @@ use macroquad::input::{
     is_key_down, is_mouse_button_down, is_mouse_button_pressed, mouse_position, mouse_wheel,
     KeyCode, MouseButton,
 };
+use crate::drawing::PixelPosition;
 
 pub struct InputMacroquad {
     previous_wheel_click_pos: (f32, f32),
@@ -15,16 +16,14 @@ impl InputMacroquad {
         }
     }
 
-    pub fn get_horizontal_move(&mut self) -> (f32, f32) {
-        let mut diff = (0.0, 0.0);
+    pub fn get_horizontal_move(&mut self) -> PixelPosition {
+        let mut diff = PixelPosition::new(0.0, 0.0);
         if is_mouse_button_pressed(MouseButton::Middle) {
             self.previous_wheel_click_pos = mouse_position()
         } else if is_mouse_button_down(MouseButton::Middle) {
             let current_pos = mouse_position();
-            diff = (
-                current_pos.0 - self.previous_wheel_click_pos.0,
-                current_pos.1 - self.previous_wheel_click_pos.1,
-            );
+            diff.x = current_pos.0 - self.previous_wheel_click_pos.0;
+            diff.y = current_pos.1 - self.previous_wheel_click_pos.1;
 
             self.previous_wheel_click_pos = current_pos;
         }

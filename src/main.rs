@@ -9,6 +9,7 @@ mod external {
 }
 
 use macroquad::color::Color;
+use macroquad::math::Vec2;
 use macroquad::math::IVec3;
 use macroquad::miniquad::date::now;
 use macroquad::prelude::next_frame;
