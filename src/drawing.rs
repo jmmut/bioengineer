@@ -99,7 +99,6 @@ pub trait DrawingTrait {
         }
     }
     fn move_map_horizontally(&mut self, diff: PixelPosition) {
-        // let mut tile_offset = TilePosition::new(0, 0);
         let drawing_ = self.drawing_mut();
         let new_cell_offset = pixel_to_cell_offset_2(diff);
 
@@ -111,14 +110,9 @@ pub trait DrawingTrait {
             truncate_cell_offset(new_cell_offset + drawing_.subcell_diff);
         drawing_.subcell_diff = subcell_diff;
 
-        // let (cell_diff, subcell_diff) = pixel_to_cell_offset(diff, &drawing_.subtile_offset);
-        // drawing_.subcell_diff = subcell_diff;
-        // if tile_offset.x != 0 || tile_offset.y != 0 {
         let min_cell = &mut drawing_.min_cell;
         let max_cell = &mut drawing_.max_cell;
-        // let cell_diff = tile_to_cell_offset(tile_offset);
 
-        // TODO: disallow sub-tile offset if already on a min_cell or max_cell
         max_cell.x -= cell_diff.x;
         min_cell.x -= cell_diff.x;
         max_cell.z -= cell_diff.z;
@@ -148,6 +142,7 @@ pub trait DrawingTrait {
             max_cell.z += diff;
             drawing_.subcell_diff.z = 0.0;
         }
+
         drawing_.subtile_offset = subcell_to_subtile_offset(drawing_.subcell_diff);
         // println!(
         //     "cell_diff: {}\nsubcell_diff: {}\nsubtile_offset: {}\n ",
@@ -169,7 +164,7 @@ pub trait DrawingTrait {
                         &max_cell,
                         &self.drawing().subcell_diff,
                     );
-                    let opacity = 1.0; // for debugging
+                    // let opacity = 1.0; // for debugging
                     self.draw_transparent_texture(
                         game_state.map.get_cell(cell_index).tile_type,
                         x,
