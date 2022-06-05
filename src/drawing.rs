@@ -150,8 +150,9 @@ impl Drawing {
                 // let global_cell_index = local_cell_index + drawing_.min_cell;
                 // println!("min cell {}", drawing_.min_cell);
                 // println!("local cell {}", local_cell_index);
-                println!("selected cell {}", subcell);
+                // println!("selected cell {}", subcell);
                 let (cell, _) = truncate_cell_offset(subcell);
+                // println!("selected truncated cell {}", cell);
                 drawing_.highlighted_cells.insert(cell);
             }
         }

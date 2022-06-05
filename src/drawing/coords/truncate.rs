@@ -3,7 +3,7 @@ use crate::map::trunc::trunc_towards_neg_inf_f;
 use crate::map::CellIndex;
 
 pub fn truncate_cell_offset(subcell_diff: SubCellIndex) -> (CellIndex, SubCellIndex) {
-    let mut cell_diff = CellIndex::new(0, 0, 0);
+    let mut cell_diff = CellIndex::new(0, subcell_diff.y as i32, 0);
     let mut new_subcell_diff = SubCellIndex::new(0.0, 0.0, 0.0);
     (cell_diff.x, new_subcell_diff.x) = trunc_tile_offset(subcell_diff.x);
     (cell_diff.z, new_subcell_diff.z) = trunc_tile_offset(subcell_diff.z);
