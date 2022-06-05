@@ -1,5 +1,6 @@
 pub mod assets;
 mod coords;
+mod hud;
 
 use crate::drawing::coords::cast::Cast;
 use crate::drawing::coords::cell_tile::subcell_to_subtile_offset;
@@ -23,8 +24,6 @@ pub type TilePosition = IVec2;
 pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
-const BLACK: Color = Color::new(0.0, 0.0, 0.0, 1.0);
-const FONT_SIZE: f32 = 20.0;
 
 pub struct Drawing {
     min_cell: CellIndex,
@@ -44,62 +43,10 @@ impl Drawing {
             highlighted_cells: HashSet::new(),
         }
     }
-}
 
-pub trait DrawingTrait {
-    fn new(textures: Vec<Texture2D>) -> Self;
-
-    fn apply_input(&mut self, input: &Input) {
-        self.change_height_rel(input.change_height_rel);
-        self.move_map_horizontally(input.move_map_horizontally);
-        self.select_cell(input.start_selection);
-    }
-
-    fn draw(&self, game_state: &GameState) {
-        self.clear_background(GREY);
-        self.draw_map(game_state);
-        self.draw_fps(game_state);
-        self.draw_level(self.drawing().min_cell.y, self.drawing().max_cell.y);
-    }
-
-    fn draw_fps(&self, game_state: &GameState) {
-        let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
-        // println!(
-        //     "now - previous ts: {} - {}, fps: {}, frame: {}",
-        //     game_state.current_frame_ts, game_state.previous_frame_ts, fps, game_state.frame_index
-        // );
-        let text = format!("{:.0}", fps);
-        self.draw_text(
-            text.as_str(),
-            self.screen_width() - FONT_SIZE * 2.0,
-            20.0,
-            FONT_SIZE,
-            BLACK,
-        );
-    }
-    fn draw_level(&self, min_y: i32, max_y: i32) {
-        let text = format!("height: [{}, {}]", min_y, max_y);
-        self.draw_text(
-            text.as_str(),
-            20.0,
-            self.screen_height() - FONT_SIZE * 1.0,
-            FONT_SIZE,
-            BLACK,
-        );
-    }
-    fn draw_texture(&self, tile: TileType, x: f32, y: f32);
-    fn draw_transparent_texture(&self, tile: TileType, x: f32, y: f32, opacity_coef: f32);
-    fn draw_colored_texture(&self, tile: TileType, x: f32, y: f32, color_mask: Color);
-    fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
-    fn clear_background(&self, color: Color);
-    fn drawing(&self) -> &Drawing;
-    fn drawing_mut(&mut self) -> &mut Drawing;
-    fn screen_width(&self) -> f32;
-    fn screen_height(&self) -> f32;
-    fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
     fn change_height_rel(&mut self, y: i32) {
         if y != 0 {
-            let drawing_ = self.drawing_mut();
+            let drawing_ = self;
             let min_cell = &mut drawing_.min_cell;
             let max_cell = &mut drawing_.max_cell;
             max_cell.y += y;
@@ -115,6 +62,34 @@ pub trait DrawingTrait {
             }
         }
     }
+}
+
+pub fn apply_input(drawer: &mut impl DrawingTrait, input: &Input) {
+    drawer.drawing_mut().change_height_rel(input.change_height_rel);
+    drawer.move_map_horizontally(input.move_map_horizontally);
+    drawer.select_cell(input.start_selection);
+}
+
+pub fn draw(drawer: &impl DrawingTrait, game_state: &GameState) {
+    drawer.clear_background(GREY);
+    drawer.draw_map(game_state);
+    hud::draw_fps(drawer, game_state);
+    hud::draw_level(drawer, drawer.drawing().min_cell.y, drawer.drawing().max_cell.y);
+}
+
+pub trait DrawingTrait {
+    fn new(textures: Vec<Texture2D>) -> Self where Self: Sized;
+
+    fn draw_texture(&self, tile: TileType, x: f32, y: f32);
+    fn draw_transparent_texture(&self, tile: TileType, x: f32, y: f32, opacity_coef: f32);
+    fn draw_colored_texture(&self, tile: TileType, x: f32, y: f32, color_mask: Color);
+    fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
+    fn clear_background(&self, color: Color);
+    fn drawing(&self) -> &Drawing;
+    fn drawing_mut(&mut self) -> &mut Drawing;
+    fn screen_width(&self) -> f32;
+    fn screen_height(&self) -> f32;
+    fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
     fn move_map_horizontally(&mut self, diff: PixelPosition) {
         if diff == PixelPosition::new(0.0, 0.0) {
             return;

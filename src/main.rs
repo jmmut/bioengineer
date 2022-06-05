@@ -22,6 +22,7 @@ use external::input_macroquad::InputMacroquad as InputSource;
 use drawing::DrawingTrait;
 use game_state::GameState;
 use input::InputSourceTrait;
+use crate::drawing::{apply_input, draw};
 
 struct Implementations<D: DrawingTrait, I: InputSourceTrait> {
     drawer: D,
@@ -62,8 +63,8 @@ fn frame(
 ) -> bool {
     let input = input.get_input();
     if !input.quit {
-        drawer.apply_input(&input);
-        drawer.draw(&game_state);
+        apply_input(drawer, &input);
+        draw(drawer, &game_state);
     }
     game_state.advance_frame();
     !input.quit
