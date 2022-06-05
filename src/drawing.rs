@@ -4,18 +4,17 @@ mod coords;
 use crate::drawing::coords::cast::Cast;
 use crate::drawing::coords::cell_tile::subcell_to_subtile_offset;
 use crate::drawing::coords::truncate::truncate_cell_offset;
-use crate::drawing::coords::{
-    pixel_to_cell, pixel_to_subcell, pixel_to_subcell_center, subcell_center_to_pixel,
-};
 use crate::game_state::GameState;
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
 use crate::map::{Cell, CellIndex, Map, TileType};
-use crate::{input, Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
+use crate::{Color, input, IVec2, IVec3, Texture2D, Vec2, Vec3};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use input::Input;
 use macroquad::shapes::draw_rectangle;
 use std::cmp::min;
 use std::collections::HashSet;
+use coords::cell_pixel;
+use coords::cell_pixel::{pixel_to_cell, pixel_to_subcell, pixel_to_subcell_center, subcell_center_to_pixel};
 
 pub type PixelPosition = Vec2;
 pub type TilePosition = IVec2;
@@ -253,7 +252,7 @@ pub trait DrawingTrait {
     }
 
     fn get_draw_position(&self, i_x: i32, i_y: i32, i_z: i32) -> (f32, f32) {
-        let pixels = coords::cell_to_pixel(
+        let pixels = cell_pixel::cell_to_pixel(
             CellIndex::new(i_x, i_y, i_z),
             &self.drawing(),
             self.screen_width(),
@@ -313,7 +312,7 @@ fn assert_in_range_0_1(x: f32) -> f32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::drawing::coords::pixel_to_subcell_offset;
+    use crate::drawing::coords::cell_pixel::pixel_to_subcell_offset;
     use crate::IVec3;
 
     #[test]
