@@ -1,4 +1,4 @@
-use crate::drawing::{assert_in_range_0_1, SubCellIndex};
+use crate::drawing::SubCellIndex;
 use crate::map::trunc::trunc_towards_neg_inf_f;
 use crate::map::CellIndex;
 
@@ -16,4 +16,12 @@ pub fn trunc_tile_offset(new_tile_offset: f32) -> (i32, f32) {
     let new_subtiles_offset = new_tile_offset - int_tile_offset;
     assert_in_range_0_1(new_subtiles_offset);
     (int_tile_offset as i32, new_subtiles_offset)
+}
+
+pub fn assert_in_range_0_1(x: f32) -> f32 {
+    if x < 0.0 || x > 1.0 {
+        panic!("out of range: {}", x);
+    } else {
+        x
+    }
 }
