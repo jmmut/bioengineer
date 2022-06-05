@@ -1,12 +1,12 @@
 pub mod assets;
 
-use std::cmp::min;
 use crate::game_state::GameState;
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
 use crate::map::{CellIndex, Map, TileType};
 use crate::{input, Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use input::Input;
+use std::cmp::min;
 
 pub type PixelPosition = Vec2;
 pub type TilePosition = IVec2;
@@ -107,7 +107,8 @@ pub trait DrawingTrait {
         //     "pixel_diff: {}, new_cell_offset: {}",
         //     diff, new_cell_offset
         // );
-        let (cell_diff, subcell_diff) = truncate_cell_offset(new_cell_offset + drawing_.subcell_diff);
+        let (cell_diff, subcell_diff) =
+            truncate_cell_offset(new_cell_offset + drawing_.subcell_diff);
         drawing_.subcell_diff = subcell_diff;
 
         // let (cell_diff, subcell_diff) = pixel_to_cell_offset(diff, &drawing_.subtile_offset);
@@ -245,8 +246,10 @@ fn pixel_to_cell_offset(
 }
 
 fn pixel_to_cell_offset_2(pixel_diff: PixelPosition) -> SubCellIndex {
-    let subtile = SubTilePosition::new(pixel_diff.x / assets::PIXELS_PER_TILE_WIDTH as f32,
-                                       pixel_diff.y / assets::PIXELS_PER_TILE_HEIGHT as f32*2.0);
+    let subtile = SubTilePosition::new(
+        pixel_diff.x / assets::PIXELS_PER_TILE_WIDTH as f32,
+        pixel_diff.y / assets::PIXELS_PER_TILE_HEIGHT as f32 * 2.0,
+    );
     subtile_to_subcell_offset(subtile)
 }
 
@@ -307,27 +310,25 @@ fn get_opacity(
     max_cell: &CellIndex,
     subcell_offset: &SubCellIndex,
 ) -> f32 {
-    assert_in_range_0_1(
-        if cell.x == min_cell.x && cell.z == min_cell.z {
-            f32::min(subcell_offset.x, subcell_offset.z)
-        } else if cell.x == min_cell.x && cell.z == max_cell.z {
-            f32::min(subcell_offset.x, 1.0 - subcell_offset.z)
-        } else if cell.x == max_cell.x && cell.z == min_cell.z{
-            f32::min(1.0 - subcell_offset.x, subcell_offset.z)
-        } else if cell.x == max_cell.x && cell.z == max_cell.z {
-            f32::min(1.0 - subcell_offset.x,1.0 - subcell_offset.z )
-        } else if cell.x == min_cell.x {
-            subcell_offset.x
-        } else if cell.x == max_cell.x {
-            1.0 - subcell_offset.x
-        } else if cell.z == min_cell.z {
-            subcell_offset.z
-        } else if cell.z == max_cell.z {
-            1.0 - subcell_offset.z
-        } else {
-            1.0
-        }
-    )
+    assert_in_range_0_1(if cell.x == min_cell.x && cell.z == min_cell.z {
+        f32::min(subcell_offset.x, subcell_offset.z)
+    } else if cell.x == min_cell.x && cell.z == max_cell.z {
+        f32::min(subcell_offset.x, 1.0 - subcell_offset.z)
+    } else if cell.x == max_cell.x && cell.z == min_cell.z {
+        f32::min(1.0 - subcell_offset.x, subcell_offset.z)
+    } else if cell.x == max_cell.x && cell.z == max_cell.z {
+        f32::min(1.0 - subcell_offset.x, 1.0 - subcell_offset.z)
+    } else if cell.x == min_cell.x {
+        subcell_offset.x
+    } else if cell.x == max_cell.x {
+        1.0 - subcell_offset.x
+    } else if cell.z == min_cell.z {
+        subcell_offset.z
+    } else if cell.z == max_cell.z {
+        1.0 - subcell_offset.z
+    } else {
+        1.0
+    })
 }
 
 fn assert_in_range_0_1(x: f32) -> f32 {
