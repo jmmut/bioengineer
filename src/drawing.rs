@@ -284,9 +284,9 @@ fn trunc_tile_offset(new_tile_offset: f32) -> (i32, f32) {
 
 fn tile_to_cell_offset(tile_offset: TilePosition) -> CellIndex {
     CellIndex::new(
-        (tile_offset.x + tile_offset.y)/2,
+        (tile_offset.x + tile_offset.y) / 2,
         0,
-        (-tile_offset.x + tile_offset.y)/2,
+        (-tile_offset.x + tile_offset.y) / 2,
     )
 }
 fn subtile_to_subcell_offset(subtile_offset: SubTilePosition) -> SubCellIndex {
