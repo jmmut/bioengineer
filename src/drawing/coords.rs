@@ -1,7 +1,7 @@
 use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::drawing::{
     pixel_to_cell_offset_2, subtile_to_subcell_offset, tile_to_cell_offset, Drawing, PixelPosition,
-    SubTilePosition, TilePosition,
+    SubCellIndex, SubTilePosition, TilePosition,
 };
 use crate::map::CellIndex;
 use crate::DrawingTrait;
@@ -31,6 +31,20 @@ pub fn cell_to_tile(
     )
 }
 
+pub fn subcell_to_subtile(
+    subcell: SubCellIndex,
+    min_cell: &CellIndex,
+    max_cell: &CellIndex,
+) -> SubTilePosition {
+    // NOTE we are mixing min_cell and max_cell !!! this is intended
+    let subcell_offset =
+        subcell - SubCellIndex::new(min_cell.x as f32, max_cell.y as f32, min_cell.z as f32);
+    SubTilePosition::new(
+        subcell_offset.x - subcell_offset.z,
+        subcell_offset.x + subcell_offset.z - 2.0 * subcell_offset.y,
+    )
+}
+
 pub fn tile_to_cell(tile: TilePosition, min_cell: &CellIndex, max_cell: &CellIndex) -> CellIndex {
     let mut cell_offset = tile_to_cell_offset(tile);
     cell_offset.x += min_cell.x;
@@ -40,21 +54,31 @@ pub fn tile_to_cell(tile: TilePosition, min_cell: &CellIndex, max_cell: &CellInd
 }
 
 pub fn tile_to_pixel(tile: TilePosition, drawing: &Drawing, screen_width: f32) -> PixelPosition {
-    let (mut x, mut y) = (tile.x as f32, tile.y as f32);
+    subtile_to_pixel(
+        SubTilePosition::new(tile.x as f32, tile.y as f32),
+        drawing,
+        screen_width,
+    )
+}
+pub fn subtile_to_pixel(
+    tile: SubTilePosition,
+    drawing: &Drawing,
+    screen_width: f32,
+) -> PixelPosition {
     let pixels_half_tile_x = PIXELS_PER_TILE_WIDTH as f32 * 0.5;
     let pixels_half_tile_y = PIXELS_PER_TILE_HEIGHT as f32 * 0.5;
     let pixels_height_isometric = pixels_half_tile_y * 0.5;
-    x = f32::trunc(
-        x * pixels_half_tile_x + screen_width / 2.0 - pixels_half_tile_x
+    let x = f32::trunc(
+        tile.x * pixels_half_tile_x + screen_width / 2.0 - pixels_half_tile_x
             + drawing.subtile_offset.x * PIXELS_PER_TILE_WIDTH as f32,
     );
-    y = f32::trunc(
-        y * pixels_height_isometric + drawing.subtile_offset.y * PIXELS_PER_TILE_HEIGHT as f32,
+    let y = f32::trunc(
+        tile.y * pixels_height_isometric + drawing.subtile_offset.y * PIXELS_PER_TILE_HEIGHT as f32,
     );
     PixelPosition::new(x, y)
 }
 
-pub fn pixel_to_tile(
+pub fn pixel_to_subtile(
     pixel_position: PixelPosition,
     drawing: &Drawing,
     screen_width: f32,
@@ -76,13 +100,40 @@ pub fn pixel_to_cell(
     drawing: &Drawing,
     screen_width: f32,
 ) -> CellIndex {
-    let subtile_offset = pixel_to_tile(pixel_position, drawing, screen_width);
+    let subtile_offset = pixel_to_subtile(pixel_position, drawing, screen_width);
     let cell_index = tile_to_cell(
         TilePosition::new(subtile_offset.x as i32, subtile_offset.y as i32),
         &drawing.min_cell,
         &drawing.max_cell,
     );
     cell_index
+}
+pub fn pixel_to_subcell_center(
+    pixel: PixelPosition,
+    drawing: &Drawing,
+    screen_width: f32,
+) -> SubCellIndex {
+    let mut subtile = pixel_to_subtile(pixel, drawing, screen_width);
+
+    // move the hitbox to the center of the tile
+    let subtile_center = SubTilePosition::new(subtile.x - 0.25, subtile.y - 0.25);
+    let mut cell_offset = subtile_to_subcell_offset(subtile_center);
+    let fractional_part_y = cell_offset.y - f32::floor(cell_offset.y);
+    cell_offset.x += drawing.min_cell.x as f32;
+    cell_offset.y = drawing.max_cell.y as f32 + fractional_part_y;
+    cell_offset.z += drawing.min_cell.z as f32;
+    cell_offset
+}
+
+pub fn subcell_center_to_pixel(
+    subcell: SubCellIndex,
+    drawing: &Drawing,
+    screen_width: f32,
+) -> PixelPosition {
+    let subtile_center = subcell_to_subtile(subcell, &drawing.min_cell, &drawing.max_cell);
+
+    let subtile = SubTilePosition::new(subtile_center.x + 0.25, subtile_center.y + 0.25);
+    subtile_to_pixel(subtile, drawing, screen_width)
 }
 
 #[cfg(test)]
@@ -190,7 +241,7 @@ mod tests {
     fn tile_to_pixel_to_tile(initial_tile: TilePosition) {
         let mut drawing = Drawing::new();
         let pixel = tile_to_pixel(initial_tile, &drawing, 800.0);
-        let final_subtile = pixel_to_tile(pixel, &drawing, 800.0);
+        let final_subtile = pixel_to_subtile(pixel, &drawing, 800.0);
         let intial_subtile = SubTilePosition::new(initial_tile.x as f32, initial_tile.y as f32);
         assert_eq!(final_subtile, intial_subtile);
     }
@@ -201,5 +252,22 @@ mod tests {
         tile_to_pixel_to_tile(TilePosition::new(1, 0));
         tile_to_pixel_to_tile(TilePosition::new(0, 1));
         tile_to_pixel_to_tile(TilePosition::new(1, 1));
+    }
+
+    fn pixel_to_subcell_to_pixel(initial_pixel: PixelPosition) {
+        let mut drawing = Drawing::new();
+        let screen_width = 800.0;
+        let subcell = pixel_to_subcell_center(initial_pixel, &drawing, screen_width);
+        let final_pixel = subcell_center_to_pixel(subcell, &drawing, screen_width);
+        assert_eq!(final_pixel, initial_pixel);
+    }
+
+    #[test]
+    fn test_pixel_to_subcell_to_pixel() {
+        pixel_to_subcell_to_pixel(PixelPosition::new(0.0, 0.0));
+        pixel_to_subcell_to_pixel(PixelPosition::new(1.0, 0.0));
+        pixel_to_subcell_to_pixel(PixelPosition::new(0.0, 1.0));
+        pixel_to_subcell_to_pixel(PixelPosition::new(100.0, 0.0));
+        pixel_to_subcell_to_pixel(PixelPosition::new(0.0, 100.0));
     }
 }
