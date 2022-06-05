@@ -1,6 +1,7 @@
 pub mod cast;
-mod cell_tile;
-mod tile_pixel;
+pub mod cell_tile;
+pub mod tile_pixel;
+pub mod truncate;
 
 use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::drawing::coords::cell_tile::{
@@ -24,12 +25,8 @@ pub fn pixel_to_cell(
     drawing: &Drawing,
     screen_width: f32,
 ) -> CellIndex {
-    let subtile_offset = pixel_to_tile(pixel_position, drawing, screen_width);
-    let cell_index = tile_to_cell(
-        TilePosition::new(subtile_offset.x as i32, subtile_offset.y as i32),
-        &drawing.min_cell,
-        &drawing.max_cell,
-    );
+    let tile = pixel_to_tile(pixel_position, drawing, screen_width);
+    let cell_index = tile_to_cell(tile, &drawing.min_cell, &drawing.max_cell);
     cell_index
 }
 
@@ -38,12 +35,12 @@ pub fn pixel_to_subcell(
     drawing: &Drawing,
     screen_width: f32,
 ) -> SubCellIndex {
-    let subtile_offset = pixel_to_subtile(pixel_position, drawing, screen_width);
-    let cell_index = subtile_to_subcell(subtile_offset, &drawing.min_cell, &drawing.max_cell);
+    let subtile = pixel_to_subtile(pixel_position, drawing, screen_width);
+    let cell_index = subtile_to_subcell(subtile, &drawing.min_cell, &drawing.max_cell);
     cell_index
 }
 
-pub fn pixel_to_cell_offset(pixel_diff: PixelPosition) -> SubCellIndex {
+pub fn pixel_to_subcell_offset(pixel_diff: PixelPosition) -> SubCellIndex {
     let subtile = pixel_to_subtile_offset(pixel_diff);
     subtile_to_subcell_offset(subtile)
 }
@@ -56,13 +53,10 @@ pub fn pixel_to_subcell_center(
     let mut subtile = pixel_to_subtile(pixel, drawing, screen_width);
 
     // move the hitbox to the center of the tile
-    let subtile_center = SubTilePosition::new(subtile.x - 1.0, subtile.y - 1.0);
-    let mut cell_offset = subtile_to_subcell_offset(subtile_center);
-    let fractional_part_y = cell_offset.y - f32::floor(cell_offset.y);
-    cell_offset.x += drawing.min_cell.x as f32;
-    cell_offset.y = drawing.max_cell.y as f32 + fractional_part_y;
-    cell_offset.z += drawing.min_cell.z as f32;
-    cell_offset
+    let subtile_center = subtile - tile_offset();
+
+    let subcell = subtile_to_subcell(subtile_center, &drawing.min_cell, &drawing.max_cell);
+    subcell
 }
 
 pub fn subcell_center_to_pixel(
@@ -70,10 +64,16 @@ pub fn subcell_center_to_pixel(
     drawing: &Drawing,
     screen_width: f32,
 ) -> PixelPosition {
-    let subtile_center = subcell_to_subtile(subcell, &drawing.min_cell, &drawing.max_cell);
+    let subtile = subcell_to_subtile(subcell, &drawing.min_cell, &drawing.max_cell);
 
-    let subtile = SubTilePosition::new(subtile_center.x + 1.0, subtile_center.y + 1.0);
+    // move the hitbox to the center of the tile
+    let subtile = subtile + tile_offset();
+
     subtile_to_pixel(subtile, drawing, screen_width)
+}
+
+fn tile_offset() -> SubTilePosition {
+    SubTilePosition::new(1.0, 1.0)
 }
 
 #[cfg(test)]
