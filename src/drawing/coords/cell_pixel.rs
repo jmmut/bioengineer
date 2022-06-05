@@ -1,6 +1,10 @@
+use crate::drawing::coords::cell_tile::{
+    cell_to_tile, subcell_to_subtile, subtile_to_subcell, subtile_to_subcell_offset, tile_to_cell,
+};
+use crate::drawing::coords::tile_pixel::{
+    pixel_to_subtile, pixel_to_subtile_offset, pixel_to_tile, subtile_to_pixel, tile_to_pixel,
+};
 use crate::drawing::{Drawing, PixelPosition, SubCellIndex, SubTilePosition};
-use crate::drawing::coords::cell_tile::{cell_to_tile, subcell_to_subtile, subtile_to_subcell, subtile_to_subcell_offset, tile_to_cell};
-use crate::drawing::coords::tile_pixel::{pixel_to_subtile, pixel_to_subtile_offset, pixel_to_tile, subtile_to_pixel, tile_to_pixel};
 use crate::map::CellIndex;
 
 pub fn cell_to_pixel(cell_index: CellIndex, drawing: &Drawing, screen_width: f32) -> PixelPosition {
@@ -66,11 +70,50 @@ fn tile_offset() -> SubTilePosition {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+    use crate::drawing::coords::cell_pixel::{
+        cell_to_pixel, pixel_to_cell, pixel_to_subcell_center, subcell_center_to_pixel,
+    };
     use crate::drawing::coords::*;
-    use crate::drawing::coords::cell_pixel::{cell_to_pixel, pixel_to_cell, pixel_to_subcell_center, subcell_center_to_pixel};
-    use crate::drawing::{Drawing, PixelPosition, TilePosition};
-    use crate::IVec3;
+    use crate::drawing::{Drawing, PixelPosition, SubTilePosition, TilePosition};
     use crate::map::CellIndex;
+
+    #[test]
+    fn test_pixel_to_cell_offset_basic() {
+        let pixel_diff = PixelPosition::new(0.0, 0.0);
+        let subtile_offset = SubTilePosition::new(0.0, 0.0);
+        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
+        assert_eq!(subcell_diff, SubCellIndex::new(0.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn test_pixel_to_cell_offset_x() {
+        let pixel_diff = PixelPosition::new(PIXELS_PER_TILE_WIDTH as f32 * 2.0, 0.0);
+        let subtile_offset = SubTilePosition::new(0.0, 0.0);
+        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
+        assert_eq!(subcell_diff, SubCellIndex::new(1.0, 0.0, -1.0));
+
+        let pixel_diff = PixelPosition::new(PIXELS_PER_TILE_WIDTH as f32, 0.0);
+        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
+        assert_eq!(subcell_diff, SubCellIndex::new(0.5, 0.0, -0.5));
+    }
+
+    #[test]
+    fn test_pixel_to_cell_offset_y() {
+        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 2.0);
+        let mut subtile_offset = SubTilePosition::new(0.0, 0.0);
+        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
+        assert_eq!(subcell_diff, SubCellIndex::new(2.0, 0.0, 2.0));
+
+        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32);
+        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
+        assert_eq!(subcell_diff, SubCellIndex::new(1.0, 0.0, 1.0));
+
+        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 0.5);
+        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
+        assert_eq!(subcell_diff, SubCellIndex::new(0.5, 0.0, 0.5));
+    }
 
     fn cell_to_pixel_to_cell(initial_cell: CellIndex) {
         let mut drawing = Drawing::new();

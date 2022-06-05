@@ -7,14 +7,16 @@ use crate::drawing::coords::truncate::truncate_cell_offset;
 use crate::game_state::GameState;
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
 use crate::map::{Cell, CellIndex, Map, TileType};
-use crate::{Color, input, IVec2, IVec3, Texture2D, Vec2, Vec3};
+use crate::{input, Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use coords::cell_pixel;
+use coords::cell_pixel::{
+    pixel_to_cell, pixel_to_subcell, pixel_to_subcell_center, subcell_center_to_pixel,
+};
 use input::Input;
 use macroquad::shapes::draw_rectangle;
 use std::cmp::min;
 use std::collections::HashSet;
-use coords::cell_pixel;
-use coords::cell_pixel::{pixel_to_cell, pixel_to_subcell, pixel_to_subcell_center, subcell_center_to_pixel};
 
 pub type PixelPosition = Vec2;
 pub type TilePosition = IVec2;
@@ -355,41 +357,5 @@ mod tests {
         let mut offset = SubCellIndex::new(0.2, 0.0, 0.8);
         let t = get_opacity(&cell, &min_cell, &max_cell, &offset);
         assert_eq!(t, 0.2);
-    }
-
-    #[test]
-    fn test_pixel_to_cell_offset_basic() {
-        let pixel_diff = PixelPosition::new(0.0, 0.0);
-        let subtile_offset = SubTilePosition::new(0.0, 0.0);
-        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
-        assert_eq!(subcell_diff, SubCellIndex::new(0.0, 0.0, 0.0));
-    }
-
-    #[test]
-    fn test_pixel_to_cell_offset_x() {
-        let pixel_diff = PixelPosition::new(PIXELS_PER_TILE_WIDTH as f32 * 2.0, 0.0);
-        let subtile_offset = SubTilePosition::new(0.0, 0.0);
-        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
-        assert_eq!(subcell_diff, SubCellIndex::new(1.0, 0.0, -1.0));
-
-        let pixel_diff = PixelPosition::new(PIXELS_PER_TILE_WIDTH as f32, 0.0);
-        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
-        assert_eq!(subcell_diff, SubCellIndex::new(0.5, 0.0, -0.5));
-    }
-
-    #[test]
-    fn test_pixel_to_cell_offset_y() {
-        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 2.0);
-        let mut subtile_offset = SubTilePosition::new(0.0, 0.0);
-        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
-        assert_eq!(subcell_diff, SubCellIndex::new(2.0, 0.0, 2.0));
-
-        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32);
-        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
-        assert_eq!(subcell_diff, SubCellIndex::new(1.0, 0.0, 1.0));
-
-        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 0.5);
-        let subcell_diff = pixel_to_subcell_offset(pixel_diff);
-        assert_eq!(subcell_diff, SubCellIndex::new(0.5, 0.0, 0.5));
     }
 }

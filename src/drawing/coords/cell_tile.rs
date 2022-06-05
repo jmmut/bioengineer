@@ -161,12 +161,12 @@ mod tests {
     #[test]
     fn test_cell_to_tile() {
         let subtile = subcell_to_subtile_offset(SubCellIndex::new(0.5, 0.0, 0.5));
-        assert_eq!(subtile, SubTilePosition::new(0.0, 0.25));
+        assert_eq!(subtile, SubTilePosition::new(0.0, 1.0));
 
         let subtile = subcell_to_subtile_offset(SubCellIndex::new(1.0, 0.0, 0.0));
-        assert_eq!(subtile, SubTilePosition::new(0.5, 0.25));
+        assert_eq!(subtile, SubTilePosition::new(1.0, 1.0));
 
         let subtile = subcell_to_subtile_offset(SubCellIndex::new(0.0, 0.0, 1.0));
-        assert_eq!(subtile, SubTilePosition::new(-0.5, 0.25));
+        assert_eq!(subtile, SubTilePosition::new(-1.0, 1.0));
     }
 }
