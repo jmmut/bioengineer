@@ -1,6 +1,7 @@
 pub mod assets;
 mod coords;
 
+use crate::drawing::coords::pixel_to_cell;
 use crate::game_state::GameState;
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
 use crate::map::{CellIndex, Map, TileType};
@@ -162,14 +163,15 @@ pub trait DrawingTrait {
         match start_selection {
             None => {}
             Some(selected) => {
+                let cell = pixel_to_cell(selected, self.drawing(), self.screen_width());
                 let drawing_ = self.drawing_mut();
                 drawing_.highlighted_cells.clear();
-                let local_cell_index = pixel_to_cell_offset(selected, &drawing_.subtile_offset).0;
-                let global_cell_index = local_cell_index + drawing_.min_cell;
-                println!("min cell {}", drawing_.min_cell);
-                println!("local cell {}", local_cell_index);
-                println!("selected cell {}", global_cell_index);
-                drawing_.highlighted_cells.insert(global_cell_index);
+                // let local_cell_index = pixel_to_cell_offset(selected, ).0;
+                // let global_cell_index = local_cell_index + drawing_.min_cell;
+                // println!("min cell {}", drawing_.min_cell);
+                // println!("local cell {}", local_cell_index);
+                println!("selected cell {}", cell);
+                drawing_.highlighted_cells.insert(cell);
             }
         }
     }
@@ -190,7 +192,7 @@ pub trait DrawingTrait {
                             game_state.map.get_cell(cell_index).tile_type,
                             x,
                             y,
-                            Color::new(1.0, 1.0, 0.5, 0.2),
+                            Color::new(0.2, 1.0, 0.2, 1.0),
                         );
                     } else {
                         let opacity = get_opacity(

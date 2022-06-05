@@ -18,7 +18,7 @@ pub fn cell_to_pixel(cell_index: CellIndex, drawing: &Drawing, screen_width: f32
     tile_to_pixel(tile, drawing, screen_width)
 }
 
-fn cell_to_tile(
+pub fn cell_to_tile(
     min_cell: &CellIndex,
     max_cell: &CellIndex,
     i_x: i32,
@@ -31,7 +31,7 @@ fn cell_to_tile(
     )
 }
 
-fn tile_to_cell(tile: TilePosition, min_cell: &CellIndex, max_cell: &CellIndex) -> CellIndex {
+pub fn tile_to_cell(tile: TilePosition, min_cell: &CellIndex, max_cell: &CellIndex) -> CellIndex {
     let mut cell_offset = tile_to_cell_offset(tile);
     cell_offset.x += min_cell.x;
     cell_offset.y = max_cell.y;
@@ -39,7 +39,7 @@ fn tile_to_cell(tile: TilePosition, min_cell: &CellIndex, max_cell: &CellIndex) 
     cell_offset
 }
 
-fn tile_to_pixel(tile: TilePosition, drawing: &Drawing, screen_width: f32) -> PixelPosition {
+pub fn tile_to_pixel(tile: TilePosition, drawing: &Drawing, screen_width: f32) -> PixelPosition {
     let (mut x, mut y) = (tile.x as f32, tile.y as f32);
     let pixels_half_tile_x = PIXELS_PER_TILE_WIDTH as f32 * 0.5;
     let pixels_half_tile_y = PIXELS_PER_TILE_HEIGHT as f32 * 0.5;
@@ -54,7 +54,7 @@ fn tile_to_pixel(tile: TilePosition, drawing: &Drawing, screen_width: f32) -> Pi
     PixelPosition::new(x, y)
 }
 
-fn pixel_to_tile(
+pub fn pixel_to_tile(
     pixel_position: PixelPosition,
     drawing: &Drawing,
     screen_width: f32,
@@ -71,7 +71,11 @@ fn pixel_to_tile(
     SubTilePosition::new(tile_x, tile_y)
 }
 
-fn pixel_to_cell(pixel_position: PixelPosition, drawing: &Drawing, screen_width: f32) -> CellIndex {
+pub fn pixel_to_cell(
+    pixel_position: PixelPosition,
+    drawing: &Drawing,
+    screen_width: f32,
+) -> CellIndex {
     let subtile_offset = pixel_to_tile(pixel_position, drawing, screen_width);
     let cell_index = tile_to_cell(
         TilePosition::new(subtile_offset.x as i32, subtile_offset.y as i32),
