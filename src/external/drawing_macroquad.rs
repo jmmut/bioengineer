@@ -2,6 +2,7 @@ use crate::drawing::{assets, Drawing};
 use crate::map::TileType;
 use macroquad::color::Color;
 use macroquad::prelude::Texture2D;
+use macroquad::shapes::draw_rectangle;
 use macroquad::text::draw_text;
 use macroquad::texture::draw_texture;
 use macroquad::window::{clear_background, screen_height, screen_width};
@@ -41,6 +42,9 @@ impl DrawingTrait for DrawingMacroquad {
     }
     fn draw_colored_texture(&self, tile: TileType, x: f32, y: f32, color_mask: Color) {
         draw_texture(self.textures[tile as usize], x, y, color_mask);
+    }
+    fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
+        draw_rectangle(x, y, w, h, color);
     }
 
     fn clear_background(&self, color: Color) {
