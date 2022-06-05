@@ -36,9 +36,13 @@ pub fn apply_input(drawer: &mut impl DrawingTrait, input: &Input) {
 
 pub fn draw(drawer: &impl DrawingTrait, game_state: &GameState) {
     drawer.clear_background(GREY);
-    tiles::draw_map(drawer,game_state);
+    tiles::draw_map(drawer, game_state);
     hud::draw_fps(drawer, game_state);
-    hud::draw_level(drawer, drawer.drawing().min_cell.y, drawer.drawing().max_cell.y);
+    hud::draw_level(
+        drawer,
+        drawer.drawing().min_cell.y,
+        drawer.drawing().max_cell.y,
+    );
 }
 
 pub struct Drawing {
@@ -139,8 +143,7 @@ impl Drawing {
         match start_selection {
             None => {}
             Some(selected) => {
-                let subcell =
-                    pixel_to_subcell_center(selected, self, screen_width);
+                let subcell = pixel_to_subcell_center(selected, self, screen_width);
                 let drawing_ = self;
                 drawing_.highlighted_cells.clear();
                 // let local_cell_index = pixel_to_cell_offset(selected, ).0;
@@ -161,7 +164,9 @@ impl Drawing {
 /// this one will be the only places to change.
 /// I'm not sure this will actually help, but we'll see.
 pub trait DrawingTrait {
-    fn new(textures: Vec<Texture2D>) -> Self where Self: Sized;
+    fn new(textures: Vec<Texture2D>) -> Self
+    where
+        Self: Sized;
 
     fn screen_width(&self) -> f32;
     fn screen_height(&self) -> f32;
@@ -174,4 +179,3 @@ pub trait DrawingTrait {
     fn drawing(&self) -> &Drawing;
     fn drawing_mut(&mut self) -> &mut Drawing;
 }
-

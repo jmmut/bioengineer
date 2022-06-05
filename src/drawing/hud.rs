@@ -4,8 +4,7 @@ use crate::{DrawingTrait, GameState};
 const FONT_SIZE: f32 = 20.0;
 const BLACK: Color = Color::new(0.0, 0.0, 0.0, 1.0);
 
-
-pub fn draw_fps(drawer : &impl DrawingTrait, game_state: &GameState) {
+pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
     // println!(
     //     "now - previous ts: {} - {}, fps: {}, frame: {}",
@@ -21,7 +20,7 @@ pub fn draw_fps(drawer : &impl DrawingTrait, game_state: &GameState) {
     );
 }
 
-pub fn draw_level(drawer : &impl DrawingTrait, min_y: i32, max_y: i32) {
+pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
     let text = format!("height: [{}, {}]", min_y, max_y);
     drawer.draw_text(
         text.as_str(),
@@ -31,4 +30,3 @@ pub fn draw_level(drawer : &impl DrawingTrait, min_y: i32, max_y: i32) {
         BLACK,
     );
 }
-

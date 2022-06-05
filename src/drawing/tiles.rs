@@ -1,76 +1,45 @@
-use macroquad::window::screen_width;
-use crate::Color;
-use crate::{DrawingTrait, GameState};
-use crate::drawing::{PixelPosition, SubCellIndex};
 use crate::drawing::coords::cast::Cast;
 use crate::drawing::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
 use crate::drawing::coords::truncate::assert_in_range_0_1;
+use crate::drawing::{Drawing, PixelPosition, SubCellIndex};
 use crate::map::CellIndex;
+use crate::Color;
+use crate::{DrawingTrait, GameState};
+use macroquad::window::screen_width;
 
-pub fn draw_map(drawer : &impl DrawingTrait,  game_state: &GameState) {
-    let screen_width = drawer.screen_width();
+pub fn draw_map(drawer: &impl DrawingTrait, game_state: &GameState) {
     let drawing = drawer.drawing();
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
     for i_y in min_cell.y..=max_cell.y {
         for i_z in min_cell.z..=max_cell.z {
             for i_x in min_cell.x..=max_cell.x {
-                let cell_index = CellIndex::new(i_x, i_y, i_z);
-                let pixel = cell_to_pixel(cell_index, drawing, screen_width);
-                if drawing.highlighted_cells.len() > 0 {
-                    // println!("selected something");
-                }
-                if drawing.highlighted_cells.contains(&cell_index) {
-                    drawer.draw_colored_texture(
-                        game_state.map.get_cell(cell_index).tile_type,
-                        pixel.x,
-                        pixel.y,
-                        Color::new(0.3, 1.0, 0.3, 1.0),
-                    );
-                } else {
-                    let opacity = get_opacity(
-                        &cell_index,
-                        &min_cell,
-                        &max_cell,
-                        &drawing.subcell_diff,
-                    );
-                    // let opacity = 1.0; // for debugging
-                    drawer.draw_transparent_texture(
-                        game_state.map.get_cell(cell_index).tile_type,
-                        pixel.x,
-                        pixel.y,
-                        opacity,
-                    );
-                }
-                draw_cell_hit_box(drawer, cell_index);
+                draw_cell(drawer, game_state, CellIndex::new(i_x, i_y, i_z));
             }
         }
     }
 }
 
-fn draw_cell_hit_box(drawer: &impl DrawingTrait, cell_index: CellIndex) {
-    let mut subcell: SubCellIndex = cell_index.cast();
-    let size = 2.0;
-    let color = Color::new(1.0, 1.0, 1.0, 1.0);
-    let drawing = drawer.drawing();
+fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: CellIndex) {
     let screen_width = drawer.screen_width();
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
-    drawer.draw_rectangle(me.x, me.y, size, size, color);
-    subcell.x += 0.5;
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
-    drawer.draw_rectangle(me.x, me.y, size, size, color);
-    subcell.x += 0.5;
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
-    drawer.draw_rectangle(me.x, me.y, size, size, color);
-    subcell.z += 1.0;
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
-    drawer.draw_rectangle(me.x, me.y, size, size, color);
-    subcell.x -= 1.0;
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
-    drawer.draw_rectangle(me.x, me.y, size, size, color);
-    subcell.z -= 0.5;
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
-    drawer.draw_rectangle(me.x, me.y, size, size, color);
+    let drawing = drawer.drawing();
+    let min_cell = &drawing.min_cell;
+    let max_cell = &drawing.max_cell;
+    let tile_type = game_state.map.get_cell(cell_index).tile_type;
+
+    let pixel = cell_to_pixel(cell_index, drawing, screen_width);
+    // if drawing.highlighted_cells.len() > 0 {
+    //     println!("selected something");
+    // }
+    if drawing.highlighted_cells.contains(&cell_index) {
+        let selection_color = Color::new(0.3, 1.0, 0.3, 1.0);
+        drawer.draw_colored_texture(tile_type, pixel.x, pixel.y, selection_color);
+    } else {
+        let opacity = get_opacity(&cell_index, &min_cell, &max_cell, &drawing.subcell_diff);
+        // let opacity = 1.0; // for debugging
+        drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, opacity);
+    }
+    draw_cell_hit_box(drawer, cell_index);
 }
 
 fn get_opacity(
@@ -98,6 +67,31 @@ fn get_opacity(
     } else {
         1.0
     })
+}
+
+fn draw_cell_hit_box(drawer: &impl DrawingTrait, cell_index: CellIndex) {
+    let mut subcell: SubCellIndex = cell_index.cast();
+    let size = 2.0;
+    let color = Color::new(1.0, 1.0, 1.0, 1.0);
+    let drawing = drawer.drawing();
+    let screen_width = drawer.screen_width();
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    drawer.draw_rectangle(me.x, me.y, size, size, color);
+    subcell.x += 0.5;
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    drawer.draw_rectangle(me.x, me.y, size, size, color);
+    subcell.x += 0.5;
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    drawer.draw_rectangle(me.x, me.y, size, size, color);
+    subcell.z += 1.0;
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    drawer.draw_rectangle(me.x, me.y, size, size, color);
+    subcell.x -= 1.0;
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    drawer.draw_rectangle(me.x, me.y, size, size, color);
+    subcell.z -= 0.5;
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    drawer.draw_rectangle(me.x, me.y, size, size, color);
 }
 
 #[cfg(test)]

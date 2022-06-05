@@ -94,7 +94,7 @@ mod tests {
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(1.0, 0.0, -1.0));
 
-        let pixel_diff = PixelPosition::new(PIXELS_PER_TILE_WIDTH as f32*0.5, 0.0);
+        let pixel_diff = PixelPosition::new(PIXELS_PER_TILE_WIDTH as f32 * 0.5, 0.0);
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(0.5, 0.0, -0.5));
     }

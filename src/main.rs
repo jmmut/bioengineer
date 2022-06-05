@@ -19,10 +19,10 @@ use external::assets_macroquad::load_tileset;
 use external::drawing_macroquad::DrawingMacroquad as DrawingImpl;
 use external::input_macroquad::InputMacroquad as InputSource;
 
+use crate::drawing::{apply_input, draw};
 use drawing::DrawingTrait;
 use game_state::GameState;
 use input::InputSourceTrait;
-use crate::drawing::{apply_input, draw};
 
 struct Implementations<D: DrawingTrait, I: InputSourceTrait> {
     drawer: D,
