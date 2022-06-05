@@ -112,11 +112,6 @@ pub trait DrawingTrait {
 
         // let (cell_diff, subcell_diff) = pixel_to_cell_offset(diff, &drawing_.subtile_offset);
         // drawing_.subcell_diff = subcell_diff;
-        drawing_.subtile_offset = subcell_to_subtile_offset(subcell_diff);
-        // println!(
-        //     "cell_diff: {}\nsubcell_diff: {}\nsubtile_offset: {}\n ",
-        //     cell_diff, subcell_diff, drawing_.subtile_offset
-        // );
         // if tile_offset.x != 0 || tile_offset.y != 0 {
         let min_cell = &mut drawing_.min_cell;
         let max_cell = &mut drawing_.max_cell;
@@ -127,25 +122,36 @@ pub trait DrawingTrait {
         min_cell.x -= cell_diff.x;
         max_cell.z -= cell_diff.z;
         min_cell.z -= cell_diff.z;
-        if min_cell.x < Map::min_cell().x {
+        if min_cell.x <= Map::min_cell().x {
             let diff = Map::min_cell().x - min_cell.x;
+            // println!("outside of map! resetting subtile_offset and subcell_diff.");
+            // print!("min_cell from {}", min_cell);
             min_cell.x += diff;
             max_cell.x += diff;
+            // println!(" to {}", min_cell);
+            drawing_.subcell_diff.x = 0.0;
         } else if max_cell.x > Map::max_cell().x {
             let diff = Map::max_cell().x - max_cell.x;
             min_cell.x += diff;
             max_cell.x += diff;
+            drawing_.subcell_diff.x = 0.0;
         }
-        if min_cell.z < Map::min_cell().z {
+        if min_cell.z <= Map::min_cell().z {
             let diff = Map::min_cell().z - min_cell.z;
             min_cell.z += diff;
             max_cell.z += diff;
+            drawing_.subcell_diff.z = 0.0;
         } else if max_cell.z > Map::max_cell().z {
             let diff = Map::max_cell().z - max_cell.z;
             min_cell.z += diff;
             max_cell.z += diff;
+            drawing_.subcell_diff.z = 0.0;
         }
-        // }
+        drawing_.subtile_offset = subcell_to_subtile_offset(drawing_.subcell_diff);
+        // println!(
+        //     "cell_diff: {}\nsubcell_diff: {}\nsubtile_offset: {}\n ",
+        //     cell_diff, subcell_diff, drawing_.subtile_offset
+        // );
     }
 
     fn draw_map(&self, game_state: &GameState) {
@@ -162,6 +168,7 @@ pub trait DrawingTrait {
                         &max_cell,
                         &self.drawing().subcell_diff,
                     );
+                    let opacity = 1.0; // for debugging
                     self.draw_transparent_texture(
                         game_state.map.get_cell(cell_index).tile_type,
                         x,
