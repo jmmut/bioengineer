@@ -1,6 +1,7 @@
 pub mod assets;
 mod coords;
 
+use crate::drawing::coords::cast::Cast;
 use crate::drawing::coords::{
     pixel_to_cell, pixel_to_subcell, pixel_to_subcell_center, subcell_center_to_pixel,
 };
@@ -257,25 +258,6 @@ pub trait DrawingTrait {
         );
         (pixels.x, pixels.y)
     }
-}
-
-/// Uses type inference to do an explicit cast, but without writing the target type.
-trait Cast<T> {
-    fn cast(&self) -> T;
-}
-impl Cast<CellIndex> for SubCellIndex {
-    fn cast(&self) -> CellIndex {
-        subcell_index_to_cell_index(*self)
-    }
-}
-impl Cast<SubCellIndex> for CellIndex {
-    fn cast(&self) -> SubCellIndex {
-        SubCellIndex::new(self.x as f32, self.y as f32, self.z as f32)
-    }
-}
-
-fn subcell_index_to_cell_index(cell: SubCellIndex) -> IVec3 {
-    CellIndex::new(cell.x as i32, cell.y as i32, cell.z as i32)
 }
 
 fn truncate_cell_offset(subcell_diff: SubCellIndex) -> (CellIndex, SubCellIndex) {

@@ -1,4 +1,6 @@
 use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use crate::drawing::coords::cast;
+use crate::drawing::coords::cast::Cast;
 use crate::drawing::{assets, Drawing, PixelPosition, SubCellIndex, SubTilePosition, TilePosition};
 use crate::map::CellIndex;
 
@@ -17,6 +19,15 @@ pub fn subtile_to_pixel(
     pixel
 }
 
+pub fn pixel_to_tile(
+    pixel_position: PixelPosition,
+    drawing: &Drawing,
+    screen_width: f32,
+) -> TilePosition {
+    let offset = pixel_offset(drawing, screen_width);
+    let tile = pixel_to_tile_offset(pixel_position - offset);
+    tile
+}
 pub fn pixel_to_subtile(
     pixel_position: PixelPosition,
     drawing: &Drawing,
@@ -50,6 +61,10 @@ pub fn pixel_to_subtile_offset(pixel_diff: PixelPosition) -> SubTilePosition {
         pixel_diff.x / assets::PIXELS_PER_TILE_WIDTH as f32,
         pixel_diff.y / (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.5),
     )
+}
+
+pub fn pixel_to_tile_offset(pixel_diff: PixelPosition) -> TilePosition {
+    pixel_to_subtile_offset(pixel_diff).cast()
 }
 
 #[cfg(test)]

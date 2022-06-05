@@ -1,10 +1,9 @@
 use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use crate::drawing::{
-    assets, Cast, Drawing, PixelPosition, SubCellIndex, SubTilePosition, TilePosition,
-};
+use crate::drawing::coords::cast::Cast;
+use crate::drawing::{assets, Drawing, PixelPosition, SubCellIndex, SubTilePosition, TilePosition};
 use crate::map::CellIndex;
 
-pub fn cell_to_tile(
+pub fn cell_to_tile_unwrapped(
     min_cell: &CellIndex,
     max_cell: &CellIndex,
     i_x: i32,
@@ -12,10 +11,10 @@ pub fn cell_to_tile(
     i_z: i32,
 ) -> TilePosition {
     let cell = CellIndex::new(i_x, i_y, i_z);
-    cell_to_tile_(cell, min_cell, max_cell)
+    cell_to_tile(cell, min_cell, max_cell)
 }
 
-pub fn cell_to_tile_(cell: CellIndex, min_cell: &CellIndex, max_cell: &CellIndex) -> TilePosition {
+pub fn cell_to_tile(cell: CellIndex, min_cell: &CellIndex, max_cell: &CellIndex) -> TilePosition {
     let offset = cell_offset(min_cell, max_cell);
     cell_to_tile_offset(cell - offset)
 }
@@ -81,15 +80,15 @@ mod tests {
         let min_cell = CellIndex::new(0, 0, 0);
         let max_cell = CellIndex::new(10, 10, 10);
         assert_eq!(
-            cell_to_tile(&min_cell, &max_cell, 0, max_cell.y, 0),
+            cell_to_tile_unwrapped(&min_cell, &max_cell, 0, max_cell.y, 0),
             TilePosition::new(0, 0)
         );
         assert_eq!(
-            cell_to_tile(&min_cell, &max_cell, 1, max_cell.y, 1),
+            cell_to_tile_unwrapped(&min_cell, &max_cell, 1, max_cell.y, 1),
             TilePosition::new(0, 2)
         );
         assert_eq!(
-            cell_to_tile(&min_cell, &max_cell, 1, max_cell.y, 0),
+            cell_to_tile_unwrapped(&min_cell, &max_cell, 1, max_cell.y, 0),
             TilePosition::new(1, 1)
         );
     }
@@ -98,7 +97,7 @@ mod tests {
     fn position_tile_min_cell() {
         let min_cell = CellIndex::new(0, 0, 0);
         let max_cell = CellIndex::new(10, 10, 10);
-        let tile = cell_to_tile(&min_cell, &max_cell, min_cell.x, max_cell.y, min_cell.z);
+        let tile = cell_to_tile_unwrapped(&min_cell, &max_cell, min_cell.x, max_cell.y, min_cell.z);
         assert_eq!(tile, TilePosition::new(0, 0));
     }
 
@@ -107,11 +106,11 @@ mod tests {
         let min_cell = CellIndex::new(-5, -25, -55);
         let max_cell = CellIndex::new(5, -15, -45);
         assert_eq!(
-            cell_to_tile(&min_cell, &max_cell, min_cell.x, max_cell.y, min_cell.z),
+            cell_to_tile_unwrapped(&min_cell, &max_cell, min_cell.x, max_cell.y, min_cell.z),
             TilePosition::new(0, 0)
         );
         assert_eq!(
-            cell_to_tile(
+            cell_to_tile_unwrapped(
                 &min_cell,
                 &max_cell,
                 min_cell.x + 1,
@@ -127,21 +126,21 @@ mod tests {
         let min_cell = CellIndex::new(-5, -25, -55);
         let max_cell = CellIndex::new(5, -15, -45);
         assert_eq!(
-            cell_to_tile(
+            cell_to_tile_unwrapped(
                 &min_cell,
                 &max_cell,
                 min_cell.x + 1,
                 max_cell.y,
                 min_cell.z + 1
             ),
-            cell_to_tile(&min_cell, &max_cell, min_cell.x, max_cell.y - 1, min_cell.z)
+            cell_to_tile_unwrapped(&min_cell, &max_cell, min_cell.x, max_cell.y - 1, min_cell.z)
         );
     }
 
     fn cell_to_tile_to_cell(initial_cell: CellIndex) {
         let min_cell = CellIndex::new(-10, -10, -10);
         let max_cell = CellIndex::new(10, initial_cell.y, 10);
-        let tile = cell_to_tile(
+        let tile = cell_to_tile_unwrapped(
             &min_cell,
             &max_cell,
             initial_cell.x,

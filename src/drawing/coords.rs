@@ -1,31 +1,22 @@
+pub mod cast;
 mod cell_tile;
 mod tile_pixel;
 
 use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::drawing::coords::cell_tile::{
-    cell_to_tile, subcell_to_subtile, subtile_to_subcell, subtile_to_subcell_offset, tile_to_cell,
+    cell_to_tile, cell_to_tile_unwrapped, subcell_to_subtile, subtile_to_subcell,
+    subtile_to_subcell_offset, tile_to_cell,
 };
 use crate::drawing::coords::tile_pixel::{
-    pixel_to_subtile, pixel_to_subtile_offset, subtile_to_pixel, tile_to_pixel,
+    pixel_to_subtile, pixel_to_subtile_offset, pixel_to_tile, subtile_to_pixel, tile_to_pixel,
 };
 use crate::drawing::{assets, Drawing, PixelPosition, SubCellIndex, SubTilePosition, TilePosition};
 use crate::map::CellIndex;
 use crate::DrawingTrait;
 
 pub fn cell_to_pixel(cell_index: CellIndex, drawing: &Drawing, screen_width: f32) -> PixelPosition {
-    let tile = cell_to_tile(
-        &drawing.min_cell,
-        &drawing.max_cell,
-        cell_index.x,
-        cell_index.y,
-        cell_index.z,
-    );
+    let tile = cell_to_tile(cell_index, &drawing.min_cell, &drawing.max_cell);
     tile_to_pixel(tile, drawing, screen_width)
-}
-
-pub fn pixel_to_cell_offset(pixel_diff: PixelPosition) -> SubCellIndex {
-    let subtile = pixel_to_subtile_offset(pixel_diff);
-    subtile_to_subcell_offset(subtile)
 }
 
 pub fn pixel_to_cell(
@@ -33,7 +24,7 @@ pub fn pixel_to_cell(
     drawing: &Drawing,
     screen_width: f32,
 ) -> CellIndex {
-    let subtile_offset = pixel_to_subtile(pixel_position, drawing, screen_width);
+    let subtile_offset = pixel_to_tile(pixel_position, drawing, screen_width);
     let cell_index = tile_to_cell(
         TilePosition::new(subtile_offset.x as i32, subtile_offset.y as i32),
         &drawing.min_cell,
@@ -41,6 +32,7 @@ pub fn pixel_to_cell(
     );
     cell_index
 }
+
 pub fn pixel_to_subcell(
     pixel_position: PixelPosition,
     drawing: &Drawing,
@@ -49,6 +41,11 @@ pub fn pixel_to_subcell(
     let subtile_offset = pixel_to_subtile(pixel_position, drawing, screen_width);
     let cell_index = subtile_to_subcell(subtile_offset, &drawing.min_cell, &drawing.max_cell);
     cell_index
+}
+
+pub fn pixel_to_cell_offset(pixel_diff: PixelPosition) -> SubCellIndex {
+    let subtile = pixel_to_subtile_offset(pixel_diff);
+    subtile_to_subcell_offset(subtile)
 }
 
 pub fn pixel_to_subcell_center(
