@@ -39,6 +39,9 @@ impl DrawingTrait for DrawingMacroquad {
         let mask_color = Color::new(1.0, 1.0, 1.0, opacity_coef);
         draw_texture(self.textures[tile as usize], x, y, mask_color);
     }
+    fn draw_colored_texture(&self, tile: TileType, x: f32, y: f32, color_mask: Color) {
+        draw_texture(self.textures[tile as usize], x, y, color_mask);
+    }
 
     fn clear_background(&self, color: Color) {
         clear_background(color);

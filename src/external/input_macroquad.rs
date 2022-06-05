@@ -29,6 +29,15 @@ impl InputMacroquad {
         }
         diff
     }
+
+    pub fn get_left_click_position(&mut self) -> Option<PixelPosition> {
+        if is_mouse_button_pressed(MouseButton::Left) {
+            let (position_x, position_y) = mouse_position();
+            Option::Some(PixelPosition::new(position_x, position_y))
+        } else {
+            Option::None
+        }
+    }
 }
 
 impl InputSourceTrait for InputMacroquad {
@@ -41,10 +50,12 @@ impl InputSourceTrait for InputMacroquad {
         }
         let change_height_rel = mouse_y as i32;
         let move_map_horizontally = self.get_horizontal_move();
+        let start_selection = self.get_left_click_position();
         Input {
             quit,
             change_height_rel,
             move_map_horizontally,
+            start_selection,
         }
     }
 }

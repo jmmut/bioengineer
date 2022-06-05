@@ -1,4 +1,5 @@
 pub mod assets;
+mod coords;
 
 use crate::game_state::GameState;
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
@@ -7,6 +8,7 @@ use crate::{input, Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use input::Input;
 use std::cmp::min;
+use std::collections::HashSet;
 
 pub type PixelPosition = Vec2;
 pub type TilePosition = IVec2;
@@ -21,6 +23,7 @@ pub struct Drawing {
     max_cell: CellIndex,
     subtile_offset: SubTilePosition,
     subcell_diff: SubCellIndex,
+    highlighted_cells: HashSet<CellIndex>,
 }
 
 impl Drawing {
@@ -30,16 +33,20 @@ impl Drawing {
             max_cell: CellIndex::new(9, 1, 9),
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
+            highlighted_cells: HashSet::new(),
         }
     }
 }
 
 pub trait DrawingTrait {
     fn new(textures: Vec<Texture2D>) -> Self;
+
     fn apply_input(&mut self, input: &Input) {
         self.change_height_rel(input.change_height_rel);
         self.move_map_horizontally(input.move_map_horizontally);
+        self.select_cell(input.start_selection);
     }
+
     fn draw(&self, game_state: &GameState) {
         self.clear_background(GREY);
         self.draw_map(game_state);
@@ -74,6 +81,7 @@ pub trait DrawingTrait {
     }
     fn draw_texture(&self, tile: TileType, x: f32, y: f32);
     fn draw_transparent_texture(&self, tile: TileType, x: f32, y: f32, opacity_coef: f32);
+    fn draw_colored_texture(&self, tile: TileType, x: f32, y: f32, color_mask: Color);
     fn clear_background(&self, color: Color);
     fn drawing(&self) -> &Drawing;
     fn drawing_mut(&mut self) -> &mut Drawing;
@@ -150,6 +158,22 @@ pub trait DrawingTrait {
         // );
     }
 
+    fn select_cell(&mut self, start_selection: Option<PixelPosition>) {
+        match start_selection {
+            None => {}
+            Some(selected) => {
+                let drawing_ = self.drawing_mut();
+                drawing_.highlighted_cells.clear();
+                let local_cell_index = pixel_to_cell_offset(selected, &drawing_.subtile_offset).0;
+                let global_cell_index = local_cell_index + drawing_.min_cell;
+                println!("min cell {}", drawing_.min_cell);
+                println!("local cell {}", local_cell_index);
+                println!("selected cell {}", global_cell_index);
+                drawing_.highlighted_cells.insert(global_cell_index);
+            }
+        }
+    }
+
     fn draw_map(&self, game_state: &GameState) {
         let min_cell = &self.drawing().min_cell;
         let max_cell = &self.drawing().max_cell;
@@ -158,58 +182,44 @@ pub trait DrawingTrait {
                 for i_x in min_cell.x..=max_cell.x {
                     let cell_index = CellIndex::new(i_x, i_y, i_z);
                     let (x, y) = self.get_draw_position(i_x, i_y, i_z);
-                    let opacity = get_opacity(
-                        &cell_index,
-                        &min_cell,
-                        &max_cell,
-                        &self.drawing().subcell_diff,
-                    );
-                    // let opacity = 1.0; // for debugging
-                    self.draw_transparent_texture(
-                        game_state.map.get_cell(cell_index).tile_type,
-                        x,
-                        y,
-                        opacity,
-                    );
+                    if self.drawing().highlighted_cells.len() > 0 {
+                        // println!("selected something");
+                    }
+                    if self.drawing().highlighted_cells.contains(&cell_index) {
+                        self.draw_colored_texture(
+                            game_state.map.get_cell(cell_index).tile_type,
+                            x,
+                            y,
+                            Color::new(1.0, 1.0, 0.5, 0.2),
+                        );
+                    } else {
+                        let opacity = get_opacity(
+                            &cell_index,
+                            &min_cell,
+                            &max_cell,
+                            &self.drawing().subcell_diff,
+                        );
+                        // let opacity = 1.0; // for debugging
+                        self.draw_transparent_texture(
+                            game_state.map.get_cell(cell_index).tile_type,
+                            x,
+                            y,
+                            opacity,
+                        );
+                    }
                 }
             }
         }
     }
 
     fn get_draw_position(&self, i_x: i32, i_y: i32, i_z: i32) -> (f32, f32) {
-        let (mut x, mut y) = get_tile_position(
-            &self.drawing().min_cell,
-            &self.drawing().max_cell,
-            i_x,
-            i_y,
-            i_z,
+        let pixels = coords::cell_to_pixel(
+            CellIndex::new(i_x, i_y, i_z),
+            &self.drawing(),
+            self.screen_width(),
         );
-        let pixels_half_tile_x = PIXELS_PER_TILE_WIDTH as f32 * 0.5;
-        let pixels_half_tile_y = PIXELS_PER_TILE_HEIGHT as f32 * 0.5;
-        let pixels_height_isometric = pixels_half_tile_y * 0.5;
-        x = f32::trunc(
-            x * pixels_half_tile_x + self.screen_width() / 2.0 - pixels_half_tile_x
-                + self.drawing().subtile_offset.x * PIXELS_PER_TILE_WIDTH as f32,
-        );
-        y = f32::trunc(
-            y * pixels_height_isometric
-                + self.drawing().subtile_offset.y * PIXELS_PER_TILE_HEIGHT as f32,
-        );
-        (x, y)
+        (pixels.x, pixels.y)
     }
-}
-
-fn get_tile_position(
-    min_cell: &CellIndex,
-    max_cell: &CellIndex,
-    i_x: i32,
-    i_y: i32,
-    i_z: i32,
-) -> (f32, f32) {
-    (
-        ((i_x - min_cell.x) - (i_z - min_cell.z)) as f32,
-        ((i_x - min_cell.x) + (i_z - min_cell.z) + 2 * (max_cell.y - i_y)) as f32,
-    )
 }
 
 fn pixel_to_cell_offset(
@@ -274,9 +284,9 @@ fn trunc_tile_offset(new_tile_offset: f32) -> (i32, f32) {
 
 fn tile_to_cell_offset(tile_offset: TilePosition) -> CellIndex {
     CellIndex::new(
-        tile_offset.x + tile_offset.y,
+        (tile_offset.x + tile_offset.y)/2,
         0,
-        -tile_offset.x + tile_offset.y,
+        (-tile_offset.x + tile_offset.y)/2,
     )
 }
 fn subtile_to_subcell_offset(subtile_offset: SubTilePosition) -> SubCellIndex {
@@ -338,63 +348,6 @@ fn assert_in_range_0_1(x: f32) -> f32 {
 mod tests {
     use super::*;
     use crate::IVec3;
-
-    #[test]
-    fn position_tile_basic() {
-        let min_cell = CellIndex::new(0, 0, 0);
-        let max_cell = CellIndex::new(10, 10, 10);
-        assert_eq!(
-            get_tile_position(&min_cell, &max_cell, 0, max_cell.y, 0),
-            (0.0, 0.0)
-        );
-        assert_eq!(
-            get_tile_position(&min_cell, &max_cell, 1, max_cell.y, 1),
-            (0.0, 2.0)
-        );
-    }
-
-    #[test]
-    fn position_tile_min_cell() {
-        let min_cell = CellIndex::new(0, 0, 0);
-        let max_cell = CellIndex::new(10, 10, 10);
-        let (x, y) = get_tile_position(&min_cell, &max_cell, min_cell.x, max_cell.y, min_cell.z);
-        assert_eq!(x, 0.0);
-        assert_eq!(y, 0.0);
-    }
-    #[test]
-    fn position_tile_negative() {
-        let min_cell = CellIndex::new(-5, -25, -55);
-        let max_cell = CellIndex::new(5, -15, -45);
-        assert_eq!(
-            get_tile_position(&min_cell, &max_cell, min_cell.x, max_cell.y, min_cell.z),
-            (0.0, 0.0)
-        );
-        assert_eq!(
-            get_tile_position(
-                &min_cell,
-                &max_cell,
-                min_cell.x + 1,
-                max_cell.y,
-                min_cell.z + 1
-            ),
-            (0.0, 2.0)
-        );
-    }
-    #[test]
-    fn position_tile_height() {
-        let min_cell = CellIndex::new(-5, -25, -55);
-        let max_cell = CellIndex::new(5, -15, -45);
-        assert_eq!(
-            get_tile_position(
-                &min_cell,
-                &max_cell,
-                min_cell.x + 1,
-                max_cell.y,
-                min_cell.z + 1
-            ),
-            get_tile_position(&min_cell, &max_cell, min_cell.x, max_cell.y - 1, min_cell.z)
-        );
-    }
 
     #[test]
     fn transparency_border_no_offset() {
