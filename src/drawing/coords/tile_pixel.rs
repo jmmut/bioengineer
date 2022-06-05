@@ -51,15 +51,15 @@ pub fn pixel_offset(drawing: &Drawing, screen_width: f32) -> PixelPosition {
 
 pub fn subtile_to_pixel_offset(subtile: SubTilePosition) -> PixelPosition {
     PixelPosition::new(
-        subtile.x * assets::PIXELS_PER_TILE_WIDTH as f32,
-        subtile.y * (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.5),
+        subtile.x * (assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5),
+        subtile.y * (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.25),
     )
 }
 
 pub fn pixel_to_subtile_offset(pixel_diff: PixelPosition) -> SubTilePosition {
     SubTilePosition::new(
-        pixel_diff.x / assets::PIXELS_PER_TILE_WIDTH as f32,
-        pixel_diff.y / (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.5),
+        pixel_diff.x / (assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5),
+        pixel_diff.y / (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.25),
     )
 }
 
