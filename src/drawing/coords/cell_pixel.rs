@@ -89,28 +89,28 @@ mod tests {
 
     #[test]
     fn test_pixel_to_cell_offset_x() {
-        let pixel_diff = PixelPosition::new(PIXELS_PER_TILE_WIDTH as f32 * 2.0, 0.0);
+        let pixel_diff = PixelPosition::new(PIXELS_PER_TILE_WIDTH as f32, 0.0);
         let subtile_offset = SubTilePosition::new(0.0, 0.0);
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(1.0, 0.0, -1.0));
 
-        let pixel_diff = PixelPosition::new(PIXELS_PER_TILE_WIDTH as f32, 0.0);
+        let pixel_diff = PixelPosition::new(PIXELS_PER_TILE_WIDTH as f32*0.5, 0.0);
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(0.5, 0.0, -0.5));
     }
 
     #[test]
     fn test_pixel_to_cell_offset_y() {
-        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 2.0);
+        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32);
         let mut subtile_offset = SubTilePosition::new(0.0, 0.0);
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(2.0, 0.0, 2.0));
 
-        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32);
+        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 0.5);
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(1.0, 0.0, 1.0));
 
-        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 0.5);
+        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 0.25);
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(0.5, 0.0, 0.5));
     }
