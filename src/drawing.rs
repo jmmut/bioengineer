@@ -1,7 +1,9 @@
 pub mod assets;
 mod coords;
 
-use crate::drawing::coords::{pixel_to_cell, pixel_to_subcell, pixel_to_subcell_center, subcell_center_to_pixel};
+use crate::drawing::coords::{
+    pixel_to_cell, pixel_to_subcell, pixel_to_subcell_center, subcell_center_to_pixel,
+};
 use crate::game_state::GameState;
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
 use crate::map::{Cell, CellIndex, Map, TileType};
@@ -170,15 +172,17 @@ pub trait DrawingTrait {
         match start_selection {
             None => {}
             Some(selected) => {
-                let cell = pixel_to_subcell_center(selected, self.drawing(), self.screen_width());
+                let subcell =
+                    pixel_to_subcell_center(selected, self.drawing(), self.screen_width());
                 let drawing_ = self.drawing_mut();
                 drawing_.highlighted_cells.clear();
                 // let local_cell_index = pixel_to_cell_offset(selected, ).0;
                 // let global_cell_index = local_cell_index + drawing_.min_cell;
                 // println!("min cell {}", drawing_.min_cell);
                 // println!("local cell {}", local_cell_index);
-                println!("selected cell {}", cell);
-                drawing_.highlighted_cells.insert(cell.cast());
+                println!("selected cell {}", subcell);
+                let (cell, _) = truncate_cell_offset(subcell);
+                drawing_.highlighted_cells.insert(cell);
             }
         }
     }
@@ -226,28 +230,22 @@ pub trait DrawingTrait {
         let mut subcell: SubCellIndex = cell_index.cast();
         let size = 2.0;
         let color = Color::new(1.0, 1.0, 1.0, 1.0);
-        let me =
-            subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
+        let me = subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
         self.draw_rectangle(me.x, me.y, size, size, color);
         subcell.x += 0.5;
-        let me =
-            subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
+        let me = subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
         self.draw_rectangle(me.x, me.y, size, size, color);
         subcell.x += 0.5;
-        let me =
-            subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
+        let me = subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
         self.draw_rectangle(me.x, me.y, size, size, color);
         subcell.z += 1.0;
-        let me =
-            subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
+        let me = subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
         self.draw_rectangle(me.x, me.y, size, size, color);
         subcell.x -= 1.0;
-        let me =
-            subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
+        let me = subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
         self.draw_rectangle(me.x, me.y, size, size, color);
         subcell.z -= 0.5;
-        let me =
-            subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
+        let me = subcell_center_to_pixel(subcell, self.drawing(), self.screen_width());
         self.draw_rectangle(me.x, me.y, size, size, color);
     }
 
@@ -278,14 +276,6 @@ impl Cast<SubCellIndex> for CellIndex {
 
 fn subcell_index_to_cell_index(cell: SubCellIndex) -> IVec3 {
     CellIndex::new(cell.x as i32, cell.y as i32, cell.z as i32)
-}
-
-fn pixel_to_cell_offset(pixel_diff: PixelPosition) -> SubCellIndex {
-    let subtile = SubTilePosition::new(
-        pixel_diff.x / assets::PIXELS_PER_TILE_WIDTH as f32,
-        pixel_diff.y / (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.5),
-    );
-    coords::subtile_to_subcell_offset(subtile)
 }
 
 fn truncate_cell_offset(subcell_diff: SubCellIndex) -> (CellIndex, SubCellIndex) {
@@ -363,6 +353,7 @@ fn assert_in_range_0_1(x: f32) -> f32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::drawing::coords::pixel_to_cell_offset;
     use crate::IVec3;
 
     #[test]
