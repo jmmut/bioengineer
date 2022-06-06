@@ -103,8 +103,10 @@ pub fn hitbox_offset() -> PixelPosition {
 /// use this function before `pixel_to_cell()` for a centered square hitbox
 /// it might not work because of truncation errors
 pub fn hitbox_offset_square() -> PixelPosition {
-    PixelPosition::new(-(assets::PIXELS_PER_TILE_WIDTH as f32 * 0.25),
-                       -(assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.125))
+    PixelPosition::new(
+        -(assets::PIXELS_PER_TILE_WIDTH as f32 * 0.25),
+        -(assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.125),
+    )
 }
 
 #[cfg(test)]

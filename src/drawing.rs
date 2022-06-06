@@ -180,8 +180,8 @@ impl Drawing {
             match drawing_.highlight_end {
                 None => {
                     let moved_selected = mouse_position + hitbox_offset();
-                    let end_subcell = pixel_to_subcell_center(moved_selected, drawing_,
-                                                             screen_width);
+                    let end_subcell =
+                        pixel_to_subcell_center(moved_selected, drawing_, screen_width);
                     let (end_cell, _) = truncate_cell_offset(end_subcell);
                     let cell_cube = CellCubeIterator::new_from_mixed(
                         drawing_.highlight_start.unwrap(),
@@ -204,18 +204,6 @@ impl Drawing {
                 drawing_.highlight_end = Option::Some(end_cell);
             }
         }
-
-                // let subcell = pixel_to_subcell_center(moved_selected, self, screen_width);
-                // drawing_.highlighted_cells.clear();
-                // // let local_cell_index = pixel_to_cell_offset(selected, ).0;
-                // // let global_cell_index = local_cell_index + drawing_.min_cell;
-                // // println!("min cell {}", drawing_.min_cell);
-                // // println!("local cell {}", local_cell_index);
-                // // println!("selected cell {}", subcell);
-                // let (cell, _) = truncate_cell_offset(subcell);
-                // // println!("selected truncated cell {}", cell);
-                // drawing_.highlighted_cells.insert(cell);
-
     }
     fn end_select_cell(&mut self, end_selection: Option<PixelPosition>, screen_width: f32) {
         match end_selection {
