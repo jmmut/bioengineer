@@ -1,8 +1,8 @@
 use crate::drawing::PixelPosition;
 use crate::input::{Input, InputSourceTrait};
 use macroquad::input::{
-    is_key_down, is_mouse_button_down, is_mouse_button_pressed, mouse_position, mouse_wheel,
-    KeyCode, MouseButton,
+    is_key_down, is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released,
+    mouse_position, mouse_wheel, KeyCode, MouseButton,
 };
 
 pub struct InputMacroquad {
@@ -38,6 +38,14 @@ impl InputMacroquad {
             Option::None
         }
     }
+    pub fn get_left_click_release(&mut self) -> Option<PixelPosition> {
+        if is_mouse_button_released(MouseButton::Left) {
+            let (position_x, position_y) = mouse_position();
+            Option::Some(PixelPosition::new(position_x, position_y))
+        } else {
+            Option::None
+        }
+    }
 }
 
 impl InputSourceTrait for InputMacroquad {
@@ -51,11 +59,15 @@ impl InputSourceTrait for InputMacroquad {
         let change_height_rel = mouse_y as i32;
         let move_map_horizontally = self.get_horizontal_move();
         let start_selection = self.get_left_click_position();
+        let end_selection = self.get_left_click_release();
+        let (mouse_position_x, mouse_position_y) = mouse_position();
         Input {
             quit,
             change_height_rel,
             move_map_horizontally,
             start_selection,
+            end_selection,
+            mouse_position: PixelPosition::new(mouse_position_x, mouse_position_y),
         }
     }
 }

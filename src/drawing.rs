@@ -7,9 +7,10 @@ use crate::drawing::coords::cast::Cast;
 use crate::drawing::coords::cell_pixel::{cell_to_pixel, pixel_to_subcell_offset};
 use crate::drawing::coords::cell_tile::subcell_to_subtile_offset;
 use crate::drawing::coords::truncate::truncate_cell_offset;
+use crate::drawing::tiles::{hitbox_offset, hitbox_offset_square};
 use crate::game_state::GameState;
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
-use crate::map::{Cell, CellIndex, Map, TileType};
+use crate::map::{Cell, CellCubeIterator, CellIndex, Map, TileType};
 use crate::{input, Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use coords::cell_pixel;
@@ -20,7 +21,6 @@ use input::Input;
 use macroquad::shapes::draw_rectangle;
 use std::cmp::min;
 use std::collections::HashSet;
-use crate::drawing::tiles::hitbox_offset;
 
 pub type PixelPosition = Vec2;
 pub type TilePosition = IVec2;
@@ -33,7 +33,12 @@ pub fn apply_input(drawer: &mut impl DrawingTrait, input: &Input) {
     let drawing = drawer.drawing_mut();
     drawing.change_height_rel(input.change_height_rel);
     drawing.move_map_horizontally(input.move_map_horizontally, screen_width);
-    drawing.select_cell(input.start_selection, screen_width);
+    drawing.select_cells(
+        input.start_selection,
+        input.end_selection,
+        input.mouse_position,
+        screen_width,
+    );
 }
 
 pub fn draw(drawer: &impl DrawingTrait, game_state: &GameState) {
@@ -52,6 +57,8 @@ pub struct Drawing {
     max_cell: CellIndex,
     subtile_offset: SubTilePosition,
     subcell_diff: SubCellIndex,
+    highlight_start: Option<CellIndex>,
+    highlight_end: Option<CellIndex>,
     highlighted_cells: HashSet<CellIndex>,
 }
 
@@ -62,6 +69,8 @@ impl Drawing {
             max_cell: CellIndex::new(9, 1, 9),
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
+            highlight_start: Option::None,
+            highlight_end: Option::None,
             highlighted_cells: HashSet::new(),
         }
     }
@@ -149,8 +158,63 @@ impl Drawing {
         println!("subtile_offset: {}\n ", drawing_.subtile_offset);
     }
 
-    fn select_cell(&mut self, start_selection: Option<PixelPosition>, screen_width: f32) {
+    fn select_cells(
+        &mut self,
+        start_selection: Option<PixelPosition>,
+        end_selection: Option<PixelPosition>,
+        mouse_position: PixelPosition,
+        screen_width: f32,
+    ) {
+        let drawing_ = self;
         match start_selection {
+            None => {}
+            Some(selected) => {
+                let moved_selected = selected + hitbox_offset_square();
+                drawing_.highlight_start =
+                    Option::Some(pixel_to_cell(moved_selected, drawing_, screen_width));
+                drawing_.highlight_end = Option::None;
+            }
+        }
+        if drawing_.highlight_start.is_some() {
+            match drawing_.highlight_end {
+                None => {
+                    let moved_selected = mouse_position + hitbox_offset_square();
+                    let end_cell = pixel_to_cell(moved_selected, drawing_, screen_width);
+                    let cell_cube = CellCubeIterator::new_from_mixed(
+                        drawing_.highlight_start.unwrap(),
+                        end_cell,
+                    );
+                    drawing_.highlighted_cells.clear();
+                    for cell in cell_cube {
+                        drawing_.highlighted_cells.insert(cell);
+                    }
+                }
+                Some(_) => {}
+            }
+        }
+        match end_selection {
+            None => {}
+            Some(selected) => {
+                let moved_selected = selected + hitbox_offset_square();
+                let end_cell = pixel_to_cell(moved_selected, drawing_, screen_width);
+                drawing_.highlight_end = Option::Some(end_cell);
+            }
+        }
+
+                // let subcell = pixel_to_subcell_center(moved_selected, self, screen_width);
+                // drawing_.highlighted_cells.clear();
+                // // let local_cell_index = pixel_to_cell_offset(selected, ).0;
+                // // let global_cell_index = local_cell_index + drawing_.min_cell;
+                // // println!("min cell {}", drawing_.min_cell);
+                // // println!("local cell {}", local_cell_index);
+                // // println!("selected cell {}", subcell);
+                // let (cell, _) = truncate_cell_offset(subcell);
+                // // println!("selected truncated cell {}", cell);
+                // drawing_.highlighted_cells.insert(cell);
+
+    }
+    fn end_select_cell(&mut self, end_selection: Option<PixelPosition>, screen_width: f32) {
+        match end_selection {
             None => {}
             Some(selected) => {
                 let moved_selected = selected + hitbox_offset();

@@ -69,7 +69,6 @@ fn get_opacity(
     })
 }
 
-
 fn draw_cell_hit_box(drawer: &impl DrawingTrait, cell_index: CellIndex) {
     let mut subcell: SubCellIndex = cell_index.cast();
     let size = 2.0;
@@ -96,8 +95,15 @@ fn draw_cell_hit_box(drawer: &impl DrawingTrait, cell_index: CellIndex) {
     drawer.draw_rectangle(me.x, me.y, size, size, color);
 }
 
+/// use this function before `pixel_to_subcell_center()` for a lifted rhombus hitbox
 pub fn hitbox_offset() -> PixelPosition {
     PixelPosition::new(0.0, assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.125)
+}
+
+/// use this function before `pixel_to_cell()` for a centered square hitbox
+pub fn hitbox_offset_square() -> PixelPosition {
+    PixelPosition::new(-(assets::PIXELS_PER_TILE_WIDTH as f32 * 0.25),
+                       -(assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.125))
 }
 
 #[cfg(test)]
