@@ -32,7 +32,7 @@ fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: Cel
     //     println!("selected something");
     // }
     if drawing.highlighted_cells.contains(&cell_index) {
-        let selection_color = Color::new(0.3, 1.0, 0.3, 1.0);
+        let selection_color = Color::new(0.2, 0.8, 0.2, 1.0);
         drawer.draw_colored_texture(tile_type, pixel.x, pixel.y, selection_color);
     } else {
         let opacity = get_opacity(&cell_index, &min_cell, &max_cell, &drawing.subcell_diff);
@@ -101,6 +101,7 @@ pub fn hitbox_offset() -> PixelPosition {
 }
 
 /// use this function before `pixel_to_cell()` for a centered square hitbox
+/// it might not work because of truncation errors
 pub fn hitbox_offset_square() -> PixelPosition {
     PixelPosition::new(-(assets::PIXELS_PER_TILE_WIDTH as f32 * 0.25),
                        -(assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.125))

@@ -155,7 +155,7 @@ impl Drawing {
         //     let test_cell_2 = pixel_to_cell(p, drawing_, screen_width);
         //     println!("for test_cell {}, got cell {}", test_cell, test_cell_2);
         // }
-        println!("subtile_offset: {}\n ", drawing_.subtile_offset);
+        // println!("subtile_offset: {}\n ", drawing_.subtile_offset);
     }
 
     fn select_cells(
@@ -169,17 +169,20 @@ impl Drawing {
         match start_selection {
             None => {}
             Some(selected) => {
-                let moved_selected = selected + hitbox_offset_square();
-                drawing_.highlight_start =
-                    Option::Some(pixel_to_cell(moved_selected, drawing_, screen_width));
+                let moved_selected = selected + hitbox_offset();
+                let subcell = pixel_to_subcell_center(moved_selected, drawing_, screen_width);
+                let (cell, _) = truncate_cell_offset(subcell);
+                drawing_.highlight_start = Option::Some(cell);
                 drawing_.highlight_end = Option::None;
             }
         }
         if drawing_.highlight_start.is_some() {
             match drawing_.highlight_end {
                 None => {
-                    let moved_selected = mouse_position + hitbox_offset_square();
-                    let end_cell = pixel_to_cell(moved_selected, drawing_, screen_width);
+                    let moved_selected = mouse_position + hitbox_offset();
+                    let end_subcell = pixel_to_subcell_center(moved_selected, drawing_,
+                                                             screen_width);
+                    let (end_cell, _) = truncate_cell_offset(end_subcell);
                     let cell_cube = CellCubeIterator::new_from_mixed(
                         drawing_.highlight_start.unwrap(),
                         end_cell,
@@ -195,8 +198,9 @@ impl Drawing {
         match end_selection {
             None => {}
             Some(selected) => {
-                let moved_selected = selected + hitbox_offset_square();
-                let end_cell = pixel_to_cell(moved_selected, drawing_, screen_width);
+                let moved_selected = selected + hitbox_offset();
+                let end_subcell = pixel_to_subcell_center(moved_selected, drawing_, screen_width);
+                let (end_cell, _) = truncate_cell_offset(end_subcell);
                 drawing_.highlight_end = Option::Some(end_cell);
             }
         }
