@@ -1,7 +1,7 @@
 use crate::drawing::coords::cast::Cast;
 use crate::drawing::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
 use crate::drawing::coords::truncate::assert_in_range_0_1;
-use crate::drawing::{Drawing, PixelPosition, SubCellIndex};
+use crate::drawing::{assets, Drawing, PixelPosition, SubCellIndex};
 use crate::map::CellIndex;
 use crate::Color;
 use crate::{DrawingTrait, GameState};
@@ -39,7 +39,7 @@ fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: Cel
         // let opacity = 1.0; // for debugging
         drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, opacity);
     }
-    draw_cell_hit_box(drawer, cell_index);
+    // draw_cell_hit_box(drawer, cell_index);
 }
 
 fn get_opacity(
@@ -69,29 +69,35 @@ fn get_opacity(
     })
 }
 
+
 fn draw_cell_hit_box(drawer: &impl DrawingTrait, cell_index: CellIndex) {
     let mut subcell: SubCellIndex = cell_index.cast();
     let size = 2.0;
     let color = Color::new(1.0, 1.0, 1.0, 1.0);
     let drawing = drawer.drawing();
     let screen_width = drawer.screen_width();
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    let offset = hitbox_offset();
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width) - offset;
     drawer.draw_rectangle(me.x, me.y, size, size, color);
     subcell.x += 0.5;
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width) - offset;
     drawer.draw_rectangle(me.x, me.y, size, size, color);
     subcell.x += 0.5;
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width) - offset;
     drawer.draw_rectangle(me.x, me.y, size, size, color);
     subcell.z += 1.0;
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width) - offset;
     drawer.draw_rectangle(me.x, me.y, size, size, color);
     subcell.x -= 1.0;
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width) - offset;
     drawer.draw_rectangle(me.x, me.y, size, size, color);
     subcell.z -= 0.5;
-    let me = subcell_center_to_pixel(subcell, drawing, screen_width);
+    let me = subcell_center_to_pixel(subcell, drawing, screen_width) - offset;
     drawer.draw_rectangle(me.x, me.y, size, size, color);
+}
+
+pub fn hitbox_offset() -> PixelPosition {
+    PixelPosition::new(0.0, assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.125)
 }
 
 #[cfg(test)]

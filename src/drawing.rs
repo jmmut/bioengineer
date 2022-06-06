@@ -4,6 +4,7 @@ mod hud;
 mod tiles;
 
 use crate::drawing::coords::cast::Cast;
+use crate::drawing::coords::cell_pixel::{cell_to_pixel, pixel_to_subcell_offset};
 use crate::drawing::coords::cell_tile::subcell_to_subtile_offset;
 use crate::drawing::coords::truncate::truncate_cell_offset;
 use crate::game_state::GameState;
@@ -19,7 +20,7 @@ use input::Input;
 use macroquad::shapes::draw_rectangle;
 use std::cmp::min;
 use std::collections::HashSet;
-use crate::drawing::coords::cell_pixel::{cell_to_pixel, pixel_to_subcell_offset};
+use crate::drawing::tiles::hitbox_offset;
 
 pub type PixelPosition = Vec2;
 pub type TilePosition = IVec2;
@@ -152,7 +153,8 @@ impl Drawing {
         match start_selection {
             None => {}
             Some(selected) => {
-                let subcell = pixel_to_subcell_center(selected, self, screen_width);
+                let moved_selected = selected + hitbox_offset();
+                let subcell = pixel_to_subcell_center(moved_selected, self, screen_width);
                 let drawing_ = self;
                 drawing_.highlighted_cells.clear();
                 // let local_cell_index = pixel_to_cell_offset(selected, ).0;

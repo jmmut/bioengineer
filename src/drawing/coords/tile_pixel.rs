@@ -42,10 +42,7 @@ pub fn pixel_offset(drawing: &Drawing, screen_width: f32) -> PixelPosition {
     let center_tile = PIXELS_PER_TILE_WIDTH as f32 * 0.5;
     let screen_center = screen_width / 2.0;
     let pixels_subtile_offset = subtile_to_pixel_offset(drawing.subtile_offset);
-    PixelPosition::new(
-        screen_center - center_tile,
-        0.0,
-    ) + pixels_subtile_offset
+    PixelPosition::new(screen_center - center_tile, 0.0) + pixels_subtile_offset
 }
 
 pub fn subtile_to_pixel_offset(subtile: SubTilePosition) -> PixelPosition {
