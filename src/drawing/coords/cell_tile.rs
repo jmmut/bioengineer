@@ -169,4 +169,13 @@ mod tests {
         let subtile = subcell_to_subtile_offset(SubCellIndex::new(0.0, 0.0, 1.0));
         assert_eq!(subtile, SubTilePosition::new(-1.0, 1.0));
     }
+    fn cell_to_tile_to_cell_offset(initial_cell: CellIndex) {
+        let tile = cell_to_tile_offset(initial_cell);
+        let final_cell = tile_to_cell_offset(tile);
+        assert_eq!(final_cell, initial_cell);
+    }
+    #[test]
+    fn test_cell_to_tile_to_cell_offset() {
+        cell_to_tile_to_cell_offset(CellIndex::new(10, 0, 10));
+    }
 }

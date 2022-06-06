@@ -19,6 +19,7 @@ use input::Input;
 use macroquad::shapes::draw_rectangle;
 use std::cmp::min;
 use std::collections::HashSet;
+use crate::drawing::coords::cell_pixel::{cell_to_pixel, pixel_to_subcell_offset};
 
 pub type PixelPosition = Vec2;
 pub type TilePosition = IVec2;
@@ -88,17 +89,22 @@ impl Drawing {
             return;
         }
         let drawing_ = self;
-        let subcell_diff_ = pixel_to_subcell(diff, drawing_, screen_width);
+        let subcell_diff_ = pixel_to_subcell_offset(diff);
+
         // let new_cell_offset = pixel_to_cell_offset(diff);
 
         // println!(
-        //     "pixel_diff: {}, new_cell_offset: {}",
-        //     diff, new_cell_offset
+        //     "pixel_diff: {}, subcell_diff: {}",
+        //     diff, subcell_diff_
         // );
         let (truncated_cell_diff, truncated_subcell_diff) =
             truncate_cell_offset(subcell_diff_ + drawing_.subcell_diff);
         drawing_.subcell_diff = truncated_subcell_diff;
 
+        // println!(
+        //     "truncated_cell_diff: {}, truncated_subcell_diff: {}",
+        //     truncated_cell_diff, truncated_subcell_diff
+        // );
         let min_cell = &mut drawing_.min_cell;
         let max_cell = &mut drawing_.max_cell;
 
@@ -133,10 +139,13 @@ impl Drawing {
         }
 
         drawing_.subtile_offset = subcell_to_subtile_offset(drawing_.subcell_diff);
-        // println!(
-        //     "cell_diff: {}\nsubcell_diff: {}\nsubtile_offset: {}\n ",
-        //     cell_diff, subcell_diff, drawing_.subtile_offset
-        // );
+        // {
+        //     let test_cell = CellIndex::new(2, drawing_.max_cell.y, 2);
+        //     let p = cell_to_pixel(test_cell, drawing_, screen_width);
+        //     let test_cell_2 = pixel_to_cell(p, drawing_, screen_width);
+        //     println!("for test_cell {}, got cell {}", test_cell, test_cell_2);
+        // }
+        println!("subtile_offset: {}\n ", drawing_.subtile_offset);
     }
 
     fn select_cell(&mut self, start_selection: Option<PixelPosition>, screen_width: f32) {
