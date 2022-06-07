@@ -1,4 +1,4 @@
-use crate::input::{Input, InputSourceTrait, PixelPosition};
+use crate::input::{CellSelection, Input, InputSourceTrait, PixelPosition, Selection};
 
 use macroquad::input::{
     is_key_down, is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released,
@@ -7,12 +7,14 @@ use macroquad::input::{
 
 pub struct InputMacroquad {
     previous_wheel_click_pos: (f32, f32),
+    previous_left_click_pos: Option<PixelPosition>,
 }
 
 impl InputMacroquad {
     pub fn new() -> Self {
         InputMacroquad {
             previous_wheel_click_pos: (0.0, 0.0),
+            previous_left_click_pos: Option::None,
         }
     }
 
@@ -33,15 +35,22 @@ impl InputMacroquad {
     pub fn get_left_click_position(&mut self) -> Option<PixelPosition> {
         if is_mouse_button_pressed(MouseButton::Left) {
             let (position_x, position_y) = mouse_position();
-            Option::Some(PixelPosition::new(position_x, position_y))
+            let position = PixelPosition::new(position_x, position_y);
+            self.previous_left_click_pos = Option::Some(position);
+            Option::Some(position)
         } else {
             Option::None
         }
     }
-    pub fn get_left_click_release(&mut self) -> Option<PixelPosition> {
-        if is_mouse_button_released(MouseButton::Left) {
+    pub fn get_left_click_release(&mut self) -> Option<Selection> {
+        if is_mouse_button_released(MouseButton::Left) && self.previous_left_click_pos.is_some() {
+            let start = self.previous_left_click_pos.unwrap();
+            self.previous_left_click_pos = Option::None;
             let (position_x, position_y) = mouse_position();
-            Option::Some(PixelPosition::new(position_x, position_y))
+            Option::Some(Selection {
+                start,
+                end: PixelPosition::new(position_x, position_y),
+            })
         } else {
             Option::None
         }
@@ -62,6 +71,23 @@ impl InputMacroquad {
         };
         change_height_rel
     }
+
+    fn get_cell_selection(&mut self) -> CellSelection {
+        let _start_selection_this_frame = self.get_left_click_position();
+        let end_selection = self.get_left_click_release();
+        let (mouse_position_x, mouse_position_y) = mouse_position();
+        let mouse_position = PixelPosition::new(mouse_position_x, mouse_position_y);
+        match end_selection {
+            None => match self.previous_left_click_pos {
+                None => CellSelection::NoSelection,
+                Some(start) => CellSelection::SelectionStarted(Selection {
+                    start,
+                    end: mouse_position,
+                }),
+            },
+            Some(end) => CellSelection::SelectionFinished(end),
+        }
+    }
 }
 
 impl InputSourceTrait for InputMacroquad {
@@ -69,16 +95,12 @@ impl InputSourceTrait for InputMacroquad {
         let quit = is_key_down(KeyCode::Escape);
         let change_height_rel = self.get_mouse_wheel_height_diff();
         let move_map_horizontally = self.get_horizontal_move();
-        let start_selection = self.get_left_click_position();
-        let end_selection = self.get_left_click_release();
-        let (mouse_position_x, mouse_position_y) = mouse_position();
+        let cell_selection = self.get_cell_selection();
         Input {
             quit,
             change_height_rel,
             move_map_horizontally,
-            start_selection,
-            end_selection,
-            mouse_position: PixelPosition::new(mouse_position_x, mouse_position_y),
+            cell_selection,
         }
     }
 }

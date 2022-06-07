@@ -5,7 +5,8 @@ mod tiles;
 
 use crate::drawing::coords::cell_pixel::clicked_cell;
 use crate::game_state::GameState;
-use crate::input::{Input, PixelPosition};
+use crate::input::CellSelection::{NoSelection, SelectionFinished, SelectionStarted};
+use crate::input::{CellSelection, Input, PixelPosition};
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
 use crate::map::{Cell, CellCubeIterator, CellIndex, Map, TileType};
 use crate::{Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
@@ -20,6 +21,7 @@ use coords::cell_tile::subcell_to_subtile_offset;
 use coords::truncate::truncate_cell_offset;
 use std::cmp::min;
 use std::collections::HashSet;
+use std::io::SeekFrom::Start;
 use tiles::{hitbox_offset, hitbox_offset_square};
 
 pub type TilePosition = IVec2;
@@ -32,12 +34,7 @@ pub fn apply_input(drawer: &mut impl DrawingTrait, input: &Input) {
     let drawing = drawer.drawing_mut();
     drawing.change_height_rel(input.change_height_rel);
     drawing.move_map_horizontally(input.move_map_horizontally, screen_width);
-    drawing.select_cells(
-        input.start_selection,
-        input.end_selection,
-        input.mouse_position,
-        screen_width,
-    );
+    drawing.select_cells(&input.cell_selection, screen_width);
 }
 
 pub fn draw(drawer: &impl DrawingTrait, game_state: &GameState) {
@@ -109,40 +106,28 @@ impl Drawing {
         move_map_horizontally_to(&mut drawing_, truncated_cell_diff, truncated_subcell_diff);
     }
 
-    fn select_cells(
-        &mut self,
-        start_selection: Option<PixelPosition>,
-        end_selection: Option<PixelPosition>,
-        mouse_position: PixelPosition,
-        screen_width: f32,
-    ) {
-        let drawing_ = self;
-        match start_selection {
-            None => {}
-            Some(selected) => {
-                let cell = clicked_cell(selected, screen_width, drawing_);
-                drawing_.highlight_start = Option::Some(cell);
-                drawing_.highlight_end = Option::None;
+    fn select_cells(&mut self, cell_selection: &CellSelection, screen_width: f32) {
+        match cell_selection {
+            NoSelection => (),
+            SelectionStarted(cell_selection) => {
+                let (start_cell, _) = highlight_cells_from_pixels(
+                    cell_selection.start,
+                    cell_selection.end,
+                    screen_width,
+                    self,
+                );
+                self.highlight_start = Option::Some(start_cell);
+                self.highlight_end = Option::None;
             }
-        }
-        if drawing_.highlight_start.is_some() {
-            match drawing_.highlight_end {
-                None => {
-                    let end_cell = clicked_cell(mouse_position, screen_width, drawing_);
-                    higlight_cells(
-                        drawing_.highlight_start.unwrap(),
-                        end_cell,
-                        &mut drawing_.highlighted_cells,
-                    )
-                }
-                Some(_) => {}
-            }
-        }
-        match end_selection {
-            None => {}
-            Some(selected) => {
-                let end_cell = clicked_cell(selected, screen_width, drawing_);
-                drawing_.highlight_end = Option::Some(end_cell);
+            SelectionFinished(cell_selection) => {
+                let (start_cell, end_cell) = highlight_cells_from_pixels(
+                    cell_selection.start,
+                    cell_selection.end,
+                    screen_width,
+                    self,
+                );
+                self.highlight_start = Option::Some(start_cell);
+                self.highlight_end = Option::Some(end_cell);
             }
         }
     }
@@ -252,6 +237,22 @@ fn move_inside_range_min_equals(
     } else {
         false
     }
+}
+
+fn highlight_cells_from_pixels(
+    start: PixelPosition,
+    end: PixelPosition,
+    screen_width: f32,
+    drawing_: &mut Drawing,
+) -> (CellIndex, CellIndex) {
+    let start_cell = clicked_cell(start, screen_width, drawing_);
+    let end_cell = clicked_cell(end, screen_width, drawing_);
+    higlight_cells(start_cell, end_cell, &mut drawing_.highlighted_cells);
+    println!(
+        "highlighted cells size: {}",
+        drawing_.highlighted_cells.len()
+    );
+    (start_cell, end_cell)
 }
 
 fn higlight_cells(
