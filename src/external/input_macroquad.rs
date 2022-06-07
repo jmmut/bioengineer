@@ -1,4 +1,3 @@
-
 use crate::input::{Input, InputSourceTrait, PixelPosition};
 
 use macroquad::input::{

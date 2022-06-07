@@ -1,4 +1,3 @@
-
 use macroquad::color::Color;
 use macroquad::prelude::Texture2D;
 use macroquad::shapes::draw_rectangle;

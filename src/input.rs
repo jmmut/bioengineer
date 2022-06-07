@@ -1,5 +1,3 @@
-
-
 pub type PixelPosition = crate::Vec2;
 
 pub trait InputSourceTrait {

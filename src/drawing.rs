@@ -4,6 +4,7 @@ mod hud;
 mod tiles;
 
 use crate::game_state::GameState;
+use crate::input::{Input, PixelPosition};
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
 use crate::map::{Cell, CellCubeIterator, CellIndex, Map, TileType};
 use crate::{Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
@@ -16,7 +17,6 @@ use coords::cell_pixel::{
 };
 use coords::cell_tile::subcell_to_subtile_offset;
 use coords::truncate::truncate_cell_offset;
-use crate::input::{PixelPosition, Input};
 use std::cmp::min;
 use std::collections::HashSet;
 use tiles::{hitbox_offset, hitbox_offset_square};
@@ -80,15 +80,12 @@ impl Drawing {
             let max_cell = &mut drawing_.max_cell;
             max_cell.y += y;
             min_cell.y += y;
-            if min_cell.y < Map::min_cell().y {
-                let diff = Map::min_cell().y - min_cell.y;
-                min_cell.y += diff;
-                max_cell.y += diff;
-            } else if max_cell.y > Map::max_cell().y {
-                let diff = Map::max_cell().y - max_cell.y;
-                min_cell.y += diff;
-                max_cell.y += diff;
-            }
+            move_inside_range(
+                &mut min_cell.y,
+                &mut max_cell.y,
+                Map::min_cell().y,
+                Map::max_cell().y,
+            );
         }
     }
 
@@ -107,6 +104,7 @@ impl Drawing {
         // );
         let (truncated_cell_diff, truncated_subcell_diff) =
             truncate_cell_offset(subcell_diff_ + drawing_.subcell_diff);
+
         drawing_.subcell_diff = truncated_subcell_diff;
 
         // println!(
@@ -120,29 +118,20 @@ impl Drawing {
         min_cell.x -= truncated_cell_diff.x;
         max_cell.z -= truncated_cell_diff.z;
         min_cell.z -= truncated_cell_diff.z;
-        if min_cell.x <= Map::min_cell().x {
-            let diff = Map::min_cell().x - min_cell.x;
-            // println!("outside of map! resetting subtile_offset and subcell_diff.");
-            // print!("min_cell from {}", min_cell);
-            min_cell.x += diff;
-            max_cell.x += diff;
-            // println!(" to {}", min_cell);
-            drawing_.subcell_diff.x = 0.0;
-        } else if max_cell.x > Map::max_cell().x {
-            let diff = Map::max_cell().x - max_cell.x;
-            min_cell.x += diff;
-            max_cell.x += diff;
+        if move_inside_range_min_equals(
+            &mut min_cell.x,
+            &mut max_cell.x,
+            Map::min_cell().x,
+            Map::max_cell().x,
+        ) {
             drawing_.subcell_diff.x = 0.0;
         }
-        if min_cell.z <= Map::min_cell().z {
-            let diff = Map::min_cell().z - min_cell.z;
-            min_cell.z += diff;
-            max_cell.z += diff;
-            drawing_.subcell_diff.z = 0.0;
-        } else if max_cell.z > Map::max_cell().z {
-            let diff = Map::max_cell().z - max_cell.z;
-            min_cell.z += diff;
-            max_cell.z += diff;
+        if move_inside_range_min_equals(
+            &mut min_cell.z,
+            &mut max_cell.z,
+            Map::min_cell().z,
+            Map::max_cell().z,
+        ) {
             drawing_.subcell_diff.z = 0.0;
         }
 
@@ -225,4 +214,43 @@ pub trait DrawingTrait {
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
     fn drawing(&self) -> &Drawing;
     fn drawing_mut(&mut self) -> &mut Drawing;
+}
+
+/// returns if it moved min and max
+fn move_inside_range(min: &mut i32, max: &mut i32, hard_min: i32, hard_max: i32) -> bool {
+    if *min < hard_min {
+        let diff = hard_min - *min;
+        *min += diff;
+        *max += diff;
+        true
+    } else if *max > hard_max {
+        let diff = hard_max - *max;
+        *min += diff;
+        *max += diff;
+        true
+    } else {
+        false
+    }
+}
+
+/// returns if it moved min and max
+fn move_inside_range_min_equals(
+    min: &mut i32,
+    max: &mut i32,
+    hard_min: i32,
+    hard_max: i32,
+) -> bool {
+    if *min <= hard_min {
+        let diff = hard_min - *min;
+        *min += diff;
+        *max += diff;
+        true
+    } else if *max > hard_max {
+        let diff = hard_max - *max;
+        *min += diff;
+        *max += diff;
+        true
+    } else {
+        false
+    }
 }
