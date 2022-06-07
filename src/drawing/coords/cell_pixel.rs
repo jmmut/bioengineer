@@ -4,9 +4,18 @@ use crate::drawing::coords::cell_tile::{
 use crate::drawing::coords::tile_pixel::{
     pixel_to_subtile, pixel_to_subtile_offset, pixel_to_tile, subtile_to_pixel, tile_to_pixel,
 };
+use crate::drawing::coords::truncate::truncate_cell_offset;
+use crate::drawing::tiles::hitbox_offset;
 use crate::drawing::{Drawing, SubCellIndex, SubTilePosition};
 use crate::input::PixelPosition;
 use crate::map::CellIndex;
+
+pub fn clicked_cell(click: PixelPosition, screen_width: f32, drawing_: &Drawing) -> CellIndex {
+    let moved_selected = click + hitbox_offset();
+    let subcell = pixel_to_subcell_center(moved_selected, drawing_, screen_width);
+    let (cell, _) = truncate_cell_offset(subcell);
+    cell
+}
 
 pub fn cell_to_pixel(cell_index: CellIndex, drawing: &Drawing, screen_width: f32) -> PixelPosition {
     let tile = cell_to_tile(cell_index, &drawing.min_cell, &drawing.max_cell);

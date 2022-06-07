@@ -3,6 +3,7 @@ mod coords;
 mod hud;
 mod tiles;
 
+use crate::drawing::coords::cell_pixel::clicked_cell;
 use crate::game_state::GameState;
 use crate::input::{Input, PixelPosition};
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
@@ -93,7 +94,7 @@ impl Drawing {
         if diff == PixelPosition::new(0.0, 0.0) {
             return;
         }
-        let drawing_ = self;
+        let mut drawing_ = self;
         let subcell_diff_ = pixel_to_subcell_offset(diff);
 
         // let new_cell_offset = pixel_to_cell_offset(diff);
@@ -105,44 +106,7 @@ impl Drawing {
         let (truncated_cell_diff, truncated_subcell_diff) =
             truncate_cell_offset(subcell_diff_ + drawing_.subcell_diff);
 
-        drawing_.subcell_diff = truncated_subcell_diff;
-
-        // println!(
-        //     "truncated_cell_diff: {}, truncated_subcell_diff: {}",
-        //     truncated_cell_diff, truncated_subcell_diff
-        // );
-        let min_cell = &mut drawing_.min_cell;
-        let max_cell = &mut drawing_.max_cell;
-
-        max_cell.x -= truncated_cell_diff.x;
-        min_cell.x -= truncated_cell_diff.x;
-        max_cell.z -= truncated_cell_diff.z;
-        min_cell.z -= truncated_cell_diff.z;
-        if move_inside_range_min_equals(
-            &mut min_cell.x,
-            &mut max_cell.x,
-            Map::min_cell().x,
-            Map::max_cell().x,
-        ) {
-            drawing_.subcell_diff.x = 0.0;
-        }
-        if move_inside_range_min_equals(
-            &mut min_cell.z,
-            &mut max_cell.z,
-            Map::min_cell().z,
-            Map::max_cell().z,
-        ) {
-            drawing_.subcell_diff.z = 0.0;
-        }
-
-        drawing_.subtile_offset = subcell_to_subtile_offset(drawing_.subcell_diff);
-        // {
-        //     let test_cell = CellIndex::new(2, drawing_.max_cell.y, 2);
-        //     let p = cell_to_pixel(test_cell, drawing_, screen_width);
-        //     let test_cell_2 = pixel_to_cell(p, drawing_, screen_width);
-        //     println!("for test_cell {}, got cell {}", test_cell, test_cell_2);
-        // }
-        // println!("subtile_offset: {}\n ", drawing_.subtile_offset);
+        move_map_horizontally_to(&mut drawing_, truncated_cell_diff, truncated_subcell_diff);
     }
 
     fn select_cells(
@@ -156,9 +120,7 @@ impl Drawing {
         match start_selection {
             None => {}
             Some(selected) => {
-                let moved_selected = selected + hitbox_offset();
-                let subcell = pixel_to_subcell_center(moved_selected, drawing_, screen_width);
-                let (cell, _) = truncate_cell_offset(subcell);
+                let cell = clicked_cell(selected, screen_width, drawing_);
                 drawing_.highlight_start = Option::Some(cell);
                 drawing_.highlight_end = Option::None;
             }
@@ -166,18 +128,12 @@ impl Drawing {
         if drawing_.highlight_start.is_some() {
             match drawing_.highlight_end {
                 None => {
-                    let moved_selected = mouse_position + hitbox_offset();
-                    let end_subcell =
-                        pixel_to_subcell_center(moved_selected, drawing_, screen_width);
-                    let (end_cell, _) = truncate_cell_offset(end_subcell);
-                    let cell_cube = CellCubeIterator::new_from_mixed(
+                    let end_cell = clicked_cell(mouse_position, screen_width, drawing_);
+                    higlight_cells(
                         drawing_.highlight_start.unwrap(),
                         end_cell,
-                    );
-                    drawing_.highlighted_cells.clear();
-                    for cell in cell_cube {
-                        drawing_.highlighted_cells.insert(cell);
-                    }
+                        &mut drawing_.highlighted_cells,
+                    )
                 }
                 Some(_) => {}
             }
@@ -185,9 +141,7 @@ impl Drawing {
         match end_selection {
             None => {}
             Some(selected) => {
-                let moved_selected = selected + hitbox_offset();
-                let end_subcell = pixel_to_subcell_center(moved_selected, drawing_, screen_width);
-                let (end_cell, _) = truncate_cell_offset(end_subcell);
+                let end_cell = clicked_cell(selected, screen_width, drawing_);
                 drawing_.highlight_end = Option::Some(end_cell);
             }
         }
@@ -214,6 +168,51 @@ pub trait DrawingTrait {
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
     fn drawing(&self) -> &Drawing;
     fn drawing_mut(&mut self) -> &mut Drawing;
+}
+
+fn move_map_horizontally_to(
+    drawing_: &mut Drawing,
+    truncated_cell_diff: CellIndex,
+    truncated_subcell_diff: SubCellIndex,
+) {
+    drawing_.subcell_diff = truncated_subcell_diff;
+
+    // println!(
+    //     "truncated_cell_diff: {}, truncated_subcell_diff: {}",
+    //     truncated_cell_diff, truncated_subcell_diff
+    // );
+    let min_cell = &mut drawing_.min_cell;
+    let max_cell = &mut drawing_.max_cell;
+
+    max_cell.x -= truncated_cell_diff.x;
+    min_cell.x -= truncated_cell_diff.x;
+    max_cell.z -= truncated_cell_diff.z;
+    min_cell.z -= truncated_cell_diff.z;
+    if move_inside_range_min_equals(
+        &mut min_cell.x,
+        &mut max_cell.x,
+        Map::min_cell().x,
+        Map::max_cell().x,
+    ) {
+        drawing_.subcell_diff.x = 0.0;
+    }
+    if move_inside_range_min_equals(
+        &mut min_cell.z,
+        &mut max_cell.z,
+        Map::min_cell().z,
+        Map::max_cell().z,
+    ) {
+        drawing_.subcell_diff.z = 0.0;
+    }
+
+    drawing_.subtile_offset = subcell_to_subtile_offset(drawing_.subcell_diff);
+    // {
+    //     let test_cell = CellIndex::new(2, drawing_.max_cell.y, 2);
+    //     let p = cell_to_pixel(test_cell, drawing_, screen_width);
+    //     let test_cell_2 = pixel_to_cell(p, drawing_, screen_width);
+    //     println!("for test_cell {}, got cell {}", test_cell, test_cell_2);
+    // }
+    // println!("subtile_offset: {}\n ", drawing_.subtile_offset);
 }
 
 /// returns if it moved min and max
@@ -252,5 +251,17 @@ fn move_inside_range_min_equals(
         true
     } else {
         false
+    }
+}
+
+fn higlight_cells(
+    start_cell: CellIndex,
+    end_cell: CellIndex,
+    highlighted_cells: &mut HashSet<CellIndex>,
+) {
+    let cell_cube = CellCubeIterator::new_from_mixed(start_cell, end_cell);
+    highlighted_cells.clear();
+    for cell in cell_cube {
+        highlighted_cells.insert(cell);
     }
 }
