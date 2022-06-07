@@ -1,7 +1,8 @@
 use crate::drawing::coords::cast::Cast;
 use crate::drawing::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
 use crate::drawing::coords::truncate::assert_in_range_0_1;
-use crate::drawing::{assets, Drawing, PixelPosition, SubCellIndex};
+use crate::drawing::{assets, Drawing, SubCellIndex};
+use crate::input::PixelPosition;
 use crate::map::CellIndex;
 use crate::Color;
 use crate::{DrawingTrait, GameState};

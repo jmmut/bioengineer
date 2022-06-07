@@ -1,4 +1,6 @@
-use crate::drawing::PixelPosition;
+
+
+pub type PixelPosition = crate::Vec2;
 
 pub trait InputSourceTrait {
     fn get_input(&mut self) -> Input;

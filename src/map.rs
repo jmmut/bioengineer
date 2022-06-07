@@ -1,15 +1,16 @@
 mod chunk;
 pub mod trunc;
 
+use fluent_asserter::prelude::{assert_that_code, PanicAsserter};
+use opensimplex_noise_rs::OpenSimplexNoise;
+use std::cmp::{max, min};
+use std::collections::HashMap;
+
 use crate::map::chunk::{get_chunk_index, get_required_chunks};
 use crate::map::TileType::{Air, FloorDirt, WallRock};
 use crate::{now, IVec3};
 use chunk::{Chunk, ChunkIndex};
-use fluent_asserter::prelude::*;
-use opensimplex_noise_rs::OpenSimplexNoise;
-use std::cmp::{max, min};
-use std::collections::HashMap;
-pub use trunc::trunc_towards_neg_inf;
+use trunc::trunc_towards_neg_inf;
 
 /// The axis are isometric:
 /// - x: right towards camera

@@ -1,5 +1,4 @@
-use crate::drawing::{assets, Drawing};
-use crate::map::TileType;
+
 use macroquad::color::Color;
 use macroquad::prelude::Texture2D;
 use macroquad::shapes::draw_rectangle;
@@ -7,7 +6,8 @@ use macroquad::text::draw_text;
 use macroquad::texture::draw_texture;
 use macroquad::window::{clear_background, screen_height, screen_width};
 
-use crate::drawing::DrawingTrait;
+use crate::drawing::{assets, Drawing, DrawingTrait};
+use crate::map::TileType;
 
 pub struct DrawingMacroquad {
     pub drawing: Drawing,

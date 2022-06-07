@@ -4,7 +4,8 @@ use crate::drawing::coords::cell_tile::{
 use crate::drawing::coords::tile_pixel::{
     pixel_to_subtile, pixel_to_subtile_offset, pixel_to_tile, subtile_to_pixel, tile_to_pixel,
 };
-use crate::drawing::{Drawing, PixelPosition, SubCellIndex, SubTilePosition};
+use crate::drawing::{Drawing, SubCellIndex, SubTilePosition};
+use crate::input::PixelPosition;
 use crate::map::CellIndex;
 
 pub fn cell_to_pixel(cell_index: CellIndex, drawing: &Drawing, screen_width: f32) -> PixelPosition {
@@ -76,7 +77,7 @@ mod tests {
         cell_to_pixel, pixel_to_cell, pixel_to_subcell_center, subcell_center_to_pixel,
     };
     use crate::drawing::coords::*;
-    use crate::drawing::{Drawing, PixelPosition, SubTilePosition, TilePosition};
+    use crate::drawing::{Drawing, SubTilePosition, TilePosition};
     use crate::map::CellIndex;
 
     #[test]

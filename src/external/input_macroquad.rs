@@ -1,5 +1,6 @@
-use crate::drawing::PixelPosition;
-use crate::input::{Input, InputSourceTrait};
+
+use crate::input::{Input, InputSourceTrait, PixelPosition};
+
 use macroquad::input::{
     is_key_down, is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released,
     mouse_position, mouse_wheel, KeyCode, MouseButton,

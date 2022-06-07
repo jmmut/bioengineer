@@ -3,26 +3,24 @@ mod coords;
 mod hud;
 mod tiles;
 
-use crate::drawing::coords::cast::Cast;
-use crate::drawing::coords::cell_pixel::{cell_to_pixel, pixel_to_subcell_offset};
-use crate::drawing::coords::cell_tile::subcell_to_subtile_offset;
-use crate::drawing::coords::truncate::truncate_cell_offset;
-use crate::drawing::tiles::{hitbox_offset, hitbox_offset_square};
 use crate::game_state::GameState;
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
 use crate::map::{Cell, CellCubeIterator, CellIndex, Map, TileType};
-use crate::{input, Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
+use crate::{Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
 use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use coords::cast::Cast;
 use coords::cell_pixel;
+use coords::cell_pixel::{cell_to_pixel, pixel_to_subcell_offset};
 use coords::cell_pixel::{
     pixel_to_cell, pixel_to_subcell, pixel_to_subcell_center, subcell_center_to_pixel,
 };
-use input::Input;
-use macroquad::shapes::draw_rectangle;
+use coords::cell_tile::subcell_to_subtile_offset;
+use coords::truncate::truncate_cell_offset;
+use crate::input::{PixelPosition, Input};
 use std::cmp::min;
 use std::collections::HashSet;
+use tiles::{hitbox_offset, hitbox_offset_square};
 
-pub type PixelPosition = Vec2;
 pub type TilePosition = IVec2;
 pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
@@ -202,25 +200,6 @@ impl Drawing {
                 let end_subcell = pixel_to_subcell_center(moved_selected, drawing_, screen_width);
                 let (end_cell, _) = truncate_cell_offset(end_subcell);
                 drawing_.highlight_end = Option::Some(end_cell);
-            }
-        }
-    }
-    fn end_select_cell(&mut self, end_selection: Option<PixelPosition>, screen_width: f32) {
-        match end_selection {
-            None => {}
-            Some(selected) => {
-                let moved_selected = selected + hitbox_offset();
-                let subcell = pixel_to_subcell_center(moved_selected, self, screen_width);
-                let drawing_ = self;
-                drawing_.highlighted_cells.clear();
-                // let local_cell_index = pixel_to_cell_offset(selected, ).0;
-                // let global_cell_index = local_cell_index + drawing_.min_cell;
-                // println!("min cell {}", drawing_.min_cell);
-                // println!("local cell {}", local_cell_index);
-                // println!("selected cell {}", subcell);
-                let (cell, _) = truncate_cell_offset(subcell);
-                // println!("selected truncated cell {}", cell);
-                drawing_.highlighted_cells.insert(cell);
             }
         }
     }
