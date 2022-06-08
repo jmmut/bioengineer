@@ -5,7 +5,6 @@ mod tiles;
 
 use crate::drawing::coords::cell_pixel::clicked_cell;
 use crate::game_state::GameState;
-use crate::input::CellSelection::{NoSelection, SelectionFinished, SelectionStarted};
 use crate::input::{CellSelection, Input, PixelPosition};
 use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
 use crate::map::{Cell, CellCubeIterator, CellIndex, Map, TileType};
@@ -53,8 +52,6 @@ pub struct Drawing {
     max_cell: CellIndex,
     subtile_offset: SubTilePosition,
     subcell_diff: SubCellIndex,
-    highlight_start: Option<CellIndex>,
-    highlight_end: Option<CellIndex>,
     highlighted_cells: HashSet<CellIndex>,
 }
 
@@ -65,8 +62,6 @@ impl Drawing {
             max_cell: CellIndex::new(9, 1, 9),
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
-            highlight_start: Option::None,
-            highlight_end: Option::None,
             highlighted_cells: HashSet::new(),
         }
     }
@@ -107,28 +102,8 @@ impl Drawing {
     }
 
     fn select_cells(&mut self, cell_selection: &CellSelection, screen_width: f32) {
-        match cell_selection {
-            NoSelection => (),
-            SelectionStarted(cell_selection) => {
-                let (start_cell, _) = highlight_cells_from_pixels(
-                    cell_selection.start,
-                    cell_selection.end,
-                    screen_width,
-                    self,
-                );
-                self.highlight_start = Option::Some(start_cell);
-                self.highlight_end = Option::None;
-            }
-            SelectionFinished(cell_selection) => {
-                let (start_cell, end_cell) = highlight_cells_from_pixels(
-                    cell_selection.start,
-                    cell_selection.end,
-                    screen_width,
-                    self,
-                );
-                self.highlight_start = Option::Some(start_cell);
-                self.highlight_end = Option::Some(end_cell);
-            }
+        if let Option::Some(selection) = &cell_selection.selection {
+            highlight_cells_from_pixels(selection.start, selection.end, screen_width, self);
         }
     }
 }
@@ -244,15 +219,11 @@ fn highlight_cells_from_pixels(
     end: PixelPosition,
     screen_width: f32,
     drawing_: &mut Drawing,
-) -> (CellIndex, CellIndex) {
+) {
     let start_cell = clicked_cell(start, screen_width, drawing_);
     let end_cell = clicked_cell(end, screen_width, drawing_);
     higlight_cells(start_cell, end_cell, &mut drawing_.highlighted_cells);
-    println!(
-        "highlighted cells size: {}",
-        drawing_.highlighted_cells.len()
-    );
-    (start_cell, end_cell)
+    // (start_cell, end_cell)
 }
 
 fn higlight_cells(

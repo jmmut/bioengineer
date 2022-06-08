@@ -1,5 +1,8 @@
-use crate::input::{CellSelection, Input, InputSourceTrait, PixelPosition, Selection};
+use crate::input::{
+    CellSelection, CellSelectionType, Input, InputSourceTrait, PixelPosition, Selection,
+};
 
+use crate::input::CellSelectionType::{NoSelection, SelectionFinished, SelectionStarted};
 use macroquad::input::{
     is_key_down, is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released,
     mouse_position, mouse_wheel, KeyCode, MouseButton,
@@ -79,13 +82,13 @@ impl InputMacroquad {
         let mouse_position = PixelPosition::new(mouse_position_x, mouse_position_y);
         match end_selection {
             None => match self.previous_left_click_pos {
-                None => CellSelection::NoSelection,
-                Some(start) => CellSelection::SelectionStarted(Selection {
+                None => CellSelection::no_selection(),
+                Some(start) => CellSelection::started(Selection {
                     start,
                     end: mouse_position,
                 }),
             },
-            Some(end) => CellSelection::SelectionFinished(end),
+            Some(end) => CellSelection::finished(end),
         }
     }
 }
