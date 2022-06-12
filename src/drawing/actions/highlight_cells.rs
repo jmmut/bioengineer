@@ -6,12 +6,15 @@ use std::collections::HashSet;
 
 pub fn highlight_cells_from_pixels(
     start: PixelPosition,
+    start_level: i32,
     end: PixelPosition,
     screen_width: f32,
     drawing_: &mut Drawing,
 ) {
-    let start_cell = clicked_cell(start, screen_width, drawing_);
+    let mut start_cell = clicked_cell(start, screen_width, drawing_);
+    start_cell.y = start_level;
     let end_cell = clicked_cell(end, screen_width, drawing_);
+    // println!("start level: {}, end level: {}", start_cell.y, end_cell.y);
     higlight_cells(start_cell, end_cell, &mut drawing_.highlighted_cells);
     // (start_cell, end_cell)
 }

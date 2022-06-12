@@ -73,13 +73,19 @@ impl InputMacroquad {
     }
 
     fn get_cell_selection(&mut self) -> CellSelection {
-        let _start_selection_this_frame = self.get_left_click_position();
+        let start_selection_this_frame = self.get_left_click_position();
         let end_selection = self.get_left_click_release();
         let (mouse_position_x, mouse_position_y) = mouse_position();
         let mouse_position = PixelPosition::new(mouse_position_x, mouse_position_y);
         match end_selection {
-            None => match self.previous_left_click_pos {
-                None => CellSelection::no_selection(),
+            None => match start_selection_this_frame {
+                None => match self.previous_left_click_pos {
+                    None => CellSelection::no_selection(),
+                    Some(start) => CellSelection::in_progress(Selection {
+                        start,
+                        end: mouse_position,
+                    }),
+                },
                 Some(start) => CellSelection::started(Selection {
                     start,
                     end: mouse_position,

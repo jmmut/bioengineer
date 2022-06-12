@@ -8,7 +8,7 @@ use crate::drawing::actions::change_height::change_height_rel;
 use crate::drawing::actions::highlight_cells::highlight_cells_from_pixels;
 use crate::drawing::actions::move_horizontally::move_map_horizontally;
 use crate::game_state::GameState;
-use crate::input::{CellSelection, Input, PixelPosition};
+use crate::input::{CellSelection, CellSelectionType, Input, PixelPosition};
 use crate::map::{CellIndex, TileType};
 use crate::{Color, IVec2, Texture2D, Vec2, Vec3};
 use std::collections::HashSet;
@@ -43,6 +43,7 @@ pub struct Drawing {
     subtile_offset: SubTilePosition,
     subcell_diff: SubCellIndex,
     highlighted_cells: HashSet<CellIndex>,
+    highlight_start_height: i32,
 }
 
 impl Drawing {
@@ -53,6 +54,7 @@ impl Drawing {
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
             highlighted_cells: HashSet::new(),
+            highlight_start_height: 10,
         }
     }
 
@@ -69,8 +71,17 @@ impl Drawing {
     }
 
     fn maybe_select_cells(&mut self, cell_selection: &CellSelection, screen_width: f32) {
+        if cell_selection.state == CellSelectionType::SelectionStarted {
+            self.highlight_start_height = self.max_cell.y;
+        }
         if let Option::Some(selection) = &cell_selection.selection {
-            highlight_cells_from_pixels(selection.start, selection.end, screen_width, self);
+            highlight_cells_from_pixels(
+                selection.start,
+                self.highlight_start_height,
+                selection.end,
+                screen_width,
+                self,
+            );
         }
     }
 }
