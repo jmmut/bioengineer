@@ -1,10 +1,10 @@
+use crate::map::mechanics::allowed_transformations;
 use crate::Color;
 use crate::{DrawingTrait, GameState};
-use crate::map::mechanics::allowed_transformations;
 
 const FONT_SIZE: f32 = 20.0;
 const BLACK: Color = Color::new(0.0, 0.0, 0.0, 1.0);
-const BACKGROUND_UI_COLOR: Color = Color::new(64.0/255.0, 64.0/255.0, 80.0/255.0, 1.0);
+const BACKGROUND_UI_COLOR: Color = Color::new(64.0 / 255.0, 64.0 / 255.0, 80.0 / 255.0, 1.0);
 
 pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);

@@ -1,5 +1,5 @@
-use crate::gui::UnhandledInput;
 use super::map::Map;
+use crate::gui::UnhandledInput;
 use crate::now;
 
 pub struct GameState {
@@ -21,8 +21,7 @@ impl GameState {
         }
     }
 
-    pub fn update_with_gui_actions(&self, _unhandled_input: &UnhandledInput) {
-    }
+    pub fn update_with_gui_actions(&self, _unhandled_input: &UnhandledInput) {}
 
     pub fn advance_frame(&mut self) {
         self.frame_index = (self.frame_index + 1) % 1000;

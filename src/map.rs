@@ -1,6 +1,6 @@
 mod chunk;
-pub mod trunc;
 pub mod mechanics;
+pub mod trunc;
 
 use crate::map::chunk::{get_chunk_index, get_required_chunks};
 use crate::map::TileType::{Air, DirtyWaterSurface, DirtyWaterWall, FloorDirt, WallRock};

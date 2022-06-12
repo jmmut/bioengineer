@@ -1,7 +1,6 @@
-
+use crate::drawing::hud::show_available_actions;
 use crate::input::Input;
 use crate::{DrawingTrait, GameState};
-use crate::drawing::hud::show_available_actions;
 
 pub struct Gui;
 
