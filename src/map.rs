@@ -118,6 +118,7 @@ pub enum TileType {
     WallDirt = 24,
     FloorRock = 17,
     FloorDirt = 20,
+    Stairs = 18,
     Air = 29,
     MachineAssembler = 12,
     MachineDrill = 13,
@@ -127,6 +128,7 @@ pub enum TileType {
     CleanWaterSurface = 7,
     DirtyWaterWall = 14,
     CleanWaterWall = 15,
+    Robot = 4,
 }
 
 impl Default for Cell {

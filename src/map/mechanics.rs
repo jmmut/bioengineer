@@ -44,10 +44,11 @@ pub fn allowed_transformations_of_cell(
         Unset => {
             panic!("can not transform an UNSET cell!")
         }
-        WallRock => vec![FloorRock],
-        WallDirt => vec![FloorDirt],
+        WallRock => vec![FloorRock, Stairs],
+        WallDirt => vec![FloorDirt, Stairs],
         FloorRock => machines,
         FloorDirt => machines,
+        Stairs => vec![FloorRock],
         Air => vec![],
         MachineAssembler => vec![FloorRock],
         MachineDrill => vec![FloorRock],
@@ -57,6 +58,7 @@ pub fn allowed_transformations_of_cell(
         CleanWaterSurface => vec![],
         DirtyWaterWall => vec![],
         CleanWaterWall => vec![],
+        Robot => vec![],
     };
     new_tiles
         .iter()
