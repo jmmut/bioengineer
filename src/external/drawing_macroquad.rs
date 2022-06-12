@@ -1,11 +1,14 @@
 use macroquad::color::Color;
+use macroquad::math::{RectOffset, Vec2};
 use macroquad::prelude::Texture2D;
 use macroquad::shapes::draw_rectangle;
-use macroquad::text::draw_text;
+use macroquad::text::{draw_text, measure_text, TextDimensions};
 use macroquad::texture::draw_texture;
+use macroquad::ui::{root_ui, Skin, StyleBuilder};
 use macroquad::window::{clear_background, screen_height, screen_width};
 
 use crate::drawing::{assets, Drawing, DrawingTrait};
+use crate::gui::FONT_SIZE;
 use crate::map::TileType;
 
 pub struct DrawingMacroquad {
@@ -64,6 +67,52 @@ impl DrawingTrait for DrawingMacroquad {
     }
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         draw_text(text, x, y, font_size, color);
+    }
+
+    /// both draws and returns if it was pressed. (Immediate mode UI)
+    fn do_button(&self, text: &str, x: f32, y: f32) -> bool {
+        root_ui().button(Option::Some(Vec2::new(x, y)), text)
+    }
+
+    fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {
+        let text_dimensions = measure_text(text, Option::None, font_size as u16, 1.0);
+        Vec2::new(text_dimensions.width, text_dimensions.height)
+    }
+
+    fn set_button_style(
+        &mut self,
+        font_size: f32,
+        text_color: Color,
+        background_color: Color,
+        background_color_hovered: Color,
+        background_color_clicked: Color,
+    ) {
+        // let label_style = root_ui()
+        //     .style_builder()
+        //     .text_color(text_color)
+        //     .font_size(font_size)
+        //     .build();
+        let button_style = root_ui()
+            .style_builder()
+            // StyleBuilder{} // uncomment to get autocompletion of available methods
+            .background_margin(RectOffset::new(0.0, 0.0, 0.0, 0.0))
+            .margin(RectOffset::new(
+                FONT_SIZE,
+                FONT_SIZE,
+                FONT_SIZE / 5.0,
+                FONT_SIZE / 5.0,
+            ))
+            .text_color(text_color)
+            .color(background_color)
+            .color_hovered(background_color_hovered)
+            .color_clicked(background_color_clicked)
+            .font_size(font_size as u16)
+            .build();
+        let skin = Skin {
+            button_style,
+            ..root_ui().default_skin()
+        };
+        root_ui().push_skin(&skin);
     }
 }
 

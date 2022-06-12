@@ -43,10 +43,10 @@ async fn main() {
 
 async fn factory() -> Implementations<DrawingImpl, InputSource> {
     let tileset = load_tileset("assets/image/tileset.png");
-    let drawer = DrawingImpl::new(tileset.await);
+    let mut drawer = DrawingImpl::new(tileset.await);
     let game_state = GameState::new();
     let input = InputSource::new();
-    let gui = gui::Gui::new();
+    let gui = gui::Gui::new(&mut drawer);
     Implementations {
         drawer,
         game_state,

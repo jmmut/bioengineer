@@ -1,11 +1,8 @@
+use crate::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::map::mechanics::allowed_transformations;
 use crate::map::TileType;
-use crate::Color;
 use crate::{DrawingTrait, GameState};
-
-const FONT_SIZE: f32 = 20.0;
-const BLACK: Color = Color::new(0.0, 0.0, 0.0, 1.0);
-const BACKGROUND_UI_COLOR: Color = Color::new(64.0 / 255.0, 64.0 / 255.0, 80.0 / 255.0, 1.0);
+use std::cmp::max;
 
 pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
@@ -19,7 +16,7 @@ pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
         drawer.screen_width() - FONT_SIZE * 2.0,
         20.0,
         FONT_SIZE,
-        BLACK,
+        TEXT_COLOR,
     );
 }
 
@@ -30,7 +27,7 @@ pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
         20.0,
         drawer.screen_height() - FONT_SIZE * 1.0,
         FONT_SIZE,
-        BLACK,
+        TEXT_COLOR,
     );
 }
 
@@ -43,23 +40,29 @@ pub fn show_available_actions(drawer: &impl DrawingTrait, game_state: &GameState
         let panel_height = buttons_height + 2.0 * line_height;
         let panel_margin = 10.0;
         let margin_x = panel_margin + FONT_SIZE;
+        let big_margin_x = panel_margin + 2.0 * FONT_SIZE;
         let margin_y = panel_margin + line_height;
+        let panel_title = "Available actions:";
+        let mut max_button_width = drawer.measure_text(panel_title, FONT_SIZE).x;
+        for transformation in &transformations {
+            let text = to_action_str(transformation.new_tile_type);
+            max_button_width = f32::max(max_button_width, drawer.measure_text(text, FONT_SIZE).x);
+        }
+
         drawer.draw_rectangle(
             panel_margin,
             panel_margin,
-            200.0,
+            max_button_width + big_margin_x + margin_x,
             panel_height,
             BACKGROUND_UI_COLOR,
         );
-        drawer.draw_text("Available actions:", margin_x, margin_y, FONT_SIZE, BLACK);
+        drawer.draw_text(panel_title, margin_x, margin_y, FONT_SIZE, TEXT_COLOR);
         let mut i = 1.0;
         for transformation in transformations {
-            drawer.draw_text(
+            drawer.do_button(
                 to_action_str(transformation.new_tile_type),
-                margin_y,
-                margin_y + i * line_height,
-                FONT_SIZE,
-                BLACK,
+                big_margin_x,
+                margin_y + i * line_height - FONT_SIZE / 2.0,
             );
             i += 1.0;
         }
