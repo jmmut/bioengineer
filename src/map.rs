@@ -25,8 +25,12 @@ pub struct Map {
 
 impl Map {
     pub fn new() -> Self {
+        Self::new_for_cube(Self::min_cell(), Self::max_cell())
+    }
+
+    pub fn new_for_cube(min_cell: CellIndex, max_cell: CellIndex) -> Self {
         let mut chunks = HashMap::new();
-        let chunk_indexes = get_required_chunks(Self::min_cell(), Self::max_cell());
+        let chunk_indexes = get_required_chunks(min_cell, max_cell);
         for chunk_index in chunk_indexes {
             chunks.insert(chunk_index, Chunk::new());
         }
@@ -128,7 +132,7 @@ pub enum TileType {
 impl Default for Cell {
     fn default() -> Self {
         Cell {
-            tile_type: TileType::WallRock,
+            tile_type: TileType::Unset,
         }
     }
 }

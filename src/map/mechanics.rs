@@ -1,6 +1,8 @@
-use crate::map::{Cell, CellIndex, TileType};
+use crate::map::{Cell, CellIndex, Map, TileType};
 use crate::GameState;
 use std::collections::HashSet;
+
+const AIR_LEVELS_FOR_ALLOWING_SOLAR: i32 = 20;
 
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub struct Transformation {
@@ -14,32 +16,76 @@ pub fn allowed_transformations(
     let mut allowed = Vec::new();
     for cell_index in cells {
         let cell = game_state.map.get_cell(*cell_index);
-        allowed.push(allowed_transformations_of_cell(cell));
+        allowed.push(allowed_transformations_of_cell(
+            cell,
+            cell_index,
+            &game_state.map,
+        ));
     }
     let common = set_intersection(allowed);
     common
 }
 
-pub fn allowed_transformations_of_cell(cell: &Cell) -> Vec<Transformation> {
+pub fn allowed_transformations_of_cell(
+    cell: &Cell,
+    cell_index: &CellIndex,
+    map: &Map,
+) -> Vec<Transformation> {
+    use TileType::*;
+
+    let machines_with_solar = vec![MachineAssembler, MachineDrill, MachineSolarPanel];
+    let machines_without_solar = vec![MachineAssembler, MachineDrill];
+    let machines = if solar_allowed(cell_index, map) {
+        machines_with_solar
+    } else {
+        machines_without_solar
+    };
     let new_tiles = match cell.tile_type {
-        TileType::Unset => {
+        Unset => {
             panic!("can not transform an UNSET cell!")
         }
-        TileType::WallRock => vec![],
-        TileType::WallDirt => vec![],
-        TileType::FloorRock => vec![TileType::MachineDrill],
-        TileType::FloorDirt => vec![],
-        TileType::Air => vec![],
-        TileType::MachineAssembler => vec![],
-        TileType::MachineDrill => vec![],
-        TileType::MachineSolarPanel => vec![],
-        TileType::MachineShip => vec![],
-        TileType::DirtyWaterSurface => vec![],
-        TileType::CleanWaterSurface => vec![],
-        TileType::DirtyWaterWall => vec![],
-        TileType::CleanWaterWall => vec![],
+        WallRock => vec![FloorRock],
+        WallDirt => vec![FloorDirt],
+        FloorRock => machines,
+        FloorDirt => machines,
+        Air => vec![],
+        MachineAssembler => vec![FloorRock],
+        MachineDrill => vec![FloorRock],
+        MachineSolarPanel => vec![FloorRock],
+        MachineShip => vec![FloorRock],
+        DirtyWaterSurface => vec![],
+        CleanWaterSurface => vec![],
+        DirtyWaterWall => vec![],
+        CleanWaterWall => vec![],
     };
-    new_tiles.iter().map(|tile| Transformation::to(*tile)).collect()
+    new_tiles
+        .iter()
+        .map(|tile| Transformation::to(*tile))
+        .collect()
+}
+
+fn solar_allowed(cell_index: &CellIndex, map: &Map) -> bool {
+    if cell_index.y >= 0 {
+        if above_is(
+            TileType::Air,
+            AIR_LEVELS_FOR_ALLOWING_SOLAR,
+            *cell_index,
+            map,
+        ) {
+            return true;
+        }
+    }
+    false
+}
+
+fn above_is(expected_tile: TileType, levels: i32, mut cell_index: CellIndex, map: &Map) -> bool {
+    for _ in 0..levels {
+        cell_index.y += 1;
+        if map.get_cell(cell_index).tile_type != expected_tile {
+            return false;
+        }
+    }
+    true
 }
 
 pub fn set_intersection<T: PartialEq + Copy>(transformations_per_cell: Vec<Vec<T>>) -> Vec<T> {
@@ -74,17 +120,38 @@ impl Transformation {
 mod tests {
     use super::*;
     use crate::map::{Cell, TileType};
-    use crate::map::TileType::MachineDrill;
 
     #[test]
     fn test_basic_transformation() {
         let cell = Cell {
             tile_type: TileType::FloorRock,
         };
-        let transformation = allowed_transformations_of_cell(&cell);
+        let min_cell = CellIndex::new(0, 0, 0);
+        let max_cell = CellIndex::new(0, 25, 0);
+
+        let mut map = Map::new_for_cube(min_cell, max_cell);
+        map._get_cell_mut(CellIndex::new(0, 0, 0)).tile_type = cell.tile_type;
+        for i in 1..=AIR_LEVELS_FOR_ALLOWING_SOLAR {
+            map._get_cell_mut(CellIndex::new(0, i, 0)).tile_type = TileType::Air;
+        }
+        let transformation = allowed_transformations_of_cell(&cell, &CellIndex::default(), &map);
         assert_eq!(
             transformation,
-            vec![Transformation::to(TileType::MachineDrill)]
+            vec![
+                Transformation::to(TileType::MachineAssembler),
+                Transformation::to(TileType::MachineDrill),
+                Transformation::to(TileType::MachineSolarPanel),
+            ]
+        );
+        map._get_cell_mut(CellIndex::new(0, 5, 0)).tile_type = TileType::WallRock;
+
+        let transformation = allowed_transformations_of_cell(&cell, &CellIndex::default(), &map);
+        assert_eq!(
+            transformation,
+            vec![
+                Transformation::to(TileType::MachineAssembler),
+                Transformation::to(TileType::MachineDrill),
+            ]
         );
     }
 
@@ -98,7 +165,7 @@ mod tests {
 
     #[test]
     fn test_intersection_transformation() {
-        let to_drill = Transformation::to(MachineDrill);
+        let to_drill = Transformation::to(TileType::MachineDrill);
         let a = vec![to_drill];
         let b = vec![to_drill];
         let in_both = set_intersection(vec![a, b]);
