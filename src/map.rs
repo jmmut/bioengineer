@@ -1,15 +1,13 @@
 mod chunk;
 pub mod trunc;
 
-use fluent_asserter::prelude::{assert_that_code, PanicAsserter};
+use crate::map::chunk::{get_chunk_index, get_required_chunks};
+use crate::map::TileType::{Air, DirtyWaterSurface, DirtyWaterWall, FloorDirt, WallRock};
+use crate::{now, IVec3};
+use chunk::{Chunk, ChunkIndex};
 use opensimplex_noise_rs::OpenSimplexNoise;
 use std::cmp::{max, min};
 use std::collections::HashMap;
-
-use crate::map::chunk::{get_chunk_index, get_required_chunks};
-use crate::map::TileType::{Air, CleanWaterSurface, DirtyWaterSurface, DirtyWaterWall, FloorDirt, WallRock};
-use crate::{now, IVec3};
-use chunk::{Chunk, ChunkIndex};
 use trunc::trunc_towards_neg_inf;
 
 /// The axis are isometric:
@@ -53,6 +51,8 @@ impl Map {
             .get(&get_chunk_index(index))
             .expect("Error: Making the map bigger dynamically is disabled.")
     }
+
+    #[allow(dead_code)]
     fn get_chunk_mut(&mut self, index: CellIndex) -> &mut Chunk {
         self.chunks
             .get_mut(&get_chunk_index(index))
@@ -105,6 +105,7 @@ pub struct Cell {
 }
 
 #[derive(Clone, Copy)]
+#[allow(dead_code)]
 pub enum TileType {
     Unset = -1,
     // Helper = 2,
@@ -195,8 +196,9 @@ impl Iterator for CellCubeIterator {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use fluent_asserter::assert_that_code;
+
+    use super::*;
 
     #[test]
     fn test_iterate_cells() {

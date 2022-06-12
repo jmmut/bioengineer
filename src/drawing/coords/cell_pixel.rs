@@ -22,6 +22,7 @@ pub fn cell_to_pixel(cell_index: CellIndex, drawing: &Drawing, screen_width: f32
     tile_to_pixel(tile, drawing, screen_width)
 }
 
+#[allow(dead_code)]
 pub fn pixel_to_cell(
     pixel_position: PixelPosition,
     drawing: &Drawing,
@@ -32,6 +33,7 @@ pub fn pixel_to_cell(
     cell_index
 }
 
+#[allow(dead_code)]
 pub fn pixel_to_subcell(
     pixel_position: PixelPosition,
     drawing: &Drawing,
@@ -52,7 +54,7 @@ pub fn pixel_to_subcell_center(
     drawing: &Drawing,
     screen_width: f32,
 ) -> SubCellIndex {
-    let mut subtile = pixel_to_subtile(pixel, drawing, screen_width);
+    let subtile = pixel_to_subtile(pixel, drawing, screen_width);
 
     // move the hitbox to the center of the tile
     let subtile_center = subtile - tile_offset();

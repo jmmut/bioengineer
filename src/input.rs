@@ -1,5 +1,4 @@
 use crate::input::CellSelectionType::{NoSelection, SelectionFinished, SelectionStarted};
-use macroquad::input::TouchPhase::Started;
 
 pub type PixelPosition = crate::Vec2;
 

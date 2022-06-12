@@ -6,22 +6,12 @@ mod tiles;
 use crate::drawing::coords::cell_pixel::clicked_cell;
 use crate::game_state::GameState;
 use crate::input::{CellSelection, Input, PixelPosition};
-use crate::map::trunc::{trunc_towards_neg_inf, trunc_towards_neg_inf_f};
-use crate::map::{Cell, CellCubeIterator, CellIndex, Map, TileType};
-use crate::{Color, IVec2, IVec3, Texture2D, Vec2, Vec3};
-use assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use coords::cast::Cast;
-use coords::cell_pixel;
-use coords::cell_pixel::{cell_to_pixel, pixel_to_subcell_offset};
-use coords::cell_pixel::{
-    pixel_to_cell, pixel_to_subcell, pixel_to_subcell_center, subcell_center_to_pixel,
-};
+use crate::map::{CellCubeIterator, CellIndex, Map, TileType};
+use crate::{Color, IVec2, Texture2D, Vec2, Vec3};
+use coords::cell_pixel::pixel_to_subcell_offset;
 use coords::cell_tile::subcell_to_subtile_offset;
 use coords::truncate::truncate_cell_offset;
-use std::cmp::min;
 use std::collections::HashSet;
-use std::io::SeekFrom::Start;
-use tiles::{hitbox_offset, hitbox_offset_square};
 
 pub type TilePosition = IVec2;
 pub type SubTilePosition = Vec2;
@@ -82,7 +72,7 @@ impl Drawing {
         }
     }
 
-    fn move_map_horizontally(&mut self, diff: PixelPosition, screen_width: f32) {
+    fn move_map_horizontally(&mut self, diff: PixelPosition, _screen_width: f32) {
         if diff == PixelPosition::new(0.0, 0.0) {
             return;
         }

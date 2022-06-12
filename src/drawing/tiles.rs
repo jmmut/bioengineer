@@ -1,12 +1,11 @@
 use crate::drawing::coords::cast::Cast;
 use crate::drawing::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
 use crate::drawing::coords::truncate::assert_in_range_0_1;
-use crate::drawing::{assets, Drawing, SubCellIndex};
+use crate::drawing::{assets, SubCellIndex};
 use crate::input::PixelPosition;
 use crate::map::CellIndex;
 use crate::Color;
 use crate::{DrawingTrait, GameState};
-use macroquad::window::screen_width;
 
 pub fn draw_map(drawer: &impl DrawingTrait, game_state: &GameState) {
     let drawing = drawer.drawing();
@@ -70,6 +69,7 @@ fn get_opacity(
     })
 }
 
+#[allow(dead_code)]
 fn draw_cell_hit_box(drawer: &impl DrawingTrait, cell_index: CellIndex) {
     let mut subcell: SubCellIndex = cell_index.cast();
     let size = 2.0;
@@ -103,6 +103,7 @@ pub fn hitbox_offset() -> PixelPosition {
 
 /// use this function before `pixel_to_cell()` for a centered square hitbox
 /// it might not work because of truncation errors
+#[allow(dead_code)]
 pub fn hitbox_offset_square() -> PixelPosition {
     PixelPosition::new(
         -(assets::PIXELS_PER_TILE_WIDTH as f32 * 0.25),

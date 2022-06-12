@@ -1,8 +1,8 @@
-use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::drawing::coords::cast::Cast;
-use crate::drawing::{assets, Drawing, SubCellIndex, SubTilePosition, TilePosition};
+use crate::drawing::{SubCellIndex, SubTilePosition, TilePosition};
 use crate::map::CellIndex;
 
+#[allow(dead_code)]
 pub fn cell_to_tile_unwrapped(
     min_cell: &CellIndex,
     max_cell: &CellIndex,
@@ -28,6 +28,7 @@ pub fn subcell_to_subtile(
     subcell_to_subtile_offset(subcell - offset)
 }
 
+#[allow(dead_code)]
 pub fn tile_to_cell(tile: TilePosition, min_cell: &CellIndex, max_cell: &CellIndex) -> CellIndex {
     let offset = cell_offset(min_cell, max_cell);
     tile_to_cell_offset(tile) + offset
@@ -55,6 +56,7 @@ pub fn subcell_to_subtile_offset(cell: SubCellIndex) -> SubTilePosition {
     SubTilePosition::new(cell.x - cell.z, cell.x + cell.z - 2.0 * cell.y)
 }
 
+#[allow(dead_code)]
 pub fn tile_to_cell_offset(tile_offset: TilePosition) -> CellIndex {
     CellIndex::new(
         (tile_offset.x + tile_offset.y) / 2,
