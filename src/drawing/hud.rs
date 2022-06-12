@@ -1,4 +1,5 @@
 use crate::map::mechanics::allowed_transformations;
+use crate::map::TileType;
 use crate::Color;
 use crate::{DrawingTrait, GameState};
 
@@ -36,11 +37,54 @@ pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
 pub fn show_available_actions(drawer: &impl DrawingTrait, game_state: &GameState) {
     let drawing_ = drawer.drawing();
     if drawing_.highlighted_cells.len() > 0 {
-        allowed_transformations(&drawing_.highlighted_cells, game_state);
-        // for each cell
-        //     let allowed_transformations
-        // let common = intersection
-        // height = common.len() * line_height
-        drawer.draw_rectangle(10.0, 10.0, 200.0, 300.0, BACKGROUND_UI_COLOR)
+        let transformations = allowed_transformations(&drawing_.highlighted_cells, game_state);
+        let line_height = FONT_SIZE * 1.5;
+        let buttons_height = transformations.len() as f32 * line_height;
+        let panel_height = buttons_height + 2.0 * line_height;
+        let panel_margin = 10.0;
+        let margin_x = panel_margin + FONT_SIZE;
+        let margin_y = panel_margin + line_height;
+        drawer.draw_rectangle(
+            panel_margin,
+            panel_margin,
+            200.0,
+            panel_height,
+            BACKGROUND_UI_COLOR,
+        );
+        drawer.draw_text("Available actions:", margin_x, margin_y, FONT_SIZE, BLACK);
+        let mut i = 1.0;
+        for transformation in transformations {
+            drawer.draw_text(
+                to_action_str(transformation.new_tile_type),
+                margin_y,
+                margin_y + i * line_height,
+                FONT_SIZE,
+                BLACK,
+            );
+            i += 1.0;
+        }
+    }
+}
+
+fn to_action_str(tile: TileType) -> &'static str {
+    match tile {
+        TileType::Unset => {
+            panic!()
+        }
+        TileType::WallRock => "Build rock wall",
+        TileType::WallDirt => "Build dirt wall",
+        TileType::FloorRock => "Flatten",
+        TileType::FloorDirt => "Flatten",
+        TileType::Stairs => "Build stairs",
+        TileType::Air => "Remove cell",
+        TileType::MachineAssembler => "Build assembler",
+        TileType::MachineDrill => "Build drill",
+        TileType::MachineSolarPanel => "Build solar panel",
+        TileType::MachineShip => "Build space ship",
+        TileType::DirtyWaterSurface => "Dirty water surface",
+        TileType::CleanWaterSurface => "Clean water surface",
+        TileType::DirtyWaterWall => "Dirty water wall",
+        TileType::CleanWaterWall => "Clean water wall",
+        TileType::Robot => "Build robot",
     }
 }

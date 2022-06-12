@@ -6,7 +6,7 @@ const AIR_LEVELS_FOR_ALLOWING_SOLAR: i32 = 20;
 
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub struct Transformation {
-    new_tile_type: TileType,
+    pub new_tile_type: TileType,
 }
 
 pub fn allowed_transformations(
@@ -35,7 +35,7 @@ pub fn allowed_transformations_of_cell(
 
     let machines_with_solar = vec![MachineAssembler, MachineDrill, MachineSolarPanel];
     let machines_without_solar = vec![MachineAssembler, MachineDrill];
-    let machines = if solar_allowed(cell_index, map) {
+    let mut machines = if solar_allowed(cell_index, map) {
         machines_with_solar
     } else {
         machines_without_solar
@@ -46,8 +46,14 @@ pub fn allowed_transformations_of_cell(
         }
         WallRock => vec![FloorRock, Stairs],
         WallDirt => vec![FloorDirt, Stairs],
-        FloorRock => machines,
-        FloorDirt => machines,
+        FloorRock => {
+            machines.append(&mut vec![Stairs]);
+            machines
+        }
+        FloorDirt => {
+            machines.append(&mut vec![Stairs]);
+            machines
+        }
         Stairs => vec![FloorRock],
         Air => vec![],
         MachineAssembler => vec![FloorRock],
