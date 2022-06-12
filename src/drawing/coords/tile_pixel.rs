@@ -69,7 +69,7 @@ mod tests {
     use super::*;
 
     fn tile_to_pixel_to_tile(initial_tile: TilePosition) {
-        let mut drawing = Drawing::new();
+        let drawing = Drawing::new();
         let pixel = tile_to_pixel(initial_tile, &drawing, 800.0);
         let final_subtile = pixel_to_subtile(pixel, &drawing, 800.0);
         let intial_subtile = SubTilePosition::new(initial_tile.x as f32, initial_tile.y as f32);

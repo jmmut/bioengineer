@@ -1,5 +1,6 @@
 use crate::Color;
 use crate::{DrawingTrait, GameState};
+use crate::map::mechanics::allowed_transformations;
 
 const FONT_SIZE: f32 = 20.0;
 const BLACK: Color = Color::new(0.0, 0.0, 0.0, 1.0);
@@ -32,10 +33,14 @@ pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
     );
 }
 
-pub fn show_available_actions(drawer: &impl DrawingTrait) {
+pub fn show_available_actions(drawer: &impl DrawingTrait, game_state: &GameState) {
     let drawing_ = drawer.drawing();
     if drawing_.highlighted_cells.len() > 0 {
-        
+        allowed_transformations(&drawing_.highlighted_cells, game_state);
+        // for each cell
+        //     let allowed_transformations
+        // let common = intersection
+        // height = common.len() * line_height
         drawer.draw_rectangle(10.0, 10.0, 200.0, 300.0, BACKGROUND_UI_COLOR)
     }
 }

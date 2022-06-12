@@ -1,5 +1,6 @@
 mod chunk;
 pub mod trunc;
+pub mod mechanics;
 
 use crate::map::chunk::{get_chunk_index, get_required_chunks};
 use crate::map::TileType::{Air, DirtyWaterSurface, DirtyWaterWall, FloorDirt, WallRock};
@@ -104,7 +105,7 @@ pub struct Cell {
     pub tile_type: TileType,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Eq, PartialEq, Debug)]
 #[allow(dead_code)]
 pub enum TileType {
     Unset = -1,
@@ -196,7 +197,7 @@ impl Iterator for CellCubeIterator {
 
 #[cfg(test)]
 mod tests {
-    use fluent_asserter::assert_that_code;
+    use fluent_asserter::*;
 
     use super::*;
 

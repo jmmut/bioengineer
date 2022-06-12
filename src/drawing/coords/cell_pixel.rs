@@ -87,14 +87,12 @@ mod tests {
     use crate::drawing::coords::cell_pixel::{
         cell_to_pixel, pixel_to_cell, pixel_to_subcell_center, subcell_center_to_pixel,
     };
-    use crate::drawing::coords::*;
-    use crate::drawing::{Drawing, SubTilePosition, TilePosition};
+    use crate::drawing::Drawing;
     use crate::map::CellIndex;
 
     #[test]
     fn test_pixel_to_cell_offset_basic() {
         let pixel_diff = PixelPosition::new(0.0, 0.0);
-        let subtile_offset = SubTilePosition::new(0.0, 0.0);
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(0.0, 0.0, 0.0));
     }
@@ -102,7 +100,6 @@ mod tests {
     #[test]
     fn test_pixel_to_cell_offset_x() {
         let pixel_diff = PixelPosition::new(PIXELS_PER_TILE_WIDTH as f32, 0.0);
-        let subtile_offset = SubTilePosition::new(0.0, 0.0);
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(1.0, 0.0, -1.0));
 
@@ -113,16 +110,15 @@ mod tests {
 
     #[test]
     fn test_pixel_to_cell_offset_y() {
-        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32);
-        let mut subtile_offset = SubTilePosition::new(0.0, 0.0);
+        let pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32);
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(2.0, 0.0, 2.0));
 
-        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 0.5);
+        let pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 0.5);
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(1.0, 0.0, 1.0));
 
-        let mut pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 0.25);
+        let pixel_diff = PixelPosition::new(0.0, PIXELS_PER_TILE_HEIGHT as f32 * 0.25);
         let subcell_diff = pixel_to_subcell_offset(pixel_diff);
         assert_eq!(subcell_diff, SubCellIndex::new(0.5, 0.0, 0.5));
     }
@@ -145,7 +141,7 @@ mod tests {
     }
 
     fn pixel_to_subcell_to_pixel(initial_pixel: PixelPosition) {
-        let mut drawing = Drawing::new();
+        let drawing = Drawing::new();
         let screen_width = 800.0;
         let subcell = pixel_to_subcell_center(initial_pixel, &drawing, screen_width);
         let final_pixel = subcell_center_to_pixel(subcell, &drawing, screen_width);

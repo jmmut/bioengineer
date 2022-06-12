@@ -134,7 +134,7 @@ mod tests {
         let min_cell = CellIndex::new(-5, -25, -55);
         let max_cell = CellIndex::new(5, -15, -45);
         let mut cell = CellIndex::new(0, 0, 0);
-        let mut offset = SubCellIndex::new(0.5, 0.0, 0.0);
+        let offset = SubCellIndex::new(0.5, 0.0, 0.0);
         let t = get_opacity(&cell, &min_cell, &max_cell, &offset);
         assert_eq!(t, 1.0);
 
@@ -147,12 +147,12 @@ mod tests {
     fn transparency_border_corner() {
         let min_cell = CellIndex::new(-5, -25, -55);
         let max_cell = CellIndex::new(5, -15, -45);
-        let mut cell = CellIndex::new(min_cell.x, 0, min_cell.z);
-        let mut offset = SubCellIndex::new(0.0, 0.0, 0.0);
+        let cell = CellIndex::new(min_cell.x, 0, min_cell.z);
+        let offset = SubCellIndex::new(0.0, 0.0, 0.0);
         let t = get_opacity(&cell, &min_cell, &max_cell, &offset);
         assert_eq!(t, 0.0);
 
-        let mut offset = SubCellIndex::new(0.2, 0.0, 0.8);
+        let offset = SubCellIndex::new(0.2, 0.0, 0.8);
         let t = get_opacity(&cell, &min_cell, &max_cell, &offset);
         assert_eq!(t, 0.2);
     }
