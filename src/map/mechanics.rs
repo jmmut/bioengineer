@@ -12,7 +12,7 @@ pub fn allowed_transformations(
     game_state: &GameState,
 ) -> Vec<Transformation> {
     let mut allowed = Vec::new();
-    for cell_index in cells.iter() {
+    for cell_index in cells {
         let cell = game_state.map.get_cell(*cell_index);
         allowed.push(allowed_transformations_of_cell(cell));
     }
@@ -43,23 +43,24 @@ pub fn allowed_transformations_of_cell(cell: &Cell) -> Vec<Transformation> {
 }
 
 pub fn set_intersection<T: PartialEq + Copy>(transformations_per_cell: Vec<Vec<T>>) -> Vec<T> {
-    if transformations_per_cell.len() == 0 {
-        Vec::new()
-    } else {
-        let mut result = Vec::new();
-        for should_be_present_in_all in transformations_per_cell.first().unwrap() {
-            let mut present = true;
-            for i in 1..transformations_per_cell.len() {
-                let transformations = &transformations_per_cell[i];
-                if !transformations.contains(should_be_present_in_all) {
-                    present = false;
+    match transformations_per_cell.first() {
+        None => Vec::new(),
+        Some(first) => {
+            let mut result = Vec::new();
+            for should_be_present_in_all in first {
+                let mut present = true;
+                for i in 1..transformations_per_cell.len() {
+                    let transformations = &transformations_per_cell[i];
+                    if !transformations.contains(should_be_present_in_all) {
+                        present = false;
+                    }
+                }
+                if present {
+                    result.push(*should_be_present_in_all);
                 }
             }
-            if present {
-                result.push(*should_be_present_in_all);
-            }
+            result
         }
-        result
     }
 }
 
