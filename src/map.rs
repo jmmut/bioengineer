@@ -7,7 +7,7 @@ use std::cmp::{max, min};
 use std::collections::HashMap;
 
 use crate::map::chunk::{get_chunk_index, get_required_chunks};
-use crate::map::TileType::{Air, FloorDirt, WallRock};
+use crate::map::TileType::{Air, CleanWaterSurface, DirtyWaterSurface, DirtyWaterWall, FloorDirt, WallRock};
 use crate::{now, IVec3};
 use chunk::{Chunk, ChunkIndex};
 use trunc::trunc_towards_neg_inf;
@@ -84,10 +84,16 @@ impl Map {
 
 fn choose_tile(value: f64, cell_index: CellIndex) -> TileType {
     let surface_level = trunc_towards_neg_inf((value * 0.5 * MAP_SIZE as f64) as i32, 2);
-    if surface_level > cell_index.y {
+    if cell_index.y < surface_level {
         WallRock
-    } else if surface_level < cell_index.y {
-        Air
+    } else if cell_index.y > surface_level {
+        if cell_index.y < 0 {
+            DirtyWaterWall
+        } else if cell_index.y == 0 {
+            DirtyWaterSurface
+        } else {
+            Air
+        }
     } else {
         FloorDirt
     }
@@ -111,6 +117,10 @@ pub enum TileType {
     MachineDrill = 13,
     MachineSolarPanel = 21,
     MachineShip = 28,
+    DirtyWaterSurface = 6,
+    CleanWaterSurface = 7,
+    DirtyWaterWall = 14,
+    CleanWaterWall = 15,
 }
 
 impl Default for Cell {
