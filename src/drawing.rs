@@ -1,14 +1,15 @@
 mod actions;
 pub mod assets;
 mod coords;
-mod hud;
+pub mod hud;
 mod tiles;
 
 use crate::drawing::actions::change_height::change_height_rel;
 use crate::drawing::actions::highlight_cells::highlight_cells_from_pixels;
 use crate::drawing::actions::move_horizontally::move_map_horizontally;
 use crate::game_state::GameState;
-use crate::input::{CellSelection, CellSelectionType, Input, PixelPosition};
+use crate::gui::UnhandledInput;
+use crate::input::{CellSelection, CellSelectionType, PixelPosition};
 use crate::map::{CellIndex, TileType};
 use crate::{Color, IVec2, Texture2D, Vec2, Vec3};
 use std::collections::HashSet;
@@ -18,9 +19,10 @@ pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
-pub fn apply_input(drawer: &mut impl DrawingTrait, input: &Input) {
+pub fn apply_input(drawer: &mut impl DrawingTrait, unhandled: &UnhandledInput) {
     let screen_width = drawer.screen_width();
     let drawing = drawer.drawing_mut();
+    let input = &unhandled.input;
     drawing.maybe_change_height_rel(input.change_height_rel);
     drawing.maybe_move_map_horizontally(input.move_map_horizontally, screen_width);
     drawing.maybe_select_cells(&input.cell_selection, screen_width);

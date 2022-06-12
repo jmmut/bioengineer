@@ -1,3 +1,4 @@
+use crate::gui::UnhandledInput;
 use super::map::Map;
 use crate::now;
 
@@ -19,6 +20,10 @@ impl GameState {
             map,
         }
     }
+
+    pub fn update_with_gui_actions(&self, _unhandled_input: &UnhandledInput) {
+    }
+
     pub fn advance_frame(&mut self) {
         self.frame_index = (self.frame_index + 1) % 1000;
         self.previous_frame_ts = self.current_frame_ts;

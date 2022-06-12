@@ -1,5 +1,6 @@
 mod drawing;
 mod game_state;
+mod gui;
 mod input;
 mod map;
 mod external {
@@ -19,6 +20,7 @@ use external::assets_macroquad::load_tileset;
 use external::drawing_macroquad::DrawingMacroquad as DrawingImpl;
 use external::input_macroquad::InputMacroquad as InputSource;
 
+use crate::gui::Gui;
 use drawing::{apply_input, draw, DrawingTrait};
 use game_state::GameState;
 use input::InputSourceTrait;
@@ -27,17 +29,14 @@ struct Implementations<D: DrawingTrait, I: InputSourceTrait> {
     drawer: D,
     game_state: GameState,
     input: I,
+    gui: Gui,
 }
 
 #[macroquad::main("Bioengineer")]
 async fn main() {
-    let Implementations {
-        mut drawer,
-        mut game_state,
-        mut input,
-    } = factory().await;
+    let mut implementations = factory().await;
 
-    while frame(&mut game_state, &mut drawer, &mut input) {
+    while frame(&mut implementations) {
         next_frame().await
     }
 }
@@ -47,24 +46,32 @@ async fn factory() -> Implementations<DrawingImpl, InputSource> {
     let drawer = DrawingImpl::new(tileset.await);
     let game_state = GameState::new();
     let input = InputSource::new();
+    let gui = gui::Gui::new();
     Implementations {
         drawer,
         game_state,
         input,
+        gui,
     }
 }
 
 /// returns if should continue looping. In other words, if there should be another future frame.
-fn frame(
-    game_state: &mut GameState,
-    drawer: &mut impl DrawingTrait,
-    input: &mut impl InputSourceTrait,
+fn frame<D: DrawingTrait, I: InputSourceTrait>(
+    implementations: &mut Implementations<D, I>,
 ) -> bool {
-    let input = input.get_input();
-    if !input.quit {
-        apply_input(drawer, &input);
+    let game_state = &mut implementations.game_state;
+    let drawer = &mut implementations.drawer;
+    let input_source = &mut implementations.input;
+    let gui = &mut implementations.gui;
+
+    let input = input_source.get_input();
+    let should_continue = !input.quit;
+    if should_continue {
         draw(drawer, &game_state);
+        let gui_actions = gui.receive_actions(input, drawer, &game_state);
+        game_state.update_with_gui_actions(&gui_actions);
+        apply_input(drawer, &gui_actions);
     }
     game_state.advance_frame();
-    !input.quit
+    should_continue
 }
