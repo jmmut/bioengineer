@@ -1,8 +1,8 @@
-use crate::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
+use crate::gui::{UnhandledInput, BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
+use crate::input::{CellSelection, Input};
 use crate::map::mechanics::allowed_transformations;
 use crate::map::TileType;
 use crate::{DrawingTrait, GameState};
-use std::cmp::max;
 
 pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
@@ -31,7 +31,11 @@ pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
     );
 }
 
-pub fn show_available_actions(drawer: &impl DrawingTrait, game_state: &GameState) {
+pub fn show_available_actions(
+    drawer: &impl DrawingTrait,
+    game_state: &GameState,
+    input: Input,
+) -> UnhandledInput {
     let drawing_ = drawer.drawing();
     if drawing_.highlighted_cells.len() > 0 {
         let transformations = allowed_transformations(&drawing_.highlighted_cells, game_state);
@@ -58,15 +62,27 @@ pub fn show_available_actions(drawer: &impl DrawingTrait, game_state: &GameState
         );
         drawer.draw_text(panel_title, margin_x, margin_y, FONT_SIZE, TEXT_COLOR);
         let mut i = 1.0;
+        let mut clicked_any_button = false;
         for transformation in transformations {
-            drawer.do_button(
+            if drawer.do_button(
                 to_action_str(transformation.new_tile_type),
                 big_margin_x,
                 margin_y + i * line_height - FONT_SIZE / 2.0,
-            );
+            ) {
+                clicked_any_button = true;
+            }
             i += 1.0;
         }
+        if clicked_any_button {
+            return UnhandledInput {
+                input: Input {
+                    cell_selection: CellSelection::no_selection(),
+                    ..input
+                },
+            };
+        }
     }
+    return UnhandledInput { input };
 }
 
 fn to_action_str(tile: TileType) -> &'static str {

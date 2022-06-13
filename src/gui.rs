@@ -31,8 +31,8 @@ impl Gui {
         drawer: &impl DrawingTrait,
         _game_state: &GameState,
     ) -> UnhandledInput {
-        hud::show_available_actions(drawer, _game_state);
-        UnhandledInput { input }
+        let unhandled_input = hud::show_available_actions(drawer, _game_state, input);
+        unhandled_input
     }
     fn set_skin(drawer: &mut impl DrawingTrait) {
         drawer.set_button_style(

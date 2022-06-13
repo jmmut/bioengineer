@@ -2,9 +2,9 @@ use macroquad::color::Color;
 use macroquad::math::{RectOffset, Vec2};
 use macroquad::prelude::Texture2D;
 use macroquad::shapes::draw_rectangle;
-use macroquad::text::{draw_text, measure_text, TextDimensions};
+use macroquad::text::{draw_text, measure_text};
 use macroquad::texture::draw_texture;
-use macroquad::ui::{root_ui, Skin, StyleBuilder};
+use macroquad::ui::{root_ui, Skin};
 use macroquad::window::{clear_background, screen_height, screen_width};
 
 use crate::drawing::{assets, Drawing, DrawingTrait};
