@@ -55,7 +55,7 @@ pub enum CellSelectionType {
     SelectionFinished,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Copy, Clone)]
 pub struct Selection {
     pub start: PixelPosition,
     pub end: PixelPosition,

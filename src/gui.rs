@@ -1,5 +1,6 @@
 use crate::drawing::hud;
 use crate::input::Input;
+use crate::map::mechanics::Transformation;
 use crate::Color;
 use crate::{DrawingTrait, GameState};
 
@@ -20,8 +21,9 @@ impl Gui {
     }
 }
 
-pub struct UnhandledInput {
+pub struct GuiActions {
     pub input: Input,
+    pub selected_cell_transformation: Option<Transformation>,
 }
 
 impl Gui {
@@ -30,7 +32,7 @@ impl Gui {
         input: Input,
         drawer: &impl DrawingTrait,
         _game_state: &GameState,
-    ) -> UnhandledInput {
+    ) -> GuiActions {
         let unhandled_input = hud::show_available_actions(drawer, _game_state, input);
         unhandled_input
     }

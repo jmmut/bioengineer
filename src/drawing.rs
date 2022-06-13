@@ -8,7 +8,7 @@ use crate::drawing::actions::change_height::change_height_rel;
 use crate::drawing::actions::highlight_cells::highlight_cells_from_pixels;
 use crate::drawing::actions::move_horizontally::move_map_horizontally;
 use crate::game_state::GameState;
-use crate::gui::UnhandledInput;
+use crate::gui::GuiActions;
 use crate::input::{CellSelection, CellSelectionType, PixelPosition};
 use crate::map::{CellIndex, TileType};
 use crate::{Color, IVec2, Texture2D, Vec2, Vec3};
@@ -19,7 +19,7 @@ pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
-pub fn apply_input(drawer: &mut impl DrawingTrait, unhandled: &UnhandledInput) {
+pub fn apply_input(drawer: &mut impl DrawingTrait, unhandled: &GuiActions) {
     let screen_width = drawer.screen_width();
     let drawing = drawer.drawing_mut();
     let input = &unhandled.input;

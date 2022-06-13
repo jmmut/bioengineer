@@ -1,7 +1,8 @@
-use crate::gui::{UnhandledInput, BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
+use crate::gui::{GuiActions, BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::input::{CellSelection, Input};
 use crate::map::mechanics::allowed_transformations;
 use crate::map::TileType;
+use crate::Rect;
 use crate::{DrawingTrait, GameState};
 
 pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
@@ -35,7 +36,7 @@ pub fn show_available_actions(
     drawer: &impl DrawingTrait,
     game_state: &GameState,
     input: Input,
-) -> UnhandledInput {
+) -> GuiActions {
     let drawing_ = drawer.drawing();
     if drawing_.highlighted_cells.len() > 0 {
         let transformations = allowed_transformations(&drawing_.highlighted_cells, game_state);
@@ -53,36 +54,40 @@ pub fn show_available_actions(
             max_button_width = f32::max(max_button_width, drawer.measure_text(text, FONT_SIZE).x);
         }
 
-        drawer.draw_rectangle(
+        let panel = Rect::new(
             panel_margin,
             panel_margin,
             max_button_width + big_margin_x + margin_x,
             panel_height,
-            BACKGROUND_UI_COLOR,
         );
+        drawer.draw_rectangle(panel.x, panel.y, panel.w, panel.h, BACKGROUND_UI_COLOR);
         drawer.draw_text(panel_title, margin_x, margin_y, FONT_SIZE, TEXT_COLOR);
         let mut i = 1.0;
-        let mut clicked_any_button = false;
+        let mut transformation_clicked = Option::None;
         for transformation in transformations {
-            if drawer.do_button(
-                to_action_str(transformation.new_tile_type),
-                big_margin_x,
-                margin_y + i * line_height - FONT_SIZE / 2.0,
-            ) {
-                clicked_any_button = true;
+            let y = margin_y + i * line_height - FONT_SIZE / 2.0;
+            let text = to_action_str(transformation.new_tile_type);
+            if drawer.do_button(text, big_margin_x, y) {
+                transformation_clicked = Option::Some(transformation);
             }
             i += 1.0;
         }
-        if clicked_any_button {
-            return UnhandledInput {
-                input: Input {
-                    cell_selection: CellSelection::no_selection(),
-                    ..input
-                },
-            };
+        if let Option::Some(selection) = input.cell_selection.selection.clone() {
+            if panel.contains(selection.end) {
+                return GuiActions {
+                    input: Input {
+                        cell_selection: CellSelection::no_selection(),
+                        ..input
+                    },
+                    selected_cell_transformation: transformation_clicked,
+                };
+            }
         }
     }
-    return UnhandledInput { input };
+    return GuiActions {
+        input,
+        selected_cell_transformation: Option::None,
+    };
 }
 
 fn to_action_str(tile: TileType) -> &'static str {
