@@ -57,7 +57,7 @@ pub fn show_available_actions(
         let panel = Rect::new(
             panel_margin,
             panel_margin,
-            max_button_width + big_margin_x + margin_x,
+            max_button_width + 2.0 * big_margin_x,
             panel_height,
         );
         drawer.draw_rectangle(panel.x, panel.y, panel.w, panel.h, BACKGROUND_UI_COLOR);

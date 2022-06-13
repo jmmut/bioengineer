@@ -149,6 +149,7 @@ mod tests {
                 Transformation::to(TileType::MachineAssembler),
                 Transformation::to(TileType::MachineDrill),
                 Transformation::to(TileType::MachineSolarPanel),
+                Transformation::to(TileType::Stairs),
             ]
         );
         map._get_cell_mut(CellIndex::new(0, 5, 0)).tile_type = TileType::WallRock;
@@ -159,6 +160,7 @@ mod tests {
             vec![
                 Transformation::to(TileType::MachineAssembler),
                 Transformation::to(TileType::MachineDrill),
+                Transformation::to(TileType::Stairs),
             ]
         );
     }
