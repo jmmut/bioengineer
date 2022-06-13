@@ -8,7 +8,7 @@ use crate::Color;
 use crate::{DrawingTrait, GameState};
 
 pub fn draw_map(drawer: &impl DrawingTrait, game_state: &GameState) {
-    let drawing = drawer.drawing();
+    let drawing = game_state.get_drawing();
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
     for i_y in min_cell.y..=max_cell.y {
@@ -22,7 +22,7 @@ pub fn draw_map(drawer: &impl DrawingTrait, game_state: &GameState) {
 
 fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: CellIndex) {
     let screen_width = drawer.screen_width();
-    let drawing = drawer.drawing();
+    let drawing = game_state.get_drawing();
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
     let tile_type = game_state.map.get_cell(cell_index).tile_type;
@@ -39,7 +39,7 @@ fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: Cel
         // let opacity = 1.0; // for debugging
         drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, opacity);
     }
-    // draw_cell_hit_box(drawer, cell_index);
+    // draw_cell_hit_box(drawer, game_state, cell_index);
 }
 
 fn get_opacity(
@@ -70,11 +70,11 @@ fn get_opacity(
 }
 
 #[allow(dead_code)]
-fn draw_cell_hit_box(drawer: &impl DrawingTrait, cell_index: CellIndex) {
+fn draw_cell_hit_box(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: CellIndex) {
     let mut subcell: SubCellIndex = cell_index.cast();
     let size = 2.0;
     let color = Color::new(1.0, 1.0, 1.0, 1.0);
-    let drawing = drawer.drawing();
+    let drawing = game_state.get_drawing();
     let screen_width = drawer.screen_width();
     let offset = hitbox_offset();
     let me = subcell_center_to_pixel(subcell, drawing, screen_width) - offset;

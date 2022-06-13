@@ -19,9 +19,7 @@ pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
-pub fn apply_input(drawer: &mut impl DrawingTrait, unhandled: &GuiActions) {
-    let screen_width = drawer.screen_width();
-    let drawing = drawer.drawing_mut();
+pub fn apply_input(unhandled: &GuiActions, drawing: &mut Drawing, screen_width: f32) {
     let input = &unhandled.input;
     drawing.maybe_change_height_rel(input.change_height_rel);
     drawing.maybe_move_map_horizontally(input.move_map_horizontally, screen_width);
@@ -34,8 +32,8 @@ pub fn draw(drawer: &impl DrawingTrait, game_state: &GameState) {
     hud::draw_fps(drawer, game_state);
     hud::draw_level(
         drawer,
-        drawer.drawing().min_cell.y,
-        drawer.drawing().max_cell.y,
+        game_state.get_drawing().min_cell.y,
+        game_state.get_drawing().max_cell.y,
     );
 }
 
@@ -44,8 +42,10 @@ pub struct Drawing {
     max_cell: CellIndex,
     subtile_offset: SubTilePosition,
     subcell_diff: SubCellIndex,
-    highlighted_cells: HashSet<CellIndex>,
+    pub highlighted_cells: HashSet<CellIndex>,
     highlight_start_height: i32,
+    screen_width: f32,
+    screen_height: f32,
 }
 
 impl Drawing {
@@ -57,6 +57,8 @@ impl Drawing {
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
             highlighted_cells: HashSet::new(),
             highlight_start_height: 0,
+            screen_width: 0.0,
+            screen_height: 0.0,
         }
     }
 
@@ -119,6 +121,4 @@ pub trait DrawingTrait {
         background_color_hovered: Color,
         background_color_clicked: Color,
     );
-    fn drawing(&self) -> &Drawing;
-    fn drawing_mut(&mut self) -> &mut Drawing;
 }

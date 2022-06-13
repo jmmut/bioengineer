@@ -1,6 +1,6 @@
 use crate::gui::{GuiActions, BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::input::{CellSelection, Input};
-use crate::map::mechanics::allowed_transformations;
+use crate::map::transform_cells::allowed_transformations;
 use crate::map::TileType;
 use crate::Rect;
 use crate::{DrawingTrait, GameState};
@@ -37,7 +37,7 @@ pub fn show_available_actions(
     game_state: &GameState,
     input: Input,
 ) -> GuiActions {
-    let drawing_ = drawer.drawing();
+    let drawing_ = game_state.get_drawing();
     if drawing_.highlighted_cells.len() > 0 {
         let transformations = allowed_transformations(&drawing_.highlighted_cells, game_state);
         let line_height = FONT_SIZE * 1.5;

@@ -1,5 +1,5 @@
 mod chunk;
-pub mod mechanics;
+pub mod transform_cells;
 pub mod trunc;
 
 use crate::map::chunk::{get_chunk_index, get_required_chunks};

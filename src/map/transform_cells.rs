@@ -122,6 +122,10 @@ impl Transformation {
     pub fn to(new_tile_type: TileType) -> Self {
         Transformation { new_tile_type }
     }
+
+    pub fn apply(&self, cell: &mut Cell) {
+        cell.tile_type = self.new_tile_type;
+    }
 }
 
 #[cfg(test)]
