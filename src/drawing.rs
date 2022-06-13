@@ -56,7 +56,7 @@ impl Drawing {
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
             highlighted_cells: HashSet::new(),
-            highlight_start_height: 10,
+            highlight_start_height: 0,
         }
     }
 
