@@ -44,8 +44,6 @@ pub struct Drawing {
     subcell_diff: SubCellIndex,
     pub highlighted_cells: HashSet<CellIndex>,
     highlight_start_height: i32,
-    screen_width: f32,
-    screen_height: f32,
 }
 
 impl Drawing {
@@ -57,8 +55,6 @@ impl Drawing {
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
             highlighted_cells: HashSet::new(),
             highlight_start_height: 0,
-            screen_width: 0.0,
-            screen_height: 0.0,
         }
     }
 
