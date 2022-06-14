@@ -120,6 +120,7 @@ pub enum TileType {
     FloorDirt = 20,
     Stairs = 18,
     Air = 29,
+    Wire = 5,
     MachineAssembler = 12,
     MachineDrill = 13,
     MachineSolarPanel = 21,

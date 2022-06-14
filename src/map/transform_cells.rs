@@ -33,13 +33,10 @@ pub fn allowed_transformations_of_cell(
 ) -> Vec<Transformation> {
     use TileType::*;
 
-    let machines_with_solar = vec![MachineAssembler, MachineDrill, MachineSolarPanel];
-    let machines_without_solar = vec![MachineAssembler, MachineDrill];
-    let mut machines = if solar_allowed(cell_index, map) {
-        machines_with_solar
-    } else {
-        machines_without_solar
-    };
+    let mut machines = vec![MachineAssembler, MachineDrill, Wire];
+    if solar_allowed(cell_index, map) {
+        machines.push(MachineSolarPanel);
+    }
     let mut new_tiles = match cell.tile_type {
         Unset => {
             panic!("can not transform an UNSET cell!")
@@ -56,6 +53,7 @@ pub fn allowed_transformations_of_cell(
         }
         Stairs => vec![FloorRock],
         Air => vec![],
+        Wire => vec![FloorRock],
         MachineAssembler => vec![FloorRock],
         MachineDrill => vec![FloorRock],
         MachineSolarPanel => vec![FloorRock],
@@ -147,6 +145,7 @@ mod tests {
             vec![
                 Transformation::to(TileType::MachineAssembler),
                 Transformation::to(TileType::MachineDrill),
+                Transformation::to(TileType::Wire),
                 Transformation::to(TileType::MachineSolarPanel),
                 Transformation::to(TileType::Stairs),
                 Transformation::to(TileType::FloorRock),
@@ -160,6 +159,7 @@ mod tests {
             vec![
                 Transformation::to(TileType::MachineAssembler),
                 Transformation::to(TileType::MachineDrill),
+                Transformation::to(TileType::Wire),
                 Transformation::to(TileType::Stairs),
                 Transformation::to(TileType::FloorRock),
             ]
