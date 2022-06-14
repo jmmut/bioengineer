@@ -99,8 +99,8 @@ fn to_action_str(tile: TileType) -> &'static str {
         }
         TileType::WallRock => "Build rock wall",
         TileType::WallDirt => "Build dirt wall",
-        TileType::FloorRock => "Flatten",
-        TileType::FloorDirt => "Flatten",
+        TileType::FloorRock => "Flatten rock",
+        TileType::FloorDirt => "Flatten dirt",
         TileType::Stairs => "Build stairs",
         TileType::Air => "Remove cell",
         TileType::MachineAssembler => "Build assembler",

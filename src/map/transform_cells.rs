@@ -40,7 +40,7 @@ pub fn allowed_transformations_of_cell(
     } else {
         machines_without_solar
     };
-    let new_tiles = match cell.tile_type {
+    let mut new_tiles = match cell.tile_type {
         Unset => {
             panic!("can not transform an UNSET cell!")
         }
@@ -66,6 +66,7 @@ pub fn allowed_transformations_of_cell(
         CleanWaterWall => vec![],
         Robot => vec![],
     };
+    new_tiles.push(cell.tile_type);
     new_tiles
         .iter()
         .map(|tile| Transformation::to(*tile))
@@ -148,6 +149,7 @@ mod tests {
                 Transformation::to(TileType::MachineDrill),
                 Transformation::to(TileType::MachineSolarPanel),
                 Transformation::to(TileType::Stairs),
+                Transformation::to(TileType::FloorRock),
             ]
         );
         map._get_cell_mut(CellIndex::new(0, 5, 0)).tile_type = TileType::WallRock;
@@ -159,6 +161,7 @@ mod tests {
                 Transformation::to(TileType::MachineAssembler),
                 Transformation::to(TileType::MachineDrill),
                 Transformation::to(TileType::Stairs),
+                Transformation::to(TileType::FloorRock),
             ]
         );
     }
