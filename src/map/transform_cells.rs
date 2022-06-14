@@ -73,22 +73,16 @@ pub fn allowed_transformations_of_cell(
 }
 
 fn solar_allowed(cell_index: &CellIndex, map: &Map) -> bool {
-    if cell_index.y >= 0 {
-        if above_is(
-            TileType::Air,
-            AIR_LEVELS_FOR_ALLOWING_SOLAR,
-            *cell_index,
-            map,
-        ) {
-            return true;
-        }
-    }
-    false
+    above_is(TileType::Air, AIR_LEVELS_FOR_ALLOWING_SOLAR, *cell_index, map)
 }
 
 fn above_is(expected_tile: TileType, levels: i32, mut cell_index: CellIndex, map: &Map) -> bool {
+    let max_height = Map::max_cell().y;
     for _ in 0..levels {
         cell_index.y += 1;
+        if cell_index.y > max_height {
+            return true
+        }
         if map.get_cell(cell_index).tile_type != expected_tile {
             return false;
         }
