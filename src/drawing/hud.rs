@@ -74,6 +74,8 @@ pub fn show_available_actions(
         }
         if let Option::Some(selection) = input.cell_selection.selection.clone() {
             if panel.contains(selection.end) {
+                // TODO: if clicking a button near the bottom of the panel, it selects a cell out
+                // of screen
                 return GuiActions {
                     input: Input {
                         cell_selection: CellSelection::no_selection(),
