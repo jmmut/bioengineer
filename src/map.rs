@@ -1,9 +1,10 @@
 mod chunk;
 pub mod transform_cells;
 pub mod trunc;
+mod fluids;
 
 use crate::map::chunk::{get_chunk_index, get_required_chunks};
-use crate::map::TileType::{Air, DirtyWaterSurface, DirtyWaterWall, FloorDirt, WallRock};
+use crate::map::TileType::{Air, CleanWaterSurface, CleanWaterWall, DirtyWaterSurface, DirtyWaterWall, FloorDirt, WallRock};
 use crate::{now, IVec3};
 use chunk::{Chunk, ChunkIndex};
 use opensimplex_noise_rs::OpenSimplexNoise;
@@ -35,6 +36,15 @@ impl Map {
             chunks.insert(chunk_index, Chunk::new());
         }
         Map { chunks }
+    }
+    pub fn new_from_pressures(cells: Vec<i32>, min_cell: CellIndex, max_cell: CellIndex) -> Self {
+        let mut map = Self::new_for_cube(min_cell, max_cell);
+        let mut i = 0;
+        for cell_index in CellCubeIterator::new(min_cell, max_cell) {
+            map.get_cell_mut(cell_index).pressure = cells[i];
+            i += 1;
+        }
+        map
     }
 
     pub fn min_cell() -> CellIndex {
@@ -80,7 +90,12 @@ impl Map {
                 if value < min {
                     min = value
                 }
-                chunk.get_cell_mut(cell_index).tile_type = choose_tile(value, cell_index)
+                let tile = choose_tile(value, cell_index);
+                let cell = chunk.get_cell_mut(cell_index);
+                if is_liquid(tile) {
+                    cell.pressure = 1 - cell_index.y;
+                }
+                cell.tile_type = tile
             }
         }
         println!("simplex range used: [{}, {}]", min, max);
@@ -107,6 +122,8 @@ fn choose_tile(value: f64, cell_index: CellIndex) -> TileType {
 #[derive(Clone, Copy)]
 pub struct Cell {
     pub tile_type: TileType,
+    pub pressure: i32,
+    pub next_pressure: i32,
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
@@ -132,10 +149,16 @@ pub enum TileType {
     Robot = 4,
 }
 
+pub fn is_liquid(tile: TileType) -> bool {
+    [DirtyWaterWall, CleanWaterWall, DirtyWaterSurface, CleanWaterSurface].contains(&tile)
+}
+
 impl Default for Cell {
     fn default() -> Self {
         Cell {
             tile_type: TileType::Unset,
+            pressure: 0,
+            next_pressure: 0,
         }
     }
 }
