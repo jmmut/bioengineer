@@ -20,7 +20,7 @@ use trunc::trunc_towards_neg_inf;
 /// - z: left towards camera
 pub type CellIndex = IVec3;
 
-const MAP_SIZE: i32 = 64;
+const MAP_SIZE: i32 = 21;
 
 pub struct Map {
     chunks: HashMap<ChunkIndex, Chunk>,
@@ -112,7 +112,8 @@ impl Map {
                 let tile = choose_tile(value, cell_index);
                 let cell = chunk.get_cell_mut(cell_index);
                 if is_liquid(tile) {
-                    cell.pressure = 10 - 10 * cell_index.y;
+                    // cell.pressure = 10 - 10 * cell_index.y;
+                    cell.pressure = if tile == TileType::Air { 0 } else {40};
                 }
                 cell.tile_type = tile
             }
@@ -187,6 +188,7 @@ pub fn is_liquid(tile: TileType) -> bool {
         CleanWaterWall,
         DirtyWaterSurface,
         CleanWaterSurface,
+        Air,
     ]
     .contains(&tile)
 }

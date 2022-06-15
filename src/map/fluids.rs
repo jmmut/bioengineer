@@ -1,4 +1,4 @@
-use crate::map::{is_liquid, CellCubeIterator, CellIndex, Map, Pressure};
+use crate::map::{is_liquid, CellCubeIterator, CellIndex, Map, Pressure, TileType};
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
@@ -83,6 +83,15 @@ fn swap_next_pressure_to_current(map: &mut Map, min_cell: CellIndex, max_cell: C
     for cell_index in iter {
         let cell = map.get_cell_mut(cell_index);
         cell.pressure += cell.next_pressure;
+        cell.tile_type = if cell.pressure <= 0 && is_liquid(cell.tile_type) {
+            TileType::Air
+        } else if cell.pressure > 10 {
+            TileType::DirtyWaterWall
+        } else if cell.pressure > 0 {
+            TileType::DirtyWaterSurface
+        } else {
+            cell.tile_type
+        };
         cell.next_pressure = 0;
     }
 }

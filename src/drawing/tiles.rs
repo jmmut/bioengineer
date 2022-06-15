@@ -2,6 +2,7 @@ use crate::drawing::coords::cast::Cast;
 use crate::drawing::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
 use crate::drawing::coords::truncate::assert_in_range_0_1;
 use crate::drawing::{assets, SubCellIndex};
+use crate::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::input::PixelPosition;
 use crate::map::CellIndex;
 use crate::Color;
@@ -25,7 +26,8 @@ fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: Cel
     let drawing = game_state.get_drawing();
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
-    let tile_type = game_state.map.get_cell(cell_index).tile_type;
+    let cell = game_state.map.get_cell(cell_index);
+    let tile_type = cell.tile_type;
 
     let pixel = cell_to_pixel(cell_index, drawing, screen_width);
     // if drawing.highlighted_cells.len() > 0 {
@@ -38,6 +40,24 @@ fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: Cel
         let opacity = get_opacity(&cell_index, &min_cell, &max_cell, &drawing.subcell_diff);
         // let opacity = 1.0; // for debugging
         drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, opacity);
+    }
+    if cell_index.y == max_cell.y {
+        let center_pixel = subcell_center_to_pixel(
+            SubCellIndex::new(
+                cell_index.x as f32 + 0.25,
+                cell_index.y as f32,
+                cell_index.z as f32 + 0.5,
+            ),
+            drawing,
+            screen_width,
+        );
+        drawer.draw_text(
+            format!("{}", cell.pressure).as_str(),
+            center_pixel.x,
+            center_pixel.y,
+            FONT_SIZE,
+            TEXT_COLOR,
+        )
     }
     // draw_cell_hit_box(drawer, game_state, cell_index);
 }

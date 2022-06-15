@@ -12,6 +12,7 @@ pub struct GameState {
     pub current_frame_ts: f64,
     pub map: Map,
     pub drawing: Drawing,
+    pub advancing_fluids: bool,
 }
 
 impl GameState {
@@ -24,6 +25,7 @@ impl GameState {
             current_frame_ts: now(),
             map,
             drawing: Drawing::new(),
+            advancing_fluids: false,
         }
     }
 
@@ -35,7 +37,16 @@ impl GameState {
                 &mut self.map,
             );
         }
-        self.map.advance_fluids()
+        if gui_actions.input.toggle_fluids {
+            self.advancing_fluids = !self.advancing_fluids;
+        }
+        if self.advancing_fluids || gui_actions.input.single_fluid {
+            self.map.advance_fluids();
+        }
+
+        if gui_actions.input.regenerate_map {
+            self.map.regenerate();
+        }
     }
 
     pub fn advance_frame(&mut self) {

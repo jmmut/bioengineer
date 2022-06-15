@@ -1,8 +1,8 @@
 use crate::input::{CellSelection, Input, InputSourceTrait, PixelPosition, Selection};
 
 use macroquad::input::{
-    is_key_down, is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released,
-    mouse_position, mouse_wheel, KeyCode, MouseButton,
+    is_key_down, is_key_pressed, is_mouse_button_down, is_mouse_button_pressed,
+    is_mouse_button_released, mouse_position, mouse_wheel, KeyCode, MouseButton,
 };
 
 pub struct InputMacroquad {
@@ -98,12 +98,18 @@ impl InputMacroquad {
 
 impl InputSourceTrait for InputMacroquad {
     fn get_input(&mut self) -> Input {
-        let quit = is_key_down(KeyCode::Escape);
+        let quit = is_key_pressed(KeyCode::Escape);
+        let regenerate_map = is_key_pressed(KeyCode::M);
+        let toggle_fluids = is_key_pressed(KeyCode::Space);
+        let single_fluid = is_key_pressed(KeyCode::N);
         let change_height_rel = self.get_mouse_wheel_height_diff();
         let move_map_horizontally = self.get_horizontal_move();
         let cell_selection = self.get_cell_selection();
         Input {
             quit,
+            regenerate_map,
+            toggle_fluids,
+            single_fluid,
             change_height_rel,
             move_map_horizontally,
             cell_selection,
