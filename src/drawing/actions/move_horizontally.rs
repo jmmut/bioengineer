@@ -41,16 +41,16 @@ fn move_map_horizontally_to(
     if move_inside_range_min_equals(
         &mut min_cell.x,
         &mut max_cell.x,
-        Map::min_cell().x,
-        Map::max_cell().x,
+        Map::default_min_cell().x,
+        Map::default_max_cell().x,
     ) {
         drawing_.subcell_diff.x = 0.0;
     }
     if move_inside_range_min_equals(
         &mut min_cell.z,
         &mut max_cell.z,
-        Map::min_cell().z,
-        Map::max_cell().z,
+        Map::default_min_cell().z,
+        Map::default_max_cell().z,
     ) {
         drawing_.subcell_diff.z = 0.0;
     }

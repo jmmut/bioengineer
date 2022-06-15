@@ -72,15 +72,20 @@ pub fn allowed_transformations_of_cell(
 }
 
 fn solar_allowed(cell_index: &CellIndex, map: &Map) -> bool {
-    above_is(TileType::Air, AIR_LEVELS_FOR_ALLOWING_SOLAR, *cell_index, map)
+    above_is(
+        TileType::Air,
+        AIR_LEVELS_FOR_ALLOWING_SOLAR,
+        *cell_index,
+        map,
+    )
 }
 
 fn above_is(expected_tile: TileType, levels: i32, mut cell_index: CellIndex, map: &Map) -> bool {
-    let max_height = Map::max_cell().y;
+    let max_height = Map::default_max_cell().y;
     for _ in 0..levels {
         cell_index.y += 1;
         if cell_index.y > max_height {
-            return true
+            return true;
         }
         if map.get_cell(cell_index).tile_type != expected_tile {
             return false;
@@ -128,16 +133,14 @@ mod tests {
 
     #[test]
     fn test_basic_transformation() {
-        let cell = Cell {
-            tile_type: TileType::FloorRock,
-        };
+        let cell = Cell::new(TileType::FloorRock);
         let min_cell = CellIndex::new(0, 0, 0);
         let max_cell = CellIndex::new(0, 25, 0);
 
         let mut map = Map::new_for_cube(min_cell, max_cell);
-        map._get_cell_mut(CellIndex::new(0, 0, 0)).tile_type = cell.tile_type;
+        map.get_cell_mut(CellIndex::new(0, 0, 0)).tile_type = cell.tile_type;
         for i in 1..=AIR_LEVELS_FOR_ALLOWING_SOLAR {
-            map._get_cell_mut(CellIndex::new(0, i, 0)).tile_type = TileType::Air;
+            map.get_cell_mut(CellIndex::new(0, i, 0)).tile_type = TileType::Air;
         }
         let transformation = allowed_transformations_of_cell(&cell, &CellIndex::default(), &map);
         assert_eq!(
@@ -151,7 +154,7 @@ mod tests {
                 Transformation::to(TileType::FloorRock),
             ]
         );
-        map._get_cell_mut(CellIndex::new(0, 5, 0)).tile_type = TileType::WallRock;
+        map.get_cell_mut(CellIndex::new(0, 5, 0)).tile_type = TileType::WallRock;
 
         let transformation = allowed_transformations_of_cell(&cell, &CellIndex::default(), &map);
         assert_eq!(

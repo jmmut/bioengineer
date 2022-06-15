@@ -10,8 +10,8 @@ pub fn change_height_rel(drawing: &mut Drawing, y: i32) {
         move_inside_range(
             &mut min_cell.y,
             &mut max_cell.y,
-            Map::min_cell().y,
-            Map::max_cell().y,
+            Map::default_min_cell().y,
+            Map::default_max_cell().y,
         );
     }
 }

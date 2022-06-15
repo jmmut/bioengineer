@@ -1,10 +1,12 @@
 mod chunk;
+mod fluids;
 pub mod transform_cells;
 pub mod trunc;
-mod fluids;
 
 use crate::map::chunk::{get_chunk_index, get_required_chunks};
-use crate::map::TileType::{Air, CleanWaterSurface, CleanWaterWall, DirtyWaterSurface, DirtyWaterWall, FloorDirt, WallRock};
+use crate::map::TileType::{
+    Air, CleanWaterSurface, CleanWaterWall, DirtyWaterSurface, DirtyWaterWall, FloorDirt, WallRock,
+};
 use crate::{now, IVec3};
 use chunk::{Chunk, ChunkIndex};
 use opensimplex_noise_rs::OpenSimplexNoise;
@@ -22,11 +24,13 @@ const MAP_SIZE: i32 = 64;
 
 pub struct Map {
     chunks: HashMap<ChunkIndex, Chunk>,
+    min_cell: CellIndex,
+    max_cell: CellIndex,
 }
 
 impl Map {
     pub fn new() -> Self {
-        Self::new_for_cube(Self::min_cell(), Self::max_cell())
+        Self::new_for_cube(Self::default_min_cell(), Self::default_max_cell())
     }
 
     pub fn new_for_cube(min_cell: CellIndex, max_cell: CellIndex) -> Self {
@@ -35,7 +39,11 @@ impl Map {
         for chunk_index in chunk_indexes {
             chunks.insert(chunk_index, Chunk::new());
         }
-        Map { chunks }
+        Map {
+            chunks,
+            min_cell,
+            max_cell,
+        }
     }
     pub fn new_from_pressures(cells: Vec<i32>, min_cell: CellIndex, max_cell: CellIndex) -> Self {
         let mut map = Self::new_for_cube(min_cell, max_cell);
@@ -47,17 +55,23 @@ impl Map {
         map
     }
 
-    pub fn min_cell() -> CellIndex {
+    pub fn default_min_cell() -> CellIndex {
         CellIndex::new(-MAP_SIZE / 2, -MAP_SIZE / 2, -MAP_SIZE / 2)
     }
-    pub fn max_cell() -> CellIndex {
+    pub fn default_max_cell() -> CellIndex {
         CellIndex::new(MAP_SIZE / 2 - 1, MAP_SIZE / 2 - 1, MAP_SIZE / 2 - 1)
+    }
+    pub fn min_cell(&self) -> CellIndex {
+        self.min_cell
+    }
+    pub fn max_cell(&self) -> CellIndex {
+        self.max_cell
     }
 
     pub fn get_cell(&self, index: CellIndex) -> &Cell {
         self.get_chunk(index).get_cell(index)
     }
-    pub fn _get_cell_mut(&mut self, index: CellIndex) -> &mut Cell {
+    pub fn get_cell_mut(&mut self, index: CellIndex) -> &mut Cell {
         self.get_chunk_mut(index).get_cell_mut(index)
     }
 
@@ -99,6 +113,13 @@ impl Map {
             }
         }
         println!("simplex range used: [{}, {}]", min, max);
+    }
+    pub fn get_pressures(&self, min_cell: CellIndex, max_cell: CellIndex) -> Vec<i32> {
+        let mut cells = Vec::new();
+        for cell_index in CellCubeIterator::new(min_cell, max_cell) {
+            cells.push(self.get_cell(cell_index).pressure);
+        }
+        cells
     }
 }
 
@@ -150,16 +171,28 @@ pub enum TileType {
 }
 
 pub fn is_liquid(tile: TileType) -> bool {
-    [DirtyWaterWall, CleanWaterWall, DirtyWaterSurface, CleanWaterSurface].contains(&tile)
+    [
+        DirtyWaterWall,
+        CleanWaterWall,
+        DirtyWaterSurface,
+        CleanWaterSurface,
+    ]
+    .contains(&tile)
+}
+
+impl Cell {
+    fn new(tile_type: TileType) -> Self {
+        Cell {
+            tile_type,
+            pressure: 0,
+            next_pressure: 0,
+        }
+    }
 }
 
 impl Default for Cell {
     fn default() -> Self {
-        Cell {
-            tile_type: TileType::Unset,
-            pressure: 0,
-            next_pressure: 0,
-        }
+        Self::new(TileType::Unset)
     }
 }
 

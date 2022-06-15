@@ -56,6 +56,6 @@ fn transform_cells(
     map: &mut Map,
 ) {
     for highlighted_cell in to_transform {
-        transformation.apply(map._get_cell_mut(*highlighted_cell));
+        transformation.apply(map.get_cell_mut(*highlighted_cell));
     }
 }
