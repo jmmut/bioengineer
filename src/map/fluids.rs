@@ -1,4 +1,4 @@
-use crate::map::{Map, is_liquid, CellIndex, CellCubeIterator, Pressure};
+use crate::map::{is_liquid, CellCubeIterator, CellIndex, Map, Pressure};
 
 fn advance_fluid(map: &mut Map) {
     let min_cell = map.min_cell();
@@ -132,32 +132,30 @@ mod tests {
     fn test_borders() {
         let cells = vec![10, 0];
         let expected = vec![9, 1];
-        assert_steps(vec![cells, expected], CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));
+        assert_steps(
+            vec![cells, expected],
+            CellIndex::new(0, 0, 0),
+            CellIndex::new(0, 0, 1),
+        );
     }
-    // #[test]
-    // fn test_basic_3d() {
-    //     #[rustfmt::skip]
-    //     let cells = vec![
-    //         0, 0, 0, 0, 0,
-    //         0, 10, 0, 0, 0,
-    //         0, 0, 0, 0, 0,
-    //
-    //         0, 0, 0,
-    //         0, 10, 0,
-    //         0, 0, 0,
-    //     ];
-    //     #[rustfmt::skip]
-    //     let expected_1 = vec![
-    //         0, 1, 0,
-    //         1, 6, 1,
-    //         0, 1, 0,
-    //     ];
-    //     #[rustfmt::skip]
-    //     let expected_2 = vec![
-    //         0, 2, 0,
-    //         2, 2, 2,
-    //         0, 2, 0,
-    //     ];
-    //     assert_steps_2x2(vec![cells, expected_1, expected_2]);
-    // }
+    #[test]
+    fn test_basic_3d() {
+        #[rustfmt::skip]
+        let cells = vec![
+            50, 0, 0,
+            50, -1, 0,
+            50, -1, 0,
+        ];
+        #[rustfmt::skip]
+        let expected = vec![
+            50, 1, 0,
+            50, -1, 0,
+            49, -1, 0,
+        ];
+        assert_steps(
+            vec![cells, expected],
+            CellIndex::new(0, 0, 0),
+            CellIndex::new(0, 2, 2),
+        );
+    }
 }
