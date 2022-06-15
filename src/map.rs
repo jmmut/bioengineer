@@ -50,6 +50,11 @@ impl Map {
         let mut i = 0;
         for cell_index in CellCubeIterator::new(min_cell, max_cell) {
             map.get_cell_mut(cell_index).pressure = cells[i];
+            map.get_cell_mut(cell_index).tile_type = if cells[i] >= 0 {
+                TileType::DirtyWaterWall
+            } else {
+                TileType::WallRock
+            };
             i += 1;
         }
         map
@@ -107,7 +112,7 @@ impl Map {
                 let tile = choose_tile(value, cell_index);
                 let cell = chunk.get_cell_mut(cell_index);
                 if is_liquid(tile) {
-                    cell.pressure = 1 - cell_index.y;
+                    cell.pressure = 10 - 10*cell_index.y;
                 }
                 cell.tile_type = tile
             }
@@ -140,11 +145,13 @@ fn choose_tile(value: f64, cell_index: CellIndex) -> TileType {
     }
 }
 
+pub use i32 as Pressure;
+
 #[derive(Clone, Copy)]
 pub struct Cell {
     pub tile_type: TileType,
-    pub pressure: i32,
-    pub next_pressure: i32,
+    pub pressure: Pressure,
+    pub next_pressure: Pressure,
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
