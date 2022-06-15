@@ -35,6 +35,7 @@ impl GameState {
                 &mut self.map,
             );
         }
+        self.map.advance_fluids()
     }
 
     pub fn advance_frame(&mut self) {

@@ -2,7 +2,7 @@ use crate::map::{is_liquid, CellCubeIterator, CellIndex, Map, Pressure};
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
-fn advance_fluid(map: &mut Map) {
+pub fn advance_fluid(map: &mut Map) {
     let min_cell = map.min_cell();
     let max_cell = map.max_cell();
     let is_valid = |cell_index: CellIndex, map: &Map| {
