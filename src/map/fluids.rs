@@ -21,6 +21,21 @@ pub fn advance_fluid(map: &mut Map) {
     for cell_index in iter {
         let current_pressure = map.get_cell(cell_index).pressure;
         let mut flow = Vec::new();
+        let dir = yn;
+        if is_valid(cell_index + dir, map) {
+            let adjacent_cell = map.get_cell(cell_index + dir);
+            if (adjacent_cell.pressure + adjacent_cell.next_pressure)
+                < (current_pressure + VERTICAL_PRESSURE_DIFFERENCE)
+            {
+                flow.push(dir);
+            }
+        }
+        prepare_next_pressure(map, cell_index, current_pressure, flow);
+    }
+    let iter = CellCubeIterator::new(min_cell, max_cell);
+    for cell_index in iter {
+        let current_pressure = map.get_cell(cell_index).pressure;
+        let mut flow = Vec::new();
         let dir = yp;
         if is_valid(cell_index + dir, map) {
             if map.get_cell(cell_index + dir).pressure
@@ -29,15 +44,7 @@ pub fn advance_fluid(map: &mut Map) {
                 flow.push(dir);
             }
         }
-        let dir = yn;
-        if is_valid(cell_index + dir, map) {
-            if map.get_cell(cell_index + dir).pressure
-                < (current_pressure + VERTICAL_PRESSURE_DIFFERENCE)
-            {
-                flow.push(dir);
-            }
-        }
-        prepare_next_pressure(map, cell_index, current_pressure, flow)
+        prepare_next_pressure(map, cell_index, current_pressure, flow);
     }
     let xp = CellIndex::new(1, 0, 0);
     let xn = CellIndex::new(-1, 0, 0);
@@ -49,7 +56,8 @@ pub fn advance_fluid(map: &mut Map) {
         let mut flow = Vec::new();
         let mut add_flow_direction = |dir: CellIndex, map: &Map| {
             if is_valid(cell_index + dir, map) {
-                if map.get_cell(cell_index + dir).pressure < current_pressure {
+                let adjacent_cell = map.get_cell(cell_index + dir);
+                if (adjacent_cell.pressure + adjacent_cell.next_pressure) < current_pressure {
                     flow.push(dir);
                 }
             }
@@ -270,8 +278,8 @@ mod tests {
         #[rustfmt::skip]
         let expected = vec![
             50, 10, 10,
-            45, -1, 0,
-            35, -1, 0,
+            44, -1, 0,
+            36, -1, 0,
         ];
         assert_n_steps(cells.clone(), expected, 20, min_cell, max_cell);
 
@@ -285,33 +293,33 @@ mod tests {
 
         #[rustfmt::skip]
         let expected = vec![
-            50, 12, 10,
-            43, -1, 1,
-            34, -1, 0,
+            50, 11, 11,
+            44, -1, 1,
+            33, -1, 0,
         ];
         assert_n_steps(cells.clone(), expected, 23, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            29, 30, 31,
-            22, -1, 18,
-            11, -1, 9,
+            31, 30, 30,
+            20, -1, 18,
+            12, -1, 9,
         ];
         assert_n_steps(cells.clone(), expected, 90, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            31, 30, 29,
-            20, -1, 20,
-            12, -1, 8,
+            30, 30, 29,
+            22, -1, 20,
+            11, -1, 8,
         ];
         assert_n_steps(cells.clone(), expected, 91, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            29, 30, 31,
-            22, -1, 18,
-            11, -1, 9,
+            31, 30, 30,
+            20, -1, 18,
+            12, -1, 9,
         ];
         assert_n_steps(cells.clone(), expected, 92, min_cell, max_cell);
     }

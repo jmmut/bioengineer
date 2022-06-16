@@ -1,6 +1,7 @@
-use crate::map::{Cell, CellIndex, Map, TileType};
+use crate::map::{Cell, CellIndex, is_liquid, Map, TileType};
 use crate::GameState;
 use std::collections::HashSet;
+use crate::map::TileType::Air;
 
 const AIR_LEVELS_FOR_ALLOWING_SOLAR: i32 = 20;
 
@@ -44,7 +45,7 @@ pub fn allowed_transformations_of_cell(
         WallRock => vec![FloorRock, Stairs],
         WallDirt => vec![FloorDirt, Stairs],
         FloorRock => {
-            machines.append(&mut vec![Stairs]);
+            machines.append(&mut vec![Stairs, Air]);
             machines
         }
         FloorDirt => {
@@ -52,15 +53,15 @@ pub fn allowed_transformations_of_cell(
             machines
         }
         Stairs => vec![FloorRock],
-        Air => vec![],
+        Air => vec![DirtyWaterSurface, DirtyWaterWall, WallRock],
         Wire => vec![FloorRock],
         MachineAssembler => vec![FloorRock],
         MachineDrill => vec![FloorRock],
         MachineSolarPanel => vec![FloorRock],
         MachineShip => vec![FloorRock],
-        DirtyWaterSurface => vec![],
+        DirtyWaterSurface => vec![Air],
         CleanWaterSurface => vec![],
-        DirtyWaterWall => vec![],
+        DirtyWaterWall => vec![Air],
         CleanWaterWall => vec![],
         Robot => vec![],
     };
@@ -122,6 +123,17 @@ impl Transformation {
     }
 
     pub fn apply(&self, cell: &mut Cell) {
+        if cell.tile_type == TileType::Air {
+            if self.new_tile_type == TileType::DirtyWaterWall {
+                cell.pressure = 20;
+            } else if self.new_tile_type == TileType::DirtyWaterSurface {
+                cell.pressure = 10;
+            }
+        } else if is_liquid(cell.tile_type) {
+            if self.new_tile_type == TileType::Air {
+                cell.pressure = 0;
+            }
+        }
         cell.tile_type = self.new_tile_type;
     }
 }
