@@ -21,33 +21,35 @@ pub fn advance_fluid(map: &mut Map) {
     for cell_index in iter {
         let cell = map.get_cell(cell_index);
         let current_pressure = cell.pressure;
+        let next_pressure = cell.next_pressure;
         let mut flow = Vec::new();
         let dir = yn;
         if is_valid(cell_index + dir, map) {
             let adjacent_cell = map.get_cell(cell_index + dir);
-            if (adjacent_cell.pressure + adjacent_cell.next_pressure)
-                < (current_pressure + VERTICAL_PRESSURE_DIFFERENCE)
+            if adjacent_cell.pressure
+                < (current_pressure + next_pressure + VERTICAL_PRESSURE_DIFFERENCE)
             {
                 flow.push(dir);
             }
         }
-        prepare_next_pressure(map, cell_index, current_pressure, cell.next_pressure, flow);
+        prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
     }
     let iter = CellCubeIterator::new(min_cell, max_cell);
     for cell_index in iter {
         let cell = map.get_cell(cell_index);
         let current_pressure = cell.pressure;
+        let next_pressure = cell.pressure;
         let mut flow = Vec::new();
         let dir = yp;
         if is_valid(cell_index + dir, map) {
             let adjacent_cell = map.get_cell(cell_index + dir);
-            if adjacent_cell.pressure + adjacent_cell.next_pressure
-                < (current_pressure - VERTICAL_PRESSURE_DIFFERENCE)
+            if adjacent_cell.pressure
+                < (current_pressure + next_pressure - VERTICAL_PRESSURE_DIFFERENCE)
             {
                 flow.push(dir);
             }
         }
-        prepare_next_pressure(map, cell_index, current_pressure, cell.next_pressure, flow);
+        prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
     }
     let xp = CellIndex::new(1, 0, 0);
     let xn = CellIndex::new(-1, 0, 0);
@@ -57,11 +59,12 @@ pub fn advance_fluid(map: &mut Map) {
     for cell_index in iter {
         let cell = map.get_cell(cell_index);
         let current_pressure = cell.pressure;
+        let next_pressure = cell.next_pressure;
         let mut flow = Vec::new();
         let mut add_flow_direction = |dir: CellIndex, map: &Map| {
             if is_valid(cell_index + dir, map) {
                 let adjacent_cell = map.get_cell(cell_index + dir);
-                if (adjacent_cell.pressure + adjacent_cell.next_pressure) < current_pressure {
+                if adjacent_cell.pressure < current_pressure + next_pressure {
                     flow.push(dir);
                 }
             }
@@ -70,7 +73,7 @@ pub fn advance_fluid(map: &mut Map) {
         add_flow_direction(xn, map);
         add_flow_direction(zp, map);
         add_flow_direction(zn, map);
-        prepare_next_pressure(map, cell_index, current_pressure, cell.next_pressure, flow)
+        prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow)
     }
 
     swap_next_pressure_to_current(map, min_cell, max_cell)
@@ -128,9 +131,9 @@ mod tests {
         for i in 1..maps.len() {
             let initial = maps[i - 1].clone();
             let expected = maps[i].clone();
-            let mut map = Map::new_from_pressures(initial, min_cell, max_cell);
+            let mut map = Map::_new_from_pressures(initial, min_cell, max_cell);
             advance_fluid(&mut map);
-            let computed = map.get_pressures(min_cell, max_cell);
+            let computed = map._get_pressures(min_cell, max_cell);
             assert_eq!(computed, expected);
         }
     }
@@ -142,11 +145,11 @@ mod tests {
         min_cell: CellIndex,
         max_cell: CellIndex,
     ) {
-        let mut map = Map::new_from_pressures(initial_map, min_cell, max_cell);
+        let mut map = Map::_new_from_pressures(initial_map, min_cell, max_cell);
         for _ in 0..iterations {
             advance_fluid(&mut map);
         }
-        let computed = map.get_pressures(min_cell, max_cell);
+        let computed = map._get_pressures(min_cell, max_cell);
         assert_eq!(computed, final_map);
     }
 

@@ -1,7 +1,6 @@
 use crate::map::{Cell, CellIndex, is_liquid, Map, TileType};
 use crate::GameState;
 use std::collections::HashSet;
-use crate::map::TileType::Air;
 
 const AIR_LEVELS_FOR_ALLOWING_SOLAR: i32 = 20;
 

@@ -45,7 +45,7 @@ impl Map {
             max_cell,
         }
     }
-    pub fn new_from_pressures(cells: Vec<i32>, min_cell: CellIndex, max_cell: CellIndex) -> Self {
+    pub fn _new_from_pressures(cells: Vec<i32>, min_cell: CellIndex, max_cell: CellIndex) -> Self {
         let mut map = Self::new_for_cube(min_cell, max_cell);
         let mut i = 0;
         for cell_index in CellCubeIterator::new(min_cell, max_cell) {
@@ -124,7 +124,7 @@ impl Map {
     pub fn advance_fluids(&mut self) {
         fluids::advance_fluid(self);
     }
-    pub fn get_pressures(&self, min_cell: CellIndex, max_cell: CellIndex) -> Vec<i32> {
+    pub fn _get_pressures(&self, min_cell: CellIndex, max_cell: CellIndex) -> Vec<i32> {
         let mut cells = Vec::new();
         for cell_index in CellCubeIterator::new(min_cell, max_cell) {
             cells.push(self.get_cell(cell_index).pressure);
