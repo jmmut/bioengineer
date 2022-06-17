@@ -1,7 +1,8 @@
 use crate::input::{CellSelection, Input, InputSourceTrait, PixelPosition, Selection};
 
-use macroquad::input::{is_key_pressed, is_mouse_button_down, is_mouse_button_pressed,
-                       is_mouse_button_released, mouse_position, mouse_wheel, KeyCode, MouseButton,
+use macroquad::input::{
+    is_key_pressed, is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released,
+    mouse_position, mouse_wheel, KeyCode, MouseButton,
 };
 
 pub struct InputMacroquad {

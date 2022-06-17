@@ -32,24 +32,9 @@ pub fn advance_fluid(map: &mut Map) {
                 flow.push(dir);
             }
         }
-        prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
-    }
-    let iter = CellCubeIterator::new(min_cell, max_cell);
-    for cell_index in iter {
-        let cell = map.get_cell(cell_index);
-        let current_pressure = cell.pressure;
-        let next_pressure = cell.pressure;
-        let mut flow = Vec::new();
-        let dir = yp;
-        if is_valid(cell_index + dir, map) {
-            let adjacent_cell = map.get_cell(cell_index + dir);
-            if adjacent_cell.pressure
-                < (current_pressure + next_pressure - VERTICAL_PRESSURE_DIFFERENCE)
-            {
-                flow.push(dir);
-            }
-        }
-        prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
+        //+1: in the other directions we don't want to keep at least 1 pressure,
+        // but we don't want to keep 1 pressure in this cell if it can go below
+        prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
     }
     let xp = CellIndex::new(1, 0, 0);
     let xn = CellIndex::new(-1, 0, 0);
@@ -75,6 +60,23 @@ pub fn advance_fluid(map: &mut Map) {
         add_flow_direction(zn, map);
         prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow)
     }
+    let iter = CellCubeIterator::new(min_cell, max_cell);
+    for cell_index in iter {
+        let cell = map.get_cell(cell_index);
+        let current_pressure = cell.pressure;
+        let next_pressure = cell.pressure;
+        let mut flow = Vec::new();
+        let dir = yp;
+        if is_valid(cell_index + dir, map) {
+            let adjacent_cell = map.get_cell(cell_index + dir);
+            if adjacent_cell.pressure
+                < (current_pressure + next_pressure - VERTICAL_PRESSURE_DIFFERENCE)
+            {
+                flow.push(dir);
+            }
+        }
+        prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
+    }
 
     swap_next_pressure_to_current(map, min_cell, max_cell)
 }
@@ -86,7 +88,7 @@ fn prepare_next_pressure(
     next_pressure: Pressure,
     flow: Vec<CellIndex>,
 ) {
-    if current_pressure + next_pressure >= flow.len() as i32 {
+    if current_pressure + next_pressure > flow.len() as i32 {
         map.get_cell_mut(cell_index).next_pressure -= flow.len() as i32;
         for dir in flow {
             map.get_cell_mut(cell_index + dir).next_pressure += 1;
@@ -97,20 +99,29 @@ fn prepare_next_pressure(
 fn swap_next_pressure_to_current(map: &mut Map, min_cell: CellIndex, max_cell: CellIndex) {
     let iter = CellCubeIterator::new(min_cell, max_cell);
     for cell_index in iter {
+        let pressure_above = map
+            .get_cell_mut(cell_index + CellIndex::new(0, 1, 0))
+            .pressure;
         let cell = map.get_cell_mut(cell_index);
         if cell.pressure + cell.next_pressure < 0 {
-            panic!("negative pressure!");
+            panic!(
+                "negative pressure! for cell {}, with pressure {}, next pressure {}.",
+                cell_index, cell.pressure, cell.next_pressure
+            );
         }
         cell.pressure += cell.next_pressure;
-        cell.tile_type = if cell.pressure <= 0 && is_liquid(cell.tile_type) {
-            TileType::Air
-        } else if cell.pressure > 10 {
-            TileType::DirtyWaterWall
-        } else if cell.pressure > 0 {
-            TileType::DirtyWaterSurface
-        } else {
-            cell.tile_type
-        };
+        if is_liquid(cell.tile_type) {
+            cell.tile_type = if cell.pressure <= 0 {
+                TileType::Air
+            } else if cell.pressure > 10 {
+                TileType::DirtyWaterWall
+            } else {
+                if pressure_above > 0 {
+                    println!("above cell should be air!");
+                }
+                TileType::DirtyWaterSurface
+            }
+        }
         cell.next_pressure = 0;
     }
 }

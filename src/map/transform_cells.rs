@@ -1,4 +1,4 @@
-use crate::map::{Cell, CellIndex, is_liquid, Map, TileType};
+use crate::map::{is_liquid, Cell, CellIndex, Map, TileType};
 use crate::GameState;
 use std::collections::HashSet;
 
