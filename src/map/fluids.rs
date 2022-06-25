@@ -1,4 +1,3 @@
-
 use crate::map::{
     is_liquid, is_liquid_or_air, CellCubeIterator, CellIndex, Map, Pressure, TileType,
 };
@@ -110,7 +109,8 @@ fn swap_next_pressure_to_current(map: &mut Map, min_cell: CellIndex, max_cell: C
     for cell_index in iter {
         let nothing_above = {
             let above_cell = map.get_cell_mut(cell_index + CellIndex::new(0, 1, 0));
-            ((above_cell.pressure + above_cell.next_pressure) <= 0) && is_liquid_or_air(above_cell.tile_type)
+            ((above_cell.pressure + above_cell.next_pressure) <= 0)
+                && is_liquid_or_air(above_cell.tile_type)
         };
         let cell = map.get_cell_mut(cell_index);
         if is_liquid_or_air(cell.tile_type) {
@@ -302,37 +302,42 @@ mod tests {
             0, 4, 0,
             0, 0, 0,
         ];
-        let result_horizontal = panic::catch_unwind(|| {
+        let result_horizontal_stable = panic::catch_unwind(|| {
             assert_steps_2x2(vec![cells, expected]);
-        });
+        }).is_ok();
 
         let cells = vec![11, 0];
         let expected = vec![11, 0];
-        let result_upwards = panic::catch_unwind(|| {
+        let result_upwards_stable = panic::catch_unwind(|| {
             assert_steps(
                 vec![cells, expected],
                 CellIndex::new(0, 0, 0),
                 CellIndex::new(0, 1, 0),
             );
-        });
+        }).is_ok();
 
         let cells = vec![10, 1];
         let expected = vec![10, 1];
-        let result_downwards = panic::catch_unwind(|| {
+        let result_downwards_stable = panic::catch_unwind(|| {
             assert_steps(
                 vec![cells, expected],
                 CellIndex::new(0, 0, 0),
                 CellIndex::new(0, 1, 0),
             );
-        });
+        }).is_ok();
 
         assert!(
-            result_downwards.is_err(),
+            !result_downwards_stable,
             "We never want to make downwards flow stable.\
                     It would make a column of 1-pressure water."
         );
 
-        assert_eq!(result_upwards.is_ok(), result_horizontal.is_ok());
+        assert!(
+            result_upwards_stable,
+            "We always want to make upwards flow stable.\
+                    Otherwise it would likely create and remove a water tile above."
+        );
+        assert!(!result_horizontal_stable);
     }
 
     #[test]
