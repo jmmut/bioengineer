@@ -30,14 +30,15 @@ pub fn advance_fluid(map: &mut Map) {
             let dir = yn;
             if is_valid(cell_index + dir, map) {
                 let adjacent_cell = map.get_cell(cell_index + dir);
-                if adjacent_cell.pressure
+                if adjacent_cell.pressure + 1
                     < (current_pressure + next_pressure + VERTICAL_PRESSURE_DIFFERENCE)
                 {
                     flow.push(dir);
                 }
                 //+1: in the other directions we don't want to keep at least 1 pressure,
                 // but we don't want to keep 1 pressure in this cell if it can go below
-                prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
+                // prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
+                prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
             }
         }
     }
@@ -77,7 +78,7 @@ pub fn advance_fluid(map: &mut Map) {
             let dir = yp;
             if is_valid(cell_index + dir, map) {
                 let adjacent_cell = map.get_cell(cell_index + dir);
-                if adjacent_cell.pressure
+                if adjacent_cell.pressure +1
                     < (current_pressure + next_pressure - VERTICAL_PRESSURE_DIFFERENCE)
                 {
                     flow.push(dir);
@@ -388,16 +389,16 @@ mod tests {
         #[rustfmt::skip]
         let expected = vec![
             50, 10, 10,
-            45, -1, 0,
-            35, -1, 0,
+            44, -1, 0,
+            36, -1, 0,
         ];
         assert_n_steps(cells.clone(), expected, 20, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            50, 11, 10,
-            44, -1, 1,
-            34, -1, 0,
+            50, 11, 11,
+            43, -1, 0,
+            35, -1, 0,
         ];
         assert_n_steps(cells.clone(), expected, 22, min_cell, max_cell);
 
@@ -411,25 +412,25 @@ mod tests {
 
         #[rustfmt::skip]
         let expected = vec![
-            31, 30, 30,
-            20, -1, 19,
-            11, -1, 9,
+            30, 31, 29,
+            21, -1, 19,
+            12, -1, 8,
         ];
         assert_n_steps(cells.clone(), expected, 90, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            30, 31, 29,
+            31, 29, 30,
             21, -1, 19,
-            10, -1, 10,
+            12, -1, 8,
         ];
         assert_n_steps(cells.clone(), expected, 91, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            31, 29, 29,
-            20, -1, 20,
-            11, -1, 10,
+            30, 31, 29,
+            21, -1, 19,
+            12, -1, 8,
         ];
         assert_n_steps(cells.clone(), expected, 92, min_cell, max_cell);
     }
