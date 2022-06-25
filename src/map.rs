@@ -111,7 +111,7 @@ impl Map {
                 }
                 let tile = choose_tile(value, cell_index);
                 let cell = chunk.get_cell_mut(cell_index);
-                if is_liquid(tile) {
+                if is_liquid_or_air(tile) {
                     cell.pressure = i32::max(0, 10 - 10 * cell_index.y);
                     // cell.pressure = if tile == TileType::Air { 0 } else {40};
                 }
@@ -191,6 +191,10 @@ pub fn is_liquid(tile: TileType) -> bool {
         Air,
     ]
     .contains(&tile)
+}
+
+pub fn is_liquid_or_air(tile: TileType) -> bool {
+    tile == Air || is_liquid(tile)
 }
 
 impl Cell {

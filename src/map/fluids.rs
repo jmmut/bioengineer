@@ -1,4 +1,7 @@
-use crate::map::{is_liquid, CellCubeIterator, CellIndex, Map, Pressure, TileType};
+use crate::map::TileType::Air;
+use crate::map::{
+    is_liquid, is_liquid_or_air, CellCubeIterator, CellIndex, Map, Pressure, TileType,
+};
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
@@ -12,7 +15,7 @@ pub fn advance_fluid(map: &mut Map) {
             && cell_index.y <= max_cell.y
             && cell_index.z >= min_cell.z
             && cell_index.z <= max_cell.z
-            && is_liquid(map.get_cell(cell_index).tile_type)
+            && is_liquid_or_air(map.get_cell(cell_index).tile_type)
     };
     let yp = CellIndex::new(0, 1, 0);
     let yn = CellIndex::new(0, -1, 0);
@@ -20,21 +23,23 @@ pub fn advance_fluid(map: &mut Map) {
     let iter = CellCubeIterator::new(min_cell, max_cell);
     for cell_index in iter {
         let cell = map.get_cell(cell_index);
-        let current_pressure = cell.pressure;
-        let next_pressure = cell.next_pressure;
-        let mut flow = Vec::new();
-        let dir = yn;
-        if is_valid(cell_index + dir, map) {
-            let adjacent_cell = map.get_cell(cell_index + dir);
-            if adjacent_cell.pressure
-                < (current_pressure + next_pressure + VERTICAL_PRESSURE_DIFFERENCE)
-            {
-                flow.push(dir);
+        if is_liquid(cell.tile_type) {
+            let current_pressure = cell.pressure;
+            let next_pressure = cell.next_pressure;
+            let mut flow = Vec::new();
+            let dir = yn;
+            if is_valid(cell_index + dir, map) {
+                let adjacent_cell = map.get_cell(cell_index + dir);
+                if adjacent_cell.pressure
+                    < (current_pressure + next_pressure + VERTICAL_PRESSURE_DIFFERENCE)
+                {
+                    flow.push(dir);
+                }
+                //+1: in the other directions we don't want to keep at least 1 pressure,
+                // but we don't want to keep 1 pressure in this cell if it can go below
+                prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
             }
         }
-        //+1: in the other directions we don't want to keep at least 1 pressure,
-        // but we don't want to keep 1 pressure in this cell if it can go below
-        prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
     }
     let xp = CellIndex::new(1, 0, 0);
     let xn = CellIndex::new(-1, 0, 0);
@@ -43,39 +48,43 @@ pub fn advance_fluid(map: &mut Map) {
     let iter = CellCubeIterator::new(min_cell, max_cell);
     for cell_index in iter {
         let cell = map.get_cell(cell_index);
-        let current_pressure = cell.pressure;
-        let next_pressure = cell.next_pressure;
-        let mut flow = Vec::new();
-        let mut add_flow_direction = |dir: CellIndex, map: &Map| {
-            if is_valid(cell_index + dir, map) {
-                let adjacent_cell = map.get_cell(cell_index + dir);
-                if adjacent_cell.pressure < current_pressure + next_pressure {
-                    flow.push(dir);
+        if is_liquid(cell.tile_type) {
+            let current_pressure = cell.pressure;
+            let next_pressure = cell.next_pressure;
+            let mut flow = Vec::new();
+            let mut add_flow_direction = |dir: CellIndex, map: &Map| {
+                if is_valid(cell_index + dir, map) {
+                    let adjacent_cell = map.get_cell(cell_index + dir);
+                    if adjacent_cell.pressure < current_pressure + next_pressure {
+                        flow.push(dir);
+                    }
                 }
-            }
-        };
-        add_flow_direction(xp, map);
-        add_flow_direction(xn, map);
-        add_flow_direction(zp, map);
-        add_flow_direction(zn, map);
-        prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow)
+            };
+            add_flow_direction(xp, map);
+            add_flow_direction(xn, map);
+            add_flow_direction(zp, map);
+            add_flow_direction(zn, map);
+            prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
+        }
     }
     let iter = CellCubeIterator::new(min_cell, max_cell);
     for cell_index in iter {
         let cell = map.get_cell(cell_index);
-        let current_pressure = cell.pressure;
-        let next_pressure = cell.pressure;
-        let mut flow = Vec::new();
-        let dir = yp;
-        if is_valid(cell_index + dir, map) {
-            let adjacent_cell = map.get_cell(cell_index + dir);
-            if adjacent_cell.pressure
-                < (current_pressure + next_pressure - VERTICAL_PRESSURE_DIFFERENCE)
-            {
-                flow.push(dir);
+        if is_liquid(cell.tile_type) {
+            let current_pressure = cell.pressure;
+            let next_pressure = cell.next_pressure;
+            let mut flow = Vec::new();
+            let dir = yp;
+            if is_valid(cell_index + dir, map) {
+                let adjacent_cell = map.get_cell(cell_index + dir);
+                if adjacent_cell.pressure
+                    < (current_pressure + next_pressure - VERTICAL_PRESSURE_DIFFERENCE)
+                {
+                    flow.push(dir);
+                }
             }
+            prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
         }
-        prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
     }
 
     swap_next_pressure_to_current(map, min_cell, max_cell)
@@ -99,30 +108,31 @@ fn prepare_next_pressure(
 fn swap_next_pressure_to_current(map: &mut Map, min_cell: CellIndex, max_cell: CellIndex) {
     let iter = CellCubeIterator::new(min_cell, max_cell);
     for cell_index in iter {
-        let pressure_above = map
-            .get_cell_mut(cell_index + CellIndex::new(0, 1, 0))
-            .pressure;
+        let something_above = {
+            let above_cell = map.get_cell_mut(cell_index + CellIndex::new(0, 1, 0));
+            ((above_cell.pressure + above_cell.next_pressure) > 0) || above_cell.tile_type != Air
+        };
         let cell = map.get_cell_mut(cell_index);
-        if cell.pressure + cell.next_pressure < 0 {
-            panic!(
-                "negative pressure! for cell {}, with pressure {}, next pressure {}.",
-                cell_index, cell.pressure, cell.next_pressure
-            );
-        }
-        cell.pressure += cell.next_pressure;
-        if is_liquid(cell.tile_type) {
+        if is_liquid_or_air(cell.tile_type) {
+            if cell.pressure + cell.next_pressure < 0 {
+                panic!(
+                    "negative pressure! for cell {}, with pressure {}, next pressure {}.",
+                    cell_index, cell.pressure, cell.next_pressure
+                );
+            }
+            cell.pressure += cell.next_pressure;
             cell.tile_type = if cell.pressure <= 0 {
                 TileType::Air
-            } else if cell.pressure > 10 {
+            } else if something_above {
                 TileType::DirtyWaterWall
             } else {
-                if pressure_above > 0 {
-                    println!("above cell should be air!");
-                }
+                // if pressure_above > 0 {
+                //     println!("above cell should be air!");
+                // }
                 TileType::DirtyWaterSurface
-            }
+            };
+            cell.next_pressure = 0;
         }
-        cell.next_pressure = 0;
     }
 }
 
@@ -130,6 +140,7 @@ fn swap_next_pressure_to_current(map: &mut Map, min_cell: CellIndex, max_cell: C
 mod tests {
     use super::*;
     use crate::map::Map;
+    use std::panic;
 
     fn assert_steps_2x2(maps: Vec<Vec<i32>>) {
         let min_cell = CellIndex::new(0, 0, 0);
@@ -256,6 +267,83 @@ mod tests {
     }
 
     #[test]
+    fn test_basic_vertical_upwards() {
+        let cells = vec![12, 0];
+        let expected = vec![11, 1];
+        assert_steps(
+            vec![cells, expected.clone(), expected],
+            CellIndex::new(0, 0, 0),
+            CellIndex::new(0, 1, 0),
+        );
+    }
+
+    #[test]
+    fn test_basic_vertical_downwards() {
+        let cells = vec![10, 2];
+        let expected = vec![11, 1];
+        assert_steps(
+            vec![cells, expected.clone(), expected],
+            CellIndex::new(0, 0, 0),
+            CellIndex::new(0, 1, 0),
+        );
+    }
+
+    #[test]
+    fn test_minimize_movement() {
+        #[rustfmt::skip]
+        let cells = vec![
+            0, 0, 0,
+            0, 4, 0,
+            0, 0, 0,
+        ];
+        #[rustfmt::skip]
+        let expected = vec![
+            0, 0, 0,
+            0, 4, 0,
+            0, 0, 0,
+        ];
+        let result_horizontal = panic::catch_unwind(|| {
+            assert_steps_2x2(vec![cells, expected]);
+        });
+
+        let cells = vec![11, 0];
+        let expected = vec![11, 0];
+        let result_upwards = panic::catch_unwind(|| {
+            assert_steps(
+                vec![cells, expected],
+                CellIndex::new(0, 0, 0),
+                CellIndex::new(0, 1, 0),
+            );
+        });
+
+        let cells = vec![10, 1];
+        let expected = vec![10, 1];
+        let result_downwards = panic::catch_unwind(|| {
+            assert_steps(
+                vec![cells, expected],
+                CellIndex::new(0, 0, 0),
+                CellIndex::new(0, 1, 0),
+            );
+        });
+
+        if result_upwards.is_ok() && result_downwards.is_ok() && result_horizontal.is_ok() {
+            // ok, all directions are stable
+        } else if result_upwards.is_err() && result_downwards.is_err() && result_horizontal.is_err()
+        {
+            // ok, all directions are dynamic
+        } else {
+            assert!(
+                false,
+                "All directions should be stable or dynamic. \
+                upwards stable? {}, downwards stable? {}, horizontal stable? {}",
+                result_upwards.is_ok(),
+                result_downwards.is_ok(),
+                result_horizontal.is_ok()
+            )
+        }
+    }
+
+    #[test]
     fn test_many_iterations_3d() {
         let min_cell = CellIndex::new(0, 0, 0);
         let max_cell = CellIndex::new(0, 2, 2);
@@ -300,48 +388,48 @@ mod tests {
         #[rustfmt::skip]
         let expected = vec![
             50, 10, 10,
-            44, -1, 0,
-            36, -1, 0,
+            45, -1, 0,
+            35, -1, 0,
         ];
         assert_n_steps(cells.clone(), expected, 20, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            50, 11, 11,
-            44, -1, 0,
+            50, 11, 10,
+            44, -1, 1,
             34, -1, 0,
         ];
         assert_n_steps(cells.clone(), expected, 22, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            50, 11, 11,
-            44, -1, 1,
-            33, -1, 0,
+            50, 12, 11,
+            43, -1, 0,
+            34, -1, 0,
         ];
         assert_n_steps(cells.clone(), expected, 23, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
             31, 30, 30,
-            20, -1, 18,
-            12, -1, 9,
+            20, -1, 19,
+            11, -1, 9,
         ];
         assert_n_steps(cells.clone(), expected, 90, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            30, 30, 29,
-            22, -1, 20,
-            11, -1, 8,
+            30, 31, 29,
+            21, -1, 19,
+            10, -1, 10,
         ];
         assert_n_steps(cells.clone(), expected, 91, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            31, 30, 30,
-            20, -1, 18,
-            12, -1, 9,
+            31, 29, 29,
+            20, -1, 20,
+            11, -1, 10,
         ];
         assert_n_steps(cells.clone(), expected, 92, min_cell, max_cell);
     }
