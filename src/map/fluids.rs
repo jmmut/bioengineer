@@ -1,4 +1,4 @@
-use crate::map::TileType::Air;
+
 use crate::map::{
     is_liquid, is_liquid_or_air, CellCubeIterator, CellIndex, Map, Pressure, TileType,
 };
@@ -108,9 +108,9 @@ fn prepare_next_pressure(
 fn swap_next_pressure_to_current(map: &mut Map, min_cell: CellIndex, max_cell: CellIndex) {
     let iter = CellCubeIterator::new(min_cell, max_cell);
     for cell_index in iter {
-        let something_above = {
+        let nothing_above = {
             let above_cell = map.get_cell_mut(cell_index + CellIndex::new(0, 1, 0));
-            ((above_cell.pressure + above_cell.next_pressure) > 0) || above_cell.tile_type != Air
+            ((above_cell.pressure + above_cell.next_pressure) <= 0) && is_liquid_or_air(above_cell.tile_type)
         };
         let cell = map.get_cell_mut(cell_index);
         if is_liquid_or_air(cell.tile_type) {
@@ -123,13 +123,13 @@ fn swap_next_pressure_to_current(map: &mut Map, min_cell: CellIndex, max_cell: C
             cell.pressure += cell.next_pressure;
             cell.tile_type = if cell.pressure <= 0 {
                 TileType::Air
-            } else if something_above {
-                TileType::DirtyWaterWall
-            } else {
+            } else if nothing_above {
                 // if pressure_above > 0 {
                 //     println!("above cell should be air!");
                 // }
                 TileType::DirtyWaterSurface
+            } else {
+                TileType::DirtyWaterWall
             };
             cell.next_pressure = 0;
         }
