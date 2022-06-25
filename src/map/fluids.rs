@@ -30,15 +30,14 @@ pub fn advance_fluid(map: &mut Map) {
             let dir = yn;
             if is_valid(cell_index + dir, map) {
                 let adjacent_cell = map.get_cell(cell_index + dir);
-                if adjacent_cell.pressure + 1
+                if adjacent_cell.pressure
                     < (current_pressure + next_pressure + VERTICAL_PRESSURE_DIFFERENCE)
                 {
                     flow.push(dir);
                 }
                 //+1: in the other directions we don't want to keep at least 1 pressure,
                 // but we don't want to keep 1 pressure in this cell if it can go below
-                // prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
-                prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
+                prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
             }
         }
     }
@@ -78,7 +77,7 @@ pub fn advance_fluid(map: &mut Map) {
             let dir = yp;
             if is_valid(cell_index + dir, map) {
                 let adjacent_cell = map.get_cell(cell_index + dir);
-                if adjacent_cell.pressure +1
+                if adjacent_cell.pressure + 1
                     < (current_pressure + next_pressure - VERTICAL_PRESSURE_DIFFERENCE)
                 {
                     flow.push(dir);
@@ -327,21 +326,13 @@ mod tests {
             );
         });
 
-        if result_upwards.is_ok() && result_downwards.is_ok() && result_horizontal.is_ok() {
-            // ok, all directions are stable
-        } else if result_upwards.is_err() && result_downwards.is_err() && result_horizontal.is_err()
-        {
-            // ok, all directions are dynamic
-        } else {
-            assert!(
-                false,
-                "All directions should be stable or dynamic. \
-                upwards stable? {}, downwards stable? {}, horizontal stable? {}",
-                result_upwards.is_ok(),
-                result_downwards.is_ok(),
-                result_horizontal.is_ok()
-            )
-        }
+        assert!(
+            result_downwards.is_err(),
+            "We never want to make downwards flow stable.\
+                    It would make a column of 1-pressure water."
+        );
+
+        assert_eq!(result_upwards.is_ok(), result_horizontal.is_ok());
     }
 
     #[test]
@@ -389,16 +380,16 @@ mod tests {
         #[rustfmt::skip]
         let expected = vec![
             50, 10, 10,
-            44, -1, 0,
-            36, -1, 0,
+            45, -1, 0,
+            35, -1, 0,
         ];
         assert_n_steps(cells.clone(), expected, 20, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
             50, 11, 11,
-            43, -1, 0,
-            35, -1, 0,
+            44, -1, 0,
+            34, -1, 0,
         ];
         assert_n_steps(cells.clone(), expected, 22, min_cell, max_cell);
 
@@ -412,25 +403,25 @@ mod tests {
 
         #[rustfmt::skip]
         let expected = vec![
-            30, 31, 29,
-            21, -1, 19,
-            12, -1, 8,
+            32, 29, 30,
+            20, -1, 19,
+            11, -1, 9,
         ];
         assert_n_steps(cells.clone(), expected, 90, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            31, 29, 30,
+            31, 31, 29,
             21, -1, 19,
-            12, -1, 8,
+            10, -1, 9,
         ];
         assert_n_steps(cells.clone(), expected, 91, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            30, 31, 29,
+            31, 30, 30,
             21, -1, 19,
-            12, -1, 8,
+            10, -1, 9,
         ];
         assert_n_steps(cells.clone(), expected, 92, min_cell, max_cell);
     }
