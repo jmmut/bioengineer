@@ -63,7 +63,9 @@ pub fn advance_fluid(map: &mut Map) {
             add_flow_direction(xn, map);
             add_flow_direction(zp, map);
             add_flow_direction(zn, map);
-            prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
+            // +1: make it dynamic. Otherwise it will be stable (stable means including oneself
+            // when giving out pressure)
+            prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
         }
     }
     let iter = CellCubeIterator::new(min_cell, max_cell);
@@ -225,9 +227,9 @@ mod tests {
         ];
         #[rustfmt::skip]
         let expected_2 = vec![
-            0, 2, 0,
-            2, 2, 2,
-            0, 2, 0,
+            0, 2, 1,
+            2, 2, 1,
+            1, 1, 0,
         ];
         assert_steps_2x2(vec![cells, expected_1, expected_2]);
     }
@@ -304,7 +306,8 @@ mod tests {
         ];
         let result_horizontal_stable = panic::catch_unwind(|| {
             assert_steps_2x2(vec![cells, expected]);
-        }).is_ok();
+        })
+        .is_ok();
 
         let cells = vec![11, 0];
         let expected = vec![11, 0];
@@ -314,7 +317,8 @@ mod tests {
                 CellIndex::new(0, 0, 0),
                 CellIndex::new(0, 1, 0),
             );
-        }).is_ok();
+        })
+        .is_ok();
 
         let cells = vec![10, 1];
         let expected = vec![10, 1];
@@ -324,7 +328,8 @@ mod tests {
                 CellIndex::new(0, 0, 0),
                 CellIndex::new(0, 1, 0),
             );
-        }).is_ok();
+        })
+        .is_ok();
 
         assert!(
             !result_downwards_stable,
