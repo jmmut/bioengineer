@@ -1,8 +1,9 @@
 const SIZE_X: usize = 16;
 const SIZE_Y: usize = 4;
 const SIZE_Z: usize = 16;
-const SIZE: usize = SIZE_X * SIZE_Y * SIZE_Z;
+pub const SIZE: usize = SIZE_X * SIZE_Y * SIZE_Z;
 
+use std::slice::Iter;
 use super::trunc::trunc_towards_neg_inf;
 use super::{Cell, CellIndex};
 use crate::IVec3;
@@ -20,31 +21,34 @@ impl Chunk {
         Chunk { cells }
     }
     pub fn get_cell(&self, index: CellIndex) -> &Cell {
-        self.cells.get(get_cell_index(index)).unwrap()
+        self.cells.get(get_cell_inner_index(index)).unwrap()
     }
     pub fn get_cell_mut(&mut self, index: CellIndex) -> &mut Cell {
-        self.cells.get_mut(get_cell_index(index)).unwrap()
+        self.cells.get_mut(get_cell_inner_index(index)).unwrap()
     }
-    pub fn iter(&self, chunk_index: ChunkIndex) -> ChunkIter {
-        ChunkIter::new(chunk_index)
+    pub fn iter(&self, chunk_index: ChunkIndex) -> ChunkCellIndexIter {
+        ChunkCellIndexIter::new(chunk_index)
+    }
+    pub fn iter_cell(&self) -> CellIter {
+        CellIter::new(self)
     }
 }
 
-pub struct ChunkIter {
+pub struct ChunkCellIndexIter {
     i: CellIndex,
     chunk_index: ChunkIndex,
 }
 
-impl ChunkIter {
+impl ChunkCellIndexIter {
     pub fn new(chunk_index: ChunkIndex) -> Self {
-        ChunkIter {
+        ChunkCellIndexIter {
             i: CellIndex::new(0, 0, -1),
             chunk_index,
         }
     }
 }
 
-impl Iterator for ChunkIter {
+impl Iterator for ChunkCellIndexIter {
     type Item = CellIndex;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -70,7 +74,26 @@ impl Iterator for ChunkIter {
     }
 }
 
-fn get_cell_index(index: CellIndex) -> usize {
+pub struct CellIter<'a> {
+    inner: Iter<'a, Cell>
+}
+
+impl CellIter<'_> {
+    fn new(chunk :&Chunk) -> Self {
+        let iter = chunk.cells.iter();
+        Self { inner: iter }
+    }
+}
+
+impl Iterator for CellIter<'_> {
+    type Item = Cell;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next().map(|c| *c)
+    }
+}
+
+fn get_cell_inner_index(index: CellIndex) -> usize {
     let chunk_index = get_chunk_index(index);
     let local_index = index - origin(chunk_index);
     assert!(
@@ -239,21 +262,21 @@ mod tests {
 
     #[test]
     fn cell_index_basic() {
-        assert_eq!(get_cell_index(CellIndex::new(0, 0, 0)), 0);
-        assert_eq!(get_cell_index(CellIndex::new(1, 0, 0)), 1);
-        assert_eq!(get_cell_index(CellIndex::new(0, 1, 0)), SIZE_X * SIZE_Z);
-        assert_eq!(get_cell_index(CellIndex::new(0, 0, 1)), SIZE_X);
+        assert_eq!(get_cell_inner_index(CellIndex::new(0, 0, 0)), 0);
+        assert_eq!(get_cell_inner_index(CellIndex::new(1, 0, 0)), 1);
+        assert_eq!(get_cell_inner_index(CellIndex::new(0, 1, 0)), SIZE_X * SIZE_Z);
+        assert_eq!(get_cell_inner_index(CellIndex::new(0, 0, 1)), SIZE_X);
 
-        assert_eq!(get_cell_index(CellIndex::new(SIZE_X as i32, 0, 0)), 0);
-        assert_eq!(get_cell_index(CellIndex::new(0, SIZE_Y as i32, 0)), 0);
-        assert_eq!(get_cell_index(CellIndex::new(0, 0, SIZE_Z as i32)), 0);
+        assert_eq!(get_cell_inner_index(CellIndex::new(SIZE_X as i32, 0, 0)), 0);
+        assert_eq!(get_cell_inner_index(CellIndex::new(0, SIZE_Y as i32, 0)), 0);
+        assert_eq!(get_cell_inner_index(CellIndex::new(0, 0, SIZE_Z as i32)), 0);
 
-        assert_eq!(get_cell_index(CellIndex::new(-(SIZE_X as i32), 0, 0)), 0);
-        assert_eq!(get_cell_index(CellIndex::new(0, -(SIZE_Y as i32), 0)), 0);
-        assert_eq!(get_cell_index(CellIndex::new(0, 0, -(SIZE_Z as i32))), 0);
+        assert_eq!(get_cell_inner_index(CellIndex::new(-(SIZE_X as i32), 0, 0)), 0);
+        assert_eq!(get_cell_inner_index(CellIndex::new(0, -(SIZE_Y as i32), 0)), 0);
+        assert_eq!(get_cell_inner_index(CellIndex::new(0, 0, -(SIZE_Z as i32))), 0);
 
         assert_eq!(
-            get_cell_index(CellIndex::new(1, 1, 1 - (SIZE_Z as i32))),
+            get_cell_inner_index(CellIndex::new(1, 1, 1 - (SIZE_Z as i32))),
             SIZE_X * SIZE_Z + SIZE_X + 1
         );
     }
