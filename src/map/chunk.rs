@@ -29,9 +29,6 @@ impl Chunk {
     pub fn iter(&self, chunk_index: ChunkIndex) -> ChunkCellIndexIter {
         ChunkCellIndexIter::new(chunk_index)
     }
-    pub fn iter_cell(&self) -> CellIter {
-        CellIter::new(self)
-    }
 }
 
 pub struct ChunkCellIndexIter {
@@ -78,10 +75,13 @@ pub struct CellIter<'a> {
     inner: Iter<'a, Cell>
 }
 
-impl CellIter<'_> {
-    fn new(chunk :&Chunk) -> Self {
-        let iter = chunk.cells.iter();
-        Self { inner: iter }
+impl<'a> IntoIterator for &'a Chunk {
+    type Item = Cell;
+    type IntoIter = CellIter<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let iter = self.cells.iter();
+        Self::IntoIter { inner: iter }
     }
 }
 
@@ -279,5 +279,17 @@ mod tests {
             get_cell_inner_index(CellIndex::new(1, 1, 1 - (SIZE_Z as i32))),
             SIZE_X * SIZE_Z + SIZE_X + 1
         );
+    }
+
+    #[test]
+    fn test_cell_iter() {
+        let chunk = Chunk::new();
+        let mut sum_pressure = 0;
+        let mut i = 0;
+        for cell in &chunk {
+            sum_pressure += cell.pressure;
+            i += 1;
+        }
+        assert_eq!(i, SIZE);
     }
 }

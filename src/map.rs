@@ -133,9 +133,6 @@ impl Map {
         }
         cells
     }
-    pub fn iter(&self) -> MapIterator {
-        MapIterator::new(&self.chunks)
-    }
 }
 
 fn choose_tile(value: f64, cell_index: CellIndex) -> TileType {
