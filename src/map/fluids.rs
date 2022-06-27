@@ -8,13 +8,7 @@ pub fn advance_fluid(map: &mut Map) {
     let min_cell = map.min_cell();
     let max_cell = map.max_cell();
     let is_valid = |cell_index: CellIndex, map: &Map| {
-        cell_index.x >= min_cell.x
-            && cell_index.x <= max_cell.x
-            && cell_index.y >= min_cell.y
-            && cell_index.y <= max_cell.y
-            && cell_index.z >= min_cell.z
-            && cell_index.z <= max_cell.z
-            && is_liquid_or_air(map.get_cell(cell_index).tile_type)
+        map.in_range(cell_index) && is_liquid_or_air(map.get_cell(cell_index).tile_type)
     };
     let yp = CellIndex::new(0, 1, 0);
     let yn = CellIndex::new(0, -1, 0);
