@@ -71,8 +71,9 @@ impl Iterator for ChunkCellIndexIter {
     }
 }
 
-pub struct CellIter<'a> {
-    inner: Iter<'a, Cell>,
+pub enum CellIter<'a> {
+    Inner(Iter<'a, Cell>),
+    Empty,
 }
 
 impl<'a> IntoIterator for &'a Chunk {
@@ -81,7 +82,7 @@ impl<'a> IntoIterator for &'a Chunk {
 
     fn into_iter(self) -> Self::IntoIter {
         let iter = self.cells.iter();
-        Self::IntoIter { inner: iter }
+        Self::IntoIter::Inner(iter)
     }
 }
 
@@ -89,7 +90,10 @@ impl Iterator for CellIter<'_> {
     type Item = Cell;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.inner.next().map(|c| *c)
+        match self {
+            CellIter::Inner(iter) => iter.next().map(|c| *c),
+            CellIter::Empty => Option::None,
+        }
     }
 }
 
