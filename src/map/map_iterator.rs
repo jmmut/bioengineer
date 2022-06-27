@@ -1,5 +1,5 @@
 use crate::map::chunk::{CellIter, Chunk, ChunkCellIndexIter, ChunkIndex};
-use crate::map::{Cell, Map};
+use crate::map::{Cell, CellIndex, Map};
 use std::collections::hash_map::Iter;
 use std::collections::HashMap;
 
@@ -24,7 +24,7 @@ pub struct MapIterator<'a> {
 }
 
 impl<'a> IntoIterator for &'a Map {
-    type Item = Cell;
+    type Item = (CellIndex, Cell);
     type IntoIter = MapIterator<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -42,7 +42,7 @@ impl<'a> IntoIterator for &'a Map {
 }
 
 impl Iterator for MapIterator<'_> {
-    type Item = Cell;
+    type Item = (CellIndex, Cell);
 
     fn next(&mut self) -> Option<Self::Item> {
         let cell = self.cell_iterator.next();
@@ -57,7 +57,6 @@ impl Iterator for MapIterator<'_> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::map::{chunk, Cell, CellIndex, Map};
@@ -67,7 +66,7 @@ mod tests {
         let map = Map::new_for_cube(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));
         let mut i = 0;
         let mut sum_pressure = 0;
-        for cell in map.into_iter() {
+        for (cell_index, cell) in map.into_iter() {
             sum_pressure += cell.pressure;
             i += 1;
         }
@@ -82,7 +81,7 @@ mod tests {
         );
         let mut i = 0;
         let mut sum_pressure = 0;
-        for cell in &map {
+        for (cell_index, cell) in &map {
             sum_pressure += cell.pressure;
             i += 1;
         }

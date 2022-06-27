@@ -4,7 +4,7 @@ mod map_iterator;
 pub mod transform_cells;
 pub mod trunc;
 
-use crate::map::chunk::{get_chunk_index, get_required_chunks};
+use crate::map::chunk::{chunk_local_index_to_global_index, get_chunk_index, get_required_chunks};
 use crate::map::TileType::{
     Air, CleanWaterSurface, CleanWaterWall, DirtyWaterSurface, DirtyWaterWall, FloorDirt, WallRock,
 };
@@ -45,7 +45,7 @@ impl Map {
         let mut chunks = HashMap::new();
         let chunk_indexes = get_required_chunks(min_cell, max_cell);
         for chunk_index in chunk_indexes {
-            chunks.insert(chunk_index, Chunk::new());
+            chunks.insert(chunk_index, Chunk::new_from_chunk_index(chunk_index));
         }
         Map {
             chunks,
@@ -94,8 +94,7 @@ impl Map {
     }
 
     fn get_chunk_optional(&self, index: &CellIndex) -> Option<&Chunk> {
-        self.chunks
-            .get(&get_chunk_index(*index))
+        self.chunks.get(&get_chunk_index(*index))
     }
 
     #[allow(dead_code)]

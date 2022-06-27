@@ -1,6 +1,10 @@
 pub const SIZE_X: usize = 16;
 pub const SIZE_Y: usize = 4;
 pub const SIZE_Z: usize = 16;
+const SIZE_X_I32: i32 = SIZE_X as i32;
+#[allow(dead_code)]
+const SIZE_Y_I32: i32 = SIZE_Y as i32;
+const SIZE_Z_I32: i32 = SIZE_Z as i32;
 pub const SIZE: usize = SIZE_X * SIZE_Y * SIZE_Z;
 
 use super::trunc::trunc_towards_neg_inf;
@@ -12,13 +16,20 @@ pub type ChunkIndex = IVec3;
 
 pub struct Chunk {
     cells: Vec<Cell>,
+    origin: CellIndex,
 }
 
 impl Chunk {
-    pub fn new() -> Self {
+    pub fn new(origin: CellIndex) -> Self {
         let mut cells = Vec::with_capacity(SIZE);
         cells.resize(SIZE, Cell::default());
-        Chunk { cells }
+        Chunk { cells, origin }
+    }
+    pub fn new_from_chunk_index(chunk_index: ChunkIndex) -> Self {
+        Self::new(chunk_local_index_to_global_index(
+            CellIndex::new(0, 0, 0),
+            chunk_index,
+        ))
     }
     pub fn get_cell(&self, index: CellIndex) -> &Cell {
         self.cells.get(get_cell_inner_index(index)).unwrap()
@@ -61,37 +72,52 @@ impl Iterator for ChunkCellIndexIter {
         if self.i.y >= SIZE_Y as i32 {
             Option::None
         } else {
-            let absolute = CellIndex::new(
-                self.chunk_index.x * SIZE_X as i32 + self.i.x,
-                self.chunk_index.y * SIZE_Y as i32 + self.i.y,
-                self.chunk_index.z * SIZE_Z as i32 + self.i.z,
-            );
+            let absolute = chunk_local_index_to_global_index(self.i, self.chunk_index);
             Option::Some(absolute)
         }
     }
 }
 
+pub fn chunk_local_index_to_global_index(
+    chunk_local_cell_index: CellIndex,
+    chunk_index: ChunkIndex,
+) -> CellIndex {
+    let absolute = CellIndex::new(
+        chunk_index.x * SIZE_X as i32 + chunk_local_cell_index.x,
+        chunk_index.y * SIZE_Y as i32 + chunk_local_cell_index.y,
+        chunk_index.z * SIZE_Z as i32 + chunk_local_cell_index.z,
+    );
+    absolute
+}
+
 pub enum CellIter<'a> {
-    Inner(Iter<'a, Cell>),
+    Inner(&'a Vec<Cell>, i32, CellIndex),
     Empty,
 }
 
 impl<'a> IntoIterator for &'a Chunk {
-    type Item = Cell;
+    type Item = (CellIndex, Cell);
     type IntoIter = CellIter<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        let iter = self.cells.iter();
-        Self::IntoIter::Inner(iter)
+        Self::IntoIter::Inner(&self.cells, -1, self.origin)
     }
 }
 
 impl Iterator for CellIter<'_> {
-    type Item = Cell;
+    type Item = (CellIndex, Cell);
 
     fn next(&mut self) -> Option<Self::Item> {
         match self {
-            CellIter::Inner(iter) => iter.next().map(|c| *c),
+            CellIter::Inner(cells, i, origin) => {
+                *i += 1;
+                let i_usize = *i as usize;
+                return if i_usize < cells.len() {
+                    Option::Some((*origin + get_cell_index(i_usize), cells[i_usize]))
+                } else {
+                    Option::None
+                };
+            }
             CellIter::Empty => Option::None,
         }
     }
@@ -118,6 +144,16 @@ fn get_cell_inner_index(index: CellIndex) -> usize {
     local_index.y as usize * SIZE_X * SIZE_Z
         + local_index.z as usize * SIZE_X
         + local_index.x as usize
+}
+
+pub fn get_cell_index(inner_index: usize) -> CellIndex {
+    assert!(inner_index < SIZE_X * SIZE_Y * SIZE_Z);
+    let inner_index = inner_index as i32;
+    CellIndex::new(
+        inner_index % SIZE_X_I32,
+        inner_index / (SIZE_X_I32 * SIZE_Z_I32),
+        inner_index / SIZE_X_I32 % SIZE_Z_I32,
+    )
 }
 
 fn origin(chunk: ChunkIndex) -> CellIndex {
@@ -168,6 +204,7 @@ pub fn get_required_chunks(min_cell: CellIndex, max_cell: CellIndex) -> Vec<Chun
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::panic;
 
     /// half and full chunk sizes
     const H_X: i32 = SIZE_X as i32 / 2;
@@ -184,6 +221,7 @@ mod tests {
         assert_eq!(get_chunk_index_xyz(F_X, F_Y, F_Z), ChunkIndex::new(1, 1, 1));
         assert_eq!(get_chunk_index_xyz(F_X, H_Y, H_Z), ChunkIndex::new(1, 0, 0));
     }
+
     #[test]
     fn get_chunk_index_positive_over_1() {
         assert_eq!(
@@ -203,6 +241,7 @@ mod tests {
             ChunkIndex::new(-1, -1, -1)
         );
     }
+
     #[test]
     fn get_chunk_index_negative_over_1() {
         assert_eq!(
@@ -217,6 +256,7 @@ mod tests {
         let max_cell = CellIndex::new(0, 0, 0);
         assert_eq!(get_required_chunks(min_cell, max_cell).len(), 1);
     }
+
     #[test]
     fn required_chunks_positive() {
         let min_cell = CellIndex::new(0, 0, 0);
@@ -233,6 +273,7 @@ mod tests {
             ]
         );
     }
+
     #[test]
     fn required_chunks_negative() {
         let min_cell = CellIndex::new(-3 * F_X, -2 * F_Y, -H_Z);
@@ -249,6 +290,7 @@ mod tests {
             ]
         );
     }
+
     #[test]
     fn required_chunks_over_origin() {
         let min_cell = CellIndex::new(-H_X, 0, -F_Z);
@@ -299,13 +341,40 @@ mod tests {
 
     #[test]
     fn test_cell_iter() {
-        let chunk = Chunk::new();
+        let chunk = Chunk::new(CellIndex::new(0, 0, 0));
         let mut sum_pressure = 0;
         let mut i = 0;
         for cell in &chunk {
-            sum_pressure += cell.pressure;
+            sum_pressure += cell.1.pressure;
             i += 1;
         }
         assert_eq!(i, SIZE);
+    }
+
+    fn assert_reverse_index(n: usize) {
+        assert_eq!(get_cell_inner_index(get_cell_index(n)), n);
+    }
+
+    #[test]
+    fn test_cell_reverse_index() {
+        assert_reverse_index(0);
+        assert_reverse_index(1);
+        assert_reverse_index(SIZE_X);
+        assert_reverse_index(SIZE_X + 1);
+        assert_reverse_index(SIZE_Y);
+        assert_reverse_index(SIZE_Y + 1);
+        assert_reverse_index(SIZE_Z);
+        assert_reverse_index(SIZE_Z + 1);
+        assert_reverse_index(SIZE_X * SIZE_Z);
+        assert_reverse_index(SIZE_X * SIZE_Z + 1);
+        assert_reverse_index(SIZE_X * SIZE_Y * SIZE_Z - 1);
+    }
+
+    #[test]
+    fn test_cell_reverse_index_panics() {
+        assert!(panic::catch_unwind(|| {
+            get_cell_index(SIZE_X * SIZE_Y * SIZE_Z);
+        })
+        .is_err());
     }
 }
