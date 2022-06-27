@@ -1,8 +1,8 @@
 mod chunk;
 mod fluids;
+mod map_iterator;
 pub mod transform_cells;
 pub mod trunc;
-mod map_iterator;
 
 use crate::map::chunk::{get_chunk_index, get_required_chunks};
 use crate::map::TileType::{
@@ -10,10 +10,10 @@ use crate::map::TileType::{
 };
 use crate::{now, IVec3};
 use chunk::{Chunk, ChunkIndex};
+use futures::future::MapInto;
 use opensimplex_noise_rs::OpenSimplexNoise;
 use std::cmp::{max, min};
 use std::collections::HashMap;
-use futures::future::MapInto;
 use trunc::trunc_towards_neg_inf;
 
 /// The axis are isometric:
@@ -152,8 +152,8 @@ fn choose_tile(value: f64, cell_index: CellIndex) -> TileType {
     }
 }
 
-pub use i32 as Pressure;
 use crate::map::map_iterator::MapIterator;
+pub use i32 as Pressure;
 
 #[derive(Clone, Copy)]
 pub struct Cell {

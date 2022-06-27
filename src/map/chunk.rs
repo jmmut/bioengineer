@@ -1,12 +1,12 @@
-const SIZE_X: usize = 16;
-const SIZE_Y: usize = 4;
-const SIZE_Z: usize = 16;
+pub const SIZE_X: usize = 16;
+pub const SIZE_Y: usize = 4;
+pub const SIZE_Z: usize = 16;
 pub const SIZE: usize = SIZE_X * SIZE_Y * SIZE_Z;
 
-use std::slice::Iter;
 use super::trunc::trunc_towards_neg_inf;
 use super::{Cell, CellIndex};
 use crate::IVec3;
+use std::slice::Iter;
 
 pub type ChunkIndex = IVec3;
 
@@ -72,7 +72,7 @@ impl Iterator for ChunkCellIndexIter {
 }
 
 pub struct CellIter<'a> {
-    inner: Iter<'a, Cell>
+    inner: Iter<'a, Cell>,
 }
 
 impl<'a> IntoIterator for &'a Chunk {
@@ -264,16 +264,28 @@ mod tests {
     fn cell_index_basic() {
         assert_eq!(get_cell_inner_index(CellIndex::new(0, 0, 0)), 0);
         assert_eq!(get_cell_inner_index(CellIndex::new(1, 0, 0)), 1);
-        assert_eq!(get_cell_inner_index(CellIndex::new(0, 1, 0)), SIZE_X * SIZE_Z);
+        assert_eq!(
+            get_cell_inner_index(CellIndex::new(0, 1, 0)),
+            SIZE_X * SIZE_Z
+        );
         assert_eq!(get_cell_inner_index(CellIndex::new(0, 0, 1)), SIZE_X);
 
         assert_eq!(get_cell_inner_index(CellIndex::new(SIZE_X as i32, 0, 0)), 0);
         assert_eq!(get_cell_inner_index(CellIndex::new(0, SIZE_Y as i32, 0)), 0);
         assert_eq!(get_cell_inner_index(CellIndex::new(0, 0, SIZE_Z as i32)), 0);
 
-        assert_eq!(get_cell_inner_index(CellIndex::new(-(SIZE_X as i32), 0, 0)), 0);
-        assert_eq!(get_cell_inner_index(CellIndex::new(0, -(SIZE_Y as i32), 0)), 0);
-        assert_eq!(get_cell_inner_index(CellIndex::new(0, 0, -(SIZE_Z as i32))), 0);
+        assert_eq!(
+            get_cell_inner_index(CellIndex::new(-(SIZE_X as i32), 0, 0)),
+            0
+        );
+        assert_eq!(
+            get_cell_inner_index(CellIndex::new(0, -(SIZE_Y as i32), 0)),
+            0
+        );
+        assert_eq!(
+            get_cell_inner_index(CellIndex::new(0, 0, -(SIZE_Z as i32))),
+            0
+        );
 
         assert_eq!(
             get_cell_inner_index(CellIndex::new(1, 1, 1 - (SIZE_Z as i32))),
