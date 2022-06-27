@@ -19,8 +19,8 @@ use std::collections::HashMap;
 /// ```
 pub struct MapIterator<'a> {
     chunks: &'a HashMap<ChunkIndex, Chunk>,
-    chunk_hash_iter: Iter<'a, ChunkIndex, Chunk>,
-    chunk_cell_iter: Option<CellIter<'a>>,
+    chunk_iterator: Iter<'a, ChunkIndex, Chunk>,
+    cell_iterator: Option<CellIter<'a>>,
 }
 
 impl<'a> IntoIterator for &'a Map {
@@ -28,12 +28,12 @@ impl<'a> IntoIterator for &'a Map {
     type IntoIter = MapIterator<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        let mut chunk_hash_iter = self.chunks.iter();
-        let chunk_cell_iter = chunk_hash_iter.next().map(|t| t.1.into_iter());
+        let mut chunk_iterator = self.chunks.iter();
+        let cell_iterator = chunk_iterator.next().map(|chunk| chunk.1.into_iter());
         MapIterator::<'a> {
             chunks: &self.chunks,
-            chunk_hash_iter,
-            chunk_cell_iter,
+            chunk_iterator,
+            cell_iterator,
         }
     }
 }
@@ -42,22 +42,19 @@ impl Iterator for MapIterator<'_> {
     type Item = Cell;
 
     fn next(&mut self) -> Option<Self::Item> {
-        match &mut self.chunk_cell_iter {
+        match &mut self.cell_iterator {
             None => Option::None,
             Some(_) => {
-                let cell = self.chunk_cell_iter.as_mut().unwrap().next();
-                return if cell.is_none() {
-                    let chunk_option = &mut self.chunk_hash_iter.next();
-                    if chunk_option.is_none() {
-                        Option::None
-                    } else {
-                        self.chunk_cell_iter = chunk_option.map(|t| t.1.into_iter());
-                        let cell = self.chunk_cell_iter.as_mut().unwrap().next();
-                        cell
-                    }
-                } else {
+                let cell = self.cell_iterator.as_mut().unwrap().next();
+                cell.or_else(|| {
+                    self.cell_iterator =
+                        (&mut self.chunk_iterator.next()).map(|chunk| chunk.1.into_iter());
+                    let cell = self
+                        .cell_iterator
+                        .as_mut()
+                        .and_then(|ci: &mut CellIter| ci.next());
                     cell
-                };
+                })
             }
         }
     }
@@ -68,7 +65,7 @@ mod tests {
     use crate::map::{chunk, Cell, CellIndex, Map};
 
     #[test]
-    fn basic_map_iterator() {
+    fn test_basic_map_iterator() {
         let map = Map::new_for_cube(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));
         let mut i = 0;
         let mut sum_pressure = 0;
