@@ -31,6 +31,12 @@ pub struct Map {
 }
 
 impl Map {
+    pub fn in_range(&self, cell_index: CellIndex) -> bool {
+        self.get_chunk_optional(&cell_index).is_some()
+    }
+}
+
+impl Map {
     pub fn new() -> Self {
         Self::new_for_cube(Self::default_min_cell(), Self::default_max_cell())
     }
@@ -83,9 +89,13 @@ impl Map {
     }
 
     fn get_chunk(&self, index: CellIndex) -> &Chunk {
-        self.chunks
-            .get(&get_chunk_index(index))
+        self.get_chunk_optional(&index)
             .expect("Error: Making the map bigger dynamically is disabled.")
+    }
+
+    fn get_chunk_optional(&self, index: &CellIndex) -> Option<&Chunk> {
+        self.chunks
+            .get(&get_chunk_index(*index))
     }
 
     #[allow(dead_code)]
@@ -325,5 +335,12 @@ mod tests {
             indexes.push(cell_index);
         }
         assert_eq!(indexes, vec![CellIndex::new(0, 0, 0)]);
+    }
+
+    #[test]
+    fn test_in_range() {
+        let map = Map::new();
+        assert_eq!(map.in_range(CellIndex::new(0, 0, 0)), true);
+        assert_eq!(map.in_range(CellIndex::new(0, 0, -MAP_SIZE)), false);
     }
 }
