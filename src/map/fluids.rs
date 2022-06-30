@@ -13,9 +13,7 @@ pub fn advance_fluid(map: &mut Map) {
     let yp = CellIndex::new(0, 1, 0);
     let yn = CellIndex::new(0, -1, 0);
 
-    let iter = CellCubeIterator::new(min_cell, max_cell);
-    for cell_index in iter {
-        let cell = map.get_cell(cell_index);
+    for (cell_index, cell) in &*map {
         if is_liquid(cell.tile_type) {
             let current_pressure = cell.pressure;
             let next_pressure = cell.next_pressure;
@@ -38,9 +36,7 @@ pub fn advance_fluid(map: &mut Map) {
     let xn = CellIndex::new(-1, 0, 0);
     let zp = CellIndex::new(0, 0, 1);
     let zn = CellIndex::new(0, 0, -1);
-    let iter = CellCubeIterator::new(min_cell, max_cell);
-    for cell_index in iter {
-        let cell = map.get_cell(cell_index);
+    for (cell_index, cell) in &*map {
         if is_liquid(cell.tile_type) {
             let current_pressure = cell.pressure;
             let next_pressure = cell.next_pressure;
@@ -62,9 +58,7 @@ pub fn advance_fluid(map: &mut Map) {
             prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
         }
     }
-    let iter = CellCubeIterator::new(min_cell, max_cell);
-    for cell_index in iter {
-        let cell = map.get_cell(cell_index);
+    for (cell_index, cell) in &*map {
         if is_liquid(cell.tile_type) {
             let current_pressure = cell.pressure;
             let next_pressure = cell.next_pressure;
