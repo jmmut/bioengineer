@@ -113,11 +113,11 @@ pub struct CellIterItem<'a> {
     cell: &'a mut Cell,
 }
 
-pub trait RefIterator<'a, T> {
+pub trait MutRefIterator<'a, T> {
     fn next(&'a mut self) -> Option<T>;
 }
 
-impl<'a> RefIterator<'a, CellIterItem<'a>> for &mut CellIter {
+impl<'a> MutRefIterator<'a, CellIterItem<'a>> for &mut CellIter {
     fn next(&'a mut self) -> Option<CellIterItem<'a>> {
         self.i += 1;
         let i_usize = self.i as usize;
