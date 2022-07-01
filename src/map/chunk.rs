@@ -356,15 +356,10 @@ mod tests {
         let mut iter = chunk.into_iter();
         let mut iter_mut = &mut iter;
         let mut sum_pressures = 0;
-        loop {
-            match iter_mut.next() {
-                None => {break;}
-                Some(cell_iter_item) => {
-                    cell_iter_item.cell.pressure += 1;
-                    sum_pressures += cell_iter_item.cell.pressure;
-                    i += 1;
-                }
-            }
+        while let Option::Some(cell_iter_item) = iter_mut.next() {
+            cell_iter_item.cell.pressure += 1;
+            sum_pressures += cell_iter_item.cell.pressure;
+            i += 1;
         }
         // iter.next();
         // while Option::Some(cell_iter_item) = iter.next() {}
