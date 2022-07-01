@@ -43,6 +43,10 @@ impl Chunk {
     pub fn iter(&self, chunk_index: ChunkIndex) -> ChunkCellIndexIter {
         ChunkCellIndexIter::new(chunk_index)
     }
+
+    fn into_iter(self) -> CellIter {
+        CellIter {cells: self.cells, i: -1, origin: self.origin}
+    }
 }
 
 pub struct ChunkCellIndexIter {
@@ -104,24 +108,26 @@ impl CellIter {
         Chunk::new_from_cells(self.cells, self.origin)
     }
 }
-
-impl IntoIterator for Chunk {
-    type Item = (CellIndex, Cell);
-    type IntoIter = CellIter;
-
-    fn into_iter(self) -> Self::IntoIter {
-        Self::IntoIter{cells: self.cells, i: -1, origin: self.origin}
-    }
+pub struct CellIterItem<'a> {
+    index: CellIndex,
+    cell: &'a Cell,
 }
 
-impl Iterator for CellIter {
-    type Item = (CellIndex, Cell);
+pub trait RefIterator<'a, T> {
+    fn next(&'a mut self) -> Option<T>;
+}
 
-    fn next(&mut self) -> Option<Self::Item> {
+impl<'a> RefIterator<'a, CellIterItem<'a>> for &mut CellIter {
+    fn next(&'a mut self) -> Option<CellIterItem<'a>> {
         self.i += 1;
         let i_usize = self.i as usize;
         return if i_usize < self.cells.len() {
-            Option::Some((self.origin + get_cell_index(i_usize), self.cells[i_usize]))
+            unsafe {
+                Option::Some(CellIterItem {
+                    index: self.origin + get_cell_index(i_usize),
+                    cell: &(self.cells[i_usize])}
+                )
+            }
         } else {
             Option::None
         };
@@ -349,14 +355,39 @@ mod tests {
     fn test_cell_iter() {
         let chunk = Chunk::new(CellIndex::new(0, 0, 0));
         let mut i = 0;
-        let iter = chunk.into_iter();
-        for mut cell in iter {
-            cell.1.pressure += 1;
-            i += 1;
+        let mut iter = chunk.into_iter();
+        let mut iter_mut = &mut iter;
+        let mut sum_pressures = 0;
+        loop {
+            match iter_mut.next() {
+                None => {break;}
+                Some(cell_iter_item) => {
+                    // cell_iter_item.cell.pressure += 1;
+                    sum_pressures += cell_iter_item.cell.pressure;
+                    i += 1;
+                }
+            }
         }
+        // iter.next();
+        // while Option::Some(cell_iter_item) = iter.next() {}
+        // for mut cell_iter_item in &mut iter {
+        //     cell_iter_item.cell.pressure += 1;
+        //     i += 1;
+        // }
         let updated_chunk = iter.into_chunk();
         assert_eq!(i, SIZE);
-        assert_eq!(updated_chunk.get_cell(CellIndex::new(0, 0, 0)).pressure, 1);
+        assert_eq!(sum_pressures, 0);
+        assert_eq!(updated_chunk.get_cell(CellIndex::new(0, 0, 0)).pressure, 0);
+    }
+
+    #[test]
+    fn test_vec_iter() {
+        let mut v = vec![1, 2, 3];
+        let x = (&mut v).into_iter();
+        for n in x {
+            *n += 10;
+        }
+        assert_eq!(v[0], 11);
     }
 
     fn assert_reverse_index(n: usize) {
