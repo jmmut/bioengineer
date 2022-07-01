@@ -110,7 +110,7 @@ impl CellIter {
 }
 pub struct CellIterItem<'a> {
     index: CellIndex,
-    cell: &'a Cell,
+    cell: &'a mut Cell,
 }
 
 pub trait RefIterator<'a, T> {
@@ -125,7 +125,7 @@ impl<'a> RefIterator<'a, CellIterItem<'a>> for &mut CellIter {
             unsafe {
                 Option::Some(CellIterItem {
                     index: self.origin + get_cell_index(i_usize),
-                    cell: &(self.cells[i_usize])}
+                    cell: &mut (self.cells[i_usize])}
                 )
             }
         } else {
@@ -362,7 +362,7 @@ mod tests {
             match iter_mut.next() {
                 None => {break;}
                 Some(cell_iter_item) => {
-                    // cell_iter_item.cell.pressure += 1;
+                    cell_iter_item.cell.pressure += 1;
                     sum_pressures += cell_iter_item.cell.pressure;
                     i += 1;
                 }
@@ -376,8 +376,8 @@ mod tests {
         // }
         let updated_chunk = iter.into_chunk();
         assert_eq!(i, SIZE);
-        assert_eq!(sum_pressures, 0);
-        assert_eq!(updated_chunk.get_cell(CellIndex::new(0, 0, 0)).pressure, 0);
+        assert_eq!(sum_pressures, SIZE as i32);
+        assert_eq!(updated_chunk.get_cell(CellIndex::new(0, 0, 0)).pressure, 1);
     }
 
     #[test]
