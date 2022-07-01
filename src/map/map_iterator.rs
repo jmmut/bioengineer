@@ -20,7 +20,7 @@ use std::collections::HashMap;
 pub struct MapIterator<'a> {
     chunks: &'a HashMap<ChunkIndex, Chunk>,
     chunk_iterator: Iter<'a, ChunkIndex, Chunk>,
-    cell_iterator: CellIter<'a>,
+    cell_iterator: CellIter,
 }
 
 impl<'a> IntoIterator for &'a Map {

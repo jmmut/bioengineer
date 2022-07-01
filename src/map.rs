@@ -1,6 +1,6 @@
 mod chunk;
 mod fluids;
-mod map_iterator;
+// mod map_iterator;
 pub mod transform_cells;
 pub mod trunc;
 
@@ -15,6 +15,9 @@ use opensimplex_noise_rs::OpenSimplexNoise;
 use std::cmp::{max, min};
 use std::collections::HashMap;
 use trunc::trunc_towards_neg_inf;
+
+// use crate::map::map_iterator::MapIterator;
+pub use i32 as Pressure;
 
 /// The axis are isometric:
 /// - x: right towards camera
@@ -161,8 +164,6 @@ fn choose_tile(value: f64, cell_index: CellIndex) -> TileType {
     }
 }
 
-use crate::map::map_iterator::MapIterator;
-pub use i32 as Pressure;
 
 #[derive(Clone, Copy)]
 pub struct Cell {

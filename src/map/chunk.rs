@@ -31,6 +31,9 @@ impl Chunk {
             chunk_index,
         ))
     }
+    pub fn new_from_cells(cells: Vec<Cell>, origin: CellIndex) -> Self {
+        Self {cells, origin}
+    }
     pub fn get_cell(&self, index: CellIndex) -> &Cell {
         self.cells.get(get_cell_inner_index(index)).unwrap()
     }
@@ -90,37 +93,40 @@ pub fn chunk_local_index_to_global_index(
     absolute
 }
 
-pub enum CellIter<'a> {
-    Inner(&'a Vec<Cell>, i32, CellIndex),
-    Empty,
+pub struct CellIter {
+    cells: Vec<Cell>,
+    i: i32,
+    origin: CellIndex,
 }
 
-impl<'a> IntoIterator for &'a Chunk {
-    type Item = (CellIndex, Cell);
-    type IntoIter = CellIter<'a>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        Self::IntoIter::Inner(&self.cells, -1, self.origin)
+impl CellIter {
+    fn into_chunk(self) -> Chunk {
+        Chunk::new_from_cells(self.cells, self.origin)
     }
 }
 
-impl Iterator for CellIter<'_> {
+impl IntoIterator for Chunk {
+    type Item = (CellIndex, Cell);
+    type IntoIter = CellIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        Self::IntoIter{cells: self.cells, i: -1, origin: self.origin}
+    }
+}
+
+impl Iterator for CellIter {
     type Item = (CellIndex, Cell);
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self {
-            CellIter::Inner(cells, i, origin) => {
-                *i += 1;
-                let i_usize = *i as usize;
-                return if i_usize < cells.len() {
-                    Option::Some((*origin + get_cell_index(i_usize), cells[i_usize]))
-                } else {
-                    Option::None
-                };
-            }
-            CellIter::Empty => Option::None,
-        }
+        self.i += 1;
+        let i_usize = self.i as usize;
+        return if i_usize < self.cells.len() {
+            Option::Some((self.origin + get_cell_index(i_usize), self.cells[i_usize]))
+        } else {
+            Option::None
+        };
     }
+
 }
 
 fn get_cell_inner_index(index: CellIndex) -> usize {
@@ -342,13 +348,15 @@ mod tests {
     #[test]
     fn test_cell_iter() {
         let chunk = Chunk::new(CellIndex::new(0, 0, 0));
-        let mut sum_pressure = 0;
         let mut i = 0;
-        for cell in &chunk {
-            sum_pressure += cell.1.pressure;
+        let iter = chunk.into_iter();
+        for mut cell in iter {
+            cell.1.pressure += 1;
             i += 1;
         }
+        let updated_chunk = iter.into_chunk();
         assert_eq!(i, SIZE);
+        assert_eq!(updated_chunk.get_cell(CellIndex::new(0, 0, 0)).pressure, 1);
     }
 
     fn assert_reverse_index(n: usize) {

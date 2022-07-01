@@ -5,6 +5,7 @@ use crate::map::{
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
 pub fn advance_fluid(map: &mut Map) {
+    /*
     let min_cell = map.min_cell();
     let max_cell = map.max_cell();
     let is_valid = |cell_index: CellIndex, map: &Map| {
@@ -77,6 +78,8 @@ pub fn advance_fluid(map: &mut Map) {
     }
 
     swap_next_pressure_to_current(map, min_cell, max_cell)
+
+     */
 }
 
 fn prepare_next_pressure(
