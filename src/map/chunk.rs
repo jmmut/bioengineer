@@ -122,12 +122,10 @@ impl<'a> RefIterator<'a, CellIterItem<'a>> for &mut CellIter {
         self.i += 1;
         let i_usize = self.i as usize;
         return if i_usize < self.cells.len() {
-            unsafe {
-                Option::Some(CellIterItem {
-                    index: self.origin + get_cell_index(i_usize),
-                    cell: &mut (self.cells[i_usize])}
-                )
-            }
+            Option::Some(CellIterItem {
+                index: self.origin + get_cell_index(i_usize),
+                cell: &mut (self.cells[i_usize])}
+            )
         } else {
             Option::None
         };
