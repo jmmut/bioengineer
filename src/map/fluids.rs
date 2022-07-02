@@ -1,9 +1,6 @@
 use crate::map::chunk::cell_iter::CellIterItem;
 use crate::map::ref_mut_iterator::RefMutIterator;
-use crate::map::{
-    cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, CellCubeIterator, CellIndex, Map,
-    TileType,
-};
+use crate::map::{Cell, cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, CellCubeIterator, CellIndex, Map, TileType};
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
@@ -12,60 +9,6 @@ pub fn advance_fluid(map: &mut Map) {
     advance_fluid_sideways(map);
     advance_fluid_upwards(map);
     update_tile_type(map);
-    /*
-       for (cell_index, cell) in &*map {
-           if is_liquid(cell.tile_type) {
-               let current_pressure = cell.pressure;
-               let next_pressure = cell.next_pressure;
-               let mut flow = Vec::new();
-               let mut add_flow_direction = |dir: CellIndex, map: &Map| {
-                   if is_valid(cell_index + dir, map) {
-                       let adjacent_cell = map.get_cell(cell_index + dir);
-                       if adjacent_cell.pressure < current_pressure + next_pressure {
-                           flow.push(dir);
-                       }
-                   }
-               };
-               add_flow_direction(xp, map);
-               add_flow_direction(xn, map);
-               add_flow_direction(zp, map);
-               add_flow_direction(zn, map);
-               // +1: make it dynamic. Otherwise it will be stable (stable means including oneself
-               // when giving out pressure)
-               prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
-           }
-       }
-       for (cell_index, cell) in &*map {
-           if is_liquid(cell.tile_type) {
-               let current_pressure = cell.pressure;
-               let next_pressure = cell.next_pressure;
-               let mut flow = Vec::new();
-               let dir = yp;
-               if is_valid(cell_index + dir, map) {
-                   let adjacent_cell = map.get_cell(cell_index + dir);
-                   if adjacent_cell.pressure + 1
-                       < (current_pressure + next_pressure - VERTICAL_PRESSURE_DIFFERENCE)
-                   {
-                       flow.push(dir);
-                   }
-               }
-               prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
-           }
-       }
-
-       swap_next_pressure_to_current(map, min_cell, max_cell)
-
-    */
-}
-
-#[allow(unused)]
-fn print_map_pressures(map: &Map) {
-    let iter = CellCubeIterator::new(map.min_cell(), map.max_cell());
-    let mut pressures = Vec::new();
-    for cell_index in iter {
-        pressures.push(map.get_cell(cell_index).pressure)
-    }
-    println!("pressures: {:?}", pressures);
 }
 
 fn advance_fluid_downwards(map: &mut Map) {
@@ -186,10 +129,12 @@ impl<'a> Flow<'a> {
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
     ) {
-        if current_pressure > 0 && is_valid(adjacent_index, self.map) {
-            let adjacent_cell = self.map.get_cell(adjacent_index);
-            if (current_pressure - adjacent_cell.pressure) > self.pressure_threshold {
-                *pressure_diff -= 1;
+        if current_pressure > 0 {
+            let option_cell = is_valid(adjacent_index, self.map);
+            if let Option::Some(adjacent_cell) = option_cell {
+                if (current_pressure - adjacent_cell.pressure) > self.pressure_threshold {
+                    *pressure_diff -= 1;
+                }
             }
         }
     }
@@ -200,8 +145,8 @@ impl<'a> Flow<'a> {
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
     ) {
-        if is_valid(adjacent_index, self.map) {
-            let adjacent_cell = self.map.get_cell(adjacent_index);
+        let option_cell = is_valid(adjacent_index, self.map);
+        if let Option::Some(adjacent_cell) = option_cell {
             if adjacent_cell.pressure > 0
                 && (adjacent_cell.pressure - current_pressure) > self.pressure_threshold
             {
@@ -216,8 +161,8 @@ impl<'a> Flow<'a> {
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
     ) {
-        if is_valid(adjacent_index, self.map) {
-            let adjacent_cell = self.map.get_cell(adjacent_index);
+        let option_cell = is_valid(adjacent_index, self.map);
+        if let Option::Some(adjacent_cell) = option_cell {
             if adjacent_cell.can_flow_out
                 && ((adjacent_cell.pressure - current_pressure) > self.pressure_threshold)
             {
@@ -228,8 +173,17 @@ impl<'a> Flow<'a> {
 }
 
 // TODO: optimize one cell fetch. here and where this is called we do a redundant get_cell
-fn is_valid(cell_index: CellIndex, map: &Map) -> bool {
-    map.in_range(cell_index) && is_liquid_or_air(map.get_cell(cell_index).tile_type)
+fn is_valid(cell_index: CellIndex, map: &Map) -> Option<Cell> {
+    let option_cell = map.get_cell_optional(cell_index);
+    return if let Option::Some(cell) = option_cell {
+        if is_liquid_or_air(cell.tile_type) {
+            Option::Some(*cell)
+        } else {
+            Option::None
+        }
+    } else {
+        Option::None
+    }
 }
 
 fn update_tile_type(map: &mut Map) {
@@ -267,6 +221,16 @@ fn update_tile_type(map: &mut Map) {
         }
     }
     *map = Map::new_from_iter(iter);
+}
+
+#[allow(unused)]
+fn print_map_pressures(map: &Map) {
+    let iter = CellCubeIterator::new(map.min_cell(), map.max_cell());
+    let mut pressures = Vec::new();
+    for cell_index in iter {
+        pressures.push(map.get_cell(cell_index).pressure)
+    }
+    println!("pressures: {:?}", pressures);
 }
 
 #[cfg(test)]

@@ -118,6 +118,7 @@ impl<'a> RefMutIterator<'a, CellIterItem<'a>> for MutMapIterator {
 mod tests {
     use super::*;
     use crate::map::chunk;
+    use crate::map::Map;
     // #[test]
     // fn test_basic_map_iterator() {
     //     let map = Map::new_for_cube(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));

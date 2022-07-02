@@ -98,6 +98,9 @@ impl Map {
     pub fn get_cell(&self, index: CellIndex) -> &Cell {
         self.get_chunk(index).get_cell(index)
     }
+    pub fn get_cell_optional(&self, index: CellIndex) -> Option<&Cell> {
+        self.get_chunk_optional(&index).map(|chunk| {chunk.get_cell(index)})
+    }
     pub fn get_cell_mut(&mut self, index: CellIndex) -> &mut Cell {
         self.get_chunk_mut(index).get_cell_mut(index)
     }
