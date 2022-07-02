@@ -27,7 +27,7 @@ impl GameState {
             map,
             drawing: Drawing::new(),
             advancing_fluids: false,
-            advance_fluid_every_n_frames: 10,
+            advance_fluid_every_n_frames: 1,
         }
     }
 
