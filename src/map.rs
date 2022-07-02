@@ -25,7 +25,7 @@ use crate::map::map_iterator::MutMapIterator;
 /// - z: left towards camera
 pub type CellIndex = IVec3;
 
-const MAP_SIZE: i32 = 21;
+const MAP_SIZE: i32 = 64;
 
 #[derive(Clone)]
 pub struct Map {

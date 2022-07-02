@@ -13,6 +13,7 @@ pub struct GameState {
     pub map: Map,
     pub drawing: Drawing,
     pub advancing_fluids: bool,
+    pub advance_fluid_every_n_frames: i32,
 }
 
 impl GameState {
@@ -26,6 +27,7 @@ impl GameState {
             map,
             drawing: Drawing::new(),
             advancing_fluids: false,
+            advance_fluid_every_n_frames: 10,
         }
     }
 
@@ -40,13 +42,26 @@ impl GameState {
         if gui_actions.input.toggle_fluids {
             self.advancing_fluids = !self.advancing_fluids;
         }
-        if self.advancing_fluids || gui_actions.input.single_fluid {
+        if self.should_advance_fluids_this_frame(&gui_actions) {
             self.map.advance_fluids();
         }
 
         if gui_actions.input.regenerate_map {
             self.map.regenerate();
         }
+    }
+
+    fn should_advance_fluids_this_frame(&mut self, gui_actions: &GuiActions) -> bool {
+        if gui_actions.input.single_fluid {
+            return true;
+        } else {
+            if self.advancing_fluids {
+                let should_process_frame =
+                    self.frame_index % self.advance_fluid_every_n_frames == 0;
+                return should_process_frame;
+            }
+        }
+        return false;
     }
 
     pub fn advance_frame(&mut self) {
