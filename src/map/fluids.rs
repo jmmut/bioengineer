@@ -9,12 +9,22 @@ use crate::IVec3;
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
 pub fn advance_fluid(map: &mut Map) {
-    let min_cell = map.min_cell();
-    let max_cell = map.max_cell();
+    #[cfg(test)]
+    println!("advancing");
+    #[cfg(test)]
+    print_map_pressures(map);
 
     advance_fluid_downwards(map);
+    #[cfg(test)]
+    print_map_pressures(map);
+
     advance_fluid_sideways(map);
+    #[cfg(test)]
+    print_map_pressures(map);
+
     advance_fluid_upwards(map);
+    #[cfg(test)]
+    print_map_pressures(map);
     /*
        for (cell_index, cell) in &*map {
            if is_liquid(cell.tile_type) {
@@ -61,6 +71,15 @@ pub fn advance_fluid(map: &mut Map) {
     */
 }
 
+fn print_map_pressures(map: &Map) {
+    let iter = CellCubeIterator::new(map.min_cell(), map.max_cell());
+    let mut pressures = Vec::new();
+    for cell_index in iter {
+        pressures.push(map.get_cell(cell_index).pressure)
+    }
+    println!("pressures: {:?}", pressures);
+}
+
 fn advance_fluid_downwards(map: &mut Map) {
     let yp = CellIndex::new(0, 1, 0);
     let yn = CellIndex::new(0, -1, 0);
@@ -98,7 +117,8 @@ fn advance_fluid_sideways(map: &mut Map) {
             flow.flow_outwards(cell_index + zp, current_pressure, &mut pressure_diff);
             flow.flow_outwards(cell_index + zn, current_pressure, &mut pressure_diff);
             let next_pressure = pressure_diff + cell.pressure;
-            cell.can_flow_out = next_pressure > 0;
+            // change this to > for stable, >= for dynamic. see test_minimize_movement()
+            cell.can_flow_out = next_pressure >= 0;
             if cell.can_flow_out {
                 cell.next_pressure = next_pressure;
             } else {
@@ -129,7 +149,7 @@ fn advance_fluid_sideways(map: &mut Map) {
 fn advance_fluid_upwards(map: &mut Map) {
     let yp = CellIndex::new(0, 1, 0);
     let yn = CellIndex::new(0, -1, 0);
-    let pressure_threshold = VERTICAL_PRESSURE_DIFFERENCE;
+    let pressure_threshold = VERTICAL_PRESSURE_DIFFERENCE + 1;
     let flow = Flow::new(map, pressure_threshold);
     let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
@@ -324,9 +344,9 @@ mod tests {
         ];
         #[rustfmt::skip]
         let expected_2 = vec![
-            0, 2, 1,
-            2, 2, 1,
-            1, 1, 0,
+            0, 2, 0,
+            2, 2, 2,
+            0, 2, 0,
         ];
         assert_steps_2x2(vec![cells, expected_1, expected_2]);
     }
