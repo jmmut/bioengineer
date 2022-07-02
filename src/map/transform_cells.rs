@@ -1,4 +1,4 @@
-use crate::map::{is_liquid, Cell, CellIndex, Map, TileType};
+use crate::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
 use crate::GameState;
 use std::collections::HashSet;
 
@@ -143,6 +143,7 @@ mod tests {
     use crate::map::{Cell, TileType};
 
     #[test]
+    #[ignore]
     fn test_basic_transformation() {
         let cell = Cell::new(TileType::FloorRock);
         let min_cell = CellIndex::new(0, 0, 0);
