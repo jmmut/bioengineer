@@ -70,20 +70,11 @@ fn advance_fluid_downwards(map: &mut Map) {
         if is_liquid(cell.tile_type) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
-            let dir = yn;
-            if is_valid(cell_index + dir, map) {
-                let adjacent_cell = map.get_cell(cell_index + dir);
-                if (adjacent_cell.pressure - current_pressure) < VERTICAL_PRESSURE_DIFFERENCE {
-                    pressure_diff -= 1;
-                }
-            }
-            let dir = yp;
-            if is_valid(cell_index + dir, map) {
-                let adjacent_cell = map.get_cell(cell_index + dir);
-                if (current_pressure - adjacent_cell.pressure) < VERTICAL_PRESSURE_DIFFERENCE {
-                    pressure_diff += 1;
-                }
-            }
+            let pressure_threshold = -VERTICAL_PRESSURE_DIFFERENCE;
+            flow_outwards(map, cell_index + yn, current_pressure, pressure_threshold,
+                          &mut pressure_diff);
+            flow_inwards(map, cell_index + yp, current_pressure, pressure_threshold,
+                          &mut pressure_diff);
             cell.pressure += pressure_diff;
         }
     }
