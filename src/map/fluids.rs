@@ -9,22 +9,10 @@ use crate::IVec3;
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
 pub fn advance_fluid(map: &mut Map) {
-    #[cfg(test)]
-    println!("advancing");
-    #[cfg(test)]
-    print_map_pressures(map);
 
     advance_fluid_downwards(map);
-    #[cfg(test)]
-    print_map_pressures(map);
-
     advance_fluid_sideways(map);
-    #[cfg(test)]
-    print_map_pressures(map);
-
     advance_fluid_upwards(map);
-    #[cfg(test)]
-    print_map_pressures(map);
     /*
        for (cell_index, cell) in &*map {
            if is_liquid(cell.tile_type) {
@@ -81,6 +69,11 @@ fn print_map_pressures(map: &Map) {
 }
 
 fn advance_fluid_downwards(map: &mut Map) {
+    #[cfg(test)]
+    println!("advancing");
+    #[cfg(test)]
+    print_map_pressures(map);
+
     let yp = CellIndex::new(0, 1, 0);
     let yn = CellIndex::new(0, -1, 0);
     let pressure_threshold = -VERTICAL_PRESSURE_DIFFERENCE;
@@ -97,6 +90,9 @@ fn advance_fluid_downwards(map: &mut Map) {
         }
     }
     *map = Map::new_from_iter(iter);
+
+    #[cfg(test)]
+    print_map_pressures(map);
 }
 
 fn advance_fluid_sideways(map: &mut Map) {
@@ -144,6 +140,9 @@ fn advance_fluid_sideways(map: &mut Map) {
         }
     }
     *map = Map::new_from_iter(iter);
+
+    #[cfg(test)]
+    print_map_pressures(map);
 }
 
 fn advance_fluid_upwards(map: &mut Map) {
@@ -163,6 +162,9 @@ fn advance_fluid_upwards(map: &mut Map) {
         }
     }
     *map = Map::new_from_iter(iter);
+
+    #[cfg(test)]
+    print_map_pressures(map);
 }
 
 struct Flow<'a> {
@@ -181,7 +183,7 @@ impl<'a> Flow<'a> {
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
     ) {
-        if is_valid(adjacent_index, self.map) {
+        if current_pressure > 0 && is_valid(adjacent_index, self.map) {
             let adjacent_cell = self.map.get_cell(adjacent_index);
             if (current_pressure - adjacent_cell.pressure) > self.pressure_threshold {
                 *pressure_diff -= 1;
@@ -196,7 +198,8 @@ impl<'a> Flow<'a> {
     ) {
         if is_valid(adjacent_index, self.map) {
             let adjacent_cell = self.map.get_cell(adjacent_index);
-            if (adjacent_cell.pressure - current_pressure) > self.pressure_threshold {
+            if adjacent_cell.pressure > 0
+                    && (adjacent_cell.pressure - current_pressure) > self.pressure_threshold {
                 *pressure_diff += 1;
             }
         }
@@ -530,15 +533,15 @@ mod tests {
 
         #[rustfmt::skip]
         let expected = vec![
-            32, 29, 30,
-            20, -1, 19,
-            11, -1, 9,
+            31, 30, 30,
+            20, -1, 20,
+            11, -1, 8,
         ];
         assert_n_steps(cells.clone(), expected, 90, min_cell, max_cell);
 
         #[rustfmt::skip]
         let expected = vec![
-            31, 31, 29,
+            30, 31, 30,
             21, -1, 19,
             10, -1, 9,
         ];
@@ -547,9 +550,28 @@ mod tests {
         #[rustfmt::skip]
         let expected = vec![
             31, 30, 30,
-            21, -1, 19,
+            20, -1, 20,
             10, -1, 9,
         ];
         assert_n_steps(cells.clone(), expected, 92, min_cell, max_cell);
+
+        #[rustfmt::skip]
+        let expected = vec![
+            30, 31, 30,
+            20, -1, 20,
+            10, -1, 9,
+        ];
+        let final_expected_loop = expected.clone();
+        assert_n_steps(cells.clone(), expected, 93, min_cell, max_cell);
+
+        #[rustfmt::skip]
+        let expected = vec![
+            31, 29, 31,
+            20, -1, 20,
+            10, -1, 9,
+        ];
+        assert_n_steps(cells.clone(), expected, 94, min_cell, max_cell);
+
+        assert_n_steps(cells.clone(), final_expected_loop, 95, min_cell, max_cell);
     }
 }
