@@ -1,6 +1,5 @@
-
-use TileType::*;
 pub use i32 as Pressure;
+use TileType::*;
 
 #[derive(Clone, Copy)]
 pub struct Cell {

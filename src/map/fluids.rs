@@ -1,10 +1,10 @@
-use crate::IVec3;
-use crate::map::{
-    cell::is_liquid, cell::is_liquid_or_air, CellCubeIterator, CellIndex, Map, cell::Pressure,
-    TileType,
-};
 use crate::map::chunk::cell_iter::CellIterItem;
 use crate::map::ref_mut_iterator::RefMutIterator;
+use crate::map::{
+    cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, CellCubeIterator, CellIndex, Map,
+    TileType,
+};
+use crate::IVec3;
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
@@ -15,50 +15,50 @@ pub fn advance_fluid(map: &mut Map) {
     advance_fluid_downwards(map);
     advance_fluid_sideways(map);
     advance_fluid_upwards(map);
-/*
-    for (cell_index, cell) in &*map {
-        if is_liquid(cell.tile_type) {
-            let current_pressure = cell.pressure;
-            let next_pressure = cell.next_pressure;
-            let mut flow = Vec::new();
-            let mut add_flow_direction = |dir: CellIndex, map: &Map| {
-                if is_valid(cell_index + dir, map) {
-                    let adjacent_cell = map.get_cell(cell_index + dir);
-                    if adjacent_cell.pressure < current_pressure + next_pressure {
-                        flow.push(dir);
-                    }
-                }
-            };
-            add_flow_direction(xp, map);
-            add_flow_direction(xn, map);
-            add_flow_direction(zp, map);
-            add_flow_direction(zn, map);
-            // +1: make it dynamic. Otherwise it will be stable (stable means including oneself
-            // when giving out pressure)
-            prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
-        }
-    }
-    for (cell_index, cell) in &*map {
-        if is_liquid(cell.tile_type) {
-            let current_pressure = cell.pressure;
-            let next_pressure = cell.next_pressure;
-            let mut flow = Vec::new();
-            let dir = yp;
-            if is_valid(cell_index + dir, map) {
-                let adjacent_cell = map.get_cell(cell_index + dir);
-                if adjacent_cell.pressure + 1
-                    < (current_pressure + next_pressure - VERTICAL_PRESSURE_DIFFERENCE)
-                {
-                    flow.push(dir);
-                }
-            }
-            prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
-        }
-    }
+    /*
+       for (cell_index, cell) in &*map {
+           if is_liquid(cell.tile_type) {
+               let current_pressure = cell.pressure;
+               let next_pressure = cell.next_pressure;
+               let mut flow = Vec::new();
+               let mut add_flow_direction = |dir: CellIndex, map: &Map| {
+                   if is_valid(cell_index + dir, map) {
+                       let adjacent_cell = map.get_cell(cell_index + dir);
+                       if adjacent_cell.pressure < current_pressure + next_pressure {
+                           flow.push(dir);
+                       }
+                   }
+               };
+               add_flow_direction(xp, map);
+               add_flow_direction(xn, map);
+               add_flow_direction(zp, map);
+               add_flow_direction(zn, map);
+               // +1: make it dynamic. Otherwise it will be stable (stable means including oneself
+               // when giving out pressure)
+               prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
+           }
+       }
+       for (cell_index, cell) in &*map {
+           if is_liquid(cell.tile_type) {
+               let current_pressure = cell.pressure;
+               let next_pressure = cell.next_pressure;
+               let mut flow = Vec::new();
+               let dir = yp;
+               if is_valid(cell_index + dir, map) {
+                   let adjacent_cell = map.get_cell(cell_index + dir);
+                   if adjacent_cell.pressure + 1
+                       < (current_pressure + next_pressure - VERTICAL_PRESSURE_DIFFERENCE)
+                   {
+                       flow.push(dir);
+                   }
+               }
+               prepare_next_pressure(map, cell_index, current_pressure, next_pressure, flow);
+           }
+       }
 
-    swap_next_pressure_to_current(map, min_cell, max_cell)
+       swap_next_pressure_to_current(map, min_cell, max_cell)
 
- */
+    */
 }
 
 fn advance_fluid_downwards(map: &mut Map) {
@@ -71,10 +71,20 @@ fn advance_fluid_downwards(map: &mut Map) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
             let pressure_threshold = -VERTICAL_PRESSURE_DIFFERENCE;
-            flow_outwards(map, cell_index + yn, current_pressure, pressure_threshold,
-                          &mut pressure_diff);
-            flow_inwards(map, cell_index + yp, current_pressure, pressure_threshold,
-                          &mut pressure_diff);
+            flow_outwards(
+                map,
+                cell_index + yn,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
+            flow_inwards(
+                map,
+                cell_index + yp,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
             cell.pressure += pressure_diff;
         }
     }
@@ -93,22 +103,62 @@ fn advance_fluid_sideways(map: &mut Map) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
             let pressure_threshold = 0;
-            flow_outwards(map, cell_index + xp, current_pressure, pressure_threshold,
-                          &mut pressure_diff);
-            flow_outwards(map, cell_index + xn, current_pressure, pressure_threshold,
-                          &mut pressure_diff);
-            flow_outwards(map, cell_index + zp, current_pressure, pressure_threshold,
-                          &mut pressure_diff);
-            flow_outwards(map, cell_index + zn, current_pressure, pressure_threshold,
-                          &mut pressure_diff);
-            flow_inwards(map, cell_index + xp, current_pressure, pressure_threshold,
-                         &mut pressure_diff);
-            flow_inwards(map, cell_index + xn, current_pressure, pressure_threshold,
-                         &mut pressure_diff);
-            flow_inwards(map, cell_index + zp, current_pressure, pressure_threshold,
-                         &mut pressure_diff);
-            flow_inwards(map, cell_index + zn, current_pressure, pressure_threshold,
-                         &mut pressure_diff);
+            flow_outwards(
+                map,
+                cell_index + xp,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
+            flow_outwards(
+                map,
+                cell_index + xn,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
+            flow_outwards(
+                map,
+                cell_index + zp,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
+            flow_outwards(
+                map,
+                cell_index + zn,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
+            flow_inwards(
+                map,
+                cell_index + xp,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
+            flow_inwards(
+                map,
+                cell_index + xn,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
+            flow_inwards(
+                map,
+                cell_index + zp,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
+            flow_inwards(
+                map,
+                cell_index + zn,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
             cell.pressure += pressure_diff;
         }
     }
@@ -125,10 +175,20 @@ fn advance_fluid_upwards(map: &mut Map) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
             let pressure_threshold = VERTICAL_PRESSURE_DIFFERENCE;
-            flow_outwards(map, cell_index + yp, current_pressure, pressure_threshold,
-                          &mut pressure_diff);
-            flow_inwards(map, cell_index + yn, current_pressure, pressure_threshold,
-                          &mut pressure_diff);
+            flow_outwards(
+                map,
+                cell_index + yp,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
+            flow_inwards(
+                map,
+                cell_index + yn,
+                current_pressure,
+                pressure_threshold,
+                &mut pressure_diff,
+            );
             cell.pressure += pressure_diff;
         }
     }
@@ -140,7 +200,7 @@ fn flow_outwards(
     adjacent_index: CellIndex,
     current_pressure: Pressure,
     pressure_threshold: Pressure,
-    pressure_diff: &mut Pressure
+    pressure_diff: &mut Pressure,
 ) {
     if is_valid(adjacent_index, map) {
         let adjacent_cell = map.get_cell(adjacent_index);
@@ -155,7 +215,7 @@ fn flow_inwards(
     adjacent_index: CellIndex,
     current_pressure: Pressure,
     pressure_threshold: Pressure,
-    pressure_diff: &mut Pressure
+    pressure_diff: &mut Pressure,
 ) {
     if is_valid(adjacent_index, map) {
         let adjacent_cell = map.get_cell(adjacent_index);

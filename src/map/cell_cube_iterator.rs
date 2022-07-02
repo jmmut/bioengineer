@@ -1,5 +1,5 @@
-use std::cmp::{max, min};
 use crate::map::CellIndex;
+use std::cmp::{max, min};
 
 pub struct CellCubeIterator {
     min_cell: CellIndex,

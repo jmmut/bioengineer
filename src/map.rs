@@ -1,11 +1,11 @@
+mod cell;
+mod cell_cube_iterator;
 mod chunk;
 mod fluids;
 mod map_iterator;
+mod ref_mut_iterator;
 pub mod transform_cells;
 pub mod trunc;
-mod ref_mut_iterator;
-mod cell_cube_iterator;
-mod cell;
 
 use crate::map::chunk::{get_chunk_index, get_required_chunks};
 use crate::{now, IVec3};
@@ -16,7 +16,7 @@ use std::collections::HashMap;
 use trunc::trunc_towards_neg_inf;
 
 // use crate::map::map_iterator::MapIterator;
-pub use crate::map::cell::{Cell, is_liquid_or_air, TileType};
+pub use crate::map::cell::{is_liquid_or_air, Cell, TileType};
 pub use crate::map::cell_cube_iterator::CellCubeIterator;
 use crate::map::map_iterator::MutMapIterator;
 
@@ -177,7 +177,6 @@ fn choose_tile(value: f64, cell_index: CellIndex) -> TileType {
         FloorDirt
     }
 }
-
 
 #[cfg(test)]
 mod tests {

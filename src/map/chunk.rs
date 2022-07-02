@@ -10,14 +10,16 @@ const SIZE_Y_I32: i32 = SIZE_Y as i32;
 const SIZE_Z_I32: i32 = SIZE_Z as i32;
 pub const SIZE: usize = SIZE_X * SIZE_Y * SIZE_Z;
 
-use std::collections::HashMap;
 use super::trunc::trunc_towards_neg_inf;
 use super::{Cell, CellIndex};
-use crate::IVec3;
-use std::slice::Iter;
 pub use crate::map::chunk::cell_iter::CellIter;
-use crate::map::chunk::chunk_cell_index_iter::{chunk_local_index_to_global_index, ChunkCellIndexIter};
+use crate::map::chunk::chunk_cell_index_iter::{
+    chunk_local_index_to_global_index, ChunkCellIndexIter,
+};
 use crate::map::ref_mut_iterator::RefMutIterator;
+use crate::IVec3;
+use std::collections::HashMap;
+use std::slice::Iter;
 
 pub type ChunkIndex = IVec3;
 
@@ -40,7 +42,7 @@ impl Chunk {
         ))
     }
     pub fn new_from_cells(cells: Vec<Cell>, origin: CellIndex) -> Self {
-        Self {cells, origin}
+        Self { cells, origin }
     }
     pub fn get_cell(&self, index: CellIndex) -> &Cell {
         self.cells.get(get_cell_inner_index(index)).unwrap()
@@ -275,7 +277,6 @@ mod tests {
             SIZE_X * SIZE_Z + SIZE_X + 1
         );
     }
-
 
     fn assert_reverse_index(n: usize) {
         assert_eq!(get_cell_inner_index(get_cell_index(n)), n);

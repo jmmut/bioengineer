@@ -1,4 +1,3 @@
-
 /// This is a trait like Iterator but works for mutating the elements being iterated.
 /// Of course, this trait can't be used with `for` loops, but can be used like this:
 /// ```
@@ -42,11 +41,14 @@ mod tests {
         }
 
         pub fn from_iter(iter: MyIter) -> Self {
-            MyList {vec: iter.vec }
+            MyList { vec: iter.vec }
         }
 
         pub fn iter_mut(self) -> MyIter {
-            MyIter { vec: self.vec, i: -1 }
+            MyIter {
+                vec: self.vec,
+                i: -1,
+            }
         }
     }
 
@@ -62,7 +64,9 @@ mod tests {
     impl<'a> RefMutIterator<'a, IterElem<'a>> for MyIter {
         fn next(&'a mut self) -> Option<IterElem<'a>> {
             self.i += 1;
-            self.vec.get_mut(self.i as usize).map(|i| IterElem { ref_value: i})
+            self.vec
+                .get_mut(self.i as usize)
+                .map(|i| IterElem { ref_value: i })
         }
     }
 
