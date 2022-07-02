@@ -64,27 +64,16 @@ pub fn advance_fluid(map: &mut Map) {
 fn advance_fluid_downwards(map: &mut Map) {
     let yp = CellIndex::new(0, 1, 0);
     let yn = CellIndex::new(0, -1, 0);
+    let pressure_threshold = -VERTICAL_PRESSURE_DIFFERENCE;
+    let flow = Flow::new(map, pressure_threshold);
     let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
         if is_liquid(cell.tile_type) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
-            let pressure_threshold = -VERTICAL_PRESSURE_DIFFERENCE;
-            flow_outwards(
-                map,
-                cell_index + yn,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
-            flow_inwards(
-                map,
-                cell_index + yp,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
+            flow.flow_outwards(cell_index + yn, current_pressure, &mut pressure_diff);
+            flow.flow_inwards(cell_index + yp, current_pressure, &mut pressure_diff);
             cell.pressure += pressure_diff;
         }
     }
@@ -96,69 +85,22 @@ fn advance_fluid_sideways(map: &mut Map) {
     let xn = CellIndex::new(-1, 0, 0);
     let zp = CellIndex::new(0, 0, 1);
     let zn = CellIndex::new(0, 0, -1);
+    let pressure_threshold = 0;
+    let flow = Flow::new(map, pressure_threshold);
     let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
         if is_liquid(cell.tile_type) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
-            let pressure_threshold = 0;
-            flow_outwards(
-                map,
-                cell_index + xp,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
-            flow_outwards(
-                map,
-                cell_index + xn,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
-            flow_outwards(
-                map,
-                cell_index + zp,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
-            flow_outwards(
-                map,
-                cell_index + zn,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
-            flow_inwards(
-                map,
-                cell_index + xp,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
-            flow_inwards(
-                map,
-                cell_index + xn,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
-            flow_inwards(
-                map,
-                cell_index + zp,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
-            flow_inwards(
-                map,
-                cell_index + zn,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
+            flow.flow_outwards(cell_index + xp, current_pressure, &mut pressure_diff);
+            flow.flow_outwards(cell_index + xn, current_pressure, &mut pressure_diff);
+            flow.flow_outwards(cell_index + zp, current_pressure, &mut pressure_diff);
+            flow.flow_outwards(cell_index + zn, current_pressure, &mut pressure_diff);
+            flow.flow_inwards(cell_index + xp, current_pressure, &mut pressure_diff);
+            flow.flow_inwards(cell_index + xn, current_pressure, &mut pressure_diff);
+            flow.flow_inwards(cell_index + zp, current_pressure, &mut pressure_diff);
+            flow.flow_inwards(cell_index + zn, current_pressure, &mut pressure_diff);
             cell.pressure += pressure_diff;
         }
     }
@@ -168,62 +110,60 @@ fn advance_fluid_sideways(map: &mut Map) {
 fn advance_fluid_upwards(map: &mut Map) {
     let yp = CellIndex::new(0, 1, 0);
     let yn = CellIndex::new(0, -1, 0);
+    let pressure_threshold = VERTICAL_PRESSURE_DIFFERENCE;
+    let flow = Flow::new(map, pressure_threshold);
     let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
         if is_liquid(cell.tile_type) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
-            let pressure_threshold = VERTICAL_PRESSURE_DIFFERENCE;
-            flow_outwards(
-                map,
-                cell_index + yp,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
-            flow_inwards(
-                map,
-                cell_index + yn,
-                current_pressure,
-                pressure_threshold,
-                &mut pressure_diff,
-            );
+            flow.flow_outwards(cell_index + yp, current_pressure, &mut pressure_diff);
+            flow.flow_inwards(cell_index + yn, current_pressure, &mut pressure_diff);
             cell.pressure += pressure_diff;
         }
     }
     *map = Map::new_from_iter(iter);
 }
 
-fn flow_outwards(
-    map: &Map,
-    adjacent_index: CellIndex,
-    current_pressure: Pressure,
+struct Flow<'a> {
+    map: &'a Map,
     pressure_threshold: Pressure,
-    pressure_diff: &mut Pressure,
-) {
-    if is_valid(adjacent_index, map) {
-        let adjacent_cell = map.get_cell(adjacent_index);
-        if (current_pressure - adjacent_cell.pressure) > pressure_threshold {
-            *pressure_diff -= 1;
+}
+
+impl<'a> Flow<'a> {
+    pub fn new(map: &'a Map, pressure_threshold: Pressure) -> Self {
+        Flow { map, pressure_threshold }
+    }
+
+    fn flow_outwards(
+        &self,
+        adjacent_index: CellIndex,
+        current_pressure: Pressure,
+        pressure_diff: &mut Pressure,
+    ) {
+        if is_valid(adjacent_index, self.map) {
+            let adjacent_cell = self.map.get_cell(adjacent_index);
+            if (current_pressure - adjacent_cell.pressure) > self.pressure_threshold {
+                *pressure_diff -= 1;
+            }
+        }
+    }
+
+    fn flow_inwards(&self,
+        adjacent_index: CellIndex,
+        current_pressure: Pressure,
+        pressure_diff: &mut Pressure,
+    ) {
+        if is_valid(adjacent_index, self.map) {
+            let adjacent_cell = self.map.get_cell(adjacent_index);
+            if (adjacent_cell.pressure - current_pressure) > self.pressure_threshold {
+                *pressure_diff += 1;
+            }
         }
     }
 }
 
-fn flow_inwards(
-    map: &Map,
-    adjacent_index: CellIndex,
-    current_pressure: Pressure,
-    pressure_threshold: Pressure,
-    pressure_diff: &mut Pressure,
-) {
-    if is_valid(adjacent_index, map) {
-        let adjacent_cell = map.get_cell(adjacent_index);
-        if (adjacent_cell.pressure - current_pressure) > pressure_threshold {
-            *pressure_diff += 1;
-        }
-    }
-}
 
 // TODO: optimize one cell fetch. here and where this is called we do a redundant get_cell
 fn is_valid(cell_index: CellIndex, map: &Map) -> bool {
