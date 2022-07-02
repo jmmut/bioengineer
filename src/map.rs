@@ -3,6 +3,7 @@ mod fluids;
 // mod map_iterator;
 pub mod transform_cells;
 pub mod trunc;
+mod ref_mut_iterator;
 
 use crate::map::chunk::{chunk_local_index_to_global_index, get_chunk_index, get_required_chunks};
 use crate::map::TileType::{

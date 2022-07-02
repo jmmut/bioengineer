@@ -11,6 +11,7 @@ use super::trunc::trunc_towards_neg_inf;
 use super::{Cell, CellIndex};
 use crate::IVec3;
 use std::slice::Iter;
+use crate::map::ref_mut_iterator::RefMutIterator;
 
 pub type ChunkIndex = IVec3;
 
@@ -113,9 +114,6 @@ pub struct CellIterItem<'a> {
     cell: &'a mut Cell,
 }
 
-pub trait RefMutIterator<'a, T> {
-    fn next(&'a mut self) -> Option<T>;
-}
 
 impl<'a> RefMutIterator<'a, CellIterItem<'a>> for &mut CellIter {
     fn next(&'a mut self) -> Option<CellIterItem<'a>> {
