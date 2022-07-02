@@ -98,7 +98,7 @@ fn advance_fluid_sideways(map: &mut Map) {
             flow.flow_outwards(cell_index + zp, current_pressure, &mut pressure_diff);
             flow.flow_outwards(cell_index + zn, current_pressure, &mut pressure_diff);
             let next_pressure = pressure_diff + cell.pressure;
-            cell.can_flow_out = next_pressure >= 0;
+            cell.can_flow_out = next_pressure > 0;
             if cell.can_flow_out {
                 cell.next_pressure = next_pressure;
             } else {
@@ -275,7 +275,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_fluid() {
+    fn test_basic_2d_top_view() {
         #[rustfmt::skip]
         let cells = vec![
             0, 0, 0,
@@ -343,7 +343,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_3d() {
+    fn test_basic_2d_side_view() {
         #[rustfmt::skip]
         let cells = vec![
             50, 0, 0,
@@ -443,7 +443,7 @@ mod tests {
     }
 
     #[test]
-    fn test_many_iterations_3d() {
+    fn test_many_iterations_2d_side_view() {
         let min_cell = CellIndex::new(0, 0, 0);
         let max_cell = CellIndex::new(0, 2, 2);
         #[rustfmt::skip]
