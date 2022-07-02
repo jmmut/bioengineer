@@ -13,11 +13,8 @@ pub fn advance_fluid(map: &mut Map) {
     let max_cell = map.max_cell();
 
     advance_fluid_downwards(map);
+    advance_fluid_sideways(map);
 /*
-    let xp = CellIndex::new(1, 0, 0);
-    let xn = CellIndex::new(-1, 0, 0);
-    let zp = CellIndex::new(0, 0, 1);
-    let zn = CellIndex::new(0, 0, -1);
     for (cell_index, cell) in &*map {
         if is_liquid(cell.tile_type) {
             let current_pressure = cell.pressure;
@@ -92,6 +89,71 @@ fn advance_fluid_downwards(map: &mut Map) {
     *map = Map::new_from_iter(iter);
 }
 
+fn advance_fluid_sideways(map: &mut Map) {
+    let xp = CellIndex::new(1, 0, 0);
+    let xn = CellIndex::new(-1, 0, 0);
+    let zp = CellIndex::new(0, 0, 1);
+    let zn = CellIndex::new(0, 0, -1);
+    let updated_map = map.clone();
+    let mut iter = updated_map.iter_mut();
+    while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
+        if is_liquid(cell.tile_type) {
+            let current_pressure = cell.pressure;
+            let mut pressure_diff = 0;
+            let pressure_threshold = 0;
+            flow_outwards(map, cell_index + xp, &current_pressure, pressure_threshold,
+                          &mut pressure_diff);
+            flow_outwards(map, cell_index + xn, &current_pressure, pressure_threshold,
+                          &mut pressure_diff);
+            flow_outwards(map, cell_index + zp, &current_pressure, pressure_threshold,
+                          &mut pressure_diff);
+            flow_outwards(map, cell_index + zn, &current_pressure, pressure_threshold,
+                          &mut pressure_diff);
+            flow_inwards(map, cell_index + xp, &current_pressure, pressure_threshold,
+                         &mut pressure_diff);
+            flow_inwards(map, cell_index + xn, &current_pressure, pressure_threshold,
+                         &mut pressure_diff);
+            flow_inwards(map, cell_index + zp, &current_pressure, pressure_threshold,
+                         &mut pressure_diff);
+            flow_inwards(map, cell_index + zn, &current_pressure, pressure_threshold,
+                         &mut pressure_diff);
+            cell.pressure += pressure_diff;
+        }
+    }
+    *map = Map::new_from_iter(iter);
+}
+
+fn flow_outwards(
+    map: &Map,
+    adjacent_index: CellIndex,
+    current_pressure: &Pressure,
+    pressure_threshold: Pressure,
+    pressure_diff: &mut Pressure
+) {
+    if is_valid(adjacent_index, map) {
+        let adjacent_cell = map.get_cell(adjacent_index);
+        if (current_pressure - adjacent_cell.pressure) > pressure_threshold {
+            *pressure_diff -= 1;
+        }
+    }
+}
+
+fn flow_inwards(
+    map: &Map,
+    adjacent_index: CellIndex,
+    current_pressure: &Pressure,
+    pressure_threshold: Pressure,
+    pressure_diff: &mut Pressure
+) {
+    if is_valid(adjacent_index, map) {
+        let adjacent_cell = map.get_cell(adjacent_index);
+        if (adjacent_cell.pressure - current_pressure) > pressure_threshold {
+            *pressure_diff += 1;
+        }
+    }
+}
+
+// TODO: optimize one cell fetch. here and where this is called we do a redundant get_cell
 fn is_valid(cell_index: CellIndex, map: &Map) -> bool {
     map.in_range(cell_index) && is_liquid_or_air(map.get_cell(cell_index).tile_type)
 }
