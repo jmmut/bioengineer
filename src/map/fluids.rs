@@ -14,6 +14,7 @@ pub fn advance_fluid(map: &mut Map) {
 
     advance_fluid_downwards(map);
     advance_fluid_sideways(map);
+    advance_fluid_upwards(map);
 /*
     for (cell_index, cell) in &*map {
         if is_liquid(cell.tile_type) {
@@ -101,22 +102,42 @@ fn advance_fluid_sideways(map: &mut Map) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
             let pressure_threshold = 0;
-            flow_outwards(map, cell_index + xp, &current_pressure, pressure_threshold,
+            flow_outwards(map, cell_index + xp, current_pressure, pressure_threshold,
                           &mut pressure_diff);
-            flow_outwards(map, cell_index + xn, &current_pressure, pressure_threshold,
+            flow_outwards(map, cell_index + xn, current_pressure, pressure_threshold,
                           &mut pressure_diff);
-            flow_outwards(map, cell_index + zp, &current_pressure, pressure_threshold,
+            flow_outwards(map, cell_index + zp, current_pressure, pressure_threshold,
                           &mut pressure_diff);
-            flow_outwards(map, cell_index + zn, &current_pressure, pressure_threshold,
+            flow_outwards(map, cell_index + zn, current_pressure, pressure_threshold,
                           &mut pressure_diff);
-            flow_inwards(map, cell_index + xp, &current_pressure, pressure_threshold,
+            flow_inwards(map, cell_index + xp, current_pressure, pressure_threshold,
                          &mut pressure_diff);
-            flow_inwards(map, cell_index + xn, &current_pressure, pressure_threshold,
+            flow_inwards(map, cell_index + xn, current_pressure, pressure_threshold,
                          &mut pressure_diff);
-            flow_inwards(map, cell_index + zp, &current_pressure, pressure_threshold,
+            flow_inwards(map, cell_index + zp, current_pressure, pressure_threshold,
                          &mut pressure_diff);
-            flow_inwards(map, cell_index + zn, &current_pressure, pressure_threshold,
+            flow_inwards(map, cell_index + zn, current_pressure, pressure_threshold,
                          &mut pressure_diff);
+            cell.pressure += pressure_diff;
+        }
+    }
+    *map = Map::new_from_iter(iter);
+}
+
+fn advance_fluid_upwards(map: &mut Map) {
+    let yp = CellIndex::new(0, 1, 0);
+    let yn = CellIndex::new(0, -1, 0);
+    let updated_map = map.clone();
+    let mut iter = updated_map.iter_mut();
+    while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
+        if is_liquid(cell.tile_type) {
+            let current_pressure = cell.pressure;
+            let mut pressure_diff = 0;
+            let pressure_threshold = VERTICAL_PRESSURE_DIFFERENCE;
+            flow_outwards(map, cell_index + yp, current_pressure, pressure_threshold,
+                          &mut pressure_diff);
+            flow_inwards(map, cell_index + yn, current_pressure, pressure_threshold,
+                          &mut pressure_diff);
             cell.pressure += pressure_diff;
         }
     }
@@ -126,7 +147,7 @@ fn advance_fluid_sideways(map: &mut Map) {
 fn flow_outwards(
     map: &Map,
     adjacent_index: CellIndex,
-    current_pressure: &Pressure,
+    current_pressure: Pressure,
     pressure_threshold: Pressure,
     pressure_diff: &mut Pressure
 ) {
@@ -141,7 +162,7 @@ fn flow_outwards(
 fn flow_inwards(
     map: &Map,
     adjacent_index: CellIndex,
-    current_pressure: &Pressure,
+    current_pressure: Pressure,
     pressure_threshold: Pressure,
     pressure_diff: &mut Pressure
 ) {
@@ -385,13 +406,13 @@ mod tests {
 
         assert!(
             !result_downwards_stable,
-            "We never want to make downwards flow stable.\
+            "We never want to make downwards flow stable. \
                     It would make a column of 1-pressure water."
         );
 
         assert!(
             result_upwards_stable,
-            "We always want to make upwards flow stable.\
+            "We always want to make upwards flow stable. \
                     Otherwise it would likely create and remove a water tile above."
         );
         assert!(!result_horizontal_stable);
