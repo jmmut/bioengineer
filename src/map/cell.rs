@@ -6,6 +6,7 @@ pub struct Cell {
     pub tile_type: TileType,
     pub pressure: Pressure,
     pub next_pressure: Pressure,
+    pub can_flow_out: bool,
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
@@ -52,6 +53,7 @@ impl Cell {
             tile_type,
             pressure: 0,
             next_pressure: 0,
+            can_flow_out: false
         }
     }
 }

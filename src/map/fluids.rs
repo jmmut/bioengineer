@@ -97,11 +97,30 @@ fn advance_fluid_sideways(map: &mut Map) {
             flow.flow_outwards(cell_index + xn, current_pressure, &mut pressure_diff);
             flow.flow_outwards(cell_index + zp, current_pressure, &mut pressure_diff);
             flow.flow_outwards(cell_index + zn, current_pressure, &mut pressure_diff);
-            flow.flow_inwards(cell_index + xp, current_pressure, &mut pressure_diff);
-            flow.flow_inwards(cell_index + xn, current_pressure, &mut pressure_diff);
-            flow.flow_inwards(cell_index + zp, current_pressure, &mut pressure_diff);
-            flow.flow_inwards(cell_index + zn, current_pressure, &mut pressure_diff);
-            cell.pressure += pressure_diff;
+            let next_pressure = pressure_diff + cell.pressure;
+            cell.can_flow_out = next_pressure >= 0;
+            if cell.can_flow_out {
+                cell.next_pressure = next_pressure;
+            } else {
+                cell.next_pressure = cell.pressure
+            }
+        }
+    }
+    *map = Map::new_from_iter(iter);
+    let updated_map = map.clone();
+    let flow = Flow::new(map, pressure_threshold);
+    let mut iter = updated_map.iter_mut();
+    while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
+        if is_liquid(cell.tile_type) {
+            let current_pressure = cell.pressure;
+            let mut pressure_diff = 0;
+            flow.maybe_flow_inwards(cell_index + xp, current_pressure, &mut pressure_diff);
+            flow.maybe_flow_inwards(cell_index + xn, current_pressure, &mut pressure_diff);
+            flow.maybe_flow_inwards(cell_index + zp, current_pressure, &mut pressure_diff);
+            flow.maybe_flow_inwards(cell_index + zn, current_pressure, &mut pressure_diff);
+            cell.pressure = cell.next_pressure + pressure_diff;
+            cell.next_pressure = 0;
+            cell.can_flow_out = false;
         }
     }
     *map = Map::new_from_iter(iter);
@@ -158,6 +177,20 @@ impl<'a> Flow<'a> {
         if is_valid(adjacent_index, self.map) {
             let adjacent_cell = self.map.get_cell(adjacent_index);
             if (adjacent_cell.pressure - current_pressure) > self.pressure_threshold {
+                *pressure_diff += 1;
+            }
+        }
+    }
+
+    fn maybe_flow_inwards(&self,
+        adjacent_index: CellIndex,
+        current_pressure: Pressure,
+        pressure_diff: &mut Pressure,
+    ) {
+        if is_valid(adjacent_index, self.map) {
+            let adjacent_cell = self.map.get_cell(adjacent_index);
+            if adjacent_cell.can_flow_out
+                    && ((adjacent_cell.pressure - current_pressure) > self.pressure_threshold) {
                 *pressure_diff += 1;
             }
         }
@@ -368,7 +401,7 @@ mod tests {
             0, 4, 0,
             0, 0, 0,
         ];
-        let result_horizontal_stable = panic::catch_unwind(|| {
+        let result_sideways_stable = panic::catch_unwind(|| {
             assert_steps_2x2(vec![cells, expected]);
         })
         .is_ok();
@@ -406,7 +439,7 @@ mod tests {
             "We always want to make upwards flow stable. \
                     Otherwise it would likely create and remove a water tile above."
         );
-        assert!(!result_horizontal_stable);
+        assert!(!result_sideways_stable);
     }
 
     #[test]
