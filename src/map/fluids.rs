@@ -1,5 +1,6 @@
 use crate::map::{
-    is_liquid, is_liquid_or_air, CellCubeIterator, CellIndex, Map, Pressure, TileType,
+    cell::is_liquid, cell::is_liquid_or_air, CellCubeIterator, CellIndex, Map, cell::Pressure,
+    TileType,
 };
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;

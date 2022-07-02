@@ -1,8 +1,9 @@
-use crate::map::chunk::{CellIter, Chunk, ChunkCellIndexIter, ChunkIndex};
+use crate::map::chunk::{CellIter, Chunk, ChunkIndex};
 use crate::map::{Cell, CellIndex, Map};
 use std::collections::hash_map::Iter;
 use std::collections::HashMap;
 
+/*
 /// Note that this iterator needs a &Map. That is, iterate a map by reference:
 /// ```rust
 ///     let map = Map::new_for_cube(
@@ -57,6 +58,21 @@ impl Iterator for MapIterator<'_> {
     }
 }
 
+*/
+
+
+pub struct MutMapIterator {
+    chunks: HashMap<ChunkIndex, Chunk>,
+    chunk_iterator: Iter<'a, ChunkIndex, Chunk>,
+    cell_iterator: CellIter,
+}
+
+impl MutMapIterator {
+    pub fn new(chunks: HashMap<ChunkIndex, Chunk>) -> Self {
+        MutMapIterator { chunks, chunk_iterator: (), cell_iterator: () }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::map::{chunk, Cell, CellIndex, Map};
@@ -87,4 +103,20 @@ mod tests {
         }
         assert_eq!(i, 2 * chunk::SIZE);
     }
+
+
+    #[test]
+    fn test_basic_mut_map_iterator() {
+        let map = Map::new_for_cube(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));
+        let mut i = 0;
+        let mut sum_pressure = 0;
+        for (cell_index, cell) in map.mut_iter() {
+            cell.pressure += 10;
+            sum_pressure += cell.pressure;
+            i += 1;
+        }
+        assert_eq!(i, chunk::SIZE);
+        assert_eq!(map.get_cell(CellIndex::new(0, 0, 0)).pressure, 10)
+    }
+
 }
