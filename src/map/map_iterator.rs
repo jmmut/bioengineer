@@ -1,8 +1,8 @@
 use crate::map::chunk::cell_iter::CellIterItem;
-use crate::map::chunk::{get_chunk_index, CellIter, Chunk, ChunkIndex};
+use crate::map::chunk::{CellIter, Chunk, ChunkIndex};
 use crate::map::ref_mut_iterator::RefMutIterator;
-use crate::map::{Cell, CellIndex, Map};
-use std::collections::hash_map::{IntoIter, Iter};
+use crate::map::{CellIndex, Map};
+use std::collections::hash_map::IntoIter;
 use std::collections::HashMap;
 
 /*
@@ -72,7 +72,7 @@ pub struct MutMapIterator {
 
 impl MutMapIterator {
     pub fn new(
-        mut chunks: HashMap<ChunkIndex, Chunk>,
+        chunks: HashMap<ChunkIndex, Chunk>,
         min_cell: CellIndex,
         max_cell: CellIndex,
     ) -> Self {
@@ -147,11 +147,15 @@ mod tests {
 
     #[test]
     fn test_basic_mut_map_iterator() {
-        let mut map = Map::new_for_cube(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));
+        let map = Map::new_for_cube(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));
         let mut i = 0;
         let mut sum_pressure = 0;
         let mut iter = map.iter_mut();
-        while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
+        while let Option::Some(item) = iter.next() {
+            let CellIterItem {
+                cell_index: _cell_index,
+                cell,
+            } = item;
             cell.pressure += 10;
             sum_pressure += cell.pressure;
             i += 1;

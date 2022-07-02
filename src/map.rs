@@ -11,7 +11,6 @@ use crate::map::chunk::{get_chunk_index, get_required_chunks};
 use crate::{now, IVec3};
 use chunk::{Chunk, ChunkIndex};
 use opensimplex_noise_rs::OpenSimplexNoise;
-use std::cmp::{max, min};
 use std::collections::HashMap;
 use trunc::trunc_towards_neg_inf;
 

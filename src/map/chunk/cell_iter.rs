@@ -63,7 +63,11 @@ mod tests {
         let mut i = 0;
         let mut iter = chunk.into_iter_mut();
         let mut sum_pressures = 0;
-        while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
+        while let Option::Some(item) = iter.next() {
+            let CellIterItem {
+                cell_index: _cell_index,
+                cell,
+            } = item;
             cell.pressure += 1;
             sum_pressures += cell.pressure;
             i += 1;

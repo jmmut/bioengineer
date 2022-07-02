@@ -4,12 +4,10 @@ use crate::map::{
     cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, CellCubeIterator, CellIndex, Map,
     TileType,
 };
-use crate::IVec3;
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
 pub fn advance_fluid(map: &mut Map) {
-
     advance_fluid_downwards(map);
     advance_fluid_sideways(map);
     advance_fluid_upwards(map);
@@ -174,7 +172,10 @@ struct Flow<'a> {
 
 impl<'a> Flow<'a> {
     pub fn new(map: &'a Map, pressure_threshold: Pressure) -> Self {
-        Flow { map, pressure_threshold }
+        Flow {
+            map,
+            pressure_threshold,
+        }
     }
 
     fn flow_outwards(
@@ -191,7 +192,8 @@ impl<'a> Flow<'a> {
         }
     }
 
-    fn flow_inwards(&self,
+    fn flow_inwards(
+        &self,
         adjacent_index: CellIndex,
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
@@ -199,13 +201,15 @@ impl<'a> Flow<'a> {
         if is_valid(adjacent_index, self.map) {
             let adjacent_cell = self.map.get_cell(adjacent_index);
             if adjacent_cell.pressure > 0
-                    && (adjacent_cell.pressure - current_pressure) > self.pressure_threshold {
+                && (adjacent_cell.pressure - current_pressure) > self.pressure_threshold
+            {
                 *pressure_diff += 1;
             }
         }
     }
 
-    fn maybe_flow_inwards(&self,
+    fn maybe_flow_inwards(
+        &self,
         adjacent_index: CellIndex,
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
@@ -213,19 +217,20 @@ impl<'a> Flow<'a> {
         if is_valid(adjacent_index, self.map) {
             let adjacent_cell = self.map.get_cell(adjacent_index);
             if adjacent_cell.can_flow_out
-                    && ((adjacent_cell.pressure - current_pressure) > self.pressure_threshold) {
+                && ((adjacent_cell.pressure - current_pressure) > self.pressure_threshold)
+            {
                 *pressure_diff += 1;
             }
         }
     }
 }
 
-
 // TODO: optimize one cell fetch. here and where this is called we do a redundant get_cell
 fn is_valid(cell_index: CellIndex, map: &Map) -> bool {
     map.in_range(cell_index) && is_liquid_or_air(map.get_cell(cell_index).tile_type)
 }
 
+#[allow(unused)]
 fn swap_next_pressure_to_current(map: &mut Map, min_cell: CellIndex, max_cell: CellIndex) {
     let iter = CellCubeIterator::new(min_cell, max_cell);
     for cell_index in iter {
@@ -573,5 +578,44 @@ mod tests {
         assert_n_steps(cells.clone(), expected, 94, min_cell, max_cell);
 
         assert_n_steps(cells.clone(), final_expected_loop, 95, min_cell, max_cell);
+    }
+
+    mod change_tiles {
+        use super::*;
+
+        #[test]
+        fn test_emptying() {
+            let cells = vec![5, 1];
+            let max_cell = CellIndex::new(0, 1, 0);
+            let min_cell = CellIndex::new(0, 0, 0);
+            let mut map = Map::_new_from_pressures(cells, min_cell, max_cell);
+            advance_fluid(&mut map);
+            assert_eq!(map.get_cell(min_cell).pressure, 6);
+            assert_eq!(
+                map.get_cell(min_cell).tile_type,
+                TileType::DirtyWaterSurface
+            );
+            assert_eq!(map.get_cell(max_cell).pressure, 0);
+            assert_eq!(map.get_cell(max_cell).tile_type, TileType::Air);
+        }
+
+        #[test]
+        fn test_filling() {
+            let cells = vec![20, 0, 0];
+            let max_cell = CellIndex::new(0, 2, 0);
+            let middle_cell = CellIndex::new(0, 1, 0);
+            let min_cell = CellIndex::new(0, 0, 0);
+            let mut map = Map::_new_from_pressures(cells, min_cell, max_cell);
+            advance_fluid(&mut map);
+            assert_eq!(map.get_cell(min_cell).pressure, 19);
+            assert_eq!(map.get_cell(min_cell).tile_type, TileType::DirtyWaterWall);
+            assert_eq!(map.get_cell(middle_cell).pressure, 1);
+            assert_eq!(
+                map.get_cell(middle_cell).tile_type,
+                TileType::DirtyWaterSurface
+            );
+            assert_eq!(map.get_cell(max_cell).pressure, 0);
+            assert_eq!(map.get_cell(max_cell).tile_type, TileType::Air);
+        }
     }
 }

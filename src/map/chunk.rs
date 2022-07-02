@@ -16,10 +16,8 @@ pub use crate::map::chunk::cell_iter::CellIter;
 use crate::map::chunk::chunk_cell_index_iter::{
     chunk_local_index_to_global_index, ChunkCellIndexIter,
 };
-use crate::map::ref_mut_iterator::RefMutIterator;
 use crate::IVec3;
 use std::collections::HashMap;
-use std::slice::Iter;
 
 pub type ChunkIndex = IVec3;
 

@@ -53,7 +53,7 @@ impl Cell {
             tile_type,
             pressure: 0,
             next_pressure: 0,
-            can_flow_out: false
+            can_flow_out: false,
         }
     }
 }
