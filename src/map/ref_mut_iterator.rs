@@ -3,7 +3,7 @@
 /// Of course, this trait can't be used with `for` loops, but can be used like this:
 /// ```
 ///     // iter is something that implements RefMutIterator
-///     while let Option::Some(your_elem) = (&mut iter).next() {
+///     while let Option::Some(your_elem) = iter.next() {
 ///         // mutate your_elem
 ///     }
 ///     // iter is still an owner of the elements here
@@ -72,7 +72,7 @@ mod tests {
         let my_list = MyList::new(n);
         let mut iter = my_list.iter_mut();
         let mut i = 0;
-        while let Option::Some(elem) = (&mut iter).next() {
+        while let Option::Some(elem) = iter.next() {
             *elem.ref_value += 10;
             i += 1;
         }

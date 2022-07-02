@@ -10,6 +10,7 @@ const SIZE_Y_I32: i32 = SIZE_Y as i32;
 const SIZE_Z_I32: i32 = SIZE_Z as i32;
 pub const SIZE: usize = SIZE_X * SIZE_Y * SIZE_Z;
 
+use std::collections::HashMap;
 use super::trunc::trunc_towards_neg_inf;
 use super::{Cell, CellIndex};
 use crate::IVec3;
@@ -50,8 +51,11 @@ impl Chunk {
         ChunkCellIndexIter::new(chunk_index)
     }
 
-    pub fn into_iter(self) -> CellIter {
+    pub fn into_iter_mut(self) -> CellIter {
         CellIter::new(self.cells, self.origin)
+    }
+    pub fn into_hash(self, chunks: &mut HashMap<ChunkIndex, Chunk>) {
+        chunks.insert(get_chunk_index(self.origin), self);
     }
 }
 

@@ -1,7 +1,9 @@
-use crate::map::chunk::{CellIter, Chunk, ChunkIndex};
+use crate::map::chunk::{CellIter, Chunk, ChunkIndex, get_chunk_index};
 use crate::map::{Cell, CellIndex, Map};
-use std::collections::hash_map::Iter;
+use std::collections::hash_map::{IntoIter, Iter};
 use std::collections::HashMap;
+use crate::map::chunk::cell_iter::CellIterItem;
+use crate::map::ref_mut_iterator::RefMutIterator;
 
 /*
 /// Note that this iterator needs a &Map. That is, iterate a map by reference:
@@ -62,61 +64,98 @@ impl Iterator for MapIterator<'_> {
 
 
 pub struct MutMapIterator {
-    chunks: HashMap<ChunkIndex, Chunk>,
-    chunk_iterator: Iter<'a, ChunkIndex, Chunk>,
+    chunk_iterator: IntoIter<ChunkIndex, Chunk>,
     cell_iterator: CellIter,
+    pub collected_chunks: HashMap<ChunkIndex, Chunk>,
+    pub min_cell: CellIndex,
+    pub max_cell: CellIndex,
 }
 
 impl MutMapIterator {
-    pub fn new(chunks: HashMap<ChunkIndex, Chunk>) -> Self {
-        MutMapIterator { chunks, chunk_iterator: (), cell_iterator: () }
+    pub fn new(mut chunks: HashMap<ChunkIndex, Chunk>, min_cell: CellIndex, max_cell: CellIndex)
+            -> Self {
+        let mut chunk_iterator = chunks.into_iter();
+        let optional_chunk = chunk_iterator.next();
+        let cell_iterator = optional_chunk
+            .map(|chunk| chunk.1.into_iter_mut())
+            .unwrap_or(CellIter::default());
+        Self {
+            chunk_iterator,
+            cell_iterator,
+            collected_chunks: HashMap::new(),
+            min_cell,
+            max_cell,
+        }
+    }
+
+    fn advance_to_next_chunk(&mut self) -> Option<CellIterItem> {
+        let optional_chunk = self.chunk_iterator.next();
+        let mut tmp_cell_iterator = optional_chunk
+            .map(|chunk| chunk.1.into_iter_mut())
+            .unwrap_or(CellIter::default());
+        std::mem::swap(&mut tmp_cell_iterator, &mut self.cell_iterator);
+        tmp_cell_iterator.into_chunk().into_hash(&mut self.collected_chunks);
+        self.cell_iterator.next()
+    }
+}
+
+impl<'a> RefMutIterator<'a, CellIterItem<'a>> for MutMapIterator {
+    fn next(&'a mut self) -> Option<CellIterItem<'a>> {
+        if self.cell_iterator.has_next() {
+            self.cell_iterator.next()
+        } else {
+            self.advance_to_next_chunk()
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::map::{chunk, Cell, CellIndex, Map};
+    use crate::map::chunk;
+    use super::*;
+    // #[test]
+    // fn test_basic_map_iterator() {
+    //     let map = Map::new_for_cube(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));
+    //     let mut i = 0;
+    //     let mut sum_pressure = 0;
+    //     for (cell_index, cell) in map.into_iter() {
+    //         sum_pressure += cell.pressure;
+    //         i += 1;
+    //     }
+    //     assert_eq!(i, chunk::SIZE);
+    // }
 
-    #[test]
-    fn test_basic_map_iterator() {
-        let map = Map::new_for_cube(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));
-        let mut i = 0;
-        let mut sum_pressure = 0;
-        for (cell_index, cell) in map.into_iter() {
-            sum_pressure += cell.pressure;
-            i += 1;
-        }
-        assert_eq!(i, chunk::SIZE);
-    }
-
-    #[test]
-    fn test_several_chunk_map_iterator() {
-        let map = Map::new_for_cube(
-            CellIndex::new(0, 0, 0),
-            CellIndex::new(0, 0, chunk::SIZE_X as i32 + 1),
-        );
-        let mut i = 0;
-        let mut sum_pressure = 0;
-        for (cell_index, cell) in &map {
-            sum_pressure += cell.pressure;
-            i += 1;
-        }
-        assert_eq!(i, 2 * chunk::SIZE);
-    }
+    // #[test]
+    // fn test_several_chunk_map_iterator() {
+    //     let map = Map::new_for_cube(
+    //         CellIndex::new(0, 0, 0),
+    //         CellIndex::new(0, 0, chunk::SIZE_X as i32 + 1),
+    //     );
+    //     let mut i = 0;
+    //     let mut sum_pressure = 0;
+    //     for (cell_index, cell) in &map {
+    //         sum_pressure += cell.pressure;
+    //         i += 1;
+    //     }
+    //     assert_eq!(i, 2 * chunk::SIZE);
+    // }
 
 
     #[test]
     fn test_basic_mut_map_iterator() {
-        let map = Map::new_for_cube(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));
+        let mut map = Map::new_for_cube(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));
         let mut i = 0;
         let mut sum_pressure = 0;
-        for (cell_index, cell) in map.mut_iter() {
+        let mut iter = map.iter_mut();
+        while let Option::Some(CellIterItem{cell_index, cell}) = iter.next() {
             cell.pressure += 10;
             sum_pressure += cell.pressure;
             i += 1;
         }
+        let updated_map = Map::new_from_iter(iter);
         assert_eq!(i, chunk::SIZE);
-        assert_eq!(map.get_cell(CellIndex::new(0, 0, 0)).pressure, 10)
+        assert_eq!(sum_pressure, 10 * chunk::SIZE as i32);
+        assert_eq!(updated_map.get_cell(CellIndex::new(0, 0, 0)).pressure, 10)
     }
 
 }

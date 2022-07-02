@@ -48,7 +48,7 @@ pub fn is_liquid_or_air(tile: TileType) -> bool {
 }
 
 impl Cell {
-    fn new(tile_type: TileType) -> Self {
+    pub fn new(tile_type: TileType) -> Self {
         Cell {
             tile_type,
             pressure: 0,

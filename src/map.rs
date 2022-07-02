@@ -18,6 +18,7 @@ use trunc::trunc_towards_neg_inf;
 // use crate::map::map_iterator::MapIterator;
 pub use crate::map::cell::{Cell, is_liquid_or_air, TileType};
 pub use crate::map::cell_cube_iterator::CellCubeIterator;
+use crate::map::map_iterator::MutMapIterator;
 
 /// The axis are isometric:
 /// - x: right towards camera
@@ -69,6 +70,14 @@ impl Map {
             i += 1;
         }
         map
+    }
+
+    pub fn new_from_iter(mut_map_iter: MutMapIterator) -> Self {
+        Self {
+            chunks: mut_map_iter.collected_chunks,
+            min_cell: mut_map_iter.min_cell,
+            max_cell: mut_map_iter.max_cell,
+        }
     }
 
     pub fn default_min_cell() -> CellIndex {
@@ -144,6 +153,9 @@ impl Map {
             cells.push(self.get_cell(cell_index).pressure);
         }
         cells
+    }
+    pub fn iter_mut(self) -> MutMapIterator {
+        MutMapIterator::new(self.chunks, self.min_cell, self.max_cell)
     }
 }
 

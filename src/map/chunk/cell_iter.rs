@@ -9,25 +9,32 @@ pub struct CellIter {
 }
 
 impl CellIter {
-
     pub fn new(cells: Vec<Cell>, origin: CellIndex) -> Self {
         CellIter { cells, i: -1, origin }
     }
-    fn into_chunk(self) -> Chunk {
+    pub fn into_chunk(self) -> Chunk {
         Chunk::new_from_cells(self.cells, self.origin)
+    }
+    pub fn has_next(&self) -> bool {
+        ((self.i + 1) as usize) < self.cells.len()
+    }
+}
+impl Default for CellIter {
+    fn default() -> Self {
+        CellIter { cells: Vec::new(), i: -1, origin : CellIndex::default() }
     }
 }
 pub struct CellIterItem<'a> {
-    cell_index: CellIndex,
-    cell: &'a mut Cell,
+    pub cell_index: CellIndex,
+    pub cell: &'a mut Cell,
 }
 
 
-impl<'a> RefMutIterator<'a, CellIterItem<'a>> for &mut CellIter {
-    fn next(&'a mut self) -> Option<CellIterItem<'a>> {
-        self.i += 1;
-        let i_usize = self.i as usize;
-        return if i_usize < self.cells.len() {
+impl<'a> RefMutIterator<'a, CellIterItem<'a>> for CellIter {
+    fn next(self :&'a mut Self) -> Option<CellIterItem<'a>> {
+        return if self.has_next() {
+            self.i += 1;
+            let i_usize = self.i as usize;
             Option::Some(CellIterItem {
                 cell_index: self.origin + get_cell_index(i_usize),
                 cell: &mut (self.cells[i_usize])}
@@ -36,7 +43,6 @@ impl<'a> RefMutIterator<'a, CellIterItem<'a>> for &mut CellIter {
             Option::None
         };
     }
-
 }
 
 #[cfg(test)]
@@ -48,9 +54,9 @@ mod tests {
     fn test_cell_iter() {
         let chunk = Chunk::new(CellIndex::new(0, 0, 0));
         let mut i = 0;
-        let mut iter = chunk.into_iter();
+        let mut iter = chunk.into_iter_mut();
         let mut sum_pressures = 0;
-        while let Option::Some(CellIterItem{cell_index, cell}) = (&mut iter).next() {
+        while let Option::Some(CellIterItem{cell_index, cell}) = iter.next() {
             cell.pressure += 1;
             sum_pressures += cell.pressure;
             i += 1;
