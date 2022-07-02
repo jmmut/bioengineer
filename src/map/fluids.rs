@@ -1,6 +1,9 @@
 use crate::map::chunk::cell_iter::CellIterItem;
 use crate::map::ref_mut_iterator::RefMutIterator;
-use crate::map::{Cell, cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, CellCubeIterator, CellIndex, Map, TileType};
+use crate::map::{
+    cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, Cell, CellCubeIterator, CellIndex,
+    Map, TileType,
+};
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
@@ -183,7 +186,7 @@ fn is_valid(cell_index: CellIndex, map: &Map) -> Option<Cell> {
         }
     } else {
         Option::None
-    }
+    };
 }
 
 fn update_tile_type(map: &mut Map) {
@@ -193,8 +196,8 @@ fn update_tile_type(map: &mut Map) {
         if is_liquid_or_air(cell.tile_type) {
             let nothing_above = {
                 let index_above = cell_index + CellIndex::new(0, 1, 0);
-                if map.in_range(index_above) {
-                    let above_cell = map.get_cell(index_above);
+                let option_above_cell = map.get_cell_optional(index_above);
+                if let Option::Some(above_cell) = option_above_cell {
                     (above_cell.pressure <= 0) && is_liquid_or_air(above_cell.tile_type)
                 } else {
                     false

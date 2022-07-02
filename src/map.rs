@@ -35,12 +35,6 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn in_range(&self, cell_index: CellIndex) -> bool {
-        self.get_chunk_optional(&cell_index).is_some()
-    }
-}
-
-impl Map {
     pub fn new() -> Self {
         Self::new_for_cube(Self::default_min_cell(), Self::default_max_cell())
     }
@@ -95,11 +89,17 @@ impl Map {
         self.max_cell
     }
 
+    /// Don't use this if you plan to use the cell. Use get_cell_optional() instead
+    #[allow(unused)]
+    pub fn in_range(&self, cell_index: CellIndex) -> bool {
+        self.get_chunk_optional(&cell_index).is_some()
+    }
     pub fn get_cell(&self, index: CellIndex) -> &Cell {
         self.get_chunk(index).get_cell(index)
     }
     pub fn get_cell_optional(&self, index: CellIndex) -> Option<&Cell> {
-        self.get_chunk_optional(&index).map(|chunk| {chunk.get_cell(index)})
+        self.get_chunk_optional(&index)
+            .map(|chunk| chunk.get_cell(index))
     }
     pub fn get_cell_mut(&mut self, index: CellIndex) -> &mut Cell {
         self.get_chunk_mut(index).get_cell_mut(index)
