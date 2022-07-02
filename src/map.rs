@@ -86,9 +86,11 @@ impl Map {
     pub fn default_max_cell() -> CellIndex {
         CellIndex::new(MAP_SIZE / 2 - 1, MAP_SIZE / 2 - 1, MAP_SIZE / 2 - 1)
     }
+    #[allow(unused)]
     pub fn min_cell(&self) -> CellIndex {
         self.min_cell
     }
+    #[allow(unused)]
     pub fn max_cell(&self) -> CellIndex {
         self.max_cell
     }
