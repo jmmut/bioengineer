@@ -21,6 +21,7 @@ use crate::map::ref_mut_iterator::RefMutIterator;
 
 pub type ChunkIndex = IVec3;
 
+#[derive(Clone)]
 pub struct Chunk {
     cells: Vec<Cell>,
     origin: CellIndex,

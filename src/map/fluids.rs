@@ -1,39 +1,19 @@
+use crate::IVec3;
 use crate::map::{
     cell::is_liquid, cell::is_liquid_or_air, CellCubeIterator, CellIndex, Map, cell::Pressure,
     TileType,
 };
+use crate::map::chunk::cell_iter::CellIterItem;
+use crate::map::ref_mut_iterator::RefMutIterator;
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
 pub fn advance_fluid(map: &mut Map) {
-    /*
     let min_cell = map.min_cell();
     let max_cell = map.max_cell();
-    let is_valid = |cell_index: CellIndex, map: &Map| {
-        map.in_range(cell_index) && is_liquid_or_air(map.get_cell(cell_index).tile_type)
-    };
-    let yp = CellIndex::new(0, 1, 0);
-    let yn = CellIndex::new(0, -1, 0);
 
-    for (cell_index, cell) in &*map {
-        if is_liquid(cell.tile_type) {
-            let current_pressure = cell.pressure;
-            let next_pressure = cell.next_pressure;
-            let mut flow = Vec::new();
-            let dir = yn;
-            if is_valid(cell_index + dir, map) {
-                let adjacent_cell = map.get_cell(cell_index + dir);
-                if adjacent_cell.pressure
-                    < (current_pressure + next_pressure + VERTICAL_PRESSURE_DIFFERENCE)
-                {
-                    flow.push(dir);
-                }
-                //+1: in the other directions we don't want to keep at least 1 pressure,
-                // but we don't want to keep 1 pressure in this cell if it can go below
-                prepare_next_pressure(map, cell_index, current_pressure, next_pressure + 1, flow);
-            }
-        }
-    }
+    advance_fluid_downwards(map);
+/*
     let xp = CellIndex::new(1, 0, 0);
     let xn = CellIndex::new(-1, 0, 0);
     let zp = CellIndex::new(0, 0, 1);
@@ -80,22 +60,40 @@ pub fn advance_fluid(map: &mut Map) {
 
     swap_next_pressure_to_current(map, min_cell, max_cell)
 
-     */
+ */
 }
 
-fn prepare_next_pressure(
-    map: &mut Map,
-    cell_index: CellIndex,
-    current_pressure: Pressure,
-    next_pressure: Pressure,
-    flow: Vec<CellIndex>,
-) {
-    if current_pressure + next_pressure > flow.len() as i32 {
-        map.get_cell_mut(cell_index).next_pressure -= flow.len() as i32;
-        for dir in flow {
-            map.get_cell_mut(cell_index + dir).next_pressure += 1;
+fn advance_fluid_downwards(map: &mut Map) {
+    let yp = CellIndex::new(0, 1, 0);
+    let yn = CellIndex::new(0, -1, 0);
+    let updated_map = map.clone();
+    let mut iter = updated_map.iter_mut();
+    while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
+        if is_liquid(cell.tile_type) {
+            let current_pressure = cell.pressure;
+            let mut pressure_diff = 0;
+            let dir = yn;
+            if is_valid(cell_index + dir, map) {
+                let adjacent_cell = map.get_cell(cell_index + dir);
+                if (adjacent_cell.pressure - current_pressure) < VERTICAL_PRESSURE_DIFFERENCE {
+                    pressure_diff -= 1;
+                }
+            }
+            let dir = yp;
+            if is_valid(cell_index + dir, map) {
+                let adjacent_cell = map.get_cell(cell_index + dir);
+                if (current_pressure - adjacent_cell.pressure) < VERTICAL_PRESSURE_DIFFERENCE {
+                    pressure_diff += 1;
+                }
+            }
+            cell.pressure += pressure_diff;
         }
     }
+    *map = Map::new_from_iter(iter);
+}
+
+fn is_valid(cell_index: CellIndex, map: &Map) -> bool {
+    map.in_range(cell_index) && is_liquid_or_air(map.get_cell(cell_index).tile_type)
 }
 
 fn swap_next_pressure_to_current(map: &mut Map, min_cell: CellIndex, max_cell: CellIndex) {

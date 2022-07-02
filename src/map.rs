@@ -28,6 +28,7 @@ pub type CellIndex = IVec3;
 
 const MAP_SIZE: i32 = 21;
 
+#[derive(Clone)]
 pub struct Map {
     chunks: HashMap<ChunkIndex, Chunk>,
     min_cell: CellIndex,
