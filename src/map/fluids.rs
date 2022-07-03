@@ -52,18 +52,10 @@ impl Fluids {
         use FluidStage::*;
         let start_ts = self.start_profile();
         match self.next_stage {
-            Downwards => {
-                advance_fluid_downwards(map);
-            }
-            Sideways => {
-                advance_fluid_sideways(map);
-            }
-            Upwards => {
-                advance_fluid_upwards(map);
-            }
-            TileUpdate => {
-                update_tile_type(map);
-            }
+            Downwards => advance_fluid_downwards(map),
+            Sideways => advance_fluid_sideways(map),
+            Upwards => advance_fluid_upwards(map),
+            TileUpdate => update_tile_type(map),
         }
         self.end_profile(start_ts);
     }
