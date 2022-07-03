@@ -1,10 +1,10 @@
 use crate::drawing::coords::cast::Cast;
 use crate::drawing::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
 use crate::drawing::coords::truncate::assert_in_range_0_1;
-use crate::drawing::{assets, SubCellIndex};
+use crate::drawing::{assets, Drawing, SubCellIndex};
 use crate::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::input::PixelPosition;
-use crate::map::CellIndex;
+use crate::map::{Cell, CellIndex};
 use crate::Color;
 use crate::{DrawingTrait, GameState};
 
@@ -41,6 +41,19 @@ fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: Cel
         // let opacity = 1.0; // for debugging
         drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, opacity);
     }
+    // draw_pressure_number(drawer, cell_index, screen_width, drawing, max_cell, cell)
+    // draw_cell_hit_box(drawer, game_state, cell_index);
+}
+
+#[allow(unused)]
+fn draw_pressure_number(
+    drawer: &impl DrawingTrait,
+    cell_index: CellIndex,
+    screen_width: f32,
+    drawing: &Drawing,
+    max_cell: &CellIndex,
+    cell: &Cell,
+) {
     if cell_index.y == max_cell.y {
         let center_pixel = subcell_center_to_pixel(
             SubCellIndex::new(
@@ -59,7 +72,6 @@ fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: Cel
             TEXT_COLOR,
         )
     }
-    // draw_cell_hit_box(drawer, game_state, cell_index);
 }
 
 fn get_opacity(

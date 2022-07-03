@@ -121,9 +121,31 @@ impl Map {
             .expect("Error: Making the map bigger dynamically is disabled.")
     }
     pub fn regenerate(&mut self) {
+        #[allow(unused)]
+        enum MapType {
+            Island,
+            Simplex,
+        }
+        let map_type = MapType::Island;
+        match map_type {
+            MapType::Island => self.regenerate_island(),
+            MapType::Simplex => self.regenerate_with_simplex_noise(),
+        };
+    }
+
+    fn regenerate_island(&mut self) {
+        for (chunk_index, chunk) in &mut self.chunks {
+            for cell_index in chunk.iter(*chunk_index) {
+                let cell = chunk.get_cell_mut(cell_index);
+                choose_tile_in_island_map(cell_index, cell)
+            }
+        }
+    }
+
+    fn regenerate_with_simplex_noise(&mut self) {
         // if not provided, default seed is equal to 0
         let noise_generator = OpenSimplexNoise::new(Some(now() as i64));
-        let scale = 0.2;
+        let scale = 0.08;
         let mut min = 0.0;
         let mut max = 0.0;
         for (chunk_index, chunk) in &mut self.chunks {
@@ -158,6 +180,40 @@ impl Map {
     }
     pub fn iter_mut(self) -> MutMapIterator {
         MutMapIterator::new(self.chunks, self.min_cell, self.max_cell)
+    }
+}
+
+fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
+    cell.pressure = 0;
+    cell.can_flow_out = false;
+    cell.next_pressure = 0;
+    if cell_index.y > 0 {
+        cell.tile_type = TileType::Air;
+    } else {
+        let horizontal_distance_from_center =
+            f32::sqrt((cell_index.x * cell_index.x + cell_index.z * cell_index.z) as f32);
+        let island_radius = 5.0;
+        let steepness = 4.0;
+        let enlargement_by_deepness = -cell_index.y as f32 / steepness;
+        let is_land = horizontal_distance_from_center < island_radius + enlargement_by_deepness;
+        if is_land {
+            cell.tile_type = if cell_index.y == 0 {
+                if cell_index.x == 0 && cell_index.z == 0 {
+                    TileType::MachineShip
+                } else {
+                    TileType::FloorDirt
+                }
+            } else {
+                TileType::WallRock
+            };
+        } else {
+            cell.tile_type = if cell_index.y == 0 {
+                TileType::DirtyWaterSurface
+            } else {
+                TileType::DirtyWaterWall
+            };
+            cell.pressure = i32::max(0, 10 - 10 * cell_index.y);
+        }
     }
 }
 

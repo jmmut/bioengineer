@@ -7,7 +7,7 @@ use crate::map::CellIndex;
 use crate::now;
 use std::collections::HashSet;
 
-const DEFAULT_PROFILE_ENABLED: bool = true;
+const DEFAULT_PROFILE_ENABLED: bool = false;
 
 pub struct GameState {
     pub frame_index: i32,

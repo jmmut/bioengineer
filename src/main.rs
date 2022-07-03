@@ -15,6 +15,7 @@ use macroquad::miniquad::date::now;
 use macroquad::prelude::next_frame;
 use macroquad::texture::Image;
 use macroquad::texture::Texture2D;
+use macroquad::window::Conf;
 
 use external::assets_macroquad::load_tileset;
 use external::drawing_macroquad::DrawingMacroquad as DrawingImpl;
@@ -32,7 +33,7 @@ struct Implementations<D: DrawingTrait, I: InputSourceTrait> {
     gui: Gui,
 }
 
-#[macroquad::main("Bioengineer")]
+#[macroquad::main(window_conf)]
 async fn main() {
     let mut implementations = factory().await;
 
@@ -78,4 +79,13 @@ fn frame<D: DrawingTrait, I: InputSourceTrait>(
     }
     game_state.advance_frame();
     should_continue
+}
+
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "Bioengineer".to_owned(),
+        window_width: 1600,
+        window_height: 900,
+        ..Default::default()
+    }
 }
