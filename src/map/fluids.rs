@@ -1,4 +1,5 @@
 use crate::map::chunk::cell_iter::CellIterItem;
+use crate::map::fluids::FluidStage::Downwards;
 use crate::map::ref_mut_iterator::RefMutIterator;
 use crate::map::{
     cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, Cell, CellCubeIterator, CellIndex,
@@ -7,11 +8,75 @@ use crate::map::{
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
-pub fn advance_fluid(map: &mut Map) {
+pub struct Fluids {
+    mode: FluidMode,
+    next_stage: FluidStage,
+}
+
+#[allow(unused)]
+pub enum FluidMode {
+    AllTogether,
+    InStages,
+}
+
+#[derive(Copy, Clone)]
+enum FluidStage {
+    Downwards,
+    Sideways,
+    Upwards,
+    TileUpdate,
+}
+impl Fluids {
+    pub fn new(mode: FluidMode) -> Self {
+        Self {
+            mode,
+            next_stage: Downwards,
+        }
+    }
+    pub fn advance(&mut self, map: &mut Map) {
+        match self.mode {
+            FluidMode::AllTogether => advance_fluid(map),
+            FluidMode::InStages => {
+                advance_fluid_stage(map, self.next_stage);
+                self.next_stage = next_fluid_stage(self.next_stage);
+            }
+        }
+    }
+}
+
+fn next_fluid_stage(stage: FluidStage) -> FluidStage {
+    use FluidStage::*;
+    match stage {
+        Downwards => Sideways,
+        Sideways => Upwards,
+        Upwards => TileUpdate,
+        TileUpdate => Downwards,
+    }
+}
+
+fn advance_fluid(map: &mut Map) {
     advance_fluid_downwards(map);
     advance_fluid_sideways(map);
     advance_fluid_upwards(map);
     update_tile_type(map);
+}
+
+fn advance_fluid_stage(map: &mut Map, stage: FluidStage) {
+    use FluidStage::*;
+    match stage {
+        Downwards => {
+            advance_fluid_downwards(map);
+        }
+        Sideways => {
+            advance_fluid_sideways(map);
+        }
+        Upwards => {
+            advance_fluid_upwards(map);
+        }
+        TileUpdate => {
+            update_tile_type(map);
+        }
+    }
 }
 
 fn advance_fluid_downwards(map: &mut Map) {

@@ -1,7 +1,7 @@
 mod cell;
 mod cell_cube_iterator;
 mod chunk;
-mod fluids;
+pub mod fluids;
 mod map_iterator;
 mod ref_mut_iterator;
 pub mod transform_cells;
@@ -149,9 +149,6 @@ impl Map {
         println!("simplex range used: [{}, {}]", min, max);
     }
 
-    pub fn advance_fluids(&mut self) {
-        fluids::advance_fluid(self);
-    }
     pub fn _get_pressures(&self, min_cell: CellIndex, max_cell: CellIndex) -> Vec<i32> {
         let mut cells = Vec::new();
         for cell_index in CellCubeIterator::new(min_cell, max_cell) {

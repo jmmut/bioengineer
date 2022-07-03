@@ -1,6 +1,7 @@
 use super::map::Map;
 use crate::drawing::Drawing;
 use crate::gui::GuiActions;
+use crate::map::fluids::{FluidMode, Fluids};
 use crate::map::transform_cells::Transformation;
 use crate::map::CellIndex;
 use crate::now;
@@ -14,6 +15,7 @@ pub struct GameState {
     pub drawing: Drawing,
     pub advancing_fluids: bool,
     pub advance_fluid_every_n_frames: i32,
+    pub fluids: Fluids,
 }
 
 impl GameState {
@@ -28,6 +30,7 @@ impl GameState {
             drawing: Drawing::new(),
             advancing_fluids: false,
             advance_fluid_every_n_frames: 1,
+            fluids: Fluids::new(FluidMode::InStages),
         }
     }
 
@@ -43,7 +46,7 @@ impl GameState {
             self.advancing_fluids = !self.advancing_fluids;
         }
         if self.should_advance_fluids_this_frame(&gui_actions) {
-            self.map.advance_fluids();
+            self.fluids.advance(&mut self.map);
         }
 
         if gui_actions.input.regenerate_map {
