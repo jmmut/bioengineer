@@ -7,10 +7,16 @@ use crate::{DrawingTrait, GameState};
 
 pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
-    // println!(
-    //     "now - previous ts: {} - {}, fps: {}, frame: {}",
-    //     game_state.current_frame_ts, game_state.previous_frame_ts, fps, game_state.frame_index
-    // );
+    if game_state.profile {
+        println!(
+            "frame: {} - frame time: {:.3} ms, fps: {:.3}, previous ts: {} - {}",
+            game_state.frame_index,
+            (game_state.current_frame_ts - game_state.previous_frame_ts) * 1000.0,
+            fps,
+            game_state.current_frame_ts,
+            game_state.previous_frame_ts
+        );
+    }
     let text = format!("{:.0}", fps);
     drawer.draw_text(
         text.as_str(),

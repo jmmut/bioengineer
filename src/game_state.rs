@@ -16,12 +16,16 @@ pub struct GameState {
     pub advancing_fluids: bool,
     pub advance_fluid_every_n_frames: i32,
     pub fluids: Fluids,
+    pub profile: bool,
 }
 
 impl GameState {
     pub fn new() -> GameState {
         let mut map = Map::new();
         map.regenerate();
+        let profile = false;
+        let mut fluids = Fluids::new(FluidMode::InStages);
+        fluids.set_profile(profile);
         GameState {
             frame_index: 0,
             previous_frame_ts: now() - 1.0,
@@ -29,8 +33,9 @@ impl GameState {
             map,
             drawing: Drawing::new(),
             advancing_fluids: false,
-            advance_fluid_every_n_frames: 1,
-            fluids: Fluids::new(FluidMode::InStages),
+            advance_fluid_every_n_frames: 10,
+            fluids,
+            profile,
         }
     }
 

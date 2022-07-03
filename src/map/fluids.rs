@@ -5,12 +5,14 @@ use crate::map::{
     cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, Cell, CellCubeIterator, CellIndex,
     Map, TileType,
 };
+use crate::now;
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
 pub struct Fluids {
     mode: FluidMode,
     next_stage: FluidStage,
+    profile: bool,
 }
 
 #[allow(unused)]
@@ -19,7 +21,7 @@ pub enum FluidMode {
     InStages,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 enum FluidStage {
     Downwards,
     Sideways,
@@ -31,15 +33,52 @@ impl Fluids {
         Self {
             mode,
             next_stage: Downwards,
+            profile: false,
         }
     }
     pub fn advance(&mut self, map: &mut Map) {
         match self.mode {
             FluidMode::AllTogether => advance_fluid(map),
             FluidMode::InStages => {
-                advance_fluid_stage(map, self.next_stage);
+                self.advance_fluid_stage(map);
                 self.next_stage = next_fluid_stage(self.next_stage);
             }
+        }
+    }
+    pub fn set_profile(&mut self, profile: bool) {
+        self.profile = profile;
+    }
+    fn advance_fluid_stage(&mut self, map: &mut Map) {
+        use FluidStage::*;
+        let start_ts = self.start_profile();
+        match self.next_stage {
+            Downwards => {
+                advance_fluid_downwards(map);
+            }
+            Sideways => {
+                advance_fluid_sideways(map);
+            }
+            Upwards => {
+                advance_fluid_upwards(map);
+            }
+            TileUpdate => {
+                update_tile_type(map);
+            }
+        }
+        self.end_profile(start_ts);
+    }
+    fn start_profile(&self) -> f64 {
+        if self.profile {
+            print!("Next fluid stage: {:?}. ", self.next_stage);
+            now()
+        } else {
+            0.0
+        }
+    }
+    fn end_profile(&self, start_ts: f64) {
+        if self.profile {
+            let diff = now() - start_ts;
+            println!("Spent: {:.3} ms", diff * 1000.0);
         }
     }
 }
@@ -59,24 +98,6 @@ fn advance_fluid(map: &mut Map) {
     advance_fluid_sideways(map);
     advance_fluid_upwards(map);
     update_tile_type(map);
-}
-
-fn advance_fluid_stage(map: &mut Map, stage: FluidStage) {
-    use FluidStage::*;
-    match stage {
-        Downwards => {
-            advance_fluid_downwards(map);
-        }
-        Sideways => {
-            advance_fluid_sideways(map);
-        }
-        Upwards => {
-            advance_fluid_upwards(map);
-        }
-        TileUpdate => {
-            update_tile_type(map);
-        }
-    }
 }
 
 fn advance_fluid_downwards(map: &mut Map) {
