@@ -56,12 +56,12 @@ impl Chunk {
         CellIter::new(self.cells, self.origin)
     }
     pub fn into_hash(self, chunks: &mut HashMap<ChunkIndex, Chunk>) {
-        chunks.insert(get_chunk_index(self.origin), self);
+        chunks.insert(get_chunk_index(&self.origin), self);
     }
 }
 
 fn get_cell_inner_index(index: CellIndex) -> usize {
-    let chunk_index = get_chunk_index(index);
+    let chunk_index = get_chunk_index(&index);
     let local_index = index - origin(chunk_index);
     assert!(
         local_index.x >= 0 && local_index.x < SIZE_X as i32,
@@ -101,7 +101,7 @@ fn origin(chunk: ChunkIndex) -> CellIndex {
     )
 }
 
-pub fn get_chunk_index(index: CellIndex) -> ChunkIndex {
+pub fn get_chunk_index(index: &CellIndex) -> ChunkIndex {
     get_chunk_index_xyz(index.x, index.y, index.z)
 }
 
@@ -125,8 +125,8 @@ pub fn get_required_chunks(min_cell: CellIndex, max_cell: CellIndex) -> Vec<Chun
     assert_less_than(min_cell.x, max_cell.x);
     assert_less_than(min_cell.y, max_cell.y);
     assert_less_than(min_cell.z, max_cell.z);
-    let min_chunk = get_chunk_index(min_cell);
-    let max_chunk = get_chunk_index(max_cell);
+    let min_chunk = get_chunk_index(&min_cell);
+    let max_chunk = get_chunk_index(&max_cell);
     let mut chunks = Vec::new();
     for i_x in min_chunk.x..=max_chunk.x {
         for i_y in min_chunk.y..=max_chunk.y {

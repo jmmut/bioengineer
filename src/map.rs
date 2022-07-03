@@ -111,13 +111,13 @@ impl Map {
     }
 
     fn get_chunk_optional(&self, index: &CellIndex) -> Option<&Chunk> {
-        self.chunks.get(&get_chunk_index(*index))
+        self.chunks.get(&get_chunk_index(index))
     }
 
     #[allow(dead_code)]
     fn get_chunk_mut(&mut self, index: CellIndex) -> &mut Chunk {
         self.chunks
-            .get_mut(&get_chunk_index(index))
+            .get_mut(&get_chunk_index(&index))
             .expect("Error: Making the map bigger dynamically is disabled.")
     }
     pub fn regenerate(&mut self) {
