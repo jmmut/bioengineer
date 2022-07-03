@@ -24,7 +24,8 @@ pub enum FluidMode {
 #[derive(Copy, Clone, Debug)]
 enum FluidStage {
     Downwards,
-    Sideways,
+    SidewaysPrepare,
+    SidewaysApply,
     Upwards,
     TileUpdate,
 }
@@ -53,7 +54,8 @@ impl Fluids {
         let start_ts = self.start_profile();
         match self.next_stage {
             Downwards => advance_fluid_downwards(map),
-            Sideways => advance_fluid_sideways(map),
+            SidewaysPrepare => prepare_fluid_sideways(map),
+            SidewaysApply => advance_fluid_sideways(map),
             Upwards => advance_fluid_upwards(map),
             TileUpdate => update_tile_type(map),
         }
@@ -78,8 +80,9 @@ impl Fluids {
 fn next_fluid_stage(stage: FluidStage) -> FluidStage {
     use FluidStage::*;
     match stage {
-        Downwards => Sideways,
-        Sideways => Upwards,
+        Downwards => SidewaysPrepare,
+        SidewaysPrepare => SidewaysApply,
+        SidewaysApply => Upwards,
         Upwards => TileUpdate,
         TileUpdate => Downwards,
     }
@@ -87,6 +90,7 @@ fn next_fluid_stage(stage: FluidStage) -> FluidStage {
 
 fn advance_fluid(map: &mut Map) {
     advance_fluid_downwards(map);
+    prepare_fluid_sideways(map);
     advance_fluid_sideways(map);
     advance_fluid_upwards(map);
     update_tile_type(map);
@@ -119,7 +123,7 @@ fn advance_fluid_downwards(map: &mut Map) {
     print_map_pressures(map);
 }
 
-fn advance_fluid_sideways(map: &mut Map) {
+fn prepare_fluid_sideways(map: &mut Map) {
     let xp = CellIndex::new(1, 0, 0);
     let xn = CellIndex::new(-1, 0, 0);
     let zp = CellIndex::new(0, 0, 1);
@@ -147,8 +151,16 @@ fn advance_fluid_sideways(map: &mut Map) {
         }
     }
     *map = Map::new_from_iter(iter);
-    let updated_map = map.clone();
+}
+
+fn advance_fluid_sideways(map: &mut Map) {
+    let xp = CellIndex::new(1, 0, 0);
+    let xn = CellIndex::new(-1, 0, 0);
+    let zp = CellIndex::new(0, 0, 1);
+    let zn = CellIndex::new(0, 0, -1);
+    let pressure_threshold = 0;
     let flow = Flow::new(map, pressure_threshold);
+    let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
         if is_liquid(cell.tile_type) {
@@ -253,7 +265,6 @@ impl<'a> Flow<'a> {
     }
 }
 
-// TODO: optimize one cell fetch. here and where this is called we do a redundant get_cell
 fn is_valid(cell_index: CellIndex, map: &Map) -> Option<Cell> {
     let option_cell = map.get_cell_optional(cell_index);
     return if let Option::Some(cell) = option_cell {
@@ -318,6 +329,7 @@ fn print_map_pressures(map: &Map) {
 mod tests {
     use super::*;
     use crate::map::Map;
+    use crate::IVec3;
     use std::panic;
 
     fn assert_steps_2x2(maps: Vec<Vec<i32>>) {
@@ -629,6 +641,51 @@ mod tests {
         assert_n_steps(cells.clone(), expected, 94, min_cell, max_cell);
 
         assert_n_steps(cells.clone(), final_expected_loop, 95, min_cell, max_cell);
+    }
+
+    #[test]
+    fn test_staged_is_identical() {
+        let min_cell = CellIndex::new(0, 0, 0);
+        let max_cell = CellIndex::new(0, 2, 2);
+        #[rustfmt::skip]
+        let cells = vec![
+            50, 0, 0,
+            50, -1, 0,
+            50, -1, 0,
+        ];
+        let iterations = 90;
+
+        let computed_together = compute_n_steps(
+            min_cell,
+            max_cell,
+            &cells.clone(),
+            iterations,
+            FluidMode::AllTogether,
+        );
+        let computed_in_stages = compute_n_steps(
+            min_cell,
+            max_cell,
+            &cells.clone(),
+            iterations * 5,
+            FluidMode::InStages,
+        );
+
+        assert_eq!(computed_in_stages, computed_together);
+    }
+
+    fn compute_n_steps(
+        min_cell: IVec3,
+        max_cell: IVec3,
+        cells: &Vec<i32>,
+        iterations: i32,
+        mode: FluidMode,
+    ) -> Vec<i32> {
+        let mut map = Map::_new_from_pressures(cells.clone(), min_cell, max_cell);
+        let mut fluids = Fluids::new(mode);
+        for _ in 0..iterations {
+            fluids.advance(&mut map);
+        }
+        map._get_pressures(min_cell, max_cell)
     }
 
     mod change_tiles {

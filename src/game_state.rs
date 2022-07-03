@@ -7,6 +7,8 @@ use crate::map::CellIndex;
 use crate::now;
 use std::collections::HashSet;
 
+const DEFAULT_PROFILE_ENABLED: bool = true;
+
 pub struct GameState {
     pub frame_index: i32,
     pub previous_frame_ts: f64,
@@ -23,7 +25,7 @@ impl GameState {
     pub fn new() -> GameState {
         let mut map = Map::new();
         map.regenerate();
-        let profile = false;
+        let profile = DEFAULT_PROFILE_ENABLED;
         let mut fluids = Fluids::new(FluidMode::InStages);
         fluids.set_profile(profile);
         GameState {
