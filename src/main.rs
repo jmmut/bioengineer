@@ -3,6 +3,8 @@ mod game_state;
 mod gui;
 mod input;
 mod map;
+mod profiling;
+
 mod external {
     pub mod assets_macroquad;
     pub mod drawing_macroquad;
@@ -25,13 +27,11 @@ use crate::gui::Gui;
 use drawing::{apply_input, draw, DrawingTrait};
 use game_state::GameState;
 use input::InputSourceTrait;
+use crate::profiling::ScopedProfiler;
 
-struct Implementations<D: DrawingTrait, I: InputSourceTrait> {
-    drawer: D,
-    game_state: GameState,
-    input: I,
-    gui: Gui,
-}
+const DEFAULT_WINDOW_WIDTH: i32 = 1600;
+const DEFAULT_WINDOW_HEIGHT: i32 = 900;
+const DEFAULT_WINDOW_TITLE: &'static str = "Bioengineer";
 
 #[macroquad::main(window_conf)]
 async fn main() {
@@ -40,6 +40,22 @@ async fn main() {
     while frame(&mut implementations) {
         next_frame().await
     }
+}
+
+fn window_conf() -> Conf {
+    Conf {
+        window_title: DEFAULT_WINDOW_TITLE.to_owned(),
+        window_width: DEFAULT_WINDOW_WIDTH,
+        window_height: DEFAULT_WINDOW_HEIGHT,
+        ..Default::default()
+    }
+}
+
+struct Implementations<D: DrawingTrait, I: InputSourceTrait> {
+    drawer: D,
+    game_state: GameState,
+    input: I,
+    gui: Gui,
 }
 
 async fn factory() -> Implementations<DrawingImpl, InputSource> {
@@ -61,6 +77,7 @@ fn frame<D: DrawingTrait, I: InputSourceTrait>(
     implementations: &mut Implementations<D, I>,
 ) -> bool {
     let game_state = &mut implementations.game_state;
+    let _profiler = ScopedProfiler::new_named(game_state.profile, "whole toplevel frame");
     let drawer = &mut implementations.drawer;
     let input_source = &mut implementations.input;
     let gui = &mut implementations.gui;
@@ -79,13 +96,4 @@ fn frame<D: DrawingTrait, I: InputSourceTrait>(
     }
     game_state.advance_frame();
     should_continue
-}
-
-fn window_conf() -> Conf {
-    Conf {
-        window_title: "Bioengineer".to_owned(),
-        window_width: 1600,
-        window_height: 900,
-        ..Default::default()
-    }
 }

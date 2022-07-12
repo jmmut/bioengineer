@@ -5,7 +5,7 @@ use crate::map::{
     cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, Cell, CellCubeIterator, CellIndex,
     Map, TileType,
 };
-use crate::now;
+use crate::{now, ScopedProfiler};
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
@@ -51,7 +51,7 @@ impl Fluids {
     }
     fn advance_fluid_stage(&mut self, map: &mut Map) {
         use FluidStage::*;
-        let start_ts = self.start_profile();
+        let _profiler = self.maybe_profile();
         match self.next_stage {
             Downwards => advance_fluid_downwards(map),
             SidewaysPrepare => prepare_fluid_sideways(map),
@@ -59,21 +59,12 @@ impl Fluids {
             Upwards => advance_fluid_upwards(map),
             TileUpdate => update_tile_type(map),
         }
-        self.end_profile(start_ts);
     }
-    fn start_profile(&self) -> f64 {
-        if self.profile {
-            print!("Next fluid stage: {:?}. ", self.next_stage);
-            now()
-        } else {
-            0.0
-        }
-    }
-    fn end_profile(&self, start_ts: f64) {
-        if self.profile {
-            let diff = now() - start_ts;
-            println!("Spent: {:.3} ms", diff * 1000.0);
-        }
+
+    fn maybe_profile(&mut self) -> ScopedProfiler {
+        let profile_name = format!("fluid stage: {:?}", self.next_stage);
+        let profiler = ScopedProfiler::new_named(self.profile, profile_name.as_str());
+        profiler
     }
 }
 
