@@ -7,7 +7,10 @@ use crate::map::CellIndex;
 use crate::now;
 use std::collections::HashSet;
 
-const DEFAULT_PROFILE_ENABLED: bool = false;
+const DEFAULT_PROFILE_ENABLED: bool = true;
+const DEFAULT_ADVANCING_FLUIDS: bool = true;
+const DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES: i32 = 1;
+
 
 pub struct GameState {
     pub frame_index: i32,
@@ -34,8 +37,8 @@ impl GameState {
             current_frame_ts: now(),
             map,
             drawing: Drawing::new(),
-            advancing_fluids: false,
-            advance_fluid_every_n_frames: 10,
+            advancing_fluids: DEFAULT_ADVANCING_FLUIDS,
+            advance_fluid_every_n_frames: DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES,
             fluids,
             profile,
         }
