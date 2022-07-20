@@ -11,7 +11,6 @@ const DEFAULT_PROFILE_ENABLED: bool = false;
 const DEFAULT_ADVANCING_FLUIDS: bool = false;
 const DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES: i32 = 1;
 
-
 pub struct GameState {
     pub frame_index: i32,
     pub previous_frame_ts: f64,

@@ -24,10 +24,10 @@ use external::drawing_macroquad::DrawingMacroquad as DrawingImpl;
 use external::input_macroquad::InputMacroquad as InputSource;
 
 use crate::gui::Gui;
+use crate::profiling::ScopedProfiler;
 use drawing::{apply_input, draw, DrawingTrait};
 use game_state::GameState;
 use input::InputSourceTrait;
-use crate::profiling::ScopedProfiler;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1600;
 const DEFAULT_WINDOW_HEIGHT: i32 = 900;

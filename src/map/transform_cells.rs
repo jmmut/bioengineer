@@ -142,19 +142,38 @@ mod tests {
     use super::*;
     use crate::map::{Cell, TileType};
 
-    #[test]
-    #[ignore]
-    fn test_basic_transformation() {
-        let cell = Cell::new(TileType::FloorRock);
-        let min_cell = CellIndex::new(0, 0, 0);
-        let max_cell = CellIndex::new(0, 25, 0);
+    struct CellTransformationFixture {
+        pub cell: Cell,
+        pub min_cell: CellIndex,
+        pub max_cell: CellIndex,
+        pub map: Map,
+    }
 
-        let mut map = Map::new_for_cube(min_cell, max_cell);
-        map.get_cell_mut(CellIndex::new(0, 0, 0)).tile_type = cell.tile_type;
-        for i in 1..=AIR_LEVELS_FOR_ALLOWING_SOLAR {
-            map.get_cell_mut(CellIndex::new(0, i, 0)).tile_type = TileType::Air;
+    impl CellTransformationFixture {
+        pub fn new() -> Self {
+            let cell = Cell::new(TileType::FloorRock);
+            let min_cell = CellIndex::new(0, 0, 0);
+            let max_cell = CellIndex::new(0, 25, 0);
+            let mut map = Map::new_for_cube(min_cell, max_cell);
+            CellTransformationFixture {
+                cell,
+                min_cell,
+                max_cell,
+                map,
+            }
         }
-        let transformation = allowed_transformations_of_cell(&cell, &CellIndex::default(), &map);
+    }
+
+    #[test]
+    // #[ignore]
+    fn test_basic_surface_transformation() {
+        let mut fx = CellTransformationFixture::new();
+        fx.map.get_cell_mut(CellIndex::new(0, 0, 0)).tile_type = fx.cell.tile_type;
+        for i in 1..=AIR_LEVELS_FOR_ALLOWING_SOLAR {
+            fx.map.get_cell_mut(CellIndex::new(0, i, 0)).tile_type = TileType::Air;
+        }
+        let transformation =
+            allowed_transformations_of_cell(&fx.cell, &CellIndex::default(), &fx.map);
         assert_eq!(
             transformation,
             vec![
@@ -166,9 +185,15 @@ mod tests {
                 Transformation::to(TileType::FloorRock),
             ]
         );
-        map.get_cell_mut(CellIndex::new(0, 5, 0)).tile_type = TileType::WallRock;
+    }
 
-        let transformation = allowed_transformations_of_cell(&cell, &CellIndex::default(), &map);
+    #[test]
+    fn test_basic_covered_surface_transformation() {
+        let mut fx = CellTransformationFixture::new();
+        fx.map.get_cell_mut(CellIndex::new(0, 5, 0)).tile_type = TileType::WallRock;
+
+        let transformation = allowed_transformations_of_cell(&fx.cell, &CellIndex::default(),
+                                                             &fx.map);
         assert_eq!(
             transformation,
             vec![

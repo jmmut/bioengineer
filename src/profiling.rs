@@ -17,11 +17,7 @@ impl ScopedProfiler {
         Self::new_with_maybe_name(enabled, Option::Some(String::from(name)))
     }
     fn new_with_maybe_name(enabled: bool, name: Option<String>) -> Self {
-        let start_ts = if enabled {
-            now()
-        } else {
-            0.0
-        };
+        let start_ts = if enabled { now() } else { 0.0 };
         Self {
             enabled,
             start_ts,
@@ -35,7 +31,7 @@ impl Drop for ScopedProfiler {
         if self.enabled {
             let diff = now() - self.start_ts;
             let formatted_name = match &self.name {
-                None => {String::new()}
+                None => String::new(),
                 Some(name) => {
                     format!(" on: {}", name)
                 }
