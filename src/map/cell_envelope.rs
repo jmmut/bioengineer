@@ -2,70 +2,16 @@
 use crate::map::CellIndex;
 
 fn envelope(cells: &Vec<CellIndex>) -> (CellIndex, CellIndex) {
-    let Envelope {
-        mut min_cell,
-        mut max_cell,
-    } = Envelope::new();
+    let mut envelope = Envelope::new();
     for cell_index in cells {
-        if cell_index.x < min_cell.x {
-            min_cell.x = cell_index.x
-        }
-        if cell_index.y < min_cell.y {
-            min_cell.y = cell_index.y
-        }
-        if cell_index.z < min_cell.z {
-            min_cell.z = cell_index.z
-        }
-        if cell_index.x > max_cell.x {
-            max_cell.x = cell_index.x
-        }
-        if cell_index.y > max_cell.y {
-            max_cell.y = cell_index.y
-        }
-        if cell_index.z > max_cell.z {
-            max_cell.z = cell_index.z
-        }
+        envelope.add(cell_index);
     }
-    (min_cell, max_cell)
+    envelope.result()
 }
 
-struct Envelope {
+pub struct Envelope {
     min_cell: CellIndex,
     max_cell: CellIndex,
-}
-
-impl Envelope {
-    pub fn result(&self) -> (CellIndex, CellIndex) {
-        (self.min_cell, self.max_cell)
-    }
-}
-
-impl Envelope {
-    pub fn add(&mut self, cell_index: CellIndex) {
-        let Envelope {
-            mut min_cell,
-            mut max_cell,
-        } = self;
-        if cell_index.x < min_cell.x {
-            min_cell.x = cell_index.x
-        }
-        if cell_index.y < min_cell.y {
-            min_cell.y = cell_index.y
-        }
-        if cell_index.z < min_cell.z {
-            min_cell.z = cell_index.z
-        }
-        if cell_index.x > max_cell.x {
-            max_cell.x = cell_index.x
-        }
-        if cell_index.y > max_cell.y {
-            max_cell.y = cell_index.y
-        }
-        if cell_index.z > max_cell.z {
-            max_cell.z = cell_index.z
-        }
-        *self = Envelope {min_cell, max_cell};
-    }
 }
 
 impl Envelope {
@@ -74,7 +20,33 @@ impl Envelope {
         let mut max_cell = CellIndex::new(i32::MIN, i32::MIN, i32::MIN);
         Envelope { min_cell, max_cell }
     }
+
+    pub fn add(&mut self, cell_index: &CellIndex) {
+        if cell_index.x < self.min_cell.x {
+            self.min_cell.x = cell_index.x
+        }
+        if cell_index.y < self.min_cell.y {
+            self.min_cell.y = cell_index.y
+        }
+        if cell_index.z < self.min_cell.z {
+            self.min_cell.z = cell_index.z
+        }
+        if cell_index.x > self.max_cell.x {
+            self.max_cell.x = cell_index.x
+        }
+        if cell_index.y > self.max_cell.y {
+            self.max_cell.y = cell_index.y
+        }
+        if cell_index.z > self.max_cell.z {
+            self.max_cell.z = cell_index.z
+        }
+    }
+
+    pub fn result(&self) -> (CellIndex, CellIndex) {
+        (self.min_cell, self.max_cell)
+    }
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -120,7 +92,7 @@ mod tests {
         ];
         let mut envelope = Envelope::new();
         for cell_index in cells {
-            envelope.add(cell_index);
+            envelope.add(&cell_index);
         }
         assert_eq!(
             envelope.result(),
