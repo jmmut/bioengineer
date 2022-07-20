@@ -70,14 +70,16 @@ impl Map {
         map
     }
 
-    pub fn _new_from_tiles(cells: Vec<(CellIndex, TileType)>) -> Self {
+    pub fn _new_from_tiles(default_cell: Cell, cells: Vec<(CellIndex, TileType)>) -> Self {
         let mut chunks = HashMap::new();
         let mut min_cell = CellIndex::new(i32::MAX, i32::MAX, i32::MAX);
         let mut max_cell = CellIndex::new(i32::MIN, i32::MIN, i32::MIN);
         for (cell_index, tile) in &cells {
             let chunk_indexes = get_required_chunks(*cell_index, *cell_index);
             for chunk_index in chunk_indexes {
-                chunks.insert(chunk_index, Chunk::new_from_chunk_index(chunk_index));
+                let chunk =
+                    Chunk::new_from_chunk_index_with_default_cell(chunk_index, default_cell);
+                chunks.insert(chunk_index, chunk);
             }
             if cell_index.x < min_cell.x {
                 min_cell.x = cell_index.x
@@ -303,12 +305,29 @@ mod tests {
         assert_eq!(map.in_range(CellIndex::new(0, 0, 0)), true);
         assert_eq!(map.in_range(CellIndex::new(0, 0, -MAP_SIZE)), false);
     }
-    
+
     #[test]
     fn test_new_from_tiles_basic() {
-        let map = Map::_new_from_tiles(vec![
-            (CellIndex::new(0, 0, 0), TileType::FloorRock)
-        ]);
+        let map = Map::_new_from_tiles(
+            Cell::new(TileType::FloorDirt),
+            vec![(CellIndex::new(0, 0, 0), TileType::FloorRock)],
+        );
         assert_eq!(map.chunks.len(), 1);
+    }
+    #[test]
+    fn test_new_from_tiles() {
+        let some_pos = CellIndex::new(0, 0, 0);
+        let other_pos = CellIndex::new(0, 100, 0);
+        let some_tile = TileType::FloorRock;
+        let other_tile = TileType::WallRock;
+        let default_cell = Cell::new(TileType::FloorDirt);
+        let map = Map::_new_from_tiles(
+            default_cell,
+            vec![(some_pos, some_tile), (other_pos, other_tile)],
+        );
+        assert_eq!(map.chunks.len(), 2);
+        assert_eq!(*map.get_cell(some_pos), Cell::new(some_tile));
+        assert_eq!(*map.get_cell(other_pos), Cell::new(other_tile));
+        assert_eq!(*map.get_cell(other_pos + CellIndex::new(1, 0, 0)), default_cell);
     }
 }

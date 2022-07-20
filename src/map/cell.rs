@@ -1,7 +1,7 @@
 pub use i32 as Pressure;
 use TileType::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Cell {
     pub tile_type: TileType,
     pub pressure: Pressure,

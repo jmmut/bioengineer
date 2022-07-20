@@ -48,7 +48,7 @@ impl GameState {
             fluids,
             profile,
             robots,
-            task_queue: Vec::new()
+            task_queue: Vec::new(),
         }
     }
 
@@ -70,19 +70,14 @@ impl GameState {
         }
     }
 
-    fn queue_transformation(
-        &mut self,
-        transformation: Transformation,
-    ) {
+    fn queue_transformation(&mut self, transformation: Transformation) {
         self.task_queue.push(Task {
             to_transform: self.drawing.highlighted_cells.clone(),
             transformation,
         });
     }
 
-    fn move_robots(&mut self) {
-
-    }
+    fn move_robots(&mut self) {}
 
     fn transform_cells_if_robots_can_do_so(&mut self) {}
 
@@ -134,8 +129,8 @@ pub struct Task {
 
 #[cfg(test)]
 mod tests {
-    use crate::map::TileType;
     use super::*;
+    use crate::map::{Cell, TileType};
 
     #[test]
     fn test_move_robot_basic() {
@@ -143,7 +138,6 @@ mod tests {
             to_transform: HashSet::from([CellIndex::new(0, 0, 10)]),
             transformation: Transformation::to(TileType::MachineAssembler),
         };
-        let map = Map::_new_from_tiles(vec![]);
-
+        let map = Map::_new_from_tiles(Cell::new(TileType::FloorRock), vec![]);
     }
 }

@@ -29,15 +29,23 @@ pub struct Chunk {
 
 impl Chunk {
     pub fn new(origin: CellIndex) -> Self {
+        Self::new_with_default_cell(origin, Cell::default())
+    }
+
+    fn new_with_default_cell(origin: CellIndex, default_cell: Cell) -> Chunk {
         let mut cells = Vec::with_capacity(SIZE);
-        cells.resize(SIZE, Cell::default());
+        cells.resize(SIZE, default_cell);
         Chunk { cells, origin }
     }
     pub fn new_from_chunk_index(chunk_index: ChunkIndex) -> Self {
-        Self::new(chunk_local_index_to_global_index(
-            CellIndex::new(0, 0, 0),
-            chunk_index,
-        ))
+        Self::new_from_chunk_index_with_default_cell(chunk_index, Cell::default())
+    }
+    pub fn new_from_chunk_index_with_default_cell(
+        chunk_index: ChunkIndex,
+        default_cell: Cell,
+    ) -> Self {
+        let local_index = chunk_local_index_to_global_index(CellIndex::new(0, 0, 0), chunk_index);
+        Self::new_with_default_cell(local_index, default_cell)
     }
     pub fn new_from_cells(cells: Vec<Cell>, origin: CellIndex) -> Self {
         Self { cells, origin }
