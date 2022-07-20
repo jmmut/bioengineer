@@ -1,3 +1,4 @@
+
 use crate::map::CellIndex;
 
 fn envelope(cells: &Vec<CellIndex>) -> (CellIndex, CellIndex) {
@@ -31,6 +32,40 @@ fn envelope(cells: &Vec<CellIndex>) -> (CellIndex, CellIndex) {
 struct Envelope {
     min_cell: CellIndex,
     max_cell: CellIndex,
+}
+
+impl Envelope {
+    pub fn result(&self) -> (CellIndex, CellIndex) {
+        (self.min_cell, self.max_cell)
+    }
+}
+
+impl Envelope {
+    pub fn add(&mut self, cell_index: CellIndex) {
+        let Envelope {
+            mut min_cell,
+            mut max_cell,
+        } = self;
+        if cell_index.x < min_cell.x {
+            min_cell.x = cell_index.x
+        }
+        if cell_index.y < min_cell.y {
+            min_cell.y = cell_index.y
+        }
+        if cell_index.z < min_cell.z {
+            min_cell.z = cell_index.z
+        }
+        if cell_index.x > max_cell.x {
+            max_cell.x = cell_index.x
+        }
+        if cell_index.y > max_cell.y {
+            max_cell.y = cell_index.y
+        }
+        if cell_index.z > max_cell.z {
+            max_cell.z = cell_index.z
+        }
+        *self = Envelope {min_cell, max_cell};
+    }
 }
 
 impl Envelope {
@@ -72,6 +107,23 @@ mod tests {
         ];
         assert_eq!(
             envelope(&cells),
+            (CellIndex::new(-10, 0, -20), CellIndex::new(10, 50, 20))
+        );
+    }
+
+    #[test]
+    fn test_envelope_iter() {
+        let cells = vec![
+            CellIndex::new(10, 0, -20),
+            CellIndex::new(2, 50, -4),
+            CellIndex::new(-10, 5, 20),
+        ];
+        let mut envelope = Envelope::new();
+        for cell_index in cells {
+            envelope.add(cell_index);
+        }
+        assert_eq!(
+            envelope.result(),
             (CellIndex::new(-10, 0, -20), CellIndex::new(10, 50, 20))
         );
     }
