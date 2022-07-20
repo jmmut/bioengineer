@@ -54,6 +54,7 @@ impl Map {
             ship_position,
         }
     }
+
     pub fn _new_from_pressures(cells: Vec<i32>, min_cell: CellIndex, max_cell: CellIndex) -> Self {
         let mut map = Self::new_for_cube(min_cell, max_cell);
         let mut i = 0;
@@ -67,6 +68,10 @@ impl Map {
             i += 1;
         }
         map
+    }
+
+    pub fn _new_from_tiles(cells: Vec<(CellIndex, TileType)>) -> Self {
+        Self::new()
     }
 
     pub fn new_from_iter(mut_map_iter: MutMapIterator) -> Self {
@@ -191,7 +196,12 @@ impl Map {
     }
 
     pub fn iter_mut(self) -> MutMapIterator {
-        MutMapIterator::new(self.chunks, self.min_cell, self.max_cell, self.ship_position)
+        MutMapIterator::new(
+            self.chunks,
+            self.min_cell,
+            self.max_cell,
+            self.ship_position,
+        )
     }
 }
 
@@ -254,5 +264,13 @@ mod tests {
         let map = Map::new();
         assert_eq!(map.in_range(CellIndex::new(0, 0, 0)), true);
         assert_eq!(map.in_range(CellIndex::new(0, 0, -MAP_SIZE)), false);
+    }
+    
+    #[test]
+    fn test_new_from_tiles() {
+        let map = Map::_new_from_tiles(vec![
+            (CellIndex::new(0, 0, 0), TileType::FloorRock)
+        ]);
+        assert_eq!(map.chunks.len(), 1);
     }
 }

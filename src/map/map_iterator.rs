@@ -76,7 +76,7 @@ impl MutMapIterator {
         chunks: HashMap<ChunkIndex, Chunk>,
         min_cell: CellIndex,
         max_cell: CellIndex,
-        ship_position: Option<CellIndex>
+        ship_position: Option<CellIndex>,
     ) -> Self {
         let mut chunk_iterator = chunks.into_iter();
         let optional_chunk = chunk_iterator.next();

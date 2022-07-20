@@ -192,8 +192,8 @@ mod tests {
         let mut fx = CellTransformationFixture::new();
         fx.map.get_cell_mut(CellIndex::new(0, 5, 0)).tile_type = TileType::WallRock;
 
-        let transformation = allowed_transformations_of_cell(&fx.cell, &CellIndex::default(),
-                                                             &fx.map);
+        let transformation =
+            allowed_transformations_of_cell(&fx.cell, &CellIndex::default(), &fx.map);
         assert_eq!(
             transformation,
             vec![

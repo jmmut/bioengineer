@@ -117,7 +117,7 @@ pub fn get_required_chunks(min_cell: CellIndex, max_cell: CellIndex) -> Vec<Chun
     let assert_less_than = |min: i32, max: i32| {
         assert!(
             min <= max,
-            "failed assertion: (min_cell < max_cell). {} < {}",
+            "failed assertion: (min_cell <= max_cell). {} <= {}",
             min_cell,
             max_cell
         );

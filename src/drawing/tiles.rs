@@ -2,12 +2,12 @@ use crate::drawing::coords::cast::Cast;
 use crate::drawing::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
 use crate::drawing::coords::truncate::assert_in_range_0_1;
 use crate::drawing::{assets, Drawing, SubCellIndex};
+use crate::game_state::Robot;
 use crate::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::input::PixelPosition;
 use crate::map::{Cell, CellIndex, TileType};
 use crate::Color;
 use crate::{DrawingTrait, GameState};
-use crate::game_state::Robot;
 
 pub fn draw_map(drawer: &impl DrawingTrait, game_state: &GameState) {
     let drawing = game_state.get_drawing();
@@ -44,7 +44,9 @@ fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: Cel
     }
     // draw_pressure_number(drawer, cell_index, screen_width, drawing, max_cell, cell)
     // draw_cell_hit_box(drawer, game_state, cell_index);
-    if game_state.robots.contains(&Robot {position: cell_index} ) {
+    if game_state.robots.contains(&Robot {
+        position: cell_index,
+    }) {
         drawer.draw_transparent_texture(TileType::Robot, pixel.x, pixel.y, 1.0);
     }
 }
