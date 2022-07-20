@@ -187,7 +187,7 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
     cell.pressure = 0;
     cell.can_flow_out = false;
     cell.next_pressure = 0;
-    if cell_index.y > 0 {
+    if cell_index.y > 1 {
         cell.tile_type = TileType::Air;
     } else {
         let horizontal_distance_from_center =
@@ -197,7 +197,7 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
         let enlargement_by_deepness = -cell_index.y as f32 / steepness;
         let is_land = horizontal_distance_from_center < island_radius + enlargement_by_deepness;
         if is_land {
-            cell.tile_type = if cell_index.y == 0 {
+            cell.tile_type = if cell_index.y == 1 {
                 if cell_index.x == 0 && cell_index.z == 0 {
                     TileType::MachineShip
                 } else {
@@ -207,10 +207,12 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
                 TileType::WallRock
             };
         } else {
-            cell.tile_type = if cell_index.y == 0 {
+            cell.tile_type = if cell_index.y < 0 {
+                TileType::DirtyWaterWall
+            } else if cell_index.y == 0 {
                 TileType::DirtyWaterSurface
             } else {
-                TileType::DirtyWaterWall
+                TileType::Air
             };
             cell.pressure = i32::max(0, 10 - 10 * cell_index.y);
         }

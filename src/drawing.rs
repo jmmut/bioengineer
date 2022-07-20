@@ -49,8 +49,8 @@ pub struct Drawing {
 impl Drawing {
     pub fn new() -> Self {
         Drawing {
-            min_cell: CellIndex::new(-10, -2, -10),
-            max_cell: CellIndex::new(9, 0, 9),
+            min_cell: CellIndex::new(-10, -1, -10),
+            max_cell: CellIndex::new(9, 1, 9),
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
             highlighted_cells: HashSet::new(),
