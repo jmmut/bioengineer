@@ -44,7 +44,7 @@ pub fn allowed_transformations_of_cell(
         WallRock => vec![FloorRock, Stairs],
         WallDirt => vec![FloorDirt, Stairs],
         FloorRock => {
-            machines.append(&mut vec![Stairs, Air]);
+            machines.append(&mut vec![Stairs]);
             machines
         }
         FloorDirt => {
@@ -155,6 +155,10 @@ mod tests {
             let min_cell = CellIndex::new(0, 0, 0);
             let max_cell = CellIndex::new(0, 25, 0);
             let mut map = Map::new_for_cube(min_cell, max_cell);
+            map.get_cell_mut(CellIndex::new(0, 0, 0)).tile_type = cell.tile_type;
+            for i in 1..=AIR_LEVELS_FOR_ALLOWING_SOLAR {
+                map.get_cell_mut(CellIndex::new(0, i, 0)).tile_type = TileType::Air;
+            }
             CellTransformationFixture {
                 cell,
                 min_cell,
@@ -168,10 +172,6 @@ mod tests {
     // #[ignore]
     fn test_basic_surface_transformation() {
         let mut fx = CellTransformationFixture::new();
-        fx.map.get_cell_mut(CellIndex::new(0, 0, 0)).tile_type = fx.cell.tile_type;
-        for i in 1..=AIR_LEVELS_FOR_ALLOWING_SOLAR {
-            fx.map.get_cell_mut(CellIndex::new(0, i, 0)).tile_type = TileType::Air;
-        }
         let transformation =
             allowed_transformations_of_cell(&fx.cell, &CellIndex::default(), &fx.map);
         assert_eq!(
