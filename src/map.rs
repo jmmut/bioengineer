@@ -71,7 +71,45 @@ impl Map {
     }
 
     pub fn _new_from_tiles(cells: Vec<(CellIndex, TileType)>) -> Self {
-        Self::new()
+        let mut chunks = HashMap::new();
+        let mut min_cell = CellIndex::new(i32::MAX, i32::MAX, i32::MAX);
+        let mut max_cell = CellIndex::new(i32::MIN, i32::MIN, i32::MIN);
+        for (cell_index, tile) in &cells {
+            let chunk_indexes = get_required_chunks(*cell_index, *cell_index);
+            for chunk_index in chunk_indexes {
+                chunks.insert(chunk_index, Chunk::new_from_chunk_index(chunk_index));
+            }
+            if cell_index.x < min_cell.x {
+                min_cell.x = cell_index.x
+            }
+            if cell_index.y < min_cell.y {
+                min_cell.y = cell_index.y
+            }
+            if cell_index.x < min_cell.x {
+                min_cell.x = cell_index.x
+            }
+            if cell_index.x > max_cell.x {
+                max_cell.x = cell_index.x
+            }
+            if cell_index.y > max_cell.y {
+                max_cell.y = cell_index.y
+            }
+            if cell_index.x > max_cell.x {
+                max_cell.x = cell_index.x
+            }
+        }
+
+        let ship_position = Option::None;
+        let mut map = Map {
+            chunks,
+            min_cell,
+            max_cell,
+            ship_position,
+        };
+        for (cell_index, tile) in cells {
+            map.get_cell_mut(cell_index).tile_type = tile;
+        }
+        map
     }
 
     pub fn new_from_iter(mut_map_iter: MutMapIterator) -> Self {
@@ -267,7 +305,7 @@ mod tests {
     }
     
     #[test]
-    fn test_new_from_tiles() {
+    fn test_new_from_tiles_basic() {
         let map = Map::_new_from_tiles(vec![
             (CellIndex::new(0, 0, 0), TileType::FloorRock)
         ]);
