@@ -5,7 +5,7 @@ use crate::map::{
     cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, Cell, CellCubeIterator, CellIndex,
     Map, TileType,
 };
-use crate::{now, ScopedProfiler};
+use crate::ScopedProfiler;
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 

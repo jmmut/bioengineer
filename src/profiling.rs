@@ -9,6 +9,7 @@ pub struct ScopedProfiler {
 }
 
 impl ScopedProfiler {
+    #[allow(dead_code)]
     pub fn new(enabled: bool) -> Self {
         Self::new_with_maybe_name(enabled, Option::None)
     }
