@@ -1,5 +1,6 @@
 mod cell;
 mod cell_cube_iterator;
+mod cell_envelope;
 mod chunk;
 pub mod fluids;
 mod map_iterator;
@@ -80,24 +81,6 @@ impl Map {
                 let chunk =
                     Chunk::new_from_chunk_index_with_default_cell(chunk_index, default_cell);
                 chunks.insert(chunk_index, chunk);
-            }
-            if cell_index.x < min_cell.x {
-                min_cell.x = cell_index.x
-            }
-            if cell_index.y < min_cell.y {
-                min_cell.y = cell_index.y
-            }
-            if cell_index.x < min_cell.x {
-                min_cell.x = cell_index.x
-            }
-            if cell_index.x > max_cell.x {
-                max_cell.x = cell_index.x
-            }
-            if cell_index.y > max_cell.y {
-                max_cell.y = cell_index.y
-            }
-            if cell_index.x > max_cell.x {
-                max_cell.x = cell_index.x
             }
         }
 
@@ -328,6 +311,9 @@ mod tests {
         assert_eq!(map.chunks.len(), 2);
         assert_eq!(*map.get_cell(some_pos), Cell::new(some_tile));
         assert_eq!(*map.get_cell(other_pos), Cell::new(other_tile));
-        assert_eq!(*map.get_cell(other_pos + CellIndex::new(1, 0, 0)), default_cell);
+        assert_eq!(
+            *map.get_cell(other_pos + CellIndex::new(1, 0, 0)),
+            default_cell
+        );
     }
 }
