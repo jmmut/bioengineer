@@ -21,6 +21,7 @@ pub struct GameState {
     pub advance_fluid_every_n_frames: i32,
     pub fluids: Fluids,
     pub profile: bool,
+    pub robots: Vec<Robot>,
 }
 
 impl GameState {
@@ -30,6 +31,11 @@ impl GameState {
         let profile = DEFAULT_PROFILE_ENABLED;
         let mut fluids = Fluids::new(FluidMode::InStages);
         fluids.set_profile(profile);
+        let ship_position = map.get_ship_position();
+        let robots = match ship_position {
+            Option::None => vec![],
+            Option::Some(position) => vec![Robot { position }],
+        };
         GameState {
             frame_index: 0,
             previous_frame_ts: now() - 1.0,
@@ -40,6 +46,7 @@ impl GameState {
             advance_fluid_every_n_frames: DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES,
             fluids,
             profile,
+            robots
         }
     }
 
@@ -97,4 +104,9 @@ fn transform_cells(
     for highlighted_cell in to_transform {
         transformation.apply(map.get_cell_mut(*highlighted_cell));
     }
+}
+
+#[derive(PartialEq)]
+pub struct Robot {
+    pub position: CellIndex,
 }

@@ -32,6 +32,7 @@ pub struct Map {
     chunks: HashMap<ChunkIndex, Chunk>,
     min_cell: CellIndex,
     max_cell: CellIndex,
+    ship_position: Option<CellIndex>,
 }
 
 impl Map {
@@ -45,10 +46,12 @@ impl Map {
         for chunk_index in chunk_indexes {
             chunks.insert(chunk_index, Chunk::new_from_chunk_index(chunk_index));
         }
+        let ship_position = Option::None;
         Map {
             chunks,
             min_cell,
             max_cell,
+            ship_position,
         }
     }
     pub fn _new_from_pressures(cells: Vec<i32>, min_cell: CellIndex, max_cell: CellIndex) -> Self {
@@ -71,6 +74,7 @@ impl Map {
             chunks: mut_map_iter.collected_chunks,
             min_cell: mut_map_iter.min_cell,
             max_cell: mut_map_iter.max_cell,
+            ship_position: mut_map_iter.ship_position,
         }
     }
 
@@ -140,6 +144,9 @@ impl Map {
                 choose_tile_in_island_map(cell_index, cell)
             }
         }
+        let ship_pos = CellIndex::new(0, 1, 0);
+        self.get_cell_mut(ship_pos).tile_type = TileType::MachineShip;
+        self.ship_position = Option::Some(ship_pos);
     }
 
     fn regenerate_with_simplex_noise(&mut self) {
@@ -171,6 +178,10 @@ impl Map {
         println!("simplex range used: [{}, {}]", min, max);
     }
 
+    pub fn get_ship_position(&self) -> Option<CellIndex> {
+        self.ship_position
+    }
+
     pub fn _get_pressures(&self, min_cell: CellIndex, max_cell: CellIndex) -> Vec<i32> {
         let mut cells = Vec::new();
         for cell_index in CellCubeIterator::new(min_cell, max_cell) {
@@ -178,8 +189,9 @@ impl Map {
         }
         cells
     }
+
     pub fn iter_mut(self) -> MutMapIterator {
-        MutMapIterator::new(self.chunks, self.min_cell, self.max_cell)
+        MutMapIterator::new(self.chunks, self.min_cell, self.max_cell, self.ship_position)
     }
 }
 
@@ -198,11 +210,7 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
         let is_land = horizontal_distance_from_center < island_radius + enlargement_by_deepness;
         if is_land {
             cell.tile_type = if cell_index.y == 1 {
-                if cell_index.x == 0 && cell_index.z == 0 {
-                    TileType::MachineShip
-                } else {
-                    TileType::FloorDirt
-                }
+                TileType::FloorDirt
             } else {
                 TileType::WallRock
             };
