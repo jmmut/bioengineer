@@ -144,8 +144,8 @@ mod tests {
 
     struct CellTransformationFixture {
         pub cell: Cell,
-        pub min_cell: CellIndex,
-        pub max_cell: CellIndex,
+        // pub min_cell: CellIndex,
+        // pub max_cell: CellIndex,
         pub map: Map,
     }
 
@@ -161,8 +161,8 @@ mod tests {
             }
             CellTransformationFixture {
                 cell,
-                min_cell,
-                max_cell,
+                // min_cell,
+                // max_cell,
                 map,
             }
         }
@@ -171,7 +171,7 @@ mod tests {
     #[test]
     // #[ignore]
     fn test_basic_surface_transformation() {
-        let mut fx = CellTransformationFixture::new();
+        let fx = CellTransformationFixture::new();
         let transformation =
             allowed_transformations_of_cell(&fx.cell, &CellIndex::default(), &fx.map);
         assert_eq!(
