@@ -4,7 +4,7 @@ use crate::gui::GuiActions;
 use crate::map::fluids::{FluidMode, Fluids};
 use crate::map::transform_cells::Transformation;
 use crate::map::CellIndex;
-use crate::now;
+use crate::{now, IVec3};
 use std::collections::HashSet;
 
 const DEFAULT_PROFILE_ENABLED: bool = false;
@@ -126,29 +126,61 @@ pub struct Task {
     pub to_transform: HashSet<CellIndex>,
     pub transformation: Transformation,
 }
+type CellIndexDiff = CellIndex;
 
-fn move_robot(current_pos: CellIndex, tasks: &Vec<Task>, map: &Map) -> Option<CellIndex> {
+fn move_robot(current_pos: CellIndex, tasks: &Vec<Task>, map: &Map) -> Option<CellIndexDiff> {
     if tasks.is_empty() {
         return Option::None;
     }
-    let target = tasks.first().unwrap().to_transform.iter().next().unwrap();
+    let target = *tasks.first().unwrap().to_transform.iter().next().unwrap();
     let mut dirs = Vec::new();
     if target.x > current_pos.x {
-        dirs.push(CellIndex::new(1, 0, 0));
+        dirs.push(CellIndexDiff::new(1, 0, 0));
     } else if target.x < current_pos.x {
-        dirs.push(CellIndex::new(-1, 0, 0));
+        dirs.push(CellIndexDiff::new(-1, 0, 0));
     }
     if target.y > current_pos.y {
-        dirs.push(CellIndex::new(0, 1, 0));
+        dirs.push(CellIndexDiff::new(0, 1, 0));
     } else if target.y < current_pos.y {
-        dirs.push(CellIndex::new(0, -1, 0));
+        dirs.push(CellIndexDiff::new(0, -1, 0));
     }
     if target.z > current_pos.z {
-        dirs.push(CellIndex::new(0, 0, 1));
+        dirs.push(CellIndexDiff::new(0, 0, 1));
     } else if target.z < current_pos.z {
-        dirs.push(CellIndex::new(0, 0, -1));
+        dirs.push(CellIndexDiff::new(0, 0, -1));
     }
-    return Option::None
+
+    let path = try_move(&dirs, current_pos, target);
+    path.and_then(|p| p.last().map(|c| *c))
+}
+
+fn try_move(
+    dirs: &Vec<CellIndexDiff>,
+    current_pos: CellIndex,
+    target_pos: CellIndex,
+) -> Option<Vec<CellIndexDiff>> {
+    if current_pos == target_pos {
+        Option::Some(Vec::new())
+    } else {
+        let diff = manhattan_distance(target_pos, current_pos);
+        for dir in dirs {
+            let possible_new_pos = current_pos + *dir;
+            let moving_to_dir_gets_us_closer =
+                manhattan_distance(target_pos, possible_new_pos) < diff;
+            if moving_to_dir_gets_us_closer {
+                let mut path = try_move(dirs, possible_new_pos, target_pos);
+                if let Option::Some(mut some_path) = path {
+                    some_path.push(*dir);
+                    return Option::Some(some_path);
+                }
+            }
+        }
+        Option::None
+    }
+}
+
+fn manhattan_distance(pos: CellIndex, other_pos: CellIndex) -> i32 {
+    i32::abs(pos.x - other_pos.x) + i32::abs(pos.y - other_pos.y) + i32::abs(pos.z - other_pos.z)
 }
 
 #[cfg(test)]
@@ -176,6 +208,48 @@ mod tests {
     }
 
     #[test]
+    fn test_move_robot_3d() {
+        let cell_index_to_transform = CellIndex::new(5, 7, 10);
+        let tasks = vec![Task {
+            to_transform: HashSet::from([cell_index_to_transform]),
+            transformation: Transformation::to(TileType::MachineAssembler),
+        }];
+        let initial_pos = CellIndex::new(0, 0, 0);
+        let map = Map::_new_from_tiles(
+            Cell::new(TileType::FloorDirt),
+            vec![
+                (initial_pos, TileType::FloorDirt),
+                (cell_index_to_transform, TileType::FloorRock),
+            ],
+        );
+        let new_pos = move_robot(initial_pos, &tasks, &map);
+        assert_eq!(new_pos, Option::Some(CellIndex::new(1, 0, 0)));
+    }
+
+    #[test]
+    fn test_move_robot_full_path() {
+        let cell_index_to_transform = CellIndex::new(5, 7, 10);
+        let tasks = vec![Task {
+            to_transform: HashSet::from([cell_index_to_transform]),
+            transformation: Transformation::to(TileType::MachineAssembler),
+        }];
+        let mut initial_pos = CellIndex::new(0, 0, 0);
+        let map = Map::_new_from_tiles(
+            Cell::new(TileType::FloorDirt),
+            vec![
+                (initial_pos, TileType::FloorDirt),
+                (cell_index_to_transform, TileType::FloorRock),
+            ],
+        );
+        let max_path_length = manhattan_distance(cell_index_to_transform, initial_pos);
+        for i in 0..max_path_length {
+            let dir = move_robot(initial_pos, &tasks, &map).unwrap();
+            initial_pos += dir;
+        }
+        assert_eq!(initial_pos, cell_index_to_transform);
+    }
+
+    #[test]
     fn test_move_robot_no_tasks() {
         let cell_index_to_transform = CellIndex::new(0, 0, 10);
         let tasks = vec![];
@@ -198,9 +272,7 @@ mod tests {
         let tasks = vec![];
         let map = Map::_new_from_tiles(
             Cell::new(TileType::FloorDirt),
-            vec![
-                (cell_index_to_transform, TileType::FloorRock),
-            ],
+            vec![(cell_index_to_transform, TileType::FloorRock)],
         );
         let new_pos = move_robot(initial_pos, &tasks, &map);
         assert_eq!(new_pos, Option::None);
