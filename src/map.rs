@@ -18,6 +18,7 @@ use trunc::trunc_towards_neg_inf;
 // use crate::map::map_iterator::MapIterator;
 pub use crate::map::cell::{is_liquid_or_air, Cell, TileType};
 pub use crate::map::cell_cube_iterator::CellCubeIterator;
+use crate::map::cell_envelope::Envelope;
 use crate::map::map_iterator::MutMapIterator;
 
 /// The axis are isometric:
@@ -71,19 +72,19 @@ impl Map {
         map
     }
 
-    pub fn _new_from_tiles(default_cell: Cell, cells: Vec<(CellIndex, TileType)>) -> Self {
+    pub fn _new_from_tiles(default_cell: Cell, tiles: Vec<(CellIndex, TileType)>) -> Self {
         let mut chunks = HashMap::new();
-        let mut min_cell = CellIndex::new(i32::MAX, i32::MAX, i32::MAX);
-        let mut max_cell = CellIndex::new(i32::MIN, i32::MIN, i32::MIN);
-        for (cell_index, tile) in &cells {
+        let mut envelope = Envelope::new();
+        for (cell_index, tile) in &tiles {
             let chunk_indexes = get_required_chunks(*cell_index, *cell_index);
             for chunk_index in chunk_indexes {
                 let chunk =
                     Chunk::new_from_chunk_index_with_default_cell(chunk_index, default_cell);
                 chunks.insert(chunk_index, chunk);
             }
+            envelope.add(cell_index);
         }
-
+        let (min_cell, max_cell) = envelope.result();
         let ship_position = Option::None;
         let mut map = Map {
             chunks,
@@ -91,7 +92,7 @@ impl Map {
             max_cell,
             ship_position,
         };
-        for (cell_index, tile) in cells {
+        for (cell_index, tile) in tiles {
             map.get_cell_mut(cell_index).tile_type = tile;
         }
         map

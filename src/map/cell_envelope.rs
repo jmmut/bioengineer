@@ -1,4 +1,3 @@
-
 use crate::map::CellIndex;
 
 fn envelope(cells: &Vec<CellIndex>) -> (CellIndex, CellIndex) {
@@ -46,7 +45,6 @@ impl Envelope {
         (self.min_cell, self.max_cell)
     }
 }
-
 
 #[cfg(test)]
 mod tests {
