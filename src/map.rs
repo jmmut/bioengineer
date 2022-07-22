@@ -16,7 +16,7 @@ use std::collections::HashMap;
 use trunc::trunc_towards_neg_inf;
 
 // use crate::map::map_iterator::MapIterator;
-pub use crate::map::cell::{is_liquid_or_air, Cell, TileType};
+pub use crate::map::cell::{is_liquid_or_air, is_walkable, Cell, TileType};
 pub use crate::map::cell_cube_iterator::CellCubeIterator;
 use crate::map::cell_envelope::Envelope;
 use crate::map::map_iterator::MutMapIterator;

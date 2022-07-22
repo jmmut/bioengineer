@@ -47,6 +47,20 @@ pub fn is_liquid_or_air(tile: TileType) -> bool {
     tile == Air || is_liquid(tile)
 }
 
+pub fn is_walkable(tile: TileType) -> bool {
+    [
+        FloorRock,
+        FloorDirt,
+        Stairs,
+        Wire,
+        MachineAssembler,
+        MachineDrill,
+        MachineSolarPanel,
+        MachineShip,
+    ]
+    .contains(&tile)
+}
+
 impl Cell {
     pub fn new(tile_type: TileType) -> Self {
         Cell {
