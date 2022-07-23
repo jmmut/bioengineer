@@ -1,5 +1,6 @@
 use crate::map::CellIndex;
 
+#[allow(unused)]
 fn envelope(cells: &Vec<CellIndex>) -> (CellIndex, CellIndex) {
     let mut envelope = Envelope::new();
     for cell_index in cells {
@@ -8,15 +9,17 @@ fn envelope(cells: &Vec<CellIndex>) -> (CellIndex, CellIndex) {
     envelope.result()
 }
 
+#[allow(unused)]
 pub struct Envelope {
     min_cell: CellIndex,
     max_cell: CellIndex,
 }
 
+#[allow(unused)]
 impl Envelope {
     pub fn new() -> Self {
-        let mut min_cell = CellIndex::new(i32::MAX, i32::MAX, i32::MAX);
-        let mut max_cell = CellIndex::new(i32::MIN, i32::MIN, i32::MIN);
+        let min_cell = CellIndex::new(i32::MAX, i32::MAX, i32::MAX);
+        let max_cell = CellIndex::new(i32::MIN, i32::MIN, i32::MIN);
         Envelope { min_cell, max_cell }
     }
 

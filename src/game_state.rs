@@ -1,7 +1,6 @@
 use super::map::Map;
 use crate::drawing::Drawing;
 use crate::gui::GuiActions;
-use crate::input::PixelPosition;
 use crate::map::fluids::{FluidMode, Fluids};
 use crate::map::transform_cells::Transformation;
 use crate::map::{is_walkable, CellIndex, TileType};
@@ -69,8 +68,8 @@ impl GameState {
         }
 
         if self.should_advance_robots_this_frame() {
-            if let Option::Some(movement_target) = self.movement_queue.front() {
-                self.move_robots_to_position(&movement_target.clone())
+            if let Option::Some(movement_target) = self.movement_queue.front().cloned() {
+                self.move_robots_to_position(&movement_target)
             } else {
                 self.transform_cells_if_robots_can_do_so();
                 self.move_robots();
@@ -163,16 +162,6 @@ impl GameState {
     }
 }
 
-fn transform_cells(
-    to_transform: &HashSet<CellIndex>,
-    transformation: Transformation,
-    map: &mut Map,
-) {
-    for highlighted_cell in to_transform {
-        transformation.apply(map.get_cell_mut(*highlighted_cell));
-    }
-}
-
 #[derive(PartialEq)]
 pub struct Robot {
     pub position: CellIndex,
@@ -247,7 +236,7 @@ fn try_move(
                     < diff
                     && is_position_walkable(map, possible_new_pos);
                 if moving_to_dir_gets_us_closer {
-                    let mut path = try_move(dirs, possible_new_pos, target_pos, map);
+                    let path = try_move(dirs, possible_new_pos, target_pos, map);
                     if let Option::Some(mut some_path) = path {
                         some_path.push(*dir);
                         return Option::Some(some_path);
@@ -330,7 +319,7 @@ mod tests {
             ],
         );
         let max_path_length = manhattan_distance(cell_index_to_transform, initial_pos);
-        for i in 0..max_path_length {
+        for _ in 0..max_path_length {
             let dir = move_robot_to_tasks(initial_pos, &tasks, &map).unwrap();
             initial_pos += dir;
         }
@@ -420,39 +409,37 @@ mod tests {
             to_transform: HashSet::from([CellIndex::new(0, 0, 0), CellIndex::new(0, 1, 0)]),
             transformation: Transformation::to(TileType::Stairs),
         }]);
-        let mut initial_pos = CellIndex::new(0, 1, 0);
+        let initial_pos = CellIndex::new(0, 1, 0);
         game_state.map = Map::_new_from_tiles(
             Cell::new(TileType::FloorDirt),
             vec![(CellIndex::new(0, 0, 0), TileType::FloorDirt)],
         );
-        game_state.robots.first_mut().unwrap().position = CellIndex::new(0, 1, 0);
-        assert_eq!(
-            game_state.map.get_cell(CellIndex::new(0, 0, 0)).tile_type,
-            TileType::FloorDirt
-        );
-        assert_eq!(
-            game_state.map.get_cell(CellIndex::new(0, 1, 0)).tile_type,
-            TileType::FloorDirt
-        );
+        game_state.robots.first_mut().unwrap().position = initial_pos;
+
+        {
+            let assert_cell_is_ = assert_cell_is(&game_state);
+            assert_cell_is_(CellIndex::new(0, 0, 0), TileType::FloorDirt);
+            assert_cell_is_(CellIndex::new(0, 1, 0), TileType::FloorDirt);
+        }
         game_state.transform_cells_if_robots_can_do_so();
         game_state.move_robots();
-        assert_eq!(
-            game_state.map.get_cell(CellIndex::new(0, 0, 0)).tile_type,
-            TileType::FloorDirt
-        );
-        assert_eq!(
-            game_state.map.get_cell(CellIndex::new(0, 1, 0)).tile_type,
-            TileType::Stairs
-        );
+        {
+            let assert_cell_is_ = assert_cell_is(&game_state);
+            assert_cell_is_(CellIndex::new(0, 0, 0), TileType::FloorDirt);
+            assert_cell_is_(CellIndex::new(0, 1, 0), TileType::Stairs);
+        }
         game_state.transform_cells_if_robots_can_do_so();
         game_state.move_robots();
-        assert_eq!(
-            game_state.map.get_cell(CellIndex::new(0, 0, 0)).tile_type,
-            TileType::Stairs
-        );
-        assert_eq!(
-            game_state.map.get_cell(CellIndex::new(0, 1, 0)).tile_type,
-            TileType::Stairs
-        );
+        {
+            let assert_cell_is_ = assert_cell_is(&game_state);
+            assert_cell_is_(CellIndex::new(0, 0, 0), TileType::Stairs);
+            assert_cell_is_(CellIndex::new(0, 1, 0), TileType::Stairs);
+        }
+    }
+
+    fn assert_cell_is<'a>(game_state: &'a GameState) -> impl Fn(CellIndex, TileType) + 'a {
+        |cell_index: CellIndex, tile_type: TileType| {
+            assert_eq!(game_state.map.get_cell(cell_index).tile_type, tile_type);
+        }
     }
 }

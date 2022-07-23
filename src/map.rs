@@ -75,7 +75,7 @@ impl Map {
     pub fn _new_from_tiles(default_cell: Cell, tiles: Vec<(CellIndex, TileType)>) -> Self {
         let mut chunks = HashMap::new();
         let mut envelope = Envelope::new();
-        for (cell_index, tile) in &tiles {
+        for (cell_index, _tile) in &tiles {
             let chunk_indexes = get_required_chunks(*cell_index, *cell_index);
             for chunk_index in chunk_indexes {
                 let chunk =

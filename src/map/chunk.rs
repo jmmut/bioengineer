@@ -28,6 +28,7 @@ pub struct Chunk {
 }
 
 impl Chunk {
+    #[allow(unused)]
     pub fn new(origin: CellIndex) -> Self {
         Self::new_with_default_cell(origin, Cell::default())
     }
