@@ -61,6 +61,24 @@ pub fn is_walkable(tile: TileType) -> bool {
     .contains(&tile)
 }
 
+/// Returns whether the tile image is tall enough that it would cover a robot behind this tile.
+/// This function is used to reduce the opacity for such tiles.
+pub fn is_covering(tile: TileType) -> bool {
+    [
+        Stairs,
+        MachineShip,
+        WallRock,
+        WallDirt,
+        DirtyWaterWall,
+        CleanWaterWall,
+        MachineAssembler,
+        MachineDrill,
+        MachineSolarPanel,
+        MachineShip,
+    ]
+    .contains(&tile)
+}
+
 impl Cell {
     pub fn new(tile_type: TileType) -> Self {
         Cell {

@@ -5,9 +5,11 @@ use crate::drawing::{assets, Drawing, SubCellIndex};
 use crate::game_state::Robot;
 use crate::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::input::PixelPosition;
-use crate::map::{Cell, CellIndex, TileType};
+use crate::map::{is_covering, Cell, CellIndex, TileType};
 use crate::Color;
 use crate::{DrawingTrait, GameState};
+
+const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 
 pub fn draw_map(drawer: &impl DrawingTrait, game_state: &GameState) {
     let drawing = game_state.get_drawing();
@@ -38,7 +40,14 @@ fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: Cel
         let selection_color = Color::new(0.2, 0.8, 0.2, 1.0);
         drawer.draw_colored_texture(tile_type, pixel.x, pixel.y, selection_color);
     } else {
-        let opacity = get_opacity(&cell_index, &min_cell, &max_cell, &drawing.subcell_diff);
+        let opacity = get_opacity(
+            &cell_index,
+            tile_type,
+            &game_state,
+            &drawing,
+            &min_cell,
+            &max_cell,
+        );
         // let opacity = 1.0; // for debugging
         drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, opacity);
     }
@@ -49,6 +58,20 @@ fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: Cel
     }) {
         drawer.draw_transparent_texture(TileType::Robot, pixel.x, pixel.y, 1.0);
     }
+}
+
+fn get_opacity(
+    cell_index: &CellIndex,
+    tile_type: TileType,
+    game_state: &GameState,
+    drawing: &Drawing,
+    min_cell: &CellIndex,
+    max_cell: &CellIndex,
+) -> f32 {
+    let border_opacity = get_border_opacity(cell_index, min_cell, max_cell, &drawing.subcell_diff);
+    let opacity_to_see_robot = get_opacity_to_see_robot(&cell_index, tile_type, &game_state.robots);
+    let opacity = f32::min(border_opacity, opacity_to_see_robot);
+    opacity
 }
 
 #[allow(unused)]
@@ -80,7 +103,7 @@ fn draw_pressure_number(
     }
 }
 
-fn get_opacity(
+fn get_border_opacity(
     cell: &CellIndex,
     min_cell: &CellIndex,
     max_cell: &CellIndex,
@@ -105,6 +128,25 @@ fn get_opacity(
     } else {
         1.0
     })
+}
+
+fn get_opacity_to_see_robot(
+    cell_index: &CellIndex,
+    tile_type: TileType,
+    robots: &Vec<Robot>,
+) -> f32 {
+    if is_covering(tile_type) {
+        let mut cells_with_reduced_opacity = Vec::new();
+        for robot in robots {
+            cells_with_reduced_opacity.push(robot.position + CellIndex::new(0, 0, 1));
+            cells_with_reduced_opacity.push(robot.position + CellIndex::new(1, 0, 1));
+            cells_with_reduced_opacity.push(robot.position + CellIndex::new(1, 0, 0));
+        }
+        if cells_with_reduced_opacity.contains(cell_index) {
+            return REDUCED_OPACITY_TO_SEE_ROBOT;
+        }
+    }
+    return 1.0;
 }
 
 #[allow(dead_code)]
@@ -159,11 +201,11 @@ mod tests {
         let max_cell = CellIndex::new(5, -15, -45);
         let mut cell = CellIndex::new(0, 0, 0);
         let no_offset = SubCellIndex::new(0.0, 0.0, 0.0);
-        let t = get_opacity(&cell, &min_cell, &max_cell, &no_offset);
+        let t = get_border_opacity(&cell, &min_cell, &max_cell, &no_offset);
         assert_eq!(t, 1.0);
 
         cell.x = min_cell.x;
-        let t = get_opacity(&cell, &min_cell, &max_cell, &no_offset);
+        let t = get_border_opacity(&cell, &min_cell, &max_cell, &no_offset);
         assert_eq!(t, 0.0);
     }
 
@@ -173,11 +215,11 @@ mod tests {
         let max_cell = CellIndex::new(5, -15, -45);
         let mut cell = CellIndex::new(0, 0, 0);
         let offset = SubCellIndex::new(0.5, 0.0, 0.0);
-        let t = get_opacity(&cell, &min_cell, &max_cell, &offset);
+        let t = get_border_opacity(&cell, &min_cell, &max_cell, &offset);
         assert_eq!(t, 1.0);
 
         cell.x = min_cell.x;
-        let t = get_opacity(&cell, &min_cell, &max_cell, &offset);
+        let t = get_border_opacity(&cell, &min_cell, &max_cell, &offset);
         assert_eq!(t, 0.5);
     }
 
@@ -187,11 +229,55 @@ mod tests {
         let max_cell = CellIndex::new(5, -15, -45);
         let cell = CellIndex::new(min_cell.x, 0, min_cell.z);
         let offset = SubCellIndex::new(0.0, 0.0, 0.0);
-        let t = get_opacity(&cell, &min_cell, &max_cell, &offset);
+        let t = get_border_opacity(&cell, &min_cell, &max_cell, &offset);
         assert_eq!(t, 0.0);
 
         let offset = SubCellIndex::new(0.2, 0.0, 0.8);
-        let t = get_opacity(&cell, &min_cell, &max_cell, &offset);
+        let t = get_border_opacity(&cell, &min_cell, &max_cell, &offset);
         assert_eq!(t, 0.2);
+    }
+
+    #[test]
+    fn test_opacity_to_see_robot() {
+        let full_opacity = 1.0;
+        let robots = vec![Robot {
+            position: CellIndex::new(2, 5, 7),
+        }];
+        let tile = TileType::WallRock;
+        let opacity_to_see_robot =
+            get_opacity_to_see_robot(&CellIndex::new(2, 5, 7), tile, &robots);
+        assert_eq!(opacity_to_see_robot, full_opacity);
+        let opacity_to_see_robot =
+            get_opacity_to_see_robot(&CellIndex::new(2, 5, 8), tile, &robots);
+        assert_eq!(opacity_to_see_robot, REDUCED_OPACITY_TO_SEE_ROBOT);
+        let opacity_to_see_robot =
+            get_opacity_to_see_robot(&CellIndex::new(2, 6, 7), tile, &robots);
+        assert_eq!(opacity_to_see_robot, full_opacity);
+        let opacity_to_see_robot =
+            get_opacity_to_see_robot(&CellIndex::new(3, 5, 7), tile, &robots);
+        assert_eq!(opacity_to_see_robot, REDUCED_OPACITY_TO_SEE_ROBOT);
+        let opacity_to_see_robot =
+            get_opacity_to_see_robot(&CellIndex::new(3, 5, 8), tile, &robots);
+        assert_eq!(opacity_to_see_robot, REDUCED_OPACITY_TO_SEE_ROBOT);
+        let opacity_to_see_robot =
+            get_opacity_to_see_robot(&CellIndex::new(2, 5, 9), tile, &robots);
+        assert_eq!(opacity_to_see_robot, full_opacity);
+        let opacity_to_see_robot =
+            get_opacity_to_see_robot(&CellIndex::new(4, 7, 9), tile, &robots);
+        assert_eq!(opacity_to_see_robot, full_opacity);
+        let opacity_to_see_robot =
+            get_opacity_to_see_robot(&CellIndex::new(4, 7, 7), tile, &robots);
+        assert_eq!(opacity_to_see_robot, full_opacity);
+    }
+
+    #[test]
+    fn test_full_opacity_to_see_robot_when_non_covering() {
+        let full_opacity = 1.0;
+        let robots = vec![Robot {
+            position: CellIndex::new(2, 5, 7),
+        }];
+        let opacity_to_see_robot =
+            get_opacity_to_see_robot(&CellIndex::new(2, 5, 8), TileType::FloorRock, &robots);
+        assert_eq!(opacity_to_see_robot, full_opacity);
     }
 }
