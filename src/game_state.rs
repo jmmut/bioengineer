@@ -3,7 +3,7 @@ use crate::drawing::Drawing;
 use crate::gui::GuiActions;
 use crate::map::fluids::{FluidMode, Fluids};
 use crate::map::transform_cells::Transformation;
-use crate::map::{CellIndex, TileType, is_walkable};
+use crate::map::{is_walkable, CellIndex, TileType};
 use crate::now;
 use std::collections::{HashSet, VecDeque};
 
@@ -60,8 +60,8 @@ impl GameState {
             self.queue_transformation(transformation);
         }
         if self.should_advance_robots_this_frame() {
-            self.move_robots();
             self.transform_cells_if_robots_can_do_so();
+            self.move_robots();
         }
         if gui_actions.input.toggle_fluids {
             self.advancing_fluids = !self.advancing_fluids;
@@ -97,7 +97,8 @@ impl GameState {
             if let Option::Some(task) = task_opt {
                 let transformation_here = task.to_transform.take(&robot.position);
                 if transformation_here.is_some() {
-                    task.transformation.apply(self.map.get_cell_mut(robot.position));
+                    task.transformation
+                        .apply(self.map.get_cell_mut(robot.position));
                     if task.to_transform.len() == 0 {
                         self.task_queue.pop_front();
                     }
@@ -162,26 +163,31 @@ fn move_robot(current_pos: CellIndex, tasks: &VecDeque<Task>, map: &Map) -> Opti
     if tasks.is_empty() {
         return Option::None;
     }
-    let target = *tasks.front().unwrap().to_transform.iter().next().unwrap();
-    let mut dirs = Vec::new();
-    if target.x > current_pos.x {
-        dirs.push(CellIndexDiff::new(1, 0, 0));
-    } else if target.x < current_pos.x {
-        dirs.push(CellIndexDiff::new(-1, 0, 0));
-    }
-    if target.y > current_pos.y {
-        dirs.push(CellIndexDiff::new(0, 1, 0));
-    } else if target.y < current_pos.y {
-        dirs.push(CellIndexDiff::new(0, -1, 0));
-    }
-    if target.z > current_pos.z {
-        dirs.push(CellIndexDiff::new(0, 0, 1));
-    } else if target.z < current_pos.z {
-        dirs.push(CellIndexDiff::new(0, 0, -1));
-    }
+    for target in tasks.front().unwrap().to_transform.iter() {
+        let mut dirs = Vec::new();
+        if target.x > current_pos.x {
+            dirs.push(CellIndexDiff::new(1, 0, 0));
+        } else if target.x < current_pos.x {
+            dirs.push(CellIndexDiff::new(-1, 0, 0));
+        }
+        if target.y > current_pos.y {
+            dirs.push(CellIndexDiff::new(0, 1, 0));
+        } else if target.y < current_pos.y {
+            dirs.push(CellIndexDiff::new(0, -1, 0));
+        }
+        if target.z > current_pos.z {
+            dirs.push(CellIndexDiff::new(0, 0, 1));
+        } else if target.z < current_pos.z {
+            dirs.push(CellIndexDiff::new(0, 0, -1));
+        }
 
-    let path = try_move(&dirs, current_pos, target, map);
-    path.and_then(|p| p.last().map(|c| *c))
+        let path = try_move(&dirs, current_pos, *target, map);
+        let movement = path.and_then(|p| p.last().map(|c| *c));
+        if movement.is_some() {
+            return movement;
+        }
+    }
+    return Option::None;
 }
 
 fn try_move(
@@ -194,20 +200,24 @@ fn try_move(
         Option::Some(Vec::new())
     } else {
         let diff = manhattan_distance(target_pos, current_pos);
-        for dir in dirs {
-            let possible_new_pos = current_pos + *dir;
-            let moving_to_dir_gets_us_closer = manhattan_distance(target_pos, possible_new_pos)
-                < diff
-                && is_position_walkable(map, possible_new_pos);
-            if moving_to_dir_gets_us_closer {
-                let mut path = try_move(dirs, possible_new_pos, target_pos, map);
-                if let Option::Some(mut some_path) = path {
-                    some_path.push(*dir);
-                    return Option::Some(some_path);
+        if diff == 1 {
+            Option::Some(vec![target_pos - current_pos])
+        } else {
+            for dir in dirs {
+                let possible_new_pos = current_pos + *dir;
+                let moving_to_dir_gets_us_closer = manhattan_distance(target_pos, possible_new_pos)
+                    < diff
+                    && is_position_walkable(map, possible_new_pos);
+                if moving_to_dir_gets_us_closer {
+                    let mut path = try_move(dirs, possible_new_pos, target_pos, map);
+                    if let Option::Some(mut some_path) = path {
+                        some_path.push(*dir);
+                        return Option::Some(some_path);
+                    }
                 }
             }
+            Option::None
         }
-        Option::None
     }
 }
 
@@ -250,7 +260,7 @@ mod tests {
     #[test]
     fn test_move_robot_3d() {
         let cell_index_to_transform = CellIndex::new(5, 7, 10);
-        let tasks =  VecDeque::from([Task {
+        let tasks = VecDeque::from([Task {
             to_transform: HashSet::from([cell_index_to_transform]),
             transformation: Transformation::to(TileType::MachineAssembler),
         }]);
@@ -363,5 +373,48 @@ mod tests {
         initial_pos += diff.unwrap();
         let diff = move_robot(initial_pos, &tasks, &map);
         assert_eq!(diff, Option::Some(CellIndex::new(0, 0, 1)));
+    }
+
+    #[test]
+    fn test_move_robot_temporarily_unreachable() {
+        let mut game_state = GameState::new();
+        game_state.task_queue = VecDeque::from([Task {
+            to_transform: HashSet::from([CellIndex::new(0, 0, 0), CellIndex::new(0, 1, 0)]),
+            transformation: Transformation::to(TileType::Stairs),
+        }]);
+        let mut initial_pos = CellIndex::new(0, 1, 0);
+        game_state.map = Map::_new_from_tiles(
+            Cell::new(TileType::FloorDirt),
+            vec![(CellIndex::new(0, 0, 0), TileType::FloorDirt)],
+        );
+        game_state.robots.first_mut().unwrap().position = CellIndex::new(0, 1, 0);
+        assert_eq!(
+            game_state.map.get_cell(CellIndex::new(0, 0, 0)).tile_type,
+            TileType::FloorDirt
+        );
+        assert_eq!(
+            game_state.map.get_cell(CellIndex::new(0, 1, 0)).tile_type,
+            TileType::FloorDirt
+        );
+        game_state.transform_cells_if_robots_can_do_so();
+        game_state.move_robots();
+        assert_eq!(
+            game_state.map.get_cell(CellIndex::new(0, 0, 0)).tile_type,
+            TileType::FloorDirt
+        );
+        assert_eq!(
+            game_state.map.get_cell(CellIndex::new(0, 1, 0)).tile_type,
+            TileType::Stairs
+        );
+        game_state.transform_cells_if_robots_can_do_so();
+        game_state.move_robots();
+        assert_eq!(
+            game_state.map.get_cell(CellIndex::new(0, 0, 0)).tile_type,
+            TileType::Stairs
+        );
+        assert_eq!(
+            game_state.map.get_cell(CellIndex::new(0, 1, 0)).tile_type,
+            TileType::Stairs
+        );
     }
 }
