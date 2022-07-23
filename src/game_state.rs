@@ -1,6 +1,7 @@
 use super::map::Map;
 use crate::drawing::Drawing;
 use crate::gui::GuiActions;
+use crate::input::PixelPosition;
 use crate::map::fluids::{FluidMode, Fluids};
 use crate::map::transform_cells::Transformation;
 use crate::map::{is_walkable, CellIndex, TileType};
@@ -25,6 +26,7 @@ pub struct GameState {
     pub profile: bool,
     pub robots: Vec<Robot>,
     pub task_queue: VecDeque<Task>,
+    pub movement_queue: VecDeque<CellIndex>,
 }
 
 impl GameState {
@@ -52,16 +54,27 @@ impl GameState {
             profile,
             robots,
             task_queue: VecDeque::new(),
+            movement_queue: VecDeque::new(),
         }
     }
 
     pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) {
         if let Option::Some(transformation) = gui_actions.selected_cell_transformation {
+            self.movement_queue.clear();
             self.queue_transformation(transformation);
         }
+        if let Option::Some(target_cell) = gui_actions.robot_movement {
+            self.task_queue.clear();
+            self.movement_queue.push_back(target_cell);
+        }
+
         if self.should_advance_robots_this_frame() {
-            self.transform_cells_if_robots_can_do_so();
-            self.move_robots();
+            if let Option::Some(movement_target) = self.movement_queue.front() {
+                self.move_robots_to_position(&movement_target.clone())
+            } else {
+                self.transform_cells_if_robots_can_do_so();
+                self.move_robots();
+            }
         }
         if gui_actions.input.toggle_fluids {
             self.advancing_fluids = !self.advancing_fluids;
@@ -75,6 +88,18 @@ impl GameState {
         }
     }
 
+    fn move_robots_to_position(&mut self, movement_target: &CellIndex) {
+        for robot in &mut self.robots {
+            let movement_opt = move_robot_to_position(robot.position, &movement_target, &self.map);
+            if let Option::Some(movement) = movement_opt {
+                robot.position += movement;
+                if robot.position == *movement_target {
+                    self.movement_queue.pop_front();
+                }
+            }
+        }
+    }
+
     fn queue_transformation(&mut self, transformation: Transformation) {
         self.task_queue.push_back(Task {
             to_transform: self.drawing.highlighted_cells.clone(),
@@ -84,7 +109,7 @@ impl GameState {
 
     fn move_robots(&mut self) {
         for robot in &mut self.robots {
-            let movement_opt = move_robot(robot.position, &self.task_queue, &self.map);
+            let movement_opt = move_robot_to_tasks(robot.position, &self.task_queue, &self.map);
             if let Option::Some(movement) = movement_opt {
                 robot.position += movement;
             }
@@ -159,35 +184,48 @@ pub struct Task {
 }
 type CellIndexDiff = CellIndex;
 
-fn move_robot(current_pos: CellIndex, tasks: &VecDeque<Task>, map: &Map) -> Option<CellIndexDiff> {
+fn move_robot_to_tasks(
+    current_pos: CellIndex,
+    tasks: &VecDeque<Task>,
+    map: &Map,
+) -> Option<CellIndexDiff> {
     if tasks.is_empty() {
         return Option::None;
     }
     for target in tasks.front().unwrap().to_transform.iter() {
-        let mut dirs = Vec::new();
-        if target.x > current_pos.x {
-            dirs.push(CellIndexDiff::new(1, 0, 0));
-        } else if target.x < current_pos.x {
-            dirs.push(CellIndexDiff::new(-1, 0, 0));
-        }
-        if target.y > current_pos.y {
-            dirs.push(CellIndexDiff::new(0, 1, 0));
-        } else if target.y < current_pos.y {
-            dirs.push(CellIndexDiff::new(0, -1, 0));
-        }
-        if target.z > current_pos.z {
-            dirs.push(CellIndexDiff::new(0, 0, 1));
-        } else if target.z < current_pos.z {
-            dirs.push(CellIndexDiff::new(0, 0, -1));
-        }
-
-        let path = try_move(&dirs, current_pos, *target, map);
-        let movement = path.and_then(|p| p.last().map(|c| *c));
+        let movement = move_robot_to_position(current_pos, target, map);
         if movement.is_some() {
             return movement;
         }
     }
     return Option::None;
+}
+
+fn move_robot_to_position(
+    current_pos: CellIndex,
+    target_pos: &CellIndex,
+    map: &Map,
+) -> Option<CellIndexDiff> {
+    let mut dirs = Vec::new();
+    if target_pos.x > current_pos.x {
+        dirs.push(CellIndexDiff::new(1, 0, 0));
+    } else if target_pos.x < current_pos.x {
+        dirs.push(CellIndexDiff::new(-1, 0, 0));
+    }
+    if target_pos.y > current_pos.y {
+        dirs.push(CellIndexDiff::new(0, 1, 0));
+    } else if target_pos.y < current_pos.y {
+        dirs.push(CellIndexDiff::new(0, -1, 0));
+    }
+    if target_pos.z > current_pos.z {
+        dirs.push(CellIndexDiff::new(0, 0, 1));
+    } else if target_pos.z < current_pos.z {
+        dirs.push(CellIndexDiff::new(0, 0, -1));
+    }
+
+    let path = try_move(&dirs, current_pos, *target_pos, map);
+    let movement = path.and_then(|p| p.last().map(|c| *c));
+    movement
 }
 
 fn try_move(
@@ -253,7 +291,7 @@ mod tests {
                 (cell_index_to_transform, TileType::FloorRock),
             ],
         );
-        let new_pos = move_robot(initial_pos, &tasks, &map);
+        let new_pos = move_robot_to_tasks(initial_pos, &tasks, &map);
         assert_eq!(new_pos, Option::Some(CellIndex::new(0, 0, 1)));
     }
 
@@ -272,7 +310,7 @@ mod tests {
                 (cell_index_to_transform, TileType::FloorRock),
             ],
         );
-        let new_pos = move_robot(initial_pos, &tasks, &map);
+        let new_pos = move_robot_to_tasks(initial_pos, &tasks, &map);
         assert_eq!(new_pos, Option::Some(CellIndex::new(1, 0, 0)));
     }
 
@@ -293,7 +331,7 @@ mod tests {
         );
         let max_path_length = manhattan_distance(cell_index_to_transform, initial_pos);
         for i in 0..max_path_length {
-            let dir = move_robot(initial_pos, &tasks, &map).unwrap();
+            let dir = move_robot_to_tasks(initial_pos, &tasks, &map).unwrap();
             initial_pos += dir;
         }
         assert_eq!(initial_pos, cell_index_to_transform);
@@ -311,7 +349,7 @@ mod tests {
                 (cell_index_to_transform, TileType::FloorRock),
             ],
         );
-        let new_pos = move_robot(initial_pos, &tasks, &map);
+        let new_pos = move_robot_to_tasks(initial_pos, &tasks, &map);
         assert_eq!(new_pos, Option::None);
     }
 
@@ -324,7 +362,7 @@ mod tests {
             Cell::new(TileType::FloorDirt),
             vec![(cell_index_to_transform, TileType::FloorRock)],
         );
-        let new_pos = move_robot(initial_pos, &tasks, &map);
+        let new_pos = move_robot_to_tasks(initial_pos, &tasks, &map);
         assert_eq!(new_pos, Option::None);
     }
 
@@ -343,7 +381,7 @@ mod tests {
                 (cell_index_to_transform, TileType::FloorRock),
             ],
         );
-        let new_pos = move_robot(initial_pos, &tasks, &map);
+        let new_pos = move_robot_to_tasks(initial_pos, &tasks, &map);
         assert_eq!(new_pos, Option::Some(cell_index_to_transform));
     }
 
@@ -362,16 +400,16 @@ mod tests {
                 (CellIndex::new(1, 0, 2), TileType::WallRock),
             ],
         );
-        let diff = move_robot(initial_pos, &tasks, &map);
+        let diff = move_robot_to_tasks(initial_pos, &tasks, &map);
         assert_eq!(diff, Option::Some(CellIndex::new(0, 0, 1)));
         initial_pos += diff.unwrap();
-        let diff = move_robot(initial_pos, &tasks, &map);
+        let diff = move_robot_to_tasks(initial_pos, &tasks, &map);
         assert_eq!(diff, Option::Some(CellIndex::new(1, 0, 0)));
         initial_pos += diff.unwrap();
-        let diff = move_robot(initial_pos, &tasks, &map);
+        let diff = move_robot_to_tasks(initial_pos, &tasks, &map);
         assert_eq!(diff, Option::Some(CellIndex::new(1, 0, 0)));
         initial_pos += diff.unwrap();
-        let diff = move_robot(initial_pos, &tasks, &map);
+        let diff = move_robot_to_tasks(initial_pos, &tasks, &map);
         assert_eq!(diff, Option::Some(CellIndex::new(0, 0, 1)));
     }
 

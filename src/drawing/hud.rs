@@ -44,6 +44,8 @@ pub fn show_available_actions(
     input: Input,
 ) -> GuiActions {
     let drawing_ = game_state.get_drawing();
+    let mut transformation_clicked = Option::None;
+    let mut cell_selection = input.cell_selection.clone();
     if drawing_.highlighted_cells.len() > 0 {
         let transformations = allowed_transformations(&drawing_.highlighted_cells, game_state);
         let line_height = FONT_SIZE * 1.5;
@@ -69,7 +71,6 @@ pub fn show_available_actions(
         drawer.draw_rectangle(panel.x, panel.y, panel.w, panel.h, BACKGROUND_UI_COLOR);
         drawer.draw_text(panel_title, margin_x, margin_y, FONT_SIZE, TEXT_COLOR);
         let mut i = 1.0;
-        let mut transformation_clicked = Option::None;
         for transformation in transformations {
             let y = margin_y + i * line_height - FONT_SIZE / 2.0;
             let text = to_action_str(transformation.new_tile_type);
@@ -82,19 +83,17 @@ pub fn show_available_actions(
             if panel.contains(selection.end) {
                 // TODO: if clicking a button near the bottom of the panel, it selects a cell out
                 // of screen
-                return GuiActions {
-                    input: Input {
-                        cell_selection: CellSelection::no_selection(),
-                        ..input
-                    },
-                    selected_cell_transformation: transformation_clicked,
-                };
+                cell_selection = CellSelection::no_selection();
             }
         }
     }
     return GuiActions {
-        input,
-        selected_cell_transformation: Option::None,
+        input: Input {
+            cell_selection,
+            ..input
+        },
+        selected_cell_transformation: transformation_clicked,
+        robot_movement: Option::None,
     };
 }
 

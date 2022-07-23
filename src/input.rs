@@ -19,9 +19,10 @@ pub struct Input {
     pub robot_movement: Option<PixelPosition>,
 }
 
+#[derive(Copy, Clone)]
 pub struct CellSelection {
     pub state: CellSelectionType,
-    pub selection: Option<Selection>,
+    pub selection: Option<PixelSelection>,
 }
 
 impl CellSelection {
@@ -31,19 +32,19 @@ impl CellSelection {
             selection: Option::None,
         }
     }
-    pub fn started(selection: Selection) -> Self {
+    pub fn started(selection: PixelSelection) -> Self {
         Self {
             state: SelectionStarted,
             selection: Option::Some(selection),
         }
     }
-    pub fn in_progress(selection: Selection) -> Self {
+    pub fn in_progress(selection: PixelSelection) -> Self {
         Self {
             state: SelectionInProgress,
             selection: Option::Some(selection),
         }
     }
-    pub fn finished(selection: Selection) -> Self {
+    pub fn finished(selection: PixelSelection) -> Self {
         Self {
             state: SelectionFinished,
             selection: Option::Some(selection),
@@ -51,7 +52,7 @@ impl CellSelection {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 pub enum CellSelectionType {
     NoSelection,
     SelectionStarted,
@@ -60,7 +61,7 @@ pub enum CellSelectionType {
 }
 
 #[derive(Default, Debug, Copy, Clone)]
-pub struct Selection {
+pub struct PixelSelection {
     pub start: PixelPosition,
     pub end: PixelPosition,
 }

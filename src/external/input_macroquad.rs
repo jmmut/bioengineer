@@ -1,4 +1,4 @@
-use crate::input::{CellSelection, Input, InputSourceTrait, PixelPosition, Selection};
+use crate::input::{CellSelection, Input, InputSourceTrait, PixelPosition, PixelSelection};
 
 use macroquad::input::{
     is_key_pressed, is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released,
@@ -51,12 +51,12 @@ impl InputMacroquad {
             Option::None
         }
     }
-    pub fn get_left_click_release(&mut self) -> Option<Selection> {
+    pub fn get_left_click_release(&mut self) -> Option<PixelSelection> {
         if is_mouse_button_released(MouseButton::Left) && self.previous_left_click_pos.is_some() {
             let start = self.previous_left_click_pos.unwrap();
             self.previous_left_click_pos = Option::None;
             let (position_x, position_y) = mouse_position();
-            Option::Some(Selection {
+            Option::Some(PixelSelection {
                 start,
                 end: PixelPosition::new(position_x, position_y),
             })
@@ -90,12 +90,12 @@ impl InputMacroquad {
             None => match start_selection_this_frame {
                 None => match self.previous_left_click_pos {
                     None => CellSelection::no_selection(),
-                    Some(start) => CellSelection::in_progress(Selection {
+                    Some(start) => CellSelection::in_progress(PixelSelection {
                         start,
                         end: mouse_position,
                     }),
                 },
-                Some(start) => CellSelection::started(Selection {
+                Some(start) => CellSelection::started(PixelSelection {
                     start,
                     end: mouse_position,
                 }),

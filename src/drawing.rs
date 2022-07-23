@@ -1,6 +1,6 @@
 mod actions;
 pub mod assets;
-mod coords;
+pub mod coords;
 pub mod hud;
 mod tiles;
 
@@ -18,13 +18,6 @@ pub type TilePosition = IVec2;
 pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
-
-pub fn apply_input(unhandled: &GuiActions, drawing: &mut Drawing, screen_width: f32) {
-    let input = &unhandled.input;
-    drawing.maybe_change_height_rel(input.change_height_rel);
-    drawing.maybe_move_map_horizontally(input.move_map_horizontally, screen_width);
-    drawing.maybe_select_cells(&input.cell_selection, screen_width);
-}
 
 pub fn draw(drawer: &impl DrawingTrait, game_state: &GameState) {
     drawer.clear_background(GREY);
@@ -56,6 +49,13 @@ impl Drawing {
             highlighted_cells: HashSet::new(),
             highlight_start_height: 0,
         }
+    }
+
+    pub fn apply_input(&mut self, unhandled: &GuiActions, screen_width: f32) {
+        let input = &unhandled.input;
+        self.maybe_change_height_rel(input.change_height_rel);
+        self.maybe_move_map_horizontally(input.move_map_horizontally, screen_width);
+        self.maybe_select_cells(&input.cell_selection, screen_width);
     }
 
     fn maybe_change_height_rel(&mut self, y: i32) {

@@ -25,7 +25,7 @@ use external::input_macroquad::InputMacroquad as InputSource;
 
 use crate::gui::Gui;
 use crate::profiling::ScopedProfiler;
-use drawing::{apply_input, draw, DrawingTrait};
+use drawing::{draw, DrawingTrait};
 use game_state::GameState;
 use input::InputSourceTrait;
 
@@ -88,11 +88,9 @@ fn frame<D: DrawingTrait, I: InputSourceTrait>(
         draw(drawer, &game_state);
         let gui_actions = gui.receive_actions(input, drawer, &game_state);
         game_state.update_with_gui_actions(&gui_actions);
-        apply_input(
-            &gui_actions,
-            game_state.get_drawing_mut(),
-            drawer.screen_width(),
-        );
+        game_state
+            .get_drawing_mut()
+            .apply_input(&gui_actions, drawer.screen_width());
     }
     game_state.advance_frame();
     should_continue
