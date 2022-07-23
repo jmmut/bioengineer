@@ -42,6 +42,15 @@ impl InputMacroquad {
             Option::None
         }
     }
+    pub fn get_right_click_position(&mut self) -> Option<PixelPosition> {
+        if is_mouse_button_pressed(MouseButton::Right) {
+            let (position_x, position_y) = mouse_position();
+            let position = PixelPosition::new(position_x, position_y);
+            Option::Some(position)
+        } else {
+            Option::None
+        }
+    }
     pub fn get_left_click_release(&mut self) -> Option<Selection> {
         if is_mouse_button_released(MouseButton::Left) && self.previous_left_click_pos.is_some() {
             let start = self.previous_left_click_pos.unwrap();
@@ -94,6 +103,11 @@ impl InputMacroquad {
             Some(end) => CellSelection::finished(end),
         }
     }
+
+    fn get_robot_movement(&mut self) -> Option<PixelPosition> {
+        let right_click_pos = self.get_right_click_position();
+        right_click_pos
+    }
 }
 
 impl InputSourceTrait for InputMacroquad {
@@ -105,6 +119,7 @@ impl InputSourceTrait for InputMacroquad {
         let change_height_rel = self.get_mouse_wheel_height_diff();
         let move_map_horizontally = self.get_horizontal_move();
         let cell_selection = self.get_cell_selection();
+        let robot_movement = self.get_robot_movement();
         Input {
             quit,
             regenerate_map,
@@ -113,6 +128,7 @@ impl InputSourceTrait for InputMacroquad {
             change_height_rel,
             move_map_horizontally,
             cell_selection,
+            robot_movement,
         }
     }
 }

@@ -16,6 +16,7 @@ pub struct Input {
     pub change_height_rel: i32,
     pub move_map_horizontally: PixelPosition,
     pub cell_selection: CellSelection,
+    pub robot_movement: Option<PixelPosition>,
 }
 
 pub struct CellSelection {

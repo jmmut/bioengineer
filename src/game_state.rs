@@ -5,11 +5,12 @@ use crate::map::fluids::{FluidMode, Fluids};
 use crate::map::transform_cells::Transformation;
 use crate::map::{CellIndex, TileType, is_walkable};
 use crate::now;
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
 
 const DEFAULT_PROFILE_ENABLED: bool = false;
 const DEFAULT_ADVANCING_FLUIDS: bool = false;
 const DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES: i32 = 1;
+const DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES: i32 = 15;
 
 pub struct GameState {
     pub frame_index: i32,
@@ -19,10 +20,11 @@ pub struct GameState {
     pub drawing: Drawing,
     pub advancing_fluids: bool,
     pub advance_fluid_every_n_frames: i32,
+    pub advance_robots_every_n_frames: i32,
     pub fluids: Fluids,
     pub profile: bool,
     pub robots: Vec<Robot>,
-    pub task_queue: Vec<Task>,
+    pub task_queue: VecDeque<Task>,
 }
 
 impl GameState {
@@ -45,10 +47,11 @@ impl GameState {
             drawing: Drawing::new(),
             advancing_fluids: DEFAULT_ADVANCING_FLUIDS,
             advance_fluid_every_n_frames: DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES,
+            advance_robots_every_n_frames: DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES,
             fluids,
             profile,
             robots,
-            task_queue: Vec::new(),
+            task_queue: VecDeque::new(),
         }
     }
 
@@ -56,8 +59,10 @@ impl GameState {
         if let Option::Some(transformation) = gui_actions.selected_cell_transformation {
             self.queue_transformation(transformation);
         }
-        self.move_robots();
-        self.transform_cells_if_robots_can_do_so();
+        if self.should_advance_robots_this_frame() {
+            self.move_robots();
+            self.transform_cells_if_robots_can_do_so();
+        }
         if gui_actions.input.toggle_fluids {
             self.advancing_fluids = !self.advancing_fluids;
         }
@@ -71,15 +76,40 @@ impl GameState {
     }
 
     fn queue_transformation(&mut self, transformation: Transformation) {
-        self.task_queue.push(Task {
+        self.task_queue.push_back(Task {
             to_transform: self.drawing.highlighted_cells.clone(),
             transformation,
         });
     }
 
-    fn move_robots(&mut self) {}
+    fn move_robots(&mut self) {
+        for robot in &mut self.robots {
+            let movement_opt = move_robot(robot.position, &self.task_queue, &self.map);
+            if let Option::Some(movement) = movement_opt {
+                robot.position += movement;
+            }
+        }
+    }
 
-    fn transform_cells_if_robots_can_do_so(&mut self) {}
+    fn transform_cells_if_robots_can_do_so(&mut self) {
+        for robot in &self.robots {
+            let task_opt = self.task_queue.front_mut();
+            if let Option::Some(task) = task_opt {
+                let transformation_here = task.to_transform.take(&robot.position);
+                if transformation_here.is_some() {
+                    task.transformation.apply(self.map.get_cell_mut(robot.position));
+                    if task.to_transform.len() == 0 {
+                        self.task_queue.pop_front();
+                    }
+                }
+            }
+        }
+    }
+
+    fn should_advance_robots_this_frame(&mut self) -> bool {
+        let should_process_frame = self.frame_index % self.advance_robots_every_n_frames == 0;
+        should_process_frame
+    }
 
     fn should_advance_fluids_this_frame(&mut self, gui_actions: &GuiActions) -> bool {
         if gui_actions.input.single_fluid {
@@ -128,11 +158,11 @@ pub struct Task {
 }
 type CellIndexDiff = CellIndex;
 
-fn move_robot(current_pos: CellIndex, tasks: &Vec<Task>, map: &Map) -> Option<CellIndexDiff> {
+fn move_robot(current_pos: CellIndex, tasks: &VecDeque<Task>, map: &Map) -> Option<CellIndexDiff> {
     if tasks.is_empty() {
         return Option::None;
     }
-    let target = *tasks.first().unwrap().to_transform.iter().next().unwrap();
+    let target = *tasks.front().unwrap().to_transform.iter().next().unwrap();
     let mut dirs = Vec::new();
     if target.x > current_pos.x {
         dirs.push(CellIndexDiff::new(1, 0, 0));
@@ -201,10 +231,10 @@ mod tests {
     #[test]
     fn test_move_robot_basic() {
         let cell_index_to_transform = CellIndex::new(0, 0, 10);
-        let tasks = vec![Task {
+        let tasks = VecDeque::from([Task {
             to_transform: HashSet::from([cell_index_to_transform]),
             transformation: Transformation::to(TileType::MachineAssembler),
-        }];
+        }]);
         let initial_pos = CellIndex::new(0, 0, 0);
         let map = Map::_new_from_tiles(
             Cell::new(TileType::FloorDirt),
@@ -220,10 +250,10 @@ mod tests {
     #[test]
     fn test_move_robot_3d() {
         let cell_index_to_transform = CellIndex::new(5, 7, 10);
-        let tasks = vec![Task {
+        let tasks =  VecDeque::from([Task {
             to_transform: HashSet::from([cell_index_to_transform]),
             transformation: Transformation::to(TileType::MachineAssembler),
-        }];
+        }]);
         let initial_pos = CellIndex::new(0, 0, 0);
         let map = Map::_new_from_tiles(
             Cell::new(TileType::FloorDirt),
@@ -239,10 +269,10 @@ mod tests {
     #[test]
     fn test_move_robot_full_path() {
         let cell_index_to_transform = CellIndex::new(5, 7, 10);
-        let tasks = vec![Task {
+        let tasks = VecDeque::from([Task {
             to_transform: HashSet::from([cell_index_to_transform]),
             transformation: Transformation::to(TileType::MachineAssembler),
-        }];
+        }]);
         let mut initial_pos = CellIndex::new(0, 0, 0);
         let map = Map::_new_from_tiles(
             Cell::new(TileType::FloorDirt),
@@ -262,7 +292,7 @@ mod tests {
     #[test]
     fn test_move_robot_no_tasks() {
         let cell_index_to_transform = CellIndex::new(0, 0, 10);
-        let tasks = vec![];
+        let tasks = VecDeque::new();
         let initial_pos = CellIndex::new(0, 0, 0);
         let map = Map::_new_from_tiles(
             Cell::new(TileType::FloorDirt),
@@ -279,7 +309,7 @@ mod tests {
     fn test_move_robot_no_movement() {
         let initial_pos = CellIndex::new(0, 0, 0);
         let cell_index_to_transform = initial_pos;
-        let tasks = vec![];
+        let tasks = VecDeque::new();
         let map = Map::_new_from_tiles(
             Cell::new(TileType::FloorDirt),
             vec![(cell_index_to_transform, TileType::FloorRock)],
@@ -291,10 +321,10 @@ mod tests {
     #[test]
     fn test_move_robot_single_movement() {
         let cell_index_to_transform = CellIndex::new(0, 0, 1);
-        let tasks = vec![Task {
+        let tasks = VecDeque::from([Task {
             to_transform: HashSet::from([cell_index_to_transform]),
             transformation: Transformation::to(TileType::MachineAssembler),
-        }];
+        }]);
         let initial_pos = CellIndex::new(0, 0, 0);
         let map = Map::_new_from_tiles(
             Cell::new(TileType::FloorDirt),
@@ -310,10 +340,10 @@ mod tests {
     #[test]
     fn test_move_robot_around_obstacles() {
         let cell_index_to_transform = CellIndex::new(2, 0, 2);
-        let tasks = vec![Task {
+        let tasks = VecDeque::from([Task {
             to_transform: HashSet::from([cell_index_to_transform]),
             transformation: Transformation::to(TileType::MachineAssembler),
-        }];
+        }]);
         let mut initial_pos = CellIndex::new(0, 0, 0);
         let map = Map::_new_from_tiles(
             Cell::new(TileType::FloorDirt),
