@@ -2,12 +2,12 @@ pub mod robots;
 
 use super::map::Map;
 use crate::drawing::Drawing;
+use crate::game_state::robots::{move_robot_to_position, move_robot_to_tasks, Robot};
 use crate::gui::GuiActions;
 use crate::map::fluids::{FluidMode, Fluids};
 use crate::map::transform_cells::Transformation;
 use crate::map::CellIndex;
 use crate::now;
-use crate::game_state::robots::{move_robot_to_position, move_robot_to_tasks, Robot};
 use std::collections::{HashSet, VecDeque};
 
 const DEFAULT_PROFILE_ENABLED: bool = false;
