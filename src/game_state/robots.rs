@@ -1,8 +1,10 @@
-use std::collections::hash_set::Iter;
 use crate::game_state::Task;
-use crate::map::Map;
 use crate::map::{is_walkable, CellIndex, TileType};
+use crate::map::{Cell, Map};
+use std::cmp::Ordering;
+use std::collections::hash_set::Iter;
 use std::collections::VecDeque;
+use std::vec::IntoIter;
 
 #[derive(PartialEq)]
 pub struct Robot {
@@ -18,8 +20,8 @@ pub fn move_robot_to_tasks(
     if tasks.is_empty() {
         return Option::None;
     }
-    for target in order_by_closest_target(tasks, current_pos) {
-        let movement = move_robot_to_position(current_pos, target, map);
+    for target in order_by_closest_target(tasks.front().unwrap(), current_pos) {
+        let movement = move_robot_to_position(current_pos, &target, map);
         if movement.is_some() {
             return movement;
         }
@@ -27,8 +29,14 @@ pub fn move_robot_to_tasks(
     return Option::None;
 }
 
-fn order_by_closest_target(tasks: &VecDeque<Task>, current_pos: CellIndex) -> Iter<CellIndex> {
-    tasks.front().unwrap().to_transform.iter()
+fn order_by_closest_target(task: &Task, current_pos: CellIndex) -> IntoIter<CellIndex> {
+    let mut cells: Vec<CellIndex> = task.to_transform.iter().cloned().collect();
+    cells.sort_by(|task_pos_1, task_pos_2| -> Ordering {
+        let distance_1 = manhattan_distance(current_pos, *task_pos_1);
+        let distance_2 = manhattan_distance(current_pos, *task_pos_2);
+        distance_1.cmp(&distance_2)
+    });
+    cells.into_iter()
 }
 
 pub fn move_robot_to_position(
@@ -283,9 +291,9 @@ mod tests {
             to_transform: HashSet::from([farthest_target, closest_target]),
             transformation: Transformation::to(TileType::Stairs),
         }]);
-        let mut iter = order_by_closest_target(&task_queue, initial_pos);
-        assert_eq!(iter.next().unwrap(), &closest_target);
-        assert_eq!(iter.next().unwrap(), &farthest_target);
+        let mut iter = order_by_closest_target(tasks.front().unwrap(), initial_pos);
+        assert_eq!(iter.next().unwrap(), closest_target);
+        assert_eq!(iter.next().unwrap(), farthest_target);
     }
 
     #[test]
