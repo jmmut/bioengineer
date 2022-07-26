@@ -31,8 +31,9 @@ cargo build -r --target wasm32-unknown-unknown
 cp -r target/wasm32-unknown-unknown/release/*.wasm export_html/
 cp -r assets/ export_html/
 
-# you can zip the folder and upload it to itch.io
+# you can zip the folder and upload it to itch.io with butler
 zip -r wasm.zip export_html/*
+butler push wasm.zip jmmut/Bioengineer:html5
 
 # or you can run locally with a local http server
 cargo install basic-http-server
