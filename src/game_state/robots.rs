@@ -287,7 +287,7 @@ mod tests {
         let initial_pos = CellIndex::new(0, 0, 0);
         let closest_target = CellIndex::new(-1, 0, 2);
         let farthest_target = CellIndex::new(2, 0, 2);
-        let task_queue = VecDeque::from([Task {
+        let tasks = VecDeque::from([Task {
             to_transform: HashSet::from([farthest_target, closest_target]),
             transformation: Transformation::to(TileType::Stairs),
         }]);
