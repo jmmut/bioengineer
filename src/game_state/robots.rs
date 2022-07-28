@@ -1,6 +1,6 @@
 use crate::game_state::Task;
 use crate::map::{is_walkable_horizontal, is_walkable_vertical, CellIndex, TileType};
-use crate::map::{Cell, Map};
+use crate::map::Map;
 use std::cmp::Ordering;
 use std::collections::VecDeque;
 use std::vec::IntoIter;
@@ -77,7 +77,7 @@ fn try_move(
         let diff = manhattan_distance(target_pos, current_pos);
         for dir in dirs {
             let possible_new_pos = current_pos + *dir;
-            let walkable = is_position_walkable(map, &possible_new_pos, dir);
+            let walkable = is_position_walkable(map, &possible_new_pos, &current_pos);
             if walkable {
                 let moving_to_dir_gets_us_closer =
                     manhattan_distance(target_pos, possible_new_pos) < diff;
@@ -97,6 +97,7 @@ fn try_move(
     }
 }
 
+/*
 fn is_position_walkable(map: &Map, possible_new_pos: &CellIndex, origin: &CellIndex) -> bool {
     is_walkable_horizontal(
         map.get_cell_optional(*possible_new_pos)
@@ -105,7 +106,7 @@ fn is_position_walkable(map: &Map, possible_new_pos: &CellIndex, origin: &CellIn
     )
 }
 
-/*
+ */
 
 fn is_position_walkable(map: &Map, possible_new_pos: &CellIndex, origin: &CellIndex) -> bool {
     let target_tile = map
@@ -123,7 +124,6 @@ fn is_position_walkable(map: &Map, possible_new_pos: &CellIndex, origin: &CellIn
         is_walkable_horizontal(target_tile)
     }
 }
- */
 
 fn manhattan_distance(pos: CellIndex, other_pos: CellIndex) -> i32 {
     i32::abs(pos.x - other_pos.x) + i32::abs(pos.y - other_pos.y) + i32::abs(pos.z - other_pos.z)
@@ -175,8 +175,8 @@ mod tests {
 
         #[test]
         fn test_move_robot_basic() {
-            let initial_pos = CellIndex::new(0, 0, 0);
-            let target_pos = CellIndex::new(0, 0, 10);
+            let initial_pos = CellIndex::new(10, 0, 0);
+            let target_pos = CellIndex::new(10, 0, 10);
             let map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
                 vec![(target_pos, TileType::FloorRock)],
@@ -187,7 +187,7 @@ mod tests {
 
         #[test]
         fn test_move_robot_3d() {
-            let initial_pos = CellIndex::new(0, 0, 0);
+            let initial_pos = CellIndex::new(10, 0, 0);
             let target_pos = CellIndex::new(5, 7, 10);
             let map = Map::_new_from_tiles(
                 Cell::new(TileType::Stairs),
@@ -197,12 +197,12 @@ mod tests {
                 ],
             );
             let new_pos = move_robot_to_position(initial_pos, &target_pos, &map);
-            assert_eq!(new_pos, Option::Some(CellIndex::new(1, 0, 0)));
+            assert_eq!(new_pos, Option::Some(CellIndex::new(-1, 0, 0)));
         }
 
         #[test]
         fn test_move_robot_full_path() {
-            let mut initial_pos = CellIndex::new(0, 0, 0);
+            let mut initial_pos = CellIndex::new(10, 0, 0);
             let target_pos = CellIndex::new(5, 7, 10);
             let map = Map::_new_from_tiles(
                 Cell::new(TileType::Stairs),
@@ -221,7 +221,7 @@ mod tests {
 
         #[test]
         fn test_move_robot_no_movement() {
-            let initial_pos = CellIndex::new(0, 0, 0);
+            let initial_pos = CellIndex::new(10, 0, 0);
             let map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
                 vec![(initial_pos, TileType::FloorRock)],
@@ -232,8 +232,8 @@ mod tests {
 
         #[test]
         fn test_move_robot_single_movement() {
-            let initial_pos = CellIndex::new(0, 0, 0);
-            let target_pos = CellIndex::new(0, 0, 1);
+            let initial_pos = CellIndex::new(10, 0, 0);
+            let target_pos = CellIndex::new(10, 0, 1);
             let map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
                 vec![
@@ -241,19 +241,19 @@ mod tests {
                     (target_pos, TileType::FloorRock),
                 ],
             );
-            let new_pos = move_robot_to_position(initial_pos, &target_pos, &map);
-            assert_eq!(new_pos, Option::Some(target_pos));
+            let movement = move_robot_to_position(initial_pos, &target_pos, &map);
+            assert_eq!(movement, Option::Some(target_pos - initial_pos));
         }
 
         #[test]
         fn test_move_robot_around_obstacles() {
-            let mut initial_pos = CellIndex::new(0, 0, 0);
-            let target_pos = CellIndex::new(2, 0, 2);
+            let mut initial_pos = CellIndex::new(10, 0, 0);
+            let target_pos = CellIndex::new(12, 0, 2);
             let map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
                 vec![
-                    (CellIndex::new(1, 0, 0), TileType::WallRock),
-                    (CellIndex::new(1, 0, 2), TileType::WallRock),
+                    (CellIndex::new(11, 0, 0), TileType::WallRock),
+                    (CellIndex::new(11, 0, 2), TileType::WallRock),
                 ],
             );
             let diff = move_robot_to_position(initial_pos, &target_pos, &map);
@@ -271,8 +271,8 @@ mod tests {
 
         #[test]
         fn test_robot_can_not_move_through_floors() {
-            let current_pos = CellIndex::new(0, 0, 0);
-            let target_vertical = CellIndex::new(0, 1, 0);
+            let current_pos = CellIndex::new(10, 0, 0);
+            let target_vertical = CellIndex::new(10, 1, 0);
             let map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
                 vec![
@@ -327,14 +327,15 @@ mod tests {
         #[test]
         fn test_move_robot_temporarily_unreachable() {
             let mut game_state = GameState::new();
+            let initial_pos = CellIndex::new(0, 1, 0);
+            let below_pos = CellIndex::new(0, 0, 0);
             game_state.task_queue = VecDeque::from([Task {
-                to_transform: HashSet::from([CellIndex::new(0, 0, 0), CellIndex::new(0, 1, 0)]),
+                to_transform: HashSet::from([below_pos, initial_pos]),
                 transformation: Transformation::to(TileType::Stairs),
             }]);
-            let initial_pos = CellIndex::new(0, 1, 0);
             game_state.map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
-                vec![(CellIndex::new(0, 0, 0), TileType::FloorDirt)],
+                vec![(below_pos, TileType::FloorDirt)],
             );
             game_state.robots.first_mut().unwrap().position = initial_pos;
 

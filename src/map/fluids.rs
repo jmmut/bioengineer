@@ -643,7 +643,7 @@ mod tests {
         ];
         cells = assert_until(cells, expected, 94);
 
-        cells = assert_until(cells, final_expected_loop, 95);
+        let _ = assert_until(cells, final_expected_loop, 95);
     }
 
     #[test]
