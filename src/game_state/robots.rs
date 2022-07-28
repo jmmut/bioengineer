@@ -170,232 +170,241 @@ mod tests {
     use crate::map::{Cell, TileType};
     use std::collections::HashSet;
 
-    #[test]
-    fn test_move_robot_basic_task() {
-        let initial_pos = CellIndex::new(0, 0, 0);
-        let cell_index_to_transform = CellIndex::new(0, 0, 10);
-        let tasks = VecDeque::from([Task {
-            to_transform: HashSet::from([cell_index_to_transform]),
-            transformation: Transformation::to(TileType::MachineAssembler),
-        }]);
-        let map = Map::_new_from_tiles(
-            Cell::new(TileType::FloorDirt),
-            vec![
-                (initial_pos, TileType::FloorDirt),
-                (cell_index_to_transform, TileType::FloorRock),
-            ],
-        );
-        let new_pos = move_robot_to_tasks(initial_pos, &tasks, &map);
-        assert_eq!(new_pos, Option::Some(CellIndex::new(0, 0, 1)));
-    }
+    mod movement {
+        use super::*;
 
-    #[test]
-    fn test_move_robot_no_tasks() {
-        let initial_pos = CellIndex::new(0, 0, 0);
-        let cell_index_to_transform = CellIndex::new(0, 0, 10);
-        let tasks = VecDeque::new();
-        let map = Map::_new_from_tiles(
-            Cell::new(TileType::FloorDirt),
-            vec![
-                (initial_pos, TileType::FloorDirt),
-                (cell_index_to_transform, TileType::FloorRock),
-            ],
-        );
-        let new_pos = move_robot_to_tasks(initial_pos, &tasks, &map);
-        assert_eq!(new_pos, Option::None);
-    }
-
-    #[test]
-    fn test_move_robot_basic() {
-        let initial_pos = CellIndex::new(0, 0, 0);
-        let target_pos = CellIndex::new(0, 0, 10);
-        let map = Map::_new_from_tiles(
-            Cell::new(TileType::FloorDirt),
-            vec![(target_pos, TileType::FloorRock)],
-        );
-        let new_pos = move_robot_to_position(initial_pos, &target_pos, &map);
-        assert_eq!(new_pos, Option::Some(CellIndex::new(0, 0, 1)));
-    }
-
-    #[test]
-    fn test_move_robot_3d() {
-        let initial_pos = CellIndex::new(0, 0, 0);
-        let target_pos = CellIndex::new(5, 7, 10);
-        let map = Map::_new_from_tiles(
-            Cell::new(TileType::Stairs),
-            vec![
-                (initial_pos, TileType::Stairs),
-                (target_pos, TileType::Stairs),
-            ],
-        );
-        let new_pos = move_robot_to_position(initial_pos, &target_pos, &map);
-        assert_eq!(new_pos, Option::Some(CellIndex::new(1, 0, 0)));
-    }
-
-    #[test]
-    fn test_move_robot_full_path() {
-        let mut initial_pos = CellIndex::new(0, 0, 0);
-        let target_pos = CellIndex::new(5, 7, 10);
-        let map = Map::_new_from_tiles(
-            Cell::new(TileType::Stairs),
-            vec![
-                (initial_pos, TileType::Stairs),
-                (target_pos, TileType::Stairs),
-            ],
-        );
-        let max_path_length = manhattan_distance(target_pos, initial_pos);
-        for _ in 0..max_path_length {
-            let dir = move_robot_to_position(initial_pos, &target_pos, &map).unwrap();
-            initial_pos += dir;
+        #[test]
+        fn test_move_robot_basic() {
+            let initial_pos = CellIndex::new(0, 0, 0);
+            let target_pos = CellIndex::new(0, 0, 10);
+            let map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![(target_pos, TileType::FloorRock)],
+            );
+            let new_pos = move_robot_to_position(initial_pos, &target_pos, &map);
+            assert_eq!(new_pos, Option::Some(CellIndex::new(0, 0, 1)));
         }
-        assert_eq!(initial_pos, target_pos);
+
+        #[test]
+        fn test_move_robot_3d() {
+            let initial_pos = CellIndex::new(0, 0, 0);
+            let target_pos = CellIndex::new(5, 7, 10);
+            let map = Map::_new_from_tiles(
+                Cell::new(TileType::Stairs),
+                vec![
+                    (initial_pos, TileType::Stairs),
+                    (target_pos, TileType::Stairs),
+                ],
+            );
+            let new_pos = move_robot_to_position(initial_pos, &target_pos, &map);
+            assert_eq!(new_pos, Option::Some(CellIndex::new(1, 0, 0)));
+        }
+
+        #[test]
+        fn test_move_robot_full_path() {
+            let mut initial_pos = CellIndex::new(0, 0, 0);
+            let target_pos = CellIndex::new(5, 7, 10);
+            let map = Map::_new_from_tiles(
+                Cell::new(TileType::Stairs),
+                vec![
+                    (initial_pos, TileType::Stairs),
+                    (target_pos, TileType::Stairs),
+                ],
+            );
+            let max_path_length = manhattan_distance(target_pos, initial_pos);
+            for _ in 0..max_path_length {
+                let dir = move_robot_to_position(initial_pos, &target_pos, &map).unwrap();
+                initial_pos += dir;
+            }
+            assert_eq!(initial_pos, target_pos);
+        }
+
+        #[test]
+        fn test_move_robot_no_movement() {
+            let initial_pos = CellIndex::new(0, 0, 0);
+            let map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![(initial_pos, TileType::FloorRock)],
+            );
+            let new_pos = move_robot_to_position(initial_pos, &initial_pos, &map);
+            assert_eq!(new_pos, Option::None);
+        }
+
+        #[test]
+        fn test_move_robot_single_movement() {
+            let initial_pos = CellIndex::new(0, 0, 0);
+            let target_pos = CellIndex::new(0, 0, 1);
+            let map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![
+                    (initial_pos, TileType::FloorDirt),
+                    (target_pos, TileType::FloorRock),
+                ],
+            );
+            let new_pos = move_robot_to_position(initial_pos, &target_pos, &map);
+            assert_eq!(new_pos, Option::Some(target_pos));
+        }
+
+        #[test]
+        fn test_move_robot_around_obstacles() {
+            let mut initial_pos = CellIndex::new(0, 0, 0);
+            let target_pos = CellIndex::new(2, 0, 2);
+            let map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![
+                    (CellIndex::new(1, 0, 0), TileType::WallRock),
+                    (CellIndex::new(1, 0, 2), TileType::WallRock),
+                ],
+            );
+            let diff = move_robot_to_position(initial_pos, &target_pos, &map);
+            assert_eq!(diff, Option::Some(CellIndex::new(0, 0, 1)));
+            initial_pos += diff.unwrap();
+            let diff = move_robot_to_position(initial_pos, &target_pos, &map);
+            assert_eq!(diff, Option::Some(CellIndex::new(1, 0, 0)));
+            initial_pos += diff.unwrap();
+            let diff = move_robot_to_position(initial_pos, &target_pos, &map);
+            assert_eq!(diff, Option::Some(CellIndex::new(1, 0, 0)));
+            initial_pos += diff.unwrap();
+            let diff = move_robot_to_position(initial_pos, &target_pos, &map);
+            assert_eq!(diff, Option::Some(CellIndex::new(0, 0, 1)));
+        }
+
+        #[test]
+        fn test_robot_can_not_move_through_floors() {
+            let current_pos = CellIndex::new(0, 0, 0);
+            let target_vertical = CellIndex::new(0, 1, 0);
+            let map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![
+                    (current_pos, TileType::FloorDirt),
+                    (target_vertical, TileType::FloorDirt),
+                ],
+            );
+            let moved = move_robot_to_position(current_pos, &target_vertical, &map);
+            assert_eq!(moved, Option::None);
+        }
     }
 
-    #[test]
-    fn test_move_robot_no_movement() {
-        let initial_pos = CellIndex::new(0, 0, 0);
-        let map = Map::_new_from_tiles(
-            Cell::new(TileType::FloorDirt),
-            vec![(initial_pos, TileType::FloorRock)],
-        );
-        let new_pos = move_robot_to_position(initial_pos, &initial_pos, &map);
-        assert_eq!(new_pos, Option::None);
-    }
+    mod tasks {
+        use super::*;
 
-    #[test]
-    fn test_move_robot_single_movement() {
-        let initial_pos = CellIndex::new(0, 0, 0);
-        let target_pos = CellIndex::new(0, 0, 1);
-        let map = Map::_new_from_tiles(
-            Cell::new(TileType::FloorDirt),
-            vec![
-                (initial_pos, TileType::FloorDirt),
-                (target_pos, TileType::FloorRock),
-            ],
-        );
-        let new_pos = move_robot_to_position(initial_pos, &target_pos, &map);
-        assert_eq!(new_pos, Option::Some(target_pos));
-    }
+        #[test]
+        fn test_move_robot_basic_task() {
+            let initial_pos = CellIndex::new(0, 0, 0);
+            let cell_index_to_transform = CellIndex::new(0, 0, 10);
+            let tasks = VecDeque::from([Task {
+                to_transform: HashSet::from([cell_index_to_transform]),
+                transformation: Transformation::to(TileType::MachineAssembler),
+            }]);
+            let map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![
+                    (initial_pos, TileType::FloorDirt),
+                    (cell_index_to_transform, TileType::FloorRock),
+                ],
+            );
+            let new_pos = move_robot_to_tasks(initial_pos, &tasks, &map);
+            assert_eq!(new_pos, Option::Some(CellIndex::new(0, 0, 1)));
+        }
 
-    #[test]
-    fn test_move_robot_around_obstacles() {
-        let mut initial_pos = CellIndex::new(0, 0, 0);
-        let target_pos = CellIndex::new(2, 0, 2);
-        let map = Map::_new_from_tiles(
-            Cell::new(TileType::FloorDirt),
-            vec![
-                (CellIndex::new(1, 0, 0), TileType::WallRock),
-                (CellIndex::new(1, 0, 2), TileType::WallRock),
-            ],
-        );
-        let diff = move_robot_to_position(initial_pos, &target_pos, &map);
-        assert_eq!(diff, Option::Some(CellIndex::new(0, 0, 1)));
-        initial_pos += diff.unwrap();
-        let diff = move_robot_to_position(initial_pos, &target_pos, &map);
-        assert_eq!(diff, Option::Some(CellIndex::new(1, 0, 0)));
-        initial_pos += diff.unwrap();
-        let diff = move_robot_to_position(initial_pos, &target_pos, &map);
-        assert_eq!(diff, Option::Some(CellIndex::new(1, 0, 0)));
-        initial_pos += diff.unwrap();
-        let diff = move_robot_to_position(initial_pos, &target_pos, &map);
-        assert_eq!(diff, Option::Some(CellIndex::new(0, 0, 1)));
-    }
+        #[test]
+        fn test_move_robot_no_tasks() {
+            let initial_pos = CellIndex::new(0, 0, 0);
+            let cell_index_to_transform = CellIndex::new(0, 0, 10);
+            let tasks = VecDeque::new();
+            let map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![
+                    (initial_pos, TileType::FloorDirt),
+                    (cell_index_to_transform, TileType::FloorRock),
+                ],
+            );
+            let new_pos = move_robot_to_tasks(initial_pos, &tasks, &map);
+            assert_eq!(new_pos, Option::None);
+        }
 
-    #[test]
-    fn test_move_robot_temporarily_unreachable() {
-        let mut game_state = GameState::new();
-        game_state.task_queue = VecDeque::from([Task {
-            to_transform: HashSet::from([CellIndex::new(0, 0, 0), CellIndex::new(0, 1, 0)]),
-            transformation: Transformation::to(TileType::Stairs),
-        }]);
-        let initial_pos = CellIndex::new(0, 1, 0);
-        game_state.map = Map::_new_from_tiles(
-            Cell::new(TileType::FloorDirt),
-            vec![(CellIndex::new(0, 0, 0), TileType::FloorDirt)],
-        );
-        game_state.robots.first_mut().unwrap().position = initial_pos;
 
-        assert_positions_equal(&game_state, TileType::FloorDirt, TileType::FloorDirt);
+        #[test]
+        fn test_move_robot_temporarily_unreachable() {
+            let mut game_state = GameState::new();
+            game_state.task_queue = VecDeque::from([Task {
+                to_transform: HashSet::from([CellIndex::new(0, 0, 0), CellIndex::new(0, 1, 0)]),
+                transformation: Transformation::to(TileType::Stairs),
+            }]);
+            let initial_pos = CellIndex::new(0, 1, 0);
+            game_state.map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![(CellIndex::new(0, 0, 0), TileType::FloorDirt)],
+            );
+            game_state.robots.first_mut().unwrap().position = initial_pos;
 
-        game_state.transform_cells_if_robots_can_do_so();
-        game_state.move_robots();
+            assert_positions_equal(&game_state, TileType::FloorDirt, TileType::FloorDirt);
 
-        assert_positions_equal(&game_state, TileType::FloorDirt, TileType::Stairs);
+            game_state.transform_cells_if_robots_can_do_so();
+            game_state.move_robots();
 
-        game_state.transform_cells_if_robots_can_do_so();
-        game_state.move_robots();
+            assert_positions_equal(&game_state, TileType::FloorDirt, TileType::Stairs);
 
-        assert_positions_equal(&game_state, TileType::Stairs, TileType::Stairs);
-    }
+            game_state.transform_cells_if_robots_can_do_so();
+            game_state.move_robots();
 
-    fn assert_positions_equal(game_state: &GameState, tile: TileType, second_tile: TileType) {
-        let index = CellIndex::new(0, 0, 0);
-        assert_eq!(game_state.map.get_cell(index).tile_type, tile);
-        let other_index = CellIndex::new(0, 1, 0);
-        assert_eq!(game_state.map.get_cell(other_index).tile_type, second_tile);
-    }
+            assert_positions_equal(&game_state, TileType::Stairs, TileType::Stairs);
+        }
 
-    #[test]
-    fn test_move_robot_to_nearest_task() {
-        let initial_pos = CellIndex::new(0, 0, 0);
-        let closest_target = CellIndex::new(-1, 0, 2);
-        let farthest_target = CellIndex::new(2, 0, 2);
-        let tasks = VecDeque::from([Task {
-            to_transform: HashSet::from([farthest_target, closest_target]),
-            transformation: Transformation::to(TileType::Stairs),
-        }]);
-        let mut iter = order_by_closest_target(tasks.front().unwrap(), initial_pos);
-        assert_eq!(iter.next().unwrap(), closest_target);
-        assert_eq!(iter.next().unwrap(), farthest_target);
-    }
+        fn assert_positions_equal(game_state: &GameState, tile: TileType, second_tile: TileType) {
+            let index = CellIndex::new(0, 0, 0);
+            assert_eq!(game_state.map.get_cell(index).tile_type, tile);
+            let other_index = CellIndex::new(0, 1, 0);
+            assert_eq!(game_state.map.get_cell(other_index).tile_type, second_tile);
+        }
 
-    #[test]
-    fn test_robot_can_not_move_through_floors() {
-        let current_pos = CellIndex::new(0, 0, 0);
-        let target_vertical = CellIndex::new(0, 1, 0);
-        let map = Map::_new_from_tiles(
-            Cell::new(TileType::FloorDirt),
-            vec![
-                (current_pos, TileType::FloorDirt),
-                (target_vertical, TileType::FloorDirt),
-            ],
-        );
-        let moved = move_robot_to_position(current_pos, &target_vertical, &map);
-        assert_eq!(moved, Option::None);
-    }
+        #[test]
+        fn test_move_robot_to_nearest_task() {
+            let initial_pos = CellIndex::new(0, 0, 0);
+            let closest_target = CellIndex::new(-1, 0, 2);
+            let farthest_target = CellIndex::new(2, 0, 2);
+            let tasks = VecDeque::from([Task {
+                to_transform: HashSet::from([farthest_target, closest_target]),
+                transformation: Transformation::to(TileType::Stairs),
+            }]);
+            let mut iter = order_by_closest_target(tasks.front().unwrap(), initial_pos);
+            assert_eq!(iter.next().unwrap(), closest_target);
+            assert_eq!(iter.next().unwrap(), farthest_target);
+        }
 
-    #[test]
-    fn test_can_do_vertical_task_with_stairs() {
-        vertical_task(TileType::Stairs, TileType::MachineAssembler);
-    }
+        #[test]
+        fn test_can_do_vertical_task_with_stairs() {
+            vertical_task(TileType::Stairs, TileType::MachineAssembler);
+        }
 
-    #[test]
-    fn test_can_not_do_vertical_task_without_stairs() {
-        vertical_task(TileType::FloorDirt, TileType::FloorDirt);
-    }
+        #[test]
+        fn test_can_not_do_vertical_task_without_stairs() {
+            vertical_task(TileType::FloorDirt, TileType::FloorDirt);
+        }
 
-    fn vertical_task(initial_tile: TileType, expected_target_transformation: TileType) {
-        let initial_pos = CellIndex::new(0, 1, 0);
-        let target = CellIndex::new(0, 0, 0);
-        let mut game_state = GameState::new();
-        game_state.task_queue = VecDeque::from([Task {
-            to_transform: HashSet::from([target]),
-            transformation: Transformation::to(TileType::MachineAssembler),
-        }]);
-        game_state.map = Map::_new_from_tiles(
-            Cell::new(TileType::FloorDirt),
-            vec![(target, TileType::FloorDirt), (initial_pos, initial_tile)],
-        );
-        game_state.robots.first_mut().unwrap().position = initial_pos;
-        game_state.transform_cells_if_robots_can_do_so();
-        assert_eq!(
-            game_state.map.get_cell(target).tile_type,
-            expected_target_transformation
-        );
-    }
-    
-    #[test]
-    fn do_not_do_the_closest_task_if_it_is_blocked_by_farther_tasks() {
-        panic!("unimplemented");
+        fn vertical_task(initial_tile: TileType, expected_target_transformation: TileType) {
+            let initial_pos = CellIndex::new(0, 1, 0);
+            let target = CellIndex::new(0, 0, 0);
+            let mut game_state = GameState::new();
+            game_state.task_queue = VecDeque::from([Task {
+                to_transform: HashSet::from([target]),
+                transformation: Transformation::to(TileType::MachineAssembler),
+            }]);
+            game_state.map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![(target, TileType::FloorDirt), (initial_pos, initial_tile)],
+            );
+            game_state.robots.first_mut().unwrap().position = initial_pos;
+            game_state.transform_cells_if_robots_can_do_so();
+            assert_eq!(
+                game_state.map.get_cell(target).tile_type,
+                expected_target_transformation
+            );
+        }
+
+        #[test]
+        fn do_not_do_the_closest_task_if_it_is_blocked_by_farther_tasks() {
+            panic!("unimplemented");
+        }
     }
 }
