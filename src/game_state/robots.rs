@@ -342,4 +342,32 @@ mod tests {
         let moved = move_robot_to_position(current_pos, &target_vertical, &map);
         assert_eq!(moved, Option::None);
     }
+
+    #[test]
+    fn test_can_do_vertical_task_with_stairs() {
+        vertical_task(TileType::FloorDirt, TileType::FloorDirt);
+    }
+
+    #[test]
+    fn test_can_not_do_vertical_task_without_stairs() {
+        vertical_task(TileType::Stairs, TileType::MachineAssembler);
+    }
+
+    fn vertical_task(initial_tile: TileType, expected_target_transformation: TileType) {
+        let initial_pos = CellIndex::new(0, 1, 0);
+        let target = CellIndex::new(0, 0, 0);
+        let mut game_state = GameState::new();
+        game_state.task_queue = VecDeque::from([Task {
+            to_transform: HashSet::from([target]),
+            transformation: Transformation::to(TileType::MachineAssembler),
+        }]);
+        game_state.map = Map::_new_from_tiles(
+            Cell::new(TileType::FloorDirt),
+            vec![(target, TileType::FloorDirt),
+                 (initial_pos, initial_tile)],
+        );
+        game_state.robots.first_mut().unwrap().position = initial_pos;
+        game_state.transform_cells_if_robots_can_do_so();
+        assert_eq!(game_state.map.get_cell(target).tile_type, expected_target_transformation);
+    }
 }
