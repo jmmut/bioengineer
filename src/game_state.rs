@@ -2,7 +2,9 @@ pub mod robots;
 
 use super::map::Map;
 use crate::drawing::Drawing;
-use crate::game_state::robots::{move_robot_to_position, move_robot_to_tasks, Robot};
+use crate::game_state::robots::{
+    move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
+};
 use crate::gui::GuiActions;
 use crate::map::fluids::{FluidMode, Fluids};
 use crate::map::transform_cells::Transformation;
@@ -98,6 +100,8 @@ impl GameState {
                 if robot.position == *movement_target {
                     self.movement_queue.pop_front();
                 }
+            } else {
+                self.movement_queue.pop_front();
             }
         }
     }
@@ -119,16 +123,25 @@ impl GameState {
     }
 
     fn transform_cells_if_robots_can_do_so(&mut self) {
-        for robot in &self.robots {
-            let task_opt = self.task_queue.front_mut();
-            if let Option::Some(task) = task_opt {
-                let transformation_here = task.to_transform.take(&robot.position);
+        for robot in &self.robots.clone() {
+            self.transform_single_cell_if_robot_can_do_so(robot)
+        }
+    }
+
+    fn transform_single_cell_if_robot_can_do_so(&mut self, robot: &Robot) {
+        let task_opt = self.task_queue.front_mut();
+        if let Option::Some(task) = task_opt {
+            for reachable_pos_diff in reachable_positions() {
+                let reachable_position = robot.position + reachable_pos_diff;
+                let transformation_here = task.to_transform.take(&reachable_position);
                 if transformation_here.is_some() {
                     task.transformation
-                        .apply(self.map.get_cell_mut(robot.position));
+                        .apply(self.map.get_cell_mut(reachable_position));
                     if task.to_transform.len() == 0 {
                         self.task_queue.pop_front();
                     }
+                    // we only want to transform 1 cell, so do an early return
+                    return;
                 }
             }
         }

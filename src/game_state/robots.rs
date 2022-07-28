@@ -1,12 +1,11 @@
 use crate::game_state::Task;
-use crate::map::{is_walkable, CellIndex, TileType};
+use crate::map::{is_walkable_horizontal, is_walkable_vertical, CellIndex, TileType};
 use crate::map::{Cell, Map};
 use std::cmp::Ordering;
-use std::collections::hash_set::Iter;
 use std::collections::VecDeque;
 use std::vec::IntoIter;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 pub struct Robot {
     pub position: CellIndex,
 }
@@ -76,14 +75,12 @@ fn try_move(
         Option::Some(Vec::new())
     } else {
         let diff = manhattan_distance(target_pos, current_pos);
-        if diff == 1 {
-            Option::Some(vec![target_pos - current_pos])
-        } else {
-            for dir in dirs {
-                let possible_new_pos = current_pos + *dir;
-                let moving_to_dir_gets_us_closer = manhattan_distance(target_pos, possible_new_pos)
-                    < diff
-                    && is_position_walkable(map, possible_new_pos);
+        for dir in dirs {
+            let possible_new_pos = current_pos + *dir;
+            let walkable = is_position_walkable(map, &possible_new_pos, dir);
+            if walkable {
+                let moving_to_dir_gets_us_closer =
+                    manhattan_distance(target_pos, possible_new_pos) < diff;
                 if moving_to_dir_gets_us_closer {
                     let path = try_move(dirs, possible_new_pos, target_pos, map);
                     if let Option::Some(mut some_path) = path {
@@ -91,22 +88,57 @@ fn try_move(
                         return Option::Some(some_path);
                     }
                 }
+            } else if diff == 1 {
+                // returning an incomplete but valid path
+                return Option::Some(Vec::new());
             }
-            Option::None
         }
+        Option::None
     }
 }
 
-fn is_position_walkable(map: &Map, possible_new_pos: CellIndex) -> bool {
-    is_walkable(
-        map.get_cell_optional(possible_new_pos)
+fn is_position_walkable(map: &Map, possible_new_pos: &CellIndex, origin: &CellIndex) -> bool {
+    is_walkable_horizontal(
+        map.get_cell_optional(*possible_new_pos)
             .map(|cell| cell.tile_type)
             .unwrap_or(TileType::Unset),
     )
 }
 
+/*
+
+fn is_position_walkable(map: &Map, possible_new_pos: &CellIndex, origin: &CellIndex) -> bool {
+    let target_tile = map
+        .get_cell_optional(*possible_new_pos)
+        .map(|cell| cell.tile_type)
+        .unwrap_or(TileType::Unset);
+    let direction: CellIndexDiff = *possible_new_pos - *origin;
+    if *direction == *CellIndexDiff::new(0, 1, 0) || *direction == *CellIndexDiff::new(0, -1, 0) {
+        let origin_tile = map
+            .get_cell_optional(*origin)
+            .map(|cell| cell.tile_type)
+            .unwrap_or(TileType::Unset);
+        is_walkable_vertical(target_tile, origin_tile)
+    } else {
+        is_walkable_horizontal(target_tile)
+    }
+}
+ */
+
 fn manhattan_distance(pos: CellIndex, other_pos: CellIndex) -> i32 {
     i32::abs(pos.x - other_pos.x) + i32::abs(pos.y - other_pos.y) + i32::abs(pos.z - other_pos.z)
+}
+
+pub fn reachable_positions() -> Vec<CellIndexDiff> {
+    vec![
+        CellIndexDiff::new(0, 0, 0),
+        CellIndexDiff::new(1, 0, 0),
+        CellIndexDiff::new(-1, 0, 0),
+        CellIndexDiff::new(0, 1, 0),
+        CellIndexDiff::new(0, -1, 0),
+        CellIndexDiff::new(0, 0, 1),
+        CellIndexDiff::new(0, 0, -1),
+    ]
 }
 
 #[cfg(test)]
@@ -169,10 +201,10 @@ mod tests {
         let initial_pos = CellIndex::new(0, 0, 0);
         let target_pos = CellIndex::new(5, 7, 10);
         let map = Map::_new_from_tiles(
-            Cell::new(TileType::FloorDirt),
+            Cell::new(TileType::Stairs),
             vec![
-                (initial_pos, TileType::FloorDirt),
-                (target_pos, TileType::FloorRock),
+                (initial_pos, TileType::Stairs),
+                (target_pos, TileType::Stairs),
             ],
         );
         let new_pos = move_robot_to_position(initial_pos, &target_pos, &map);
@@ -184,10 +216,10 @@ mod tests {
         let mut initial_pos = CellIndex::new(0, 0, 0);
         let target_pos = CellIndex::new(5, 7, 10);
         let map = Map::_new_from_tiles(
-            Cell::new(TileType::FloorDirt),
+            Cell::new(TileType::Stairs),
             vec![
-                (initial_pos, TileType::FloorDirt),
-                (target_pos, TileType::FloorRock),
+                (initial_pos, TileType::Stairs),
+                (target_pos, TileType::Stairs),
             ],
         );
         let max_path_length = manhattan_distance(target_pos, initial_pos);
@@ -297,8 +329,17 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_robot_can_not_move_through_floors() {
-        panic!("unimplemented!");
+        let current_pos = CellIndex::new(0, 0, 0);
+        let target_vertical = CellIndex::new(0, 1, 0);
+        let map = Map::_new_from_tiles(
+            Cell::new(TileType::FloorDirt),
+            vec![
+                (current_pos, TileType::WallRock),
+                (target_vertical, TileType::WallRock),
+            ],
+        );
+        let moved = move_robot_to_position(current_pos, &target_vertical, &map);
+        assert_eq!(moved, Option::None);
     }
 }

@@ -47,7 +47,7 @@ pub fn is_liquid_or_air(tile: TileType) -> bool {
     tile == Air || is_liquid(tile)
 }
 
-pub fn is_walkable(tile: TileType) -> bool {
+pub fn is_walkable_horizontal(tile: TileType) -> bool {
     [
         FloorRock,
         FloorDirt,
@@ -59,6 +59,11 @@ pub fn is_walkable(tile: TileType) -> bool {
         MachineShip,
     ]
     .contains(&tile)
+}
+
+pub fn is_walkable_vertical(target_tile: TileType, origin_tile: TileType) -> bool {
+    let vertical_tiles = [Stairs];
+    vertical_tiles.contains(&target_tile) && vertical_tiles.contains(&origin_tile)
 }
 
 /// Returns whether the tile image is tall enough that it would cover a robot behind this tile.
