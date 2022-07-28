@@ -347,13 +347,14 @@ mod tests {
         iterations: i32,
         min_cell: CellIndex,
         max_cell: CellIndex,
-    ) {
+    ) -> Vec<Pressure> {
         let mut map = Map::_new_from_pressures(initial_map, min_cell, max_cell);
         for _ in 0..iterations {
             advance_fluid(&mut map);
         }
         let computed = map._get_pressures(min_cell, max_cell);
         assert_eq!(computed, final_map);
+        computed
     }
 
     #[test]
@@ -528,8 +529,19 @@ mod tests {
     fn test_many_iterations_2d_side_view() {
         let min_cell = CellIndex::new(0, 0, 0);
         let max_cell = CellIndex::new(0, 2, 2);
+        let mut i = 0;
+        let mut assert_until = |
+            initial_map: Vec<Pressure>,
+            final_map: Vec<Pressure>,
+            iterations: i32,
+        | -> Vec<Pressure> {
+            let computed = assert_n_steps(initial_map, final_map, iterations - i, min_cell, max_cell);
+            i = iterations;
+            computed
+        };
+
         #[rustfmt::skip]
-        let cells = vec![
+        let mut cells = vec![
             50, 0, 0,
             50, -1, 0,
             50, -1, 0,
@@ -540,7 +552,7 @@ mod tests {
             50, -1, 0,
             49, -1, 0,
         ];
-        assert_n_steps(cells.clone(), expected, 1, min_cell, max_cell);
+        cells = assert_until(cells, expected, 1);
 
         #[rustfmt::skip]
         let expected = vec![
@@ -548,7 +560,7 @@ mod tests {
             50, -1, 0,
             48, -1, 0,
         ];
-        assert_n_steps(cells.clone(), expected, 2, min_cell, max_cell);
+        cells = assert_until(cells, expected, 2);
 
         #[rustfmt::skip]
         let expected = vec![
@@ -556,7 +568,7 @@ mod tests {
             50, -1, 0,
             47, -1, 0,
         ];
-        assert_n_steps(cells.clone(), expected, 3, min_cell, max_cell);
+        cells = assert_until(cells, expected, 3);
 
         #[rustfmt::skip]
         let expected = vec![
@@ -564,7 +576,7 @@ mod tests {
             50, -1, 0,
             46, -1, 0,
         ];
-        assert_n_steps(cells.clone(), expected, 4, min_cell, max_cell);
+        cells = assert_until(cells, expected, 4);
 
         #[rustfmt::skip]
         let expected = vec![
@@ -572,7 +584,7 @@ mod tests {
             45, -1, 0,
             35, -1, 0,
         ];
-        assert_n_steps(cells.clone(), expected, 20, min_cell, max_cell);
+        cells = assert_until(cells, expected, 20);
 
         #[rustfmt::skip]
         let expected = vec![
@@ -580,7 +592,7 @@ mod tests {
             44, -1, 0,
             34, -1, 0,
         ];
-        assert_n_steps(cells.clone(), expected, 22, min_cell, max_cell);
+        cells = assert_until(cells, expected, 22);
 
         #[rustfmt::skip]
         let expected = vec![
@@ -588,7 +600,7 @@ mod tests {
             43, -1, 0,
             34, -1, 0,
         ];
-        assert_n_steps(cells.clone(), expected, 23, min_cell, max_cell);
+        cells = assert_until(cells, expected, 23);
 
         #[rustfmt::skip]
         let expected = vec![
@@ -596,7 +608,7 @@ mod tests {
             20, -1, 20,
             11, -1, 8,
         ];
-        assert_n_steps(cells.clone(), expected, 90, min_cell, max_cell);
+        cells = assert_until(cells, expected, 90);
 
         #[rustfmt::skip]
         let expected = vec![
@@ -604,7 +616,7 @@ mod tests {
             21, -1, 19,
             10, -1, 9,
         ];
-        assert_n_steps(cells.clone(), expected, 91, min_cell, max_cell);
+        cells = assert_until(cells, expected, 91);
 
         #[rustfmt::skip]
         let expected = vec![
@@ -612,7 +624,7 @@ mod tests {
             20, -1, 20,
             10, -1, 9,
         ];
-        assert_n_steps(cells.clone(), expected, 92, min_cell, max_cell);
+        cells = assert_until(cells, expected, 92);
 
         #[rustfmt::skip]
         let expected = vec![
@@ -621,7 +633,7 @@ mod tests {
             10, -1, 9,
         ];
         let final_expected_loop = expected.clone();
-        assert_n_steps(cells.clone(), expected, 93, min_cell, max_cell);
+        cells = assert_until(cells, expected, 93);
 
         #[rustfmt::skip]
         let expected = vec![
@@ -629,9 +641,9 @@ mod tests {
             20, -1, 20,
             10, -1, 9,
         ];
-        assert_n_steps(cells.clone(), expected, 94, min_cell, max_cell);
+        cells = assert_until(cells, expected, 94);
 
-        assert_n_steps(cells.clone(), final_expected_loop, 95, min_cell, max_cell);
+        cells = assert_until(cells, final_expected_loop, 95);
     }
 
     #[test]
