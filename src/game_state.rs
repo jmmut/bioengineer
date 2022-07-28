@@ -3,7 +3,7 @@ pub mod robots;
 use super::map::Map;
 use crate::drawing::Drawing;
 use crate::game_state::robots::{
-    move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
+    is_position_reachable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
 };
 use crate::gui::GuiActions;
 use crate::map::fluids::{FluidMode, Fluids};
@@ -135,13 +135,19 @@ impl GameState {
                 let reachable_position = robot.position + reachable_pos_diff;
                 let transformation_here = task.to_transform.take(&reachable_position);
                 if transformation_here.is_some() {
-                    task.transformation
-                        .apply(self.map.get_cell_mut(reachable_position));
-                    if task.to_transform.len() == 0 {
-                        self.task_queue.pop_front();
+                    if is_position_reachable(
+                        self.map.get_cell(robot.position).tile_type,
+                        &robot.position,
+                        &reachable_position,
+                    ) {
+                        task.transformation
+                            .apply(self.map.get_cell_mut(reachable_position));
+                        if task.to_transform.len() == 0 {
+                            self.task_queue.pop_front();
+                        }
+                        // we only want to transform 1 cell, so do an early return
+                        return;
                     }
-                    // we only want to transform 1 cell, so do an early return
-                    return;
                 }
             }
         }
