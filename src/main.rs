@@ -82,6 +82,9 @@ fn frame<D: DrawingTrait, I: InputSourceTrait>(
     let input_source = &mut implementations.input;
     let gui = &mut implementations.gui;
 
+    // get input
+    // update game state
+    // draw
     let input = input_source.get_input();
     let should_continue = !input.quit;
     if should_continue {

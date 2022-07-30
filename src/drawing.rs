@@ -23,7 +23,6 @@ pub fn draw(drawer: &impl DrawingTrait, game_state: &GameState) {
     drawer.clear_background(GREY);
     tiles::draw_map(drawer, game_state);
     hud::draw_fps(drawer, game_state);
-    hud::draw_robot_queue(drawer, game_state);
     hud::draw_level(
         drawer,
         game_state.get_drawing().min_cell.y,
@@ -54,14 +53,19 @@ impl Drawing {
 
     pub fn apply_input(&mut self, unhandled: &GuiActions, screen_width: f32) {
         let input = &unhandled.input;
-        self.maybe_change_height_rel(input.change_height_rel);
+        self.maybe_change_height_rel(input.change_height_rel, unhandled.go_to_robot);
         self.maybe_move_map_horizontally(input.move_map_horizontally, screen_width);
         self.maybe_select_cells(&input.cell_selection, screen_width);
     }
 
-    fn maybe_change_height_rel(&mut self, y: i32) {
+    fn maybe_change_height_rel(&mut self, y: i32, go_to_robot: Option<i32>) {
         if y != 0 {
             change_height_rel(self, y);
+        }
+        if let Option::Some(robot_height) = go_to_robot {
+            let level_diff = robot_height - self.max_cell.y;
+            self.max_cell.y += level_diff;
+            self.min_cell.y += level_diff;
         }
     }
 

@@ -1,10 +1,13 @@
+use std::cmp::max;
 use crate::drawing::coords::cell_pixel::clicked_cell;
 use crate::drawing::hud;
 use crate::input::Input;
 use crate::map::transform_cells::Transformation;
-use crate::map::CellIndex;
+use crate::map::{CellIndex, TileType};
 use crate::Color;
 use crate::{DrawingTrait, GameState};
+use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use crate::drawing::hud::FULL_OPAQUE;
 
 pub struct Gui;
 
@@ -27,6 +30,9 @@ pub struct GuiActions {
     pub input: Input,
     pub selected_cell_transformation: Option<Transformation>,
     pub robot_movement: Option<CellIndex>,
+    pub go_to_robot: Option<i32>,
+    pub cancel_task: Option<usize>,
+    pub cancel_movement: Option<usize>,
 }
 
 impl Gui {
@@ -36,10 +42,19 @@ impl Gui {
         drawer: &impl DrawingTrait,
         game_state: &GameState,
     ) -> GuiActions {
-        let unhandled_input = hud::show_available_actions(drawer, game_state, input);
-        let unhandled_input2 =
+        let unhandled_input = GuiActions {
+            input,
+            selected_cell_transformation: Option::None,
+            robot_movement: Option::None,
+            go_to_robot: Option::None,
+            cancel_task: Option::None,
+            cancel_movement: Option::None,
+        };
+        let unhandled_input = hud::show_available_actions(drawer, game_state, unhandled_input);
+        let unhandled_input =
             robot_movement_from_pixel_to_cell(drawer, game_state, unhandled_input);
-        unhandled_input2
+         let unhandled_input = draw_robot_queue(drawer, game_state, unhandled_input);
+        unhandled_input
     }
     fn set_skin(drawer: &mut impl DrawingTrait) {
         drawer.set_button_style(
@@ -69,5 +84,85 @@ fn robot_movement_from_pixel_to_cell(
     GuiActions {
         robot_movement,
         ..unhandled_input
+    }
+}
+
+pub fn draw_robot_queue(
+    drawer: &impl DrawingTrait,
+    game_state: &GameState,
+    gui_actions: GuiActions,
+) -> GuiActions {
+    let mut column = 1.0;
+    let icon_width = PIXELS_PER_TILE_WIDTH as f32;
+    let pixel_height = drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
+    let max_queue = max(game_state.task_queue.len(), game_state.movement_queue.len());
+    let panel_width = (max_queue + 1) as f32 * icon_width;
+    drawer.draw_rectangle(
+        drawer.screen_width() - panel_width,
+        drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32,
+        panel_width,
+        PIXELS_PER_TILE_HEIGHT as f32,
+        BACKGROUND_UI_COLOR,
+    );
+    drawer.draw_transparent_texture(
+        TileType::Robot,
+        drawer.screen_width() - column * icon_width,
+        pixel_height,
+        FULL_OPAQUE,
+    );
+    let button_height = FONT_SIZE * 1.5;
+    let mut go_to_robot = Option::None;
+    if drawer.do_button(
+        "show",
+        drawer.screen_width() - column * icon_width,
+        pixel_height - button_height,
+    ) {
+        go_to_robot = Option::Some(game_state.robots.first().unwrap().position.y);
+    }
+
+    let mut cancel_task = Option::None;
+    let mut task_index = 0;
+    for task in &game_state.task_queue {
+        column += 1.0;
+        drawer.draw_transparent_texture(
+            task.transformation.new_tile_type,
+            drawer.screen_width() - column * icon_width,
+            pixel_height,
+            FULL_OPAQUE,
+        );
+        if drawer.do_button(
+            "cancel",
+            drawer.screen_width() - column * icon_width,
+            pixel_height - button_height,
+        ) {
+            cancel_task = Option::Some(task_index);
+        }
+        task_index += 1;
+    }
+    column = 1.0;
+    let mut cancel_movement = Option::None;
+    let mut movement_index = 0;
+    for _movement in &game_state.movement_queue {
+        column += 1.0;
+        drawer.draw_transparent_texture(
+            TileType::Movement,
+            drawer.screen_width() - column * icon_width,
+            pixel_height,
+            FULL_OPAQUE,
+        );
+        if drawer.do_button(
+            "cancel",
+            drawer.screen_width() - column * icon_width,
+            pixel_height - button_height,
+        ) {
+            cancel_movement = Option::Some(movement_index);
+        }
+        movement_index += 1;
+    }
+    GuiActions {
+        go_to_robot,
+        cancel_task,
+        cancel_movement,
+        ..gui_actions
     }
 }

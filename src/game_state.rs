@@ -63,6 +63,13 @@ impl GameState {
     }
 
     pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) {
+        if let Option::Some(cancel_task) = gui_actions.cancel_task {
+            self.task_queue.remove(cancel_task);
+        }
+        if let Option::Some(cancel_movement) = gui_actions.cancel_movement {
+            self.movement_queue.remove(cancel_movement);
+        }
+
         if let Option::Some(transformation) = gui_actions.selected_cell_transformation {
             self.movement_queue.clear();
             self.queue_transformation(transformation);
