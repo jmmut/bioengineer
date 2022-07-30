@@ -7,6 +7,8 @@ use crate::Rect;
 use crate::{DrawingTrait, GameState};
 use std::cmp::max;
 
+const FULL_OPAQUE: f32 = 1.0;
+
 pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
     if game_state.profile {
@@ -46,7 +48,7 @@ pub fn draw_robot_queue(drawer: &impl DrawingTrait, game_state: &GameState) {
         TileType::Robot,
         drawer.screen_width() - column * icon_width,
         pixel_height,
-        1.0,
+        FULL_OPAQUE,
     );
     for task in &game_state.task_queue {
         column += 1.0;
@@ -54,7 +56,7 @@ pub fn draw_robot_queue(drawer: &impl DrawingTrait, game_state: &GameState) {
             task.transformation.new_tile_type,
             drawer.screen_width() - column * icon_width,
             pixel_height,
-            1.0,
+            FULL_OPAQUE,
         );
     }
     column = 1.0;
@@ -64,7 +66,7 @@ pub fn draw_robot_queue(drawer: &impl DrawingTrait, game_state: &GameState) {
             TileType::Movement,
             drawer.screen_width() - column * icon_width,
             pixel_height,
-            1.0,
+            FULL_OPAQUE,
         );
     }
 }
