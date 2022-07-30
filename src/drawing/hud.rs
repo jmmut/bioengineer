@@ -1,4 +1,3 @@
-
 use crate::gui::{GuiActions, BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::input::{CellSelection, Input};
 use crate::map::transform_cells::allowed_transformations;

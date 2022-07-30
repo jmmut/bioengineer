@@ -1,13 +1,14 @@
-use std::cmp::max;
+use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::drawing::coords::cell_pixel::clicked_cell;
 use crate::drawing::hud;
+use crate::drawing::hud::FULL_OPAQUE;
+use crate::game_state::Task;
 use crate::input::Input;
 use crate::map::transform_cells::Transformation;
 use crate::map::{CellIndex, TileType};
 use crate::Color;
 use crate::{DrawingTrait, GameState};
-use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use crate::drawing::hud::FULL_OPAQUE;
+use std::cmp::max;
 
 pub struct Gui;
 
@@ -33,8 +34,6 @@ pub struct GuiActions {
     pub go_to_robot: Option<i32>,
     pub cancel_task: Option<usize>,
     pub do_now_task: Option<usize>,
-    pub cancel_movement: Option<usize>,
-    pub do_now_movement: Option<usize>,
 }
 
 impl Gui {
@@ -51,13 +50,11 @@ impl Gui {
             go_to_robot: Option::None,
             cancel_task: Option::None,
             do_now_task: Option::None,
-            cancel_movement: Option::None,
-            do_now_movement: Option::None,
         };
         let unhandled_input = hud::show_available_actions(drawer, game_state, unhandled_input);
         let unhandled_input =
             robot_movement_from_pixel_to_cell(drawer, game_state, unhandled_input);
-         let unhandled_input = draw_robot_queue(drawer, game_state, unhandled_input);
+        let unhandled_input = draw_robot_queue(drawer, game_state, unhandled_input);
         unhandled_input
     }
     fn set_skin(drawer: &mut impl DrawingTrait) {
@@ -99,8 +96,8 @@ pub fn draw_robot_queue(
     let mut column = 1.0;
     let icon_width = PIXELS_PER_TILE_WIDTH as f32 * 1.5;
     let pixel_height = drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
-    let max_queue = max(game_state.task_queue.len(), game_state.movement_queue.len());
-    let panel_width = (max_queue + 1) as f32 * icon_width;
+    let queue_length = game_state.task_queue.len();
+    let panel_width = (queue_length + 1) as f32 * icon_width;
     drawer.draw_rectangle(
         drawer.screen_width() - panel_width,
         drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32,
@@ -129,8 +126,12 @@ pub fn draw_robot_queue(
     let mut task_index = 0;
     for task in &game_state.task_queue {
         column += 1.0;
+        let tile = match task {
+            Task::Transform(transform) => transform.transformation.new_tile_type,
+            Task::Movement(_) => TileType::Movement,
+        };
         drawer.draw_transparent_texture(
-            task.transformation.new_tile_type,
+            tile,
             drawer.screen_width() - column * icon_width,
             pixel_height,
             FULL_OPAQUE,
@@ -151,40 +152,10 @@ pub fn draw_robot_queue(
         }
         task_index += 1;
     }
-    column = 1.0;
-    let mut cancel_movement = Option::None;
-    let mut do_now_movement = Option::None;
-    let mut movement_index = 0;
-    for _movement in &game_state.movement_queue {
-        column += 1.0;
-        drawer.draw_transparent_texture(
-            TileType::Movement,
-            drawer.screen_width() - column * icon_width,
-            pixel_height,
-            FULL_OPAQUE,
-        );
-        if drawer.do_button(
-            "cancel",
-            drawer.screen_width() - column * icon_width,
-            pixel_height - button_height,
-        ) {
-            cancel_movement = Option::Some(movement_index);
-        }
-        if drawer.do_button(
-            "do now",
-            drawer.screen_width() - column * icon_width,
-            pixel_height - button_height * 2.0,
-        ) {
-            do_now_movement = Option::Some(task_index);
-        }
-        movement_index += 1;
-    }
     GuiActions {
         go_to_robot,
         cancel_task,
         do_now_task,
-        cancel_movement,
-        do_now_movement,
         ..gui_actions
     }
 }

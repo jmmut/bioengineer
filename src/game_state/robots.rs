@@ -1,4 +1,4 @@
-use crate::game_state::Task;
+use crate::game_state::{Task, TransformationTask};
 use crate::map::Map;
 use crate::map::{is_walkable_horizontal, is_walkable_vertical, CellIndex, TileType};
 use std::cmp::Ordering;
@@ -19,16 +19,21 @@ pub fn move_robot_to_tasks(
     if tasks.is_empty() {
         return Option::None;
     }
-    for target in order_by_closest_target(tasks.front().unwrap(), current_pos) {
-        let movement = move_robot_to_position(current_pos, &target, map);
-        if movement.is_some() {
-            return movement;
+    if let Option::Some(Task::Transform(transform_task)) = tasks.front() {
+        for target in order_by_closest_target(transform_task, current_pos) {
+            let movement = move_robot_to_position(current_pos, &target, map);
+            if movement.is_some() {
+                return movement;
+            }
         }
     }
     return Option::None;
 }
 
-fn order_by_closest_target(task: &Task, current_pos: CellIndex) -> IntoIter<CellIndex> {
+fn order_by_closest_target(
+    task: &TransformationTask,
+    current_pos: CellIndex,
+) -> IntoIter<CellIndex> {
     let mut cells: Vec<CellIndex> = task.to_transform.iter().cloned().collect();
     cells.sort_by(|task_pos_1, task_pos_2| -> Ordering {
         let distance_1 = manhattan_distance(current_pos, *task_pos_1);
@@ -141,7 +146,7 @@ pub fn reachable_positions() -> Vec<CellIndexDiff> {
     ]
 }
 
-pub fn is_position_reachable(
+pub fn is_position_actionable(
     origin: TileType,
     origin_pos: &CellIndex,
     target_pos: &CellIndex,
@@ -292,10 +297,10 @@ mod tests {
         fn test_move_robot_basic_task() {
             let initial_pos = CellIndex::new(0, 0, 0);
             let cell_index_to_transform = CellIndex::new(0, 0, 10);
-            let tasks = VecDeque::from([Task {
+            let tasks = VecDeque::from([Task::Transform(TransformationTask {
                 to_transform: HashSet::from([cell_index_to_transform]),
                 transformation: Transformation::to(TileType::MachineAssembler),
-            }]);
+            })]);
             let map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
                 vec![
@@ -328,10 +333,11 @@ mod tests {
             let mut game_state = GameState::new();
             let initial_pos = CellIndex::new(0, 1, 0);
             let below_pos = CellIndex::new(0, 0, 0);
-            game_state.task_queue = VecDeque::from([Task {
+            let mut transformation_task = TransformationTask {
                 to_transform: HashSet::from([below_pos, initial_pos]),
                 transformation: Transformation::to(TileType::Stairs),
-            }]);
+            };
+            game_state.task_queue = VecDeque::from([Task::Transform(transformation_task.clone())]);
             game_state.map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
                 vec![(below_pos, TileType::FloorDirt)],
@@ -340,12 +346,13 @@ mod tests {
 
             assert_positions_equal(&game_state, TileType::FloorDirt, TileType::FloorDirt);
 
-            game_state.transform_cells_if_robots_can_do_so();
+            let transformation_task =
+                game_state.transform_cells_if_robots_can_do_so(transformation_task);
             game_state.move_robots();
 
             assert_positions_equal(&game_state, TileType::FloorDirt, TileType::Stairs);
 
-            game_state.transform_cells_if_robots_can_do_so();
+            game_state.transform_cells_if_robots_can_do_so(transformation_task.unwrap());
             game_state.move_robots();
 
             assert_positions_equal(&game_state, TileType::Stairs, TileType::Stairs);
@@ -363,11 +370,12 @@ mod tests {
             let initial_pos = CellIndex::new(0, 0, 0);
             let closest_target = CellIndex::new(-1, 0, 2);
             let farthest_target = CellIndex::new(2, 0, 2);
-            let tasks = VecDeque::from([Task {
+            let mut transformation_task = TransformationTask {
                 to_transform: HashSet::from([farthest_target, closest_target]),
                 transformation: Transformation::to(TileType::Stairs),
-            }]);
-            let mut iter = order_by_closest_target(tasks.front().unwrap(), initial_pos);
+            };
+            let tasks = VecDeque::from([Task::Transform(transformation_task.clone())]);
+            let mut iter = order_by_closest_target(&mut transformation_task, initial_pos);
             assert_eq!(iter.next().unwrap(), closest_target);
             assert_eq!(iter.next().unwrap(), farthest_target);
         }
@@ -386,16 +394,17 @@ mod tests {
             let initial_pos = CellIndex::new(0, 1, 0);
             let target = CellIndex::new(0, 0, 0);
             let mut game_state = GameState::new();
-            game_state.task_queue = VecDeque::from([Task {
+            let mut transformation_task = TransformationTask {
                 to_transform: HashSet::from([target]),
                 transformation: Transformation::to(TileType::MachineAssembler),
-            }]);
+            };
+            game_state.task_queue = VecDeque::from([Task::Transform(transformation_task.clone())]);
             game_state.map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
                 vec![(target, TileType::FloorDirt), (initial_pos, initial_tile)],
             );
             game_state.robots.first_mut().unwrap().position = initial_pos;
-            game_state.transform_cells_if_robots_can_do_so();
+            game_state.transform_cells_if_robots_can_do_so(transformation_task);
             assert_eq!(
                 game_state.map.get_cell(target).tile_type,
                 expected_target_transformation
