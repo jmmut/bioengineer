@@ -93,7 +93,7 @@ pub fn draw_robot_queue(
     gui_actions: GuiActions,
 ) -> GuiActions {
     let mut column = 1.0;
-    let icon_width = PIXELS_PER_TILE_WIDTH as f32;
+    let icon_width = PIXELS_PER_TILE_WIDTH as f32 * 1.5;
     let pixel_height = drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
     let max_queue = max(game_state.task_queue.len(), game_state.movement_queue.len());
     let panel_width = (max_queue + 1) as f32 * icon_width;
