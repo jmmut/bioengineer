@@ -47,6 +47,16 @@ pub fn draw_robot_queue(drawer: &impl DrawingTrait, game_state: &GameState) {
             1.0,
         );
     }
+    column = 1.0;
+    for _movement in &game_state.movement_queue {
+        column += 1.0;
+        drawer.draw_transparent_texture(
+            TileType::Movement,
+            drawer.screen_width() - column * icon_width,
+            pixel_height,
+            1.0,
+        );
+    }
 }
 
 pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
@@ -140,5 +150,6 @@ fn to_action_str(tile: TileType) -> &'static str {
         TileType::DirtyWaterWall => "Dirty water wall",
         TileType::CleanWaterWall => "Clean water wall",
         TileType::Robot => "Build robot",
+        TileType::Movement => "Move robot",
     }
 }

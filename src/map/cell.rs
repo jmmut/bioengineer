@@ -30,6 +30,7 @@ pub enum TileType {
     DirtyWaterWall = 14,
     CleanWaterWall = 15,
     Robot = 4,
+    Movement = 22,
 }
 
 pub fn is_liquid(tile: TileType) -> bool {

@@ -403,6 +403,7 @@ mod tests {
         }
 
         #[test]
+        #[ignore]
         fn do_not_do_the_closest_task_if_it_is_blocked_by_farther_tasks() {
             panic!("unimplemented");
         }

@@ -63,6 +63,7 @@ pub fn allowed_transformations_of_cell(
         DirtyWaterWall => vec![Air],
         CleanWaterWall => vec![],
         Robot => vec![],
+        Movement => vec![],
     };
     new_tiles.push(cell.tile_type);
     new_tiles
