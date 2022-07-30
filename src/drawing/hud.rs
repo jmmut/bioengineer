@@ -29,7 +29,7 @@ pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
 }
 
 pub fn draw_robot_queue(drawer: &impl DrawingTrait, game_state: &GameState) {
-    let column = 1.0;
+    let mut column = 1.0;
     let icon_width = PIXELS_PER_TILE_WIDTH as f32;
     let pixel_height = drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
     drawer.draw_transparent_texture(
@@ -38,6 +38,15 @@ pub fn draw_robot_queue(drawer: &impl DrawingTrait, game_state: &GameState) {
         pixel_height,
         1.0,
     );
+    for task in &game_state.task_queue {
+        column += 1.0;
+        drawer.draw_transparent_texture(
+            task.transformation.new_tile_type,
+            drawer.screen_width() - column * icon_width,
+            pixel_height,
+            1.0,
+        );
+    }
 }
 
 pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
