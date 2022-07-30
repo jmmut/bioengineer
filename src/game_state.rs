@@ -63,6 +63,29 @@ impl GameState {
     }
 
     pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) {
+        self.update_task_and_movement_queues(gui_actions);
+
+        if gui_actions.input.toggle_fluids {
+            self.advancing_fluids = !self.advancing_fluids;
+        }
+        if self.should_advance_fluids_this_frame(&gui_actions) {
+            self.fluids.advance(&mut self.map);
+        }
+
+        if gui_actions.input.regenerate_map {
+            self.map.regenerate();
+        }
+    }
+
+    fn update_task_and_movement_queues(&mut self, gui_actions: &GuiActions) {
+        if let Option::Some(do_now_task) = gui_actions.do_now_task {
+            let task = self.task_queue.remove(do_now_task);
+            self.task_queue.push_front(task.unwrap());
+        }
+        if let Option::Some(do_now_movement) = gui_actions.do_now_movement {
+            let movement = self.movement_queue.remove(do_now_movement);
+            self.movement_queue.push_front(movement.unwrap());
+        }
         if let Option::Some(cancel_task) = gui_actions.cancel_task {
             self.task_queue.remove(cancel_task);
         }
@@ -86,16 +109,6 @@ impl GameState {
                 self.transform_cells_if_robots_can_do_so();
                 self.move_robots();
             }
-        }
-        if gui_actions.input.toggle_fluids {
-            self.advancing_fluids = !self.advancing_fluids;
-        }
-        if self.should_advance_fluids_this_frame(&gui_actions) {
-            self.fluids.advance(&mut self.map);
-        }
-
-        if gui_actions.input.regenerate_map {
-            self.map.regenerate();
         }
     }
 

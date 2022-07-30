@@ -32,7 +32,9 @@ pub struct GuiActions {
     pub robot_movement: Option<CellIndex>,
     pub go_to_robot: Option<i32>,
     pub cancel_task: Option<usize>,
+    pub do_now_task: Option<usize>,
     pub cancel_movement: Option<usize>,
+    pub do_now_movement: Option<usize>,
 }
 
 impl Gui {
@@ -48,7 +50,9 @@ impl Gui {
             robot_movement: Option::None,
             go_to_robot: Option::None,
             cancel_task: Option::None,
+            do_now_task: Option::None,
             cancel_movement: Option::None,
+            do_now_movement: Option::None,
         };
         let unhandled_input = hud::show_available_actions(drawer, game_state, unhandled_input);
         let unhandled_input =
@@ -121,6 +125,7 @@ pub fn draw_robot_queue(
     }
 
     let mut cancel_task = Option::None;
+    let mut do_now_task = Option::None;
     let mut task_index = 0;
     for task in &game_state.task_queue {
         column += 1.0;
@@ -137,10 +142,18 @@ pub fn draw_robot_queue(
         ) {
             cancel_task = Option::Some(task_index);
         }
+        if drawer.do_button(
+            "do now",
+            drawer.screen_width() - column * icon_width,
+            pixel_height - button_height * 2.0,
+        ) {
+            do_now_task = Option::Some(task_index);
+        }
         task_index += 1;
     }
     column = 1.0;
     let mut cancel_movement = Option::None;
+    let mut do_now_movement = Option::None;
     let mut movement_index = 0;
     for _movement in &game_state.movement_queue {
         column += 1.0;
@@ -157,12 +170,21 @@ pub fn draw_robot_queue(
         ) {
             cancel_movement = Option::Some(movement_index);
         }
+        if drawer.do_button(
+            "do now",
+            drawer.screen_width() - column * icon_width,
+            pixel_height - button_height * 2.0,
+        ) {
+            do_now_movement = Option::Some(task_index);
+        }
         movement_index += 1;
     }
     GuiActions {
         go_to_robot,
         cancel_task,
+        do_now_task,
         cancel_movement,
+        do_now_movement,
         ..gui_actions
     }
 }
