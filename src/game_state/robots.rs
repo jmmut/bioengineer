@@ -333,7 +333,7 @@ mod tests {
             let mut game_state = GameState::new();
             let initial_pos = CellIndex::new(0, 1, 0);
             let below_pos = CellIndex::new(0, 0, 0);
-            let mut transformation_task = TransformationTask {
+            let transformation_task = TransformationTask {
                 to_transform: HashSet::from([below_pos, initial_pos]),
                 transformation: Transformation::to(TileType::Stairs),
             };
@@ -374,7 +374,6 @@ mod tests {
                 to_transform: HashSet::from([farthest_target, closest_target]),
                 transformation: Transformation::to(TileType::Stairs),
             };
-            let tasks = VecDeque::from([Task::Transform(transformation_task.clone())]);
             let mut iter = order_by_closest_target(&mut transformation_task, initial_pos);
             assert_eq!(iter.next().unwrap(), closest_target);
             assert_eq!(iter.next().unwrap(), farthest_target);
@@ -394,7 +393,7 @@ mod tests {
             let initial_pos = CellIndex::new(0, 1, 0);
             let target = CellIndex::new(0, 0, 0);
             let mut game_state = GameState::new();
-            let mut transformation_task = TransformationTask {
+            let transformation_task = TransformationTask {
                 to_transform: HashSet::from([target]),
                 transformation: Transformation::to(TileType::MachineAssembler),
             };
