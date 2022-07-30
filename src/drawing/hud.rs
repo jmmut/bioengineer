@@ -5,6 +5,7 @@ use crate::map::transform_cells::allowed_transformations;
 use crate::map::TileType;
 use crate::Rect;
 use crate::{DrawingTrait, GameState};
+use std::cmp::max;
 
 pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
@@ -32,6 +33,15 @@ pub fn draw_robot_queue(drawer: &impl DrawingTrait, game_state: &GameState) {
     let mut column = 1.0;
     let icon_width = PIXELS_PER_TILE_WIDTH as f32;
     let pixel_height = drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
+    let max_queue = max(game_state.task_queue.len(), game_state.movement_queue.len());
+    let panel_width = (max_queue + 1) as f32 * icon_width;
+    drawer.draw_rectangle(
+        drawer.screen_width() - panel_width,
+        drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32,
+        panel_width,
+        PIXELS_PER_TILE_HEIGHT as f32,
+        BACKGROUND_UI_COLOR,
+    );
     drawer.draw_transparent_texture(
         TileType::Robot,
         drawer.screen_width() - column * icon_width,
