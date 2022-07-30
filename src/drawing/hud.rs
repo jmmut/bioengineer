@@ -1,3 +1,4 @@
+use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::gui::{GuiActions, BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::input::{CellSelection, Input};
 use crate::map::transform_cells::allowed_transformations;
@@ -24,6 +25,18 @@ pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
         20.0,
         FONT_SIZE,
         TEXT_COLOR,
+    );
+}
+
+pub fn draw_robot_queue(drawer: &impl DrawingTrait, game_state: &GameState) {
+    let column = 1.0;
+    let icon_width = PIXELS_PER_TILE_WIDTH as f32;
+    let pixel_height = drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
+    drawer.draw_transparent_texture(
+        TileType::Robot,
+        drawer.screen_width() - column * icon_width,
+        pixel_height,
+        1.0,
     );
 }
 

@@ -530,12 +530,12 @@ mod tests {
         let min_cell = CellIndex::new(0, 0, 0);
         let max_cell = CellIndex::new(0, 2, 2);
         let mut i = 0;
-        let mut assert_until = |
-            initial_map: Vec<Pressure>,
-            final_map: Vec<Pressure>,
-            iterations: i32,
-        | -> Vec<Pressure> {
-            let computed = assert_n_steps(initial_map, final_map, iterations - i, min_cell, max_cell);
+        let mut assert_until = |initial_map: Vec<Pressure>,
+                                final_map: Vec<Pressure>,
+                                iterations: i32|
+         -> Vec<Pressure> {
+            let computed =
+                assert_n_steps(initial_map, final_map, iterations - i, min_cell, max_cell);
             i = iterations;
             computed
         };

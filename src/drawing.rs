@@ -23,6 +23,7 @@ pub fn draw(drawer: &impl DrawingTrait, game_state: &GameState) {
     drawer.clear_background(GREY);
     tiles::draw_map(drawer, game_state);
     hud::draw_fps(drawer, game_state);
+    hud::draw_robot_queue(drawer, game_state);
     hud::draw_level(
         drawer,
         game_state.get_drawing().min_cell.y,

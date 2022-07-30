@@ -1,6 +1,6 @@
 use crate::game_state::Task;
-use crate::map::{is_walkable_horizontal, is_walkable_vertical, CellIndex, TileType};
 use crate::map::Map;
+use crate::map::{is_walkable_horizontal, is_walkable_vertical, CellIndex, TileType};
 use std::cmp::Ordering;
 use std::collections::VecDeque;
 use std::vec::IntoIter;
@@ -322,7 +322,6 @@ mod tests {
             let new_pos = move_robot_to_tasks(initial_pos, &tasks, &map);
             assert_eq!(new_pos, Option::None);
         }
-
 
         #[test]
         fn test_move_robot_temporarily_unreachable() {
