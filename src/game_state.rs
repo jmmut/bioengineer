@@ -8,7 +8,7 @@ use crate::game_state::robots::{
 use crate::gui::GuiActions;
 use crate::map::fluids::{FluidMode, Fluids};
 use crate::map::transform_cells::Transformation;
-use crate::map::{Cell, CellIndex};
+use crate::map::CellIndex;
 use crate::now;
 use std::collections::{HashSet, VecDeque};
 
@@ -106,7 +106,7 @@ impl GameState {
                         if let Option::Some(remaining_task) = remaining {
                             self.task_queue.push_front(Task::Movement(remaining_task));
                         }
-                    },
+                    }
                 };
             }
         }
@@ -150,7 +150,7 @@ impl GameState {
 
     fn transform_cells_if_robots_can_do_so(
         &mut self,
-        mut transform: TransformationTask,
+        transform: TransformationTask,
     ) -> Option<TransformationTask> {
         let mut transform_opt = Option::Some(transform);
         for robot in &self.robots.clone() {

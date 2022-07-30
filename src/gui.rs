@@ -8,7 +8,6 @@ use crate::map::transform_cells::Transformation;
 use crate::map::{CellIndex, TileType};
 use crate::Color;
 use crate::{DrawingTrait, GameState};
-use std::cmp::max;
 
 pub struct Gui;
 
@@ -31,7 +30,7 @@ pub struct GuiActions {
     pub input: Input,
     pub selected_cell_transformation: Option<Transformation>,
     pub robot_movement: Option<CellIndex>,
-    pub go_to_robot: Option<i32>,
+    pub go_to_robot: Option<CellIndex>,
     pub cancel_task: Option<usize>,
     pub do_now_task: Option<usize>,
 }
@@ -118,7 +117,7 @@ pub fn draw_robot_queue(
         drawer.screen_width() - column * icon_width,
         pixel_height - button_height,
     ) {
-        go_to_robot = Option::Some(game_state.robots.first().unwrap().position.y);
+        go_to_robot = Option::Some(game_state.robots.first().unwrap().position);
     }
 
     let mut cancel_task = Option::None;
