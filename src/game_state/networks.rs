@@ -28,13 +28,18 @@ impl Networks {
             position: cell_index,
             tile: new_machine,
         };
-        let mut adjacent_networks = self.get_adjacent_networks(cell_index);
-        if adjacent_networks.len() > 1 {
-            self.join_networks_and_add_node(&mut adjacent_networks, node);
-        } else if adjacent_networks.len() == 1 {
-            self.add_to_network(node, &mut adjacent_networks);
-        } else if adjacent_networks.len() == 0 {
-            self.add_new_network_with_node(node);
+        let adjacent_networks = self.get_adjacent_networks(cell_index);
+        match adjacent_networks.split_first() {
+            Option::Some((index_of_network_kept, indexes_of_networks_to_be_merged)) => {
+                self.join_networks_and_add_node(
+                    node,
+                    *index_of_network_kept,
+                    indexes_of_networks_to_be_merged,
+                );
+            }
+            Option::None => {
+                self.add_new_network_with_node(node);
+            }
         }
     }
 
@@ -59,23 +64,16 @@ impl Networks {
         adjacents
     }
 
-    fn join_networks_and_add_node(&mut self, adjacent_networks: &mut Vec<usize>, node: Node) {
-        let (kept, to_be_merged) = adjacent_networks.split_first().unwrap();
+    fn join_networks_and_add_node(&mut self, node: Node, kept: usize, to_be_merged: &[usize]) {
         let mut networks_to_be_merged = Vec::new();
-        for i in (to_be_merged.len() - 1)..=0 {
-            networks_to_be_merged.push(self.networks.remove(i));
+        for i in to_be_merged.iter().rev() {
+            networks_to_be_merged.push(self.networks.remove(*i));
         }
-        let network_kept = self.networks.get_mut(*kept).unwrap();
-        while let Option::Some(last) = networks_to_be_merged.pop() {
-            network_kept.join(last);
+        let network_kept = self.networks.get_mut(kept).unwrap();
+        while let Option::Some(network_to_be_merged) = networks_to_be_merged.pop() {
+            network_kept.join(network_to_be_merged);
         }
         network_kept.add(node)
-    }
-
-    fn add_to_network(&mut self, node: Node, adjacent_networks: &mut Vec<usize>) {
-        let network_index = *adjacent_networks.first().unwrap();
-        let option: Option<&mut Network> = self.networks.get_mut(network_index);
-        option.unwrap().add(node);
     }
 
     fn add_new_network_with_node(&mut self, node: Node) {
