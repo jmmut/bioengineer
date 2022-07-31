@@ -1,4 +1,5 @@
 pub mod robots;
+mod networks;
 
 use super::map::Map;
 use crate::drawing::Drawing;
@@ -11,6 +12,7 @@ use crate::map::transform_cells::Transformation;
 use crate::map::CellIndex;
 use crate::now;
 use std::collections::{HashSet, VecDeque};
+use crate::game_state::networks::Networks;
 
 const DEFAULT_PROFILE_ENABLED: bool = false;
 const DEFAULT_ADVANCING_FLUIDS: bool = false;
@@ -30,6 +32,7 @@ pub struct GameState {
     pub profile: bool,
     pub robots: Vec<Robot>,
     pub task_queue: VecDeque<Task>,
+    pub networks: Networks,
 }
 
 impl GameState {
@@ -57,6 +60,7 @@ impl GameState {
             profile,
             robots,
             task_queue: VecDeque::new(),
+            networks: Networks::new(),
         }
     }
 
@@ -176,9 +180,9 @@ impl GameState {
                     &robot.position,
                     &reachable_position,
                 ) {
-                    transform
-                        .transformation
-                        .apply(self.map.get_cell_mut(reachable_position));
+                    let cell = self.map.get_cell_mut(reachable_position);
+                    transform.transformation.apply(cell);
+                    // networks.add(reachable_position, cell);
                     if transform.to_transform.len() == 0 {
                         // no need to reinsert this
                         return Option::None;
