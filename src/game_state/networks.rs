@@ -1,4 +1,5 @@
 use crate::game_state::robots::CellIndexDiff;
+use crate::map::cell::is_networkable;
 use crate::map::{CellIndex, TileType};
 use std::slice::Iter;
 
@@ -157,13 +158,24 @@ impl Network {
     }
 
     fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
-        for node in &mut self.nodes {
+        let mut index_to_change = Option::None;
+        let mut should_remove = !is_networkable(new_machine);
+        for (i, node) in &mut self.nodes.iter().enumerate() {
             if node.position == cell_index {
-                node.tile = new_machine;
-                return true;
+                index_to_change = Option::Some(i);
+                break;
             }
         }
-        return false;
+        return if let Option::Some(i) = index_to_change {
+            if should_remove {
+                self.nodes.remove(i);
+            } else {
+                self.nodes.get_mut(i).unwrap().tile = new_machine;
+            }
+            true
+        } else {
+            false
+        };
     }
 
     pub fn is_adjacent(&self, cell_index: CellIndex) -> bool {
@@ -262,6 +274,18 @@ mod tests {
                 .tile,
             TileType::MachineDrill
         );
+    }
+
+    #[test]
+    fn test_destroy_machine() {
+        let mut networks = Networks::new();
+        networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
+        networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
+        networks.replace_if_present(CellIndex::new(0, 0, 1), TileType::FloorRock);
+        assert_eq!(networks.len(), 1);
+        assert_eq!(networks.networks.get(0).unwrap().nodes.len(), 1);
+        networks.replace_if_present(CellIndex::new(0, 0, 0), TileType::FloorRock);
+        assert_eq!(networks.len(), 0);
     }
 
     #[test]
