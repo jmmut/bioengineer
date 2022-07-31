@@ -9,7 +9,7 @@ use std::vec::IntoIter;
 pub struct Robot {
     pub position: CellIndex,
 }
-type CellIndexDiff = CellIndex;
+pub type CellIndexDiff = CellIndex;
 
 pub fn move_robot_to_tasks(
     current_pos: CellIndex,
