@@ -19,7 +19,7 @@ pub enum TileType {
     FloorRock = 17,
     FloorDirt = 20,
     Stairs = 18,
-    Air = 29,
+    Air = 26,
     Wire = 5,
     MachineAssembler = 12,
     MachineDrill = 13,
@@ -91,7 +91,6 @@ pub fn is_networkable(tile: TileType) -> bool {
         MachineAssembler,
         MachineDrill,
         MachineSolarPanel,
-        MachineShip,
     ]
     .contains(&tile)
 }
