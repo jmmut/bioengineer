@@ -41,14 +41,29 @@ pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
 }
 
 pub fn draw_networks(drawer: &impl DrawingTrait, game_state: &GameState) {
-    let text = format!("number of networks: {}", game_state.networks.len());
+    let network_count = game_state.networks.len();
+    let text = format!("Number of networks: {}", network_count);
     drawer.draw_text(
         text.as_str(),
         20.0,
-        drawer.screen_height() - FONT_SIZE * 2.0,
+        drawer.screen_height() - FONT_SIZE * (2.0 + network_count as f32),
         FONT_SIZE,
         TEXT_COLOR,
     );
+    for (i, network) in game_state.networks.iter().enumerate() {
+        let text = format!(
+            "  Network #{}: Power generated {}",
+            i,
+            network.get_power_str()
+        );
+        drawer.draw_text(
+            text.as_str(),
+            20.0,
+            drawer.screen_height() - FONT_SIZE * (1.0 + (network_count - i) as f32),
+            FONT_SIZE,
+            TEXT_COLOR,
+        );
+    }
 }
 
 pub fn show_available_actions(

@@ -1,5 +1,16 @@
 use crate::game_state::robots::CellIndexDiff;
 use crate::map::{CellIndex, TileType};
+use std::slice::Iter;
+
+const KILO: f64 = 1.0e3;
+const MEGA: f64 = 1.0e6;
+const GIGA: f64 = 1.0e9;
+const TERA: f64 = 1.0e12;
+const PETA: f64 = 1.0e15;
+const EXA: f64 = 1.0e18;
+const ZETTA: f64 = 1.0e21;
+const YOTTA: f64 = 1.0e24;
+
 pub struct Networks {
     networks: Vec<Network>,
 }
@@ -85,11 +96,28 @@ impl Networks {
     pub fn len(&self) -> usize {
         self.networks.len()
     }
+
+    pub fn iter(&self) -> Iter<Network> {
+        self.networks.iter()
+    }
 }
+
+const POWER_PER_SOLAR_PANEL: f64 = 1000.0;
 
 impl Network {
     pub fn new() -> Self {
         Network { nodes: Vec::new() }
+    }
+
+    pub fn get_power_str(&self) -> String {
+        let mut solar_panels_count = 0;
+        for node in &self.nodes {
+            if node.tile == TileType::MachineSolarPanel {
+                solar_panels_count += 1;
+            }
+        }
+        let power = solar_panels_count as f64 * POWER_PER_SOLAR_PANEL;
+        format_unit(power, "W")
     }
 
     #[allow(unused)]
@@ -142,6 +170,29 @@ fn adjacent_positions() -> Vec<CellIndexDiff> {
         CellIndexDiff::new(0, 0, 1),
         CellIndexDiff::new(0, 0, -1),
     ]
+}
+
+fn format_unit(quantity: f64, unit_name: &str) -> String {
+    let unsigned_quantity = quantity.abs().floor();
+    if unsigned_quantity < KILO {
+        format!("{} {}", quantity.floor(), unit_name)
+    } else if unsigned_quantity < MEGA {
+        format!("{} K{}", (quantity / KILO).floor(), unit_name)
+    } else if unsigned_quantity < GIGA {
+        format!("{} M{}", (quantity / MEGA).floor(), unit_name)
+    } else if unsigned_quantity < TERA {
+        format!("{} G{}", (quantity / GIGA).floor(), unit_name)
+    } else if unsigned_quantity < PETA {
+        format!("{} T{}", (quantity / TERA).floor(), unit_name)
+    } else if unsigned_quantity < EXA {
+        format!("{} P{}", (quantity / PETA).floor(), unit_name)
+    } else if unsigned_quantity < ZETTA {
+        format!("{} E{}", (quantity / EXA).floor(), unit_name)
+    } else if unsigned_quantity < YOTTA {
+        format!("{} Z{}", (quantity / ZETTA).floor(), unit_name)
+    } else {
+        format!("{} Y{}", (quantity / YOTTA).floor(), unit_name)
+    }
 }
 
 #[cfg(test)]
@@ -198,5 +249,30 @@ mod tests {
             position,
         });
         assert_eq!(network.is_adjacent(adjacent), true);
+    }
+
+    #[test]
+    fn test_format_units() {
+        assert_eq!(format_unit(1000.0, " paperclips"), "1 K paperclips");
+        assert_eq!(format_unit(0.0, "W"), "0 W");
+        assert_eq!(format_unit(0.5, "W"), "0 W");
+        assert_eq!(format_unit(-0.5, "W"), "-1 W");
+        assert_eq!(format_unit(999.0, "W"), "999 W");
+        assert_eq!(format_unit(1000.0, "W"), "1 KW");
+        assert_eq!(format_unit(999999.0, "W"), "999 KW");
+        assert_eq!(format_unit(1000000.0, "W"), "1 MW");
+        assert_eq!(format_unit(999999999.0, "W"), "999 MW");
+        assert_eq!(format_unit(1000000000.0, "W"), "1 GW");
+        assert_eq!(format_unit(999999999999.0, "W"), "999 GW");
+        assert_eq!(format_unit(1000000000000.0, "W"), "1 TW");
+        assert_eq!(format_unit(999999999999999.0, "W"), "999 TW");
+        assert_eq!(format_unit(1000000000000000.0, "W"), "1 PW");
+        assert_eq!(format_unit(999999999999999935.0, "W"), "999 PW");
+        assert_eq!(format_unit(1000000000000000000.0, "W"), "1 EW");
+        assert_eq!(format_unit(999999999999999934000.0, "W"), "999 EW");
+        assert_eq!(format_unit(1000000000000000000000.0, "W"), "1 ZW");
+        assert_eq!(format_unit(999999999999999916000000.0, "W"), "999 ZW");
+        assert_eq!(format_unit(1000000000000000000000000.0, "W"), "1 YW");
+        assert_eq!(format_unit(1000000000000000000000000000.0, "W"), "1000 YW");
     }
 }
