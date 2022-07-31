@@ -15,3 +15,5 @@
 # Bugs
 
 - [ ] limited pathfinding
+  - [ ] need A* for tricky paths
+  - [ ] sometimes the robot enters a loop when trying to reach a tricky position/path

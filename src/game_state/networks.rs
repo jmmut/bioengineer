@@ -36,6 +36,9 @@ impl Networks {
         if self.replace_if_present(cell_index, new_machine) {
             return;
         }
+        if !is_networkable(new_machine) {
+            return;
+        }
         let node = Node {
             position: cell_index,
             tile: new_machine,
