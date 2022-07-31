@@ -11,6 +11,7 @@ use crate::gui::GuiActions;
 use crate::map::fluids::{FluidMode, Fluids};
 use crate::map::transform_cells::Transformation;
 use crate::map::CellIndex;
+use crate::map::cell::is_networkable;
 use crate::now;
 use std::collections::{HashSet, VecDeque};
 
@@ -182,7 +183,9 @@ impl GameState {
                 ) {
                     let cell = self.map.get_cell_mut(reachable_position);
                     transform.transformation.apply(cell);
-                    // networks.add(reachable_position, cell);
+                    if is_networkable(cell.tile_type) {
+                        self.networks.add(reachable_position, cell.tile_type);
+                    }
                     if transform.to_transform.len() == 0 {
                         // no need to reinsert this
                         return Option::None;

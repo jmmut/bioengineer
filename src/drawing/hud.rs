@@ -40,6 +40,17 @@ pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
     );
 }
 
+pub fn draw_networks(drawer: &impl DrawingTrait, game_state: &GameState) {
+    let text = format!("number of networks: {}", game_state.networks.len());
+    drawer.draw_text(
+        text.as_str(),
+        20.0,
+        drawer.screen_height() - FONT_SIZE * 2.0,
+        FONT_SIZE,
+        TEXT_COLOR,
+    );
+}
+
 pub fn show_available_actions(
     drawer: &impl DrawingTrait,
     game_state: &GameState,

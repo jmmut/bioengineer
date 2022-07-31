@@ -85,6 +85,17 @@ pub fn is_covering(tile: TileType) -> bool {
     .contains(&tile)
 }
 
+pub fn is_networkable(tile: TileType) -> bool {
+    [
+        Wire,
+        MachineAssembler,
+        MachineDrill,
+        MachineSolarPanel,
+        MachineShip,
+    ]
+    .contains(&tile)
+}
+
 impl Cell {
     pub fn new(tile_type: TileType) -> Self {
         Cell {

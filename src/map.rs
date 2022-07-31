@@ -1,4 +1,4 @@
-mod cell;
+pub mod cell;
 mod cell_cube_iterator;
 pub mod cell_envelope;
 mod chunk;

@@ -28,6 +28,7 @@ pub fn draw(drawer: &impl DrawingTrait, game_state: &GameState) {
         game_state.get_drawing().min_cell.y,
         game_state.get_drawing().max_cell.y,
     );
+    hud::draw_networks(drawer, game_state);
 }
 
 pub struct Drawing {
