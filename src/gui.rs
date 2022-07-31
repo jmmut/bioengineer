@@ -14,6 +14,7 @@ pub struct Gui;
 pub const FONT_SIZE: f32 = 20.0;
 pub const BLACK: Color = Color::new(0.0, 0.0, 0.0, 1.0);
 pub const TEXT_COLOR: Color = BLACK;
+pub const TEXT_COLOR_ALARM: Color = Color::new(0.40, 0.0, 0.0, 1.00);
 pub const BACKGROUND_UI_COLOR: Color = Color::new(0.3, 0.3, 0.4, 1.0);
 pub const BACKGROUND_UI_COLOR_BUTTON: Color = Color::new(0.32, 0.32, 0.42, 1.0);
 pub const BACKGROUND_UI_COLOR_HOVERED: Color = Color::new(0.35, 0.35, 0.45, 1.0);

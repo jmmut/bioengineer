@@ -109,15 +109,41 @@ impl Network {
         Network { nodes: Vec::new() }
     }
 
-    pub fn get_power_str(&self) -> String {
-        let mut solar_panels_count = 0;
+    pub fn get_power_generated_str(&self) -> String {
+        let power = self.get_power_generated();
+        format_unit(power, "W")
+    }
+
+    fn get_power_generated(&self) -> f64 {
+        let solar_panels_count = self.count_tiles_of_type_in(&[TileType::MachineSolarPanel]);
+        let power = solar_panels_count as f64 * POWER_PER_SOLAR_PANEL;
+        power
+    }
+
+    pub fn get_power_required_str(&self) -> String {
+        let power = self.get_power_required();
+        format_unit(power, "W")
+    }
+
+    fn get_power_required(&self) -> f64 {
+        let solar_panels_count =
+            self.count_tiles_of_type_in(&[TileType::MachineDrill, TileType::MachineAssembler]);
+        let power = solar_panels_count as f64 * POWER_PER_SOLAR_PANEL;
+        power
+    }
+
+    pub fn is_power_satisfied(&self) -> bool {
+        self.get_power_generated() >= self.get_power_required()
+    }
+
+    fn count_tiles_of_type_in(&self, tiles: &[TileType]) -> i32 {
+        let mut count = 0;
         for node in &self.nodes {
-            if node.tile == TileType::MachineSolarPanel {
-                solar_panels_count += 1;
+            if tiles.contains(&node.tile) {
+                count += 1;
             }
         }
-        let power = solar_panels_count as f64 * POWER_PER_SOLAR_PANEL;
-        format_unit(power, "W")
+        count
     }
 
     #[allow(unused)]

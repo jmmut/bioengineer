@@ -1,4 +1,4 @@
-use crate::gui::{GuiActions, BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
+use crate::gui::{GuiActions, BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
 use crate::input::{CellSelection, Input};
 use crate::map::transform_cells::allowed_transformations;
 use crate::map::TileType;
@@ -46,22 +46,28 @@ pub fn draw_networks(drawer: &impl DrawingTrait, game_state: &GameState) {
     drawer.draw_text(
         text.as_str(),
         20.0,
-        drawer.screen_height() - FONT_SIZE * (2.0 + network_count as f32),
+        drawer.screen_height() - FONT_SIZE * (3.0 + network_count as f32),
         FONT_SIZE,
         TEXT_COLOR,
     );
     for (i, network) in game_state.networks.iter().enumerate() {
         let text = format!(
-            "  Network #{}: Power generated {}",
+            "  Network #{} - Power generated: {}. Power required: {}.",
             i,
-            network.get_power_str()
+            network.get_power_generated_str(),
+            network.get_power_required_str(),
         );
+        let text_color = if network.is_power_satisfied() {
+            TEXT_COLOR
+        } else {
+            TEXT_COLOR_ALARM
+        };
         drawer.draw_text(
             text.as_str(),
             20.0,
-            drawer.screen_height() - FONT_SIZE * (1.0 + (network_count - i) as f32),
+            drawer.screen_height() - FONT_SIZE * (2.0 + (network_count - i) as f32),
             FONT_SIZE,
-            TEXT_COLOR,
+            text_color,
         );
     }
 }
