@@ -1,8 +1,9 @@
-pub mod robots;
 mod networks;
+pub mod robots;
 
 use super::map::Map;
 use crate::drawing::Drawing;
+use crate::game_state::networks::Networks;
 use crate::game_state::robots::{
     is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
 };
@@ -12,7 +13,6 @@ use crate::map::transform_cells::Transformation;
 use crate::map::CellIndex;
 use crate::now;
 use std::collections::{HashSet, VecDeque};
-use crate::game_state::networks::Networks;
 
 const DEFAULT_PROFILE_ENABLED: bool = false;
 const DEFAULT_ADVANCING_FLUIDS: bool = false;

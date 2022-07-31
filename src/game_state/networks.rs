@@ -1,6 +1,6 @@
 use crate::game_state::robots::CellIndexDiff;
-use crate::IVec3;
 use crate::map::{CellIndex, TileType};
+use crate::IVec3;
 
 pub struct Networks {
     networks: Vec<Network>,
@@ -17,7 +17,9 @@ pub struct Node {
 
 impl Networks {
     pub fn new() -> Self {
-        Networks { networks: Vec::new() }
+        Networks {
+            networks: Vec::new(),
+        }
     }
 
     pub fn add(&mut self, cell_index: CellIndex, new_machine: TileType) {
@@ -28,7 +30,7 @@ impl Networks {
         if adjacent_networks.len() > 1 {
             let (kept, to_be_merged) = adjacent_networks.split_first().unwrap();
             let mut networks_to_be_merged = Vec::new();
-            for i in (to_be_merged.len()-1)..=0 {
+            for i in (to_be_merged.len() - 1)..=0 {
                 networks_to_be_merged.push(self.networks.remove(i));
             }
             let network_kept = self.networks.get_mut(*kept).unwrap();
@@ -36,10 +38,13 @@ impl Networks {
                 network_kept.join(last);
             }
         } else {
-            let node = Node { position: cell_index, tile: new_machine };
+            let node = Node {
+                position: cell_index,
+                tile: new_machine,
+            };
             if adjacent_networks.len() == 1 {
                 let network_index = *adjacent_networks.first().unwrap();
-                let option:Option<&mut Network> = self.networks.get_mut(network_index);
+                let option: Option<&mut Network> = self.networks.get_mut(network_index);
                 option.unwrap().add(node);
             } else if adjacent_networks.len() == 0 {
                 let mut network = Network::new();
@@ -120,7 +125,6 @@ impl Network {
     }
 }
 
-
 fn adjacent_positions() -> Vec<CellIndexDiff> {
     vec![
         CellIndexDiff::new(1, 0, 0),
@@ -134,8 +138,8 @@ fn adjacent_positions() -> Vec<CellIndexDiff> {
 
 #[cfg(test)]
 mod tests {
-    use crate::map::{CellIndex, TileType};
     use super::*;
+    use crate::map::{CellIndex, TileType};
 
     #[test]
     fn test_join_networks() {
@@ -146,7 +150,7 @@ mod tests {
         networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
         assert_eq!(networks.len(), 1);
     }
-    
+
     #[test]
     fn test_append_to_network() {
         let mut networks = Networks::new();
@@ -161,8 +165,17 @@ mod tests {
         networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
         networks.add(CellIndex::new(0, 0, 0), TileType::MachineDrill);
         assert_eq!(networks.len(), 1);
-        assert_eq!(networks.networks.get(0).unwrap().nodes.first().unwrap().tile,
-                   TileType::MachineDrill);
+        assert_eq!(
+            networks
+                .networks
+                .get(0)
+                .unwrap()
+                .nodes
+                .first()
+                .unwrap()
+                .tile,
+            TileType::MachineDrill
+        );
     }
 
     #[test]
@@ -171,7 +184,10 @@ mod tests {
         let adjacent = CellIndex::new(0, 0, 0);
         let position = CellIndex::new(0, 0, 1);
         assert_eq!(network.is_adjacent(adjacent), false);
-        network.add(Node{tile: TileType::MachineDrill, position});
+        network.add(Node {
+            tile: TileType::MachineDrill,
+            position,
+        });
         assert_eq!(network.is_adjacent(adjacent), true);
     }
 }

@@ -1,9 +1,9 @@
 use crate::drawing::coords::cell_pixel::clicked_cell;
 use crate::drawing::Drawing;
 use crate::input::PixelPosition;
+use crate::map::cell_envelope::{is_inside, Envelope};
 use crate::map::{CellCubeIterator, CellIndex};
 use std::collections::HashSet;
-use crate::map::cell_envelope::{Envelope, is_inside};
 
 pub fn highlight_cells_from_pixels(
     start: PixelPosition,
@@ -20,7 +20,12 @@ pub fn highlight_cells_from_pixels(
         max_cell: drawing_.max_cell,
     };
     // println!("start level: {}, end level: {}", start_cell.y, end_cell.y);
-    highlight_cells(start_cell, end_cell, shown_cube, &mut drawing_.highlighted_cells);
+    highlight_cells(
+        start_cell,
+        end_cell,
+        shown_cube,
+        &mut drawing_.highlighted_cells,
+    );
     // (start_cell, end_cell)
 }
 

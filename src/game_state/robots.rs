@@ -102,17 +102,6 @@ fn try_move(
     }
 }
 
-/*
-fn is_position_walkable(map: &Map, possible_new_pos: &CellIndex, origin: &CellIndex) -> bool {
-    is_walkable_horizontal(
-        map.get_cell_optional(*possible_new_pos)
-            .map(|cell| cell.tile_type)
-            .unwrap_or(TileType::Unset),
-    )
-}
-
- */
-
 fn is_position_walkable(map: &Map, possible_new_pos: &CellIndex, origin: &CellIndex) -> bool {
     let target_tile = map
         .get_cell_optional(*possible_new_pos)
