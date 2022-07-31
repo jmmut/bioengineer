@@ -56,12 +56,19 @@ impl Networks {
     }
 
     fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
-        for network in &mut self.networks {
+        let mut index_network_replaced = Option::None;
+        for (i, network) in &mut self.networks.iter_mut().enumerate() {
             if network.replace_if_present(cell_index, new_machine) {
-                return true;
+                index_network_replaced = Option::Some(i);
+                break;
             }
         }
-        return false;
+        if let Option::Some(i) = index_network_replaced {
+            if self.networks.get(i).unwrap().len() == 0 {
+                self.networks.remove(i);
+            }
+        }
+        return index_network_replaced.is_some();
     }
 
     pub fn get_adjacent_networks(&self, cell_index: CellIndex) -> Vec<usize> {
@@ -108,6 +115,10 @@ const POWER_PER_SOLAR_PANEL: f64 = 1000.0;
 impl Network {
     pub fn new() -> Self {
         Network { nodes: Vec::new() }
+    }
+
+    pub fn len(&self) -> usize {
+        self.nodes.len()
     }
 
     pub fn get_power_generated_str(&self) -> String {
@@ -159,14 +170,14 @@ impl Network {
 
     fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
         let mut index_to_change = Option::None;
-        let mut should_remove = !is_networkable(new_machine);
-        for (i, node) in &mut self.nodes.iter().enumerate() {
+        for (i, node) in self.nodes.iter().enumerate() {
             if node.position == cell_index {
                 index_to_change = Option::Some(i);
                 break;
             }
         }
         return if let Option::Some(i) = index_to_change {
+            let should_remove = !is_networkable(new_machine);
             if should_remove {
                 self.nodes.remove(i);
             } else {

@@ -8,7 +8,6 @@ use crate::game_state::robots::{
     is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
 };
 use crate::gui::GuiActions;
-use crate::map::cell::is_networkable;
 use crate::map::fluids::{FluidMode, Fluids};
 use crate::map::transform_cells::Transformation;
 use crate::map::CellIndex;
