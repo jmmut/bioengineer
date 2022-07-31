@@ -42,8 +42,7 @@ impl Networks {
 
     fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
         for network in &mut self.networks {
-            if let Option::Some(found) = network.get(cell_index) {
-                *found = new_machine;
+            if network.replace_if_present(cell_index, new_machine) {
                 return true;
             }
         }
@@ -69,13 +68,23 @@ impl Network {
         Network { nodes: Vec::new() }
     }
 
-    pub fn get(&mut self, cell_index: CellIndex) -> Option<&mut TileType> {
+    fn get(&mut self, cell_index: CellIndex) -> Option<&mut TileType> {
         for node in &mut self.nodes {
             if node.position == cell_index {
                 return Option::Some(&mut node.tile);
             }
         }
         Option::None
+    }
+
+    fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
+        for node in &mut self.nodes {
+            if node.position == cell_index {
+                node.tile = new_machine;
+                return true;
+            }
+        }
+        return false;
     }
 
     pub fn add(&mut self, node: Node) {
