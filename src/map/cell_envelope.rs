@@ -11,8 +11,8 @@ fn envelope(cells: &Vec<CellIndex>) -> (CellIndex, CellIndex) {
 
 #[allow(unused)]
 pub struct Envelope {
-    min_cell: CellIndex,
-    max_cell: CellIndex,
+    pub min_cell: CellIndex,
+    pub max_cell: CellIndex,
 }
 
 #[allow(unused)]
@@ -47,6 +47,15 @@ impl Envelope {
     pub fn result(&self) -> (CellIndex, CellIndex) {
         (self.min_cell, self.max_cell)
     }
+}
+
+pub fn is_inside(cell_index: &CellIndex, envelope: &Envelope) -> bool {
+    cell_index.x >= envelope.min_cell.x
+        && cell_index.x <= envelope.max_cell.x
+        && cell_index.y >= envelope.min_cell.y
+        && cell_index.y <= envelope.max_cell.y
+        && cell_index.z >= envelope.min_cell.z
+        && cell_index.z <= envelope.max_cell.z
 }
 
 #[cfg(test)]
@@ -99,5 +108,15 @@ mod tests {
             envelope.result(),
             (CellIndex::new(-10, 0, -20), CellIndex::new(10, 50, 20))
         );
+    }
+
+    #[test]
+    fn test_is_inside() {
+        let envelope = Envelope {
+            min_cell: CellIndex::new(3, 4, 5),
+            max_cell: CellIndex::new(10, 8, 6),
+        };
+        assert_eq!(is_inside(&CellIndex::new(5, 4, 6), &envelope), true);
+        assert_eq!(is_inside(&CellIndex::new(2, 4, 6), &envelope), false);
     }
 }

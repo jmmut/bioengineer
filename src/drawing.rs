@@ -6,7 +6,7 @@ mod tiles;
 
 use crate::drawing::actions::change_height::change_height_rel;
 use crate::drawing::actions::highlight_cells::highlight_cells_from_pixels;
-use crate::drawing::actions::move_horizontally::move_map_horizontally;
+use crate::drawing::actions::move_horizontally::{move_map_horizontally, move_map_horizontally_to};
 use crate::game_state::GameState;
 use crate::gui::GuiActions;
 use crate::input::{CellSelection, CellSelectionType, PixelPosition};
@@ -23,7 +23,6 @@ pub fn draw(drawer: &impl DrawingTrait, game_state: &GameState) {
     drawer.clear_background(GREY);
     tiles::draw_map(drawer, game_state);
     hud::draw_fps(drawer, game_state);
-    hud::draw_robot_queue(drawer, game_state);
     hud::draw_level(
         drawer,
         game_state.get_drawing().min_cell.y,
@@ -54,20 +53,43 @@ impl Drawing {
 
     pub fn apply_input(&mut self, unhandled: &GuiActions, screen_width: f32) {
         let input = &unhandled.input;
-        self.maybe_change_height_rel(input.change_height_rel);
-        self.maybe_move_map_horizontally(input.move_map_horizontally, screen_width);
+        self.maybe_change_height_rel(input.change_height_rel, unhandled.go_to_robot);
+        self.maybe_move_map_horizontally(
+            input.move_map_horizontally,
+            unhandled.go_to_robot,
+            screen_width,
+        );
         self.maybe_select_cells(&input.cell_selection, screen_width);
     }
 
-    fn maybe_change_height_rel(&mut self, y: i32) {
+    fn maybe_change_height_rel(&mut self, y: i32, go_to_robot: Option<CellIndex>) {
         if y != 0 {
             change_height_rel(self, y);
         }
+        if let Option::Some(robot_pos) = go_to_robot {
+            let level_diff = robot_pos.y - self.max_cell.y;
+            self.max_cell.y += level_diff;
+            self.min_cell.y += level_diff;
+        }
     }
 
-    fn maybe_move_map_horizontally(&mut self, diff: PixelPosition, _screen_width: f32) {
+    fn maybe_move_map_horizontally(
+        &mut self,
+        diff: PixelPosition,
+        go_to_robot: Option<CellIndex>,
+        _screen_width: f32,
+    ) {
         if diff != PixelPosition::new(0.0, 0.0) {
             move_map_horizontally(self, diff, _screen_width);
+        }
+        if let Option::Some(robot_pos) = go_to_robot {
+            let center = CellIndex::new(
+                (self.max_cell.x + self.min_cell.x) / 2,
+                0,
+                (self.max_cell.z + self.min_cell.z) / 2,
+            );
+            let cell_diff = center - robot_pos;
+            move_map_horizontally_to(self, cell_diff, SubCellIndex::default());
         }
     }
 

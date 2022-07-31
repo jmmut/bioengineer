@@ -1,13 +1,11 @@
-use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::gui::{GuiActions, BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::input::{CellSelection, Input};
 use crate::map::transform_cells::allowed_transformations;
 use crate::map::TileType;
 use crate::Rect;
 use crate::{DrawingTrait, GameState};
-use std::cmp::max;
 
-const FULL_OPAQUE: f32 = 1.0;
+pub const FULL_OPAQUE: f32 = 1.0;
 
 pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
@@ -31,46 +29,6 @@ pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
     );
 }
 
-pub fn draw_robot_queue(drawer: &impl DrawingTrait, game_state: &GameState) {
-    let mut column = 1.0;
-    let icon_width = PIXELS_PER_TILE_WIDTH as f32;
-    let pixel_height = drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
-    let max_queue = max(game_state.task_queue.len(), game_state.movement_queue.len());
-    let panel_width = (max_queue + 1) as f32 * icon_width;
-    drawer.draw_rectangle(
-        drawer.screen_width() - panel_width,
-        drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32,
-        panel_width,
-        PIXELS_PER_TILE_HEIGHT as f32,
-        BACKGROUND_UI_COLOR,
-    );
-    drawer.draw_transparent_texture(
-        TileType::Robot,
-        drawer.screen_width() - column * icon_width,
-        pixel_height,
-        FULL_OPAQUE,
-    );
-    for task in &game_state.task_queue {
-        column += 1.0;
-        drawer.draw_transparent_texture(
-            task.transformation.new_tile_type,
-            drawer.screen_width() - column * icon_width,
-            pixel_height,
-            FULL_OPAQUE,
-        );
-    }
-    column = 1.0;
-    for _movement in &game_state.movement_queue {
-        column += 1.0;
-        drawer.draw_transparent_texture(
-            TileType::Movement,
-            drawer.screen_width() - column * icon_width,
-            pixel_height,
-            FULL_OPAQUE,
-        );
-    }
-}
-
 pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
     let text = format!("height: [{}, {}]", min_y, max_y);
     drawer.draw_text(
@@ -85,11 +43,11 @@ pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
 pub fn show_available_actions(
     drawer: &impl DrawingTrait,
     game_state: &GameState,
-    input: Input,
+    unhandled_input: GuiActions,
 ) -> GuiActions {
     let drawing_ = game_state.get_drawing();
     let mut transformation_clicked = Option::None;
-    let mut cell_selection = input.cell_selection.clone();
+    let mut cell_selection = unhandled_input.input.cell_selection.clone();
     if drawing_.highlighted_cells.len() > 0 {
         let transformations = allowed_transformations(&drawing_.highlighted_cells, game_state);
         let line_height = FONT_SIZE * 1.5;
@@ -123,22 +81,23 @@ pub fn show_available_actions(
             }
             i += 1.0;
         }
-        if let Option::Some(selection) = input.cell_selection.selection.clone() {
+        if let Option::Some(selection) = unhandled_input.input.cell_selection.selection.clone() {
             if panel.contains(selection.end) {
                 // TODO: if clicking a button near the bottom of the panel, it selects a cell out
-                // of screen
+                //       of screen
                 cell_selection = CellSelection::no_selection();
             }
         }
     }
-    return GuiActions {
+    GuiActions {
         input: Input {
             cell_selection,
-            ..input
+            ..unhandled_input.input
         },
         selected_cell_transformation: transformation_clicked,
         robot_movement: Option::None,
-    };
+        ..unhandled_input
+    }
 }
 
 fn to_action_str(tile: TileType) -> &'static str {

@@ -20,7 +20,7 @@ pub fn move_map_horizontally(drawing: &mut Drawing, diff: PixelPosition, _screen
     move_map_horizontally_to(drawing, truncated_cell_diff, truncated_subcell_diff);
 }
 
-fn move_map_horizontally_to(
+pub fn move_map_horizontally_to(
     drawing_: &mut Drawing,
     truncated_cell_diff: CellIndex,
     truncated_subcell_diff: SubCellIndex,
