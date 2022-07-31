@@ -32,6 +32,11 @@ factorio; but factorio is the one that gets the closest overall.
   - Automation
   - 3rd person
   - Voxels
+- Minecraft
+  - Height levels
+  - Chill music
+  - Voxels
+  - Big map
 - Universal paperclips
   - Sense of scale
   - Removing yourself
@@ -60,5 +65,15 @@ Dwarf Fortress and Minecraft in this category, and both give a unique sense of d
 Minecraft bases are usually above ground but I find myself doing anthills most of the time, as 
 when playing Dwarf Fortress.
 
+## Sound/music
+
+The music has to be something like the OST of Factorio or Minecraft. Not very intrusive so that
+you can focus, but chill and wholesome.
+
+I would like the music to change depending on the terraforming stage. At the beginning, the ambient
+should be space-y and misterious. To convey the feeling of being abandoned by yourself in a barren
+planet (think pads and strings). Then, the more infrastructure you deploy, the more it feels like
+home, with industrial touches (think Factorio, Rammstein or Slipknot, but chill). Then when 
+you introduce life, the music must convey nature and life (think flutes).
 
 
