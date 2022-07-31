@@ -1,7 +1,7 @@
 use crate::drawing::coords::cell_pixel::clicked_cell;
 use crate::drawing::Drawing;
 use crate::input::PixelPosition;
-use crate::map::cell_envelope::{is_inside, Envelope};
+use crate::map::cell_envelope::{Envelope, is_horizontally_inside};
 use crate::map::{CellCubeIterator, CellIndex};
 use std::collections::HashSet;
 
@@ -38,8 +38,24 @@ fn highlight_cells(
     let cell_cube = CellCubeIterator::new_from_mixed(start_cell, end_cell);
     highlighted_cells.clear();
     for cell in cell_cube {
-        if is_inside(&cell, &shown_cube) {
+        if is_horizontally_inside(&cell, &shown_cube) {
             highlighted_cells.insert(cell);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_select_higher_cell() {
+        let envelope = Envelope {
+            min_cell: CellIndex::new(0, -10, 0),
+            max_cell: CellIndex::new(0, -5, 0),
+        };
+        let mut highlighted = HashSet::new();
+        highlight_cells(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 0), envelope, &mut highlighted);
+        assert_eq!(highlighted.len(), 1);
     }
 }

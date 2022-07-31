@@ -49,11 +49,19 @@ impl Envelope {
     }
 }
 
+#[allow(unused)]
 pub fn is_inside(cell_index: &CellIndex, envelope: &Envelope) -> bool {
     cell_index.x >= envelope.min_cell.x
         && cell_index.x <= envelope.max_cell.x
         && cell_index.y >= envelope.min_cell.y
         && cell_index.y <= envelope.max_cell.y
+        && cell_index.z >= envelope.min_cell.z
+        && cell_index.z <= envelope.max_cell.z
+}
+
+pub fn is_horizontally_inside(cell_index: &CellIndex, envelope: &Envelope) -> bool {
+    cell_index.x >= envelope.min_cell.x
+        && cell_index.x <= envelope.max_cell.x
         && cell_index.z >= envelope.min_cell.z
         && cell_index.z <= envelope.max_cell.z
 }
