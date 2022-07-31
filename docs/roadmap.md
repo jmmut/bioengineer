@@ -9,9 +9,9 @@
 
 # Nice to haves
 
-- [ ] highlight cells for a given queued task 
+- [ ] highlight cells for a given queued task
+- [ ] bigger robot icon for the queue
 
 # Bugs
 
 - [ ] limited pathfinding
-- [ ] you can select cell out of the viewport
