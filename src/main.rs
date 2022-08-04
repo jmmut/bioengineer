@@ -1,6 +1,5 @@
 mod common;
 mod gui_actions;
-mod input;
 mod screen;
 mod world;
 
@@ -28,7 +27,7 @@ use crate::screen::Screen;
 use crate::world::World;
 use screen::drawing::{draw, DrawerTrait};
 use world::game_state::GameState;
-use input::InputSourceTrait;
+use screen::input::InputSourceTrait;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1600;
 const DEFAULT_WINDOW_HEIGHT: i32 = 900;

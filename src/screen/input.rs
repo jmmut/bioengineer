@@ -1,4 +1,4 @@
-use crate::input::CellSelectionType::{
+use crate::screen::input::CellSelectionType::{
     NoSelection, SelectionFinished, SelectionInProgress, SelectionStarted,
 };
 

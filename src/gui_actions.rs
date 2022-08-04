@@ -1,5 +1,5 @@
 use crate::world::game_state::TransformationTask;
-use crate::input::Input;
+use crate::screen::input::Input;
 use crate::world::map::transform_cells::Transformation;
 use crate::world::map::CellIndex;
 

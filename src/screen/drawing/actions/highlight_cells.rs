@@ -1,6 +1,6 @@
 use crate::screen::drawing::coords::cell_pixel::clicked_cell;
 use crate::screen::drawing::Drawing;
-use crate::input::PixelPosition;
+use crate::screen::input::PixelPosition;
 use crate::world::map::cell_envelope::{is_horizontally_inside, Envelope};
 use crate::world::map::{CellCubeIterator, CellIndex};
 use std::collections::HashSet;

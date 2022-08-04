@@ -4,7 +4,7 @@ use crate::screen::drawing::hud::FULL_OPAQUE;
 use crate::screen::drawing::{hud, Drawing};
 use crate::world::game_state::Task;
 pub use crate::gui_actions::GuiActions;
-use crate::input::Input;
+use crate::screen::input::Input;
 use crate::world::map::transform_cells::Transformation;
 use crate::world::map::{CellIndex, TileType};
 use crate::Color;

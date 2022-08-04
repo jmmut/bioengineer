@@ -7,7 +7,7 @@ use crate::screen::drawing::coords::tile_pixel::{
 use crate::screen::drawing::coords::truncate::truncate_cell_offset;
 use crate::screen::drawing::tiles::hitbox_offset;
 use crate::screen::drawing::{Drawing, SubCellIndex, SubTilePosition};
-use crate::input::PixelPosition;
+use crate::screen::input::PixelPosition;
 use crate::world::map::CellIndex;
 
 pub fn clicked_cell(click: PixelPosition, screen_width: f32, drawing_: &Drawing) -> CellIndex {

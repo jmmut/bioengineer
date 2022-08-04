@@ -4,7 +4,7 @@ use crate::screen::drawing::coords::truncate::assert_in_range_0_1;
 use crate::screen::drawing::{assets, Drawing, SubCellIndex};
 use crate::world::game_state::robots::Robot;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
-use crate::input::PixelPosition;
+use crate::screen::input::PixelPosition;
 use crate::world::map::{is_covering, Cell, CellIndex, TileType};
 use crate::Color;
 use crate::{DrawerTrait, GameState};

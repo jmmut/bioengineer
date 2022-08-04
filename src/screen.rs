@@ -5,6 +5,7 @@ use crate::{draw, DrawerTrait, Gui, InputSourceTrait};
 
 pub mod drawing;
 pub mod gui;
+pub mod input;
 
 pub struct Screen<Drawer: DrawerTrait, InputSource: InputSourceTrait> {
     drawer: Drawer,

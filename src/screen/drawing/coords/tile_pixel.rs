@@ -1,7 +1,7 @@
 use crate::screen::drawing::assets::PIXELS_PER_TILE_WIDTH;
 use crate::screen::drawing::coords::cast::Cast;
 use crate::screen::drawing::{assets, Drawing, SubTilePosition, TilePosition};
-use crate::input::PixelPosition;
+use crate::screen::input::PixelPosition;
 
 pub fn tile_to_pixel(tile: TilePosition, drawing: &Drawing, screen_width: f32) -> PixelPosition {
     let subtile = SubTilePosition::new(tile.x as f32, tile.y as f32);
