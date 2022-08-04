@@ -88,7 +88,8 @@ impl GameState {
             self.task_queue.remove(cancel_task);
         }
 
-        if let Option::Some(transformation_task) = gui_actions.selected_cell_transformation.clone() {
+        if let Option::Some(transformation_task) = gui_actions.selected_cell_transformation.clone()
+        {
             self.queue_transformation(transformation_task);
         }
         if let Option::Some(target_cell) = gui_actions.robot_movement {
@@ -133,7 +134,8 @@ impl GameState {
     }
 
     fn queue_transformation(&mut self, transformation_task: TransformationTask) {
-        self.task_queue.push_back(Task::Transform(transformation_task));
+        self.task_queue
+            .push_back(Task::Transform(transformation_task));
     }
     fn queue_movement(&mut self, destination: CellIndex) {
         self.task_queue.push_back(Task::Movement(destination));

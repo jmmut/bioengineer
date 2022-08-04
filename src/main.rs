@@ -38,8 +38,7 @@ const DEFAULT_WINDOW_WIDTH: i32 = 1600;
 const DEFAULT_WINDOW_HEIGHT: i32 = 900;
 const DEFAULT_WINDOW_TITLE: &'static str = "Bioengineer";
 
-#[macroquad::main(window_conf)]
-async fn main() {
+async fn old_main() {
     let mut implementations = factory().await;
 
     while old_frame(&mut implementations) {
@@ -47,7 +46,8 @@ async fn main() {
     }
 }
 
-async fn new_main() {
+#[macroquad::main(window_conf)]
+async fn main() {
     let (mut screen, mut world) = new_factory().await;
 
     while new_frame(&mut screen, &mut world) {
@@ -95,17 +95,18 @@ fn old_frame<D: DrawerTrait, I: InputSourceTrait>(
     let input_source = &mut implementations.input;
     let gui = &mut implementations.gui;
 
+
     // get input
     // update game state
     // draw
     let input = input_source.get_input();
     let should_continue = !input.quit;
     if should_continue {
-        draw(drawer, &game_state, game_state.get_drawing());
-        let gui_actions = gui.receive_actions(input, drawer, &game_state);
+        draw(drawer, &game_state, game_state.get_drawing());    // this usage doesn't matter
+        let gui_actions = gui.receive_actions(input, drawer, &game_state, game_state.get_drawing());// this usage doesn't matter
         game_state.update_with_gui_actions(&gui_actions);
         game_state
-            .get_drawing_mut()
+            .get_drawing_mut() // this usage doesn't matter
             .apply_input(&gui_actions, drawer.screen_width());
     }
     game_state.advance_frame();

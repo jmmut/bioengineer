@@ -1,7 +1,7 @@
+use crate::drawing::Drawing;
 use crate::gui_actions::GuiActions;
 use crate::world::World;
-use crate::{draw, DrawerTrait, gui, Gui, InputSourceTrait};
-use crate::drawing::Drawing;
+use crate::{draw, gui, DrawerTrait, Gui, InputSourceTrait};
 
 pub struct Screen<Drawer: DrawerTrait, InputSource: InputSourceTrait> {
     drawer: Drawer,
@@ -12,7 +12,6 @@ pub struct Screen<Drawer: DrawerTrait, InputSource: InputSourceTrait> {
 
 impl<Drawer: DrawerTrait, InputSource: InputSourceTrait> Screen<Drawer, InputSource> {
     pub fn new(mut drawer: Drawer, input_source: InputSource) -> Self {
-
         let gui = gui::Gui::new(&mut drawer);
         let drawing_state = Drawing::new();
         Screen {
@@ -25,8 +24,14 @@ impl<Drawer: DrawerTrait, InputSource: InputSourceTrait> Screen<Drawer, InputSou
 
     pub fn get_gui_actions(&mut self, world: &World) -> GuiActions {
         let input = self.input_source.get_input();
-        let gui_actions = self.gui.receive_actions(input, &self.drawer, &world.game_state);
-        self.drawing_state.apply_input(&gui_actions, self.drawer.screen_width());
+        let gui_actions = self.gui.receive_actions(
+            input,
+            &self.drawer,
+            &world.game_state,
+            &self.drawing_state,
+        );
+        self.drawing_state
+            .apply_input(&gui_actions, self.drawer.screen_width());
         gui_actions
     }
 

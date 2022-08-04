@@ -1,5 +1,5 @@
-use crate::GameState;
 use crate::gui_actions::GuiActions;
+use crate::GameState;
 
 pub struct World {
     pub game_state: GameState,

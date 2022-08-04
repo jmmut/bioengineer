@@ -1,7 +1,7 @@
 use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::drawing::coords::cell_pixel::clicked_cell;
-use crate::drawing::hud;
 use crate::drawing::hud::FULL_OPAQUE;
+use crate::drawing::{hud, Drawing};
 use crate::game_state::Task;
 pub use crate::gui_actions::GuiActions;
 use crate::input::Input;
@@ -34,6 +34,7 @@ impl Gui {
         input: Input,
         drawer: &impl DrawerTrait,
         game_state: &GameState,
+        drawing: &Drawing,
     ) -> GuiActions {
         let unhandled_input = GuiActions {
             input,
@@ -43,9 +44,13 @@ impl Gui {
             cancel_task: Option::None,
             do_now_task: Option::None,
         };
-        let unhandled_input = hud::show_available_actions(drawer, game_state, unhandled_input);
-        let unhandled_input =
-            robot_movement_from_pixel_to_cell(drawer, game_state, unhandled_input);
+        let unhandled_input = hud::show_available_actions(
+            drawer,
+            game_state,
+            unhandled_input,
+            drawing,
+        );
+        let unhandled_input = robot_movement_from_pixel_to_cell(drawer, unhandled_input, drawing);
         let unhandled_input = draw_robot_queue(drawer, game_state, unhandled_input);
         unhandled_input
     }
@@ -62,16 +67,12 @@ impl Gui {
 
 fn robot_movement_from_pixel_to_cell(
     drawer: &impl DrawerTrait,
-    game_state: &GameState,
     unhandled_input: GuiActions,
+    drawing: &Drawing,
 ) -> GuiActions {
     let mut robot_movement = Option::None;
     if let Option::Some(movement_to_pixel) = unhandled_input.input.robot_movement {
-        let movement_to_cell = clicked_cell(
-            movement_to_pixel,
-            drawer.screen_width(),
-            game_state.get_drawing(),
-        );
+        let movement_to_cell = clicked_cell(movement_to_pixel, drawer.screen_width(), drawing);
         robot_movement = Option::Some(movement_to_cell);
     }
     GuiActions {

@@ -1,3 +1,4 @@
+use crate::game_state::TransformationTask;
 use crate::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
 use crate::gui_actions::GuiActions;
 use crate::input::{CellSelection, Input};
@@ -5,7 +6,7 @@ use crate::map::transform_cells::allowed_transformations;
 use crate::map::TileType;
 use crate::Rect;
 use crate::{DrawerTrait, GameState};
-use crate::game_state::TransformationTask;
+use crate::drawing::Drawing;
 
 pub const FULL_OPAQUE: f32 = 1.0;
 
@@ -78,8 +79,9 @@ pub fn show_available_actions(
     drawer: &impl DrawerTrait,
     game_state: &GameState,
     unhandled_input: GuiActions,
+    drawing: &Drawing,
 ) -> GuiActions {
-    let drawing_ = game_state.get_drawing();
+    let drawing_ = drawing;
     let mut transformation_clicked = Option::None;
     let mut cell_selection = unhandled_input.input.cell_selection.clone();
     if drawing_.highlighted_cells.len() > 0 {

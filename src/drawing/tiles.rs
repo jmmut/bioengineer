@@ -11,22 +11,20 @@ use crate::{DrawerTrait, GameState};
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 
-pub fn draw_map(drawer: &impl DrawerTrait, game_state: &GameState) {
-    let drawing = game_state.get_drawing();
+pub fn draw_map(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &Drawing) {
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
     for i_y in min_cell.y..=max_cell.y {
         for i_z in min_cell.z..=max_cell.z {
             for i_x in min_cell.x..=max_cell.x {
-                draw_cell(drawer, game_state, CellIndex::new(i_x, i_y, i_z));
+                draw_cell(drawer, game_state, CellIndex::new(i_x, i_y, i_z), drawing);
             }
         }
     }
 }
 
-fn draw_cell(drawer: &impl DrawerTrait, game_state: &GameState, cell_index: CellIndex) {
+fn draw_cell(drawer: &impl DrawerTrait, game_state: &GameState, cell_index: CellIndex, drawing: &Drawing) {
     let screen_width = drawer.screen_width();
-    let drawing = game_state.get_drawing();
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
     let cell = game_state.map.get_cell(cell_index);
@@ -150,11 +148,10 @@ fn get_opacity_to_see_robot(
 }
 
 #[allow(dead_code)]
-fn draw_cell_hit_box(drawer: &impl DrawerTrait, game_state: &GameState, cell_index: CellIndex) {
+fn draw_cell_hit_box(drawer: &impl DrawerTrait, cell_index: CellIndex, drawing: &Drawing) {
     let mut subcell: SubCellIndex = cell_index.cast();
     let size = 2.0;
     let color = Color::new(1.0, 1.0, 1.0, 1.0);
-    let drawing = game_state.get_drawing();
     let screen_width = drawer.screen_width();
     let offset = hitbox_offset();
     let me = subcell_center_to_pixel(subcell, drawing, screen_width) - offset;
