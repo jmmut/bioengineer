@@ -7,11 +7,11 @@ use crate::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::input::PixelPosition;
 use crate::map::{is_covering, Cell, CellIndex, TileType};
 use crate::Color;
-use crate::{DrawingTrait, GameState};
+use crate::{DrawerTrait, GameState};
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 
-pub fn draw_map(drawer: &impl DrawingTrait, game_state: &GameState) {
+pub fn draw_map(drawer: &impl DrawerTrait, game_state: &GameState) {
     let drawing = game_state.get_drawing();
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
@@ -24,7 +24,7 @@ pub fn draw_map(drawer: &impl DrawingTrait, game_state: &GameState) {
     }
 }
 
-fn draw_cell(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: CellIndex) {
+fn draw_cell(drawer: &impl DrawerTrait, game_state: &GameState, cell_index: CellIndex) {
     let screen_width = drawer.screen_width();
     let drawing = game_state.get_drawing();
     let min_cell = &drawing.min_cell;
@@ -76,7 +76,7 @@ fn get_opacity(
 
 #[allow(unused)]
 fn draw_pressure_number(
-    drawer: &impl DrawingTrait,
+    drawer: &impl DrawerTrait,
     cell_index: CellIndex,
     screen_width: f32,
     drawing: &Drawing,
@@ -150,7 +150,7 @@ fn get_opacity_to_see_robot(
 }
 
 #[allow(dead_code)]
-fn draw_cell_hit_box(drawer: &impl DrawingTrait, game_state: &GameState, cell_index: CellIndex) {
+fn draw_cell_hit_box(drawer: &impl DrawerTrait, game_state: &GameState, cell_index: CellIndex) {
     let mut subcell: SubCellIndex = cell_index.cast();
     let size = 2.0;
     let color = Color::new(1.0, 1.0, 1.0, 1.0);

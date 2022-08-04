@@ -19,7 +19,7 @@ pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
-pub fn draw(drawer: &impl DrawingTrait, game_state: &GameState) {
+pub fn draw(drawer: &impl DrawerTrait, game_state: &GameState) {
     drawer.clear_background(GREY);
     tiles::draw_map(drawer, game_state);
     hud::draw_fps(drawer, game_state);
@@ -115,7 +115,7 @@ impl Drawing {
 /// Hopefully, if I ever need to swap the graphics library (currently macroquad), classes like
 /// this one will be the only places to change.
 /// I'm not sure this will actually help, but we'll see.
-pub trait DrawingTrait {
+pub trait DrawerTrait {
     fn new(textures: Vec<Texture2D>) -> Self
     where
         Self: Sized;

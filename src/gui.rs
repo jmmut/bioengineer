@@ -3,11 +3,12 @@ use crate::drawing::coords::cell_pixel::clicked_cell;
 use crate::drawing::hud;
 use crate::drawing::hud::FULL_OPAQUE;
 use crate::game_state::Task;
+pub use crate::gui_actions::GuiActions;
 use crate::input::Input;
 use crate::map::transform_cells::Transformation;
 use crate::map::{CellIndex, TileType};
 use crate::Color;
-use crate::{DrawingTrait, GameState};
+use crate::{DrawerTrait, GameState};
 
 pub struct Gui;
 
@@ -21,26 +22,17 @@ pub const BACKGROUND_UI_COLOR_HOVERED: Color = Color::new(0.35, 0.35, 0.45, 1.0)
 pub const BACKGROUND_UI_COLOR_CLICKED: Color = Color::new(0.25, 0.25, 0.35, 1.0);
 
 impl Gui {
-    pub fn new(drawer: &mut impl DrawingTrait) -> Self {
+    pub fn new(drawer: &mut impl DrawerTrait) -> Self {
         Self::set_skin(drawer);
         Gui {}
     }
-}
-
-pub struct GuiActions {
-    pub input: Input,
-    pub selected_cell_transformation: Option<Transformation>,
-    pub robot_movement: Option<CellIndex>,
-    pub go_to_robot: Option<CellIndex>,
-    pub cancel_task: Option<usize>,
-    pub do_now_task: Option<usize>,
 }
 
 impl Gui {
     pub fn receive_actions(
         self: &mut Self,
         input: Input,
-        drawer: &impl DrawingTrait,
+        drawer: &impl DrawerTrait,
         game_state: &GameState,
     ) -> GuiActions {
         let unhandled_input = GuiActions {
@@ -57,7 +49,7 @@ impl Gui {
         let unhandled_input = draw_robot_queue(drawer, game_state, unhandled_input);
         unhandled_input
     }
-    fn set_skin(drawer: &mut impl DrawingTrait) {
+    fn set_skin(drawer: &mut impl DrawerTrait) {
         drawer.set_button_style(
             FONT_SIZE,
             TEXT_COLOR,
@@ -69,7 +61,7 @@ impl Gui {
 }
 
 fn robot_movement_from_pixel_to_cell(
-    drawer: &impl DrawingTrait,
+    drawer: &impl DrawerTrait,
     game_state: &GameState,
     unhandled_input: GuiActions,
 ) -> GuiActions {
@@ -89,7 +81,7 @@ fn robot_movement_from_pixel_to_cell(
 }
 
 pub fn draw_robot_queue(
-    drawer: &impl DrawingTrait,
+    drawer: &impl DrawerTrait,
     game_state: &GameState,
     gui_actions: GuiActions,
 ) -> GuiActions {

@@ -1,13 +1,14 @@
-use crate::gui::{GuiActions, BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
+use crate::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
+use crate::gui_actions::GuiActions;
 use crate::input::{CellSelection, Input};
 use crate::map::transform_cells::allowed_transformations;
 use crate::map::TileType;
 use crate::Rect;
-use crate::{DrawingTrait, GameState};
+use crate::{DrawerTrait, GameState};
 
 pub const FULL_OPAQUE: f32 = 1.0;
 
-pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
+pub fn draw_fps(drawer: &impl DrawerTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
     if game_state.profile {
         println!(
@@ -29,7 +30,7 @@ pub fn draw_fps(drawer: &impl DrawingTrait, game_state: &GameState) {
     );
 }
 
-pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
+pub fn draw_level(drawer: &impl DrawerTrait, min_y: i32, max_y: i32) {
     let text = format!("height: [{}, {}]", min_y, max_y);
     drawer.draw_text(
         text.as_str(),
@@ -40,7 +41,7 @@ pub fn draw_level(drawer: &impl DrawingTrait, min_y: i32, max_y: i32) {
     );
 }
 
-pub fn draw_networks(drawer: &impl DrawingTrait, game_state: &GameState) {
+pub fn draw_networks(drawer: &impl DrawerTrait, game_state: &GameState) {
     let network_count = game_state.networks.len();
     let text = format!("Number of networks: {}", network_count);
     drawer.draw_text(
@@ -73,7 +74,7 @@ pub fn draw_networks(drawer: &impl DrawingTrait, game_state: &GameState) {
 }
 
 pub fn show_available_actions(
-    drawer: &impl DrawingTrait,
+    drawer: &impl DrawerTrait,
     game_state: &GameState,
     unhandled_input: GuiActions,
 ) -> GuiActions {

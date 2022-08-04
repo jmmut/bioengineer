@@ -1,3 +1,4 @@
+use crate::common::profiling::ScopedProfiler;
 use crate::map::chunk::cell_iter::CellIterItem;
 use crate::map::fluids::FluidStage::Downwards;
 use crate::map::ref_mut_iterator::RefMutIterator;
@@ -5,7 +6,6 @@ use crate::map::{
     cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, Cell, CellCubeIterator, CellIndex,
     Map, TileType,
 };
-use crate::ScopedProfiler;
 
 const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 

@@ -7,7 +7,7 @@ use macroquad::texture::draw_texture;
 use macroquad::ui::{root_ui, Skin};
 use macroquad::window::{clear_background, screen_height, screen_width};
 
-use crate::drawing::{assets, Drawing, DrawingTrait};
+use crate::drawing::{assets, DrawerTrait, Drawing};
 use crate::gui::FONT_SIZE;
 use crate::map::TileType;
 
@@ -16,7 +16,7 @@ pub struct DrawingMacroquad {
     pub textures: Vec<Texture2D>,
 }
 
-impl DrawingTrait for DrawingMacroquad {
+impl DrawerTrait for DrawingMacroquad {
     fn new(textures: Vec<Texture2D>) -> DrawingMacroquad {
         // let textures = load_tileset(tileset_path);
         println!(

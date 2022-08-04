@@ -1,9 +1,12 @@
+mod common;
 mod drawing;
 mod game_state;
 mod gui;
+mod gui_actions;
 mod input;
 mod map;
-mod profiling;
+mod screen;
+mod world;
 
 mod external {
     pub mod assets_macroquad;
@@ -23,9 +26,11 @@ use external::assets_macroquad::load_tileset;
 use external::drawing_macroquad::DrawingMacroquad as DrawingImpl;
 use external::input_macroquad::InputMacroquad as InputSource;
 
+use crate::common::profiling::ScopedProfiler;
 use crate::gui::Gui;
-use crate::profiling::ScopedProfiler;
-use drawing::{draw, DrawingTrait};
+use crate::screen::Screen;
+use crate::world::World;
+use drawing::{draw, DrawerTrait};
 use game_state::GameState;
 use input::InputSourceTrait;
 
@@ -37,7 +42,15 @@ const DEFAULT_WINDOW_TITLE: &'static str = "Bioengineer";
 async fn main() {
     let mut implementations = factory().await;
 
-    while frame(&mut implementations) {
+    while old_frame(&mut implementations) {
+        next_frame().await
+    }
+}
+
+async fn new_main() {
+    let (mut screen, mut world) = new_factory().await;
+
+    while new_frame(&mut screen, &mut world) {
         next_frame().await
     }
 }
@@ -51,7 +64,7 @@ fn window_conf() -> Conf {
     }
 }
 
-struct Implementations<D: DrawingTrait, I: InputSourceTrait> {
+struct Implementations<D: DrawerTrait, I: InputSourceTrait> {
     drawer: D,
     game_state: GameState,
     input: I,
@@ -73,7 +86,7 @@ async fn factory() -> Implementations<DrawingImpl, InputSource> {
 }
 
 /// returns if should continue looping. In other words, if there should be another future frame.
-fn frame<D: DrawingTrait, I: InputSourceTrait>(
+fn old_frame<D: DrawerTrait, I: InputSourceTrait>(
     implementations: &mut Implementations<D, I>,
 ) -> bool {
     let game_state = &mut implementations.game_state;
@@ -96,5 +109,25 @@ fn frame<D: DrawingTrait, I: InputSourceTrait>(
             .apply_input(&gui_actions, drawer.screen_width());
     }
     game_state.advance_frame();
+    should_continue
+}
+
+async fn new_factory() -> (Screen<DrawingImpl, InputSource>, World) {
+    let tileset = load_tileset("assets/image/tileset.png");
+    let mut drawer = DrawingImpl::new(tileset.await);
+    let input_source = InputSource::new();
+    (Screen::new(drawer, input_source), World::new())
+}
+
+fn new_frame<D: DrawerTrait, I: InputSourceTrait>(
+    screen: &mut Screen<D, I>,
+    world: &mut World,
+) -> bool {
+    let gui_actions = screen.get_gui_actions();
+    let should_continue = gui_actions.should_continue();
+    if should_continue {
+        world.update(gui_actions);
+        screen.draw(world);
+    }
     should_continue
 }
