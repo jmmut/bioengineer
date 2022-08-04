@@ -5,8 +5,7 @@ use crate::screen::drawing_state::{hud, DrawingState};
 use crate::world::game_state::Task;
 pub use crate::screen::gui_actions::GuiActions;
 use crate::screen::input::Input;
-use crate::world::map::transform_cells::Transformation;
-use crate::world::map::{CellIndex, TileType};
+use crate::world::map::TileType;
 use crate::Color;
 use crate::{DrawerTrait, GameState};
 

@@ -52,7 +52,7 @@ fn window_conf() -> Conf {
 
 async fn factory() -> (Screen<DrawingImpl, InputSource>, World) {
     let tileset = load_tileset("assets/image/tileset.png");
-    let mut drawer = DrawingImpl::new(tileset.await);
+    let drawer = DrawingImpl::new(tileset.await);
     let input_source = InputSource::new();
     (Screen::new(drawer, input_source), World::new())
 }

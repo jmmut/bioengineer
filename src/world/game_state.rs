@@ -220,12 +220,6 @@ impl GameState {
         self.previous_frame_ts = self.current_frame_ts;
         self.current_frame_ts = now();
     }
-    pub fn get_drawing(&self) -> &DrawingState {
-        &self.drawing
-    }
-    pub fn get_drawing_mut(&mut self) -> &mut DrawingState {
-        &mut self.drawing
-    }
 }
 
 #[derive(Clone)]

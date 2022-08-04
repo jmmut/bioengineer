@@ -113,11 +113,11 @@ pub fn show_available_actions(
             let y = margin_y + i * line_height - FONT_SIZE / 2.0;
             let text = to_action_str(transformation.new_tile_type);
             if drawer.do_button(text, big_margin_x, y) {
-                let transformationTask = TransformationTask {
+                let transformation_task = TransformationTask {
                     to_transform: drawing_.highlighted_cells.clone(),
                     transformation,
                 };
-                transformation_clicked = Option::Some(transformationTask);
+                transformation_clicked = Option::Some(transformation_task);
             }
             i += 1.0;
         }
