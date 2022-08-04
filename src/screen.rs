@@ -31,6 +31,6 @@ impl<Drawer: DrawerTrait, InputSource: InputSourceTrait> Screen<Drawer, InputSou
     }
 
     pub fn draw(&self, world: &World) {
-        draw(&self.drawer, &world.game_state);
+        draw(&self.drawer, &world.game_state, &self.drawing_state);
     }
 }

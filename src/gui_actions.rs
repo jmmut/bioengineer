@@ -1,10 +1,11 @@
+use crate::game_state::TransformationTask;
 use crate::input::Input;
 use crate::map::transform_cells::Transformation;
 use crate::map::CellIndex;
 
 pub struct GuiActions {
     pub input: Input,
-    pub selected_cell_transformation: Option<Transformation>,
+    pub selected_cell_transformation: Option<TransformationTask>,
     pub robot_movement: Option<CellIndex>,
     pub go_to_robot: Option<CellIndex>,
     pub cancel_task: Option<usize>,

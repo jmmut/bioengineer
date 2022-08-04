@@ -101,7 +101,7 @@ fn old_frame<D: DrawerTrait, I: InputSourceTrait>(
     let input = input_source.get_input();
     let should_continue = !input.quit;
     if should_continue {
-        draw(drawer, &game_state);
+        draw(drawer, &game_state, game_state.get_drawing());
         let gui_actions = gui.receive_actions(input, drawer, &game_state);
         game_state.update_with_gui_actions(&gui_actions);
         game_state

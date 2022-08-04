@@ -5,6 +5,7 @@ use crate::map::transform_cells::allowed_transformations;
 use crate::map::TileType;
 use crate::Rect;
 use crate::{DrawerTrait, GameState};
+use crate::game_state::TransformationTask;
 
 pub const FULL_OPAQUE: f32 = 1.0;
 
@@ -110,7 +111,11 @@ pub fn show_available_actions(
             let y = margin_y + i * line_height - FONT_SIZE / 2.0;
             let text = to_action_str(transformation.new_tile_type);
             if drawer.do_button(text, big_margin_x, y) {
-                transformation_clicked = Option::Some(transformation);
+                let transformationTask = TransformationTask {
+                    to_transform: drawing_.highlighted_cells.clone(),
+                    transformation,
+                };
+                transformation_clicked = Option::Some(transformationTask);
             }
             i += 1.0;
         }

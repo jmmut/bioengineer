@@ -19,14 +19,14 @@ pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
-pub fn draw(drawer: &impl DrawerTrait, game_state: &GameState) {
+pub fn draw(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &Drawing) {
     drawer.clear_background(GREY);
     tiles::draw_map(drawer, game_state);
     hud::draw_fps(drawer, game_state);
     hud::draw_level(
         drawer,
-        game_state.get_drawing().min_cell.y,
-        game_state.get_drawing().max_cell.y,
+        drawing.min_cell.y,
+        drawing.max_cell.y,
     );
     hud::draw_networks(drawer, game_state);
 }
