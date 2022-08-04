@@ -23,7 +23,12 @@ pub fn draw_map(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &Dra
     }
 }
 
-fn draw_cell(drawer: &impl DrawerTrait, game_state: &GameState, cell_index: CellIndex, drawing: &Drawing) {
+fn draw_cell(
+    drawer: &impl DrawerTrait,
+    game_state: &GameState,
+    cell_index: CellIndex,
+    drawing: &Drawing,
+) {
     let screen_width = drawer.screen_width();
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
