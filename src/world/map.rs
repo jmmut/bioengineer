@@ -6,18 +6,17 @@ pub mod fluids;
 mod map_iterator;
 mod ref_mut_iterator;
 pub mod transform_cells;
-pub mod trunc;
 
 use crate::world::map::chunk::{get_chunk_index, get_required_chunks};
-use crate::{now, IVec3};
+use crate::{IVec3, now};
 use chunk::{Chunk, ChunkIndex};
 use opensimplex_noise_rs::OpenSimplexNoise;
 use std::collections::HashMap;
-use trunc::trunc_towards_neg_inf;
+use crate::common::trunc::trunc_towards_neg_inf;
 
 // use crate::world::map::map_iterator::MapIterator;
 pub use crate::world::map::cell::{
-    is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, Cell, TileType,
+    Cell, is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, TileType,
 };
 pub use crate::world::map::cell_cube_iterator::CellCubeIterator;
 use crate::world::map::cell_envelope::Envelope;

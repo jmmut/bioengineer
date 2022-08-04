@@ -29,7 +29,7 @@ pub struct GameState {
     pub advance_fluid_every_n_frames: i32,
     pub advance_robots_every_n_frames: i32,
     pub fluids: Fluids,
-    pub profile: bool,
+    pub profile: bool, // TODO: move to DrawingState?
     pub robots: Vec<Robot>,
     pub task_queue: VecDeque<Task>,
     pub networks: Networks,
