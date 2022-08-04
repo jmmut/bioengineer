@@ -1,7 +1,7 @@
-use crate::screen::drawing::Drawing;
+use crate::screen::drawing_state::DrawingState;
 use crate::world::map::Map;
 
-pub fn change_height_rel(drawing: &mut Drawing, y: i32) {
+pub fn change_height_rel(drawing: &mut DrawingState, y: i32) {
     if y != 0 {
         let min_cell = &mut drawing.min_cell;
         let max_cell = &mut drawing.max_cell;

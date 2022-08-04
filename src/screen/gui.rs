@@ -1,7 +1,7 @@
-use crate::screen::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use crate::screen::drawing::coords::cell_pixel::clicked_cell;
-use crate::screen::drawing::hud::FULL_OPAQUE;
-use crate::screen::drawing::{hud, Drawing};
+use crate::screen::drawing_state::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use crate::screen::drawing_state::coords::cell_pixel::clicked_cell;
+use crate::screen::drawing_state::hud::FULL_OPAQUE;
+use crate::screen::drawing_state::{hud, DrawingState};
 use crate::world::game_state::Task;
 pub use crate::screen::gui_actions::GuiActions;
 use crate::screen::input::Input;
@@ -34,7 +34,7 @@ impl Gui {
         input: Input,
         drawer: &impl DrawerTrait,
         game_state: &GameState,
-        drawing: &Drawing,
+        drawing: &DrawingState,
     ) -> GuiActions {
         let unhandled_input = GuiActions {
             input,
@@ -64,7 +64,7 @@ impl Gui {
 fn robot_movement_from_pixel_to_cell(
     drawer: &impl DrawerTrait,
     unhandled_input: GuiActions,
-    drawing: &Drawing,
+    drawing: &DrawingState,
 ) -> GuiActions {
     let mut robot_movement = Option::None;
     if let Option::Some(movement_to_pixel) = unhandled_input.input.robot_movement {

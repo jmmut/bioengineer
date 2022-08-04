@@ -1,7 +1,7 @@
-use crate::screen::drawing::coords::cast::Cast;
-use crate::screen::drawing::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
-use crate::screen::drawing::coords::truncate::assert_in_range_0_1;
-use crate::screen::drawing::{assets, Drawing, SubCellIndex};
+use crate::screen::drawing_state::coords::cast::Cast;
+use crate::screen::drawing_state::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
+use crate::screen::drawing_state::coords::truncate::assert_in_range_0_1;
+use crate::screen::drawing_state::{assets, DrawingState, SubCellIndex};
 use crate::world::game_state::robots::Robot;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::input::PixelPosition;
@@ -11,7 +11,7 @@ use crate::{DrawerTrait, GameState};
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 
-pub fn draw_map(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &Drawing) {
+pub fn draw_map(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &DrawingState) {
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
     for i_y in min_cell.y..=max_cell.y {
@@ -27,7 +27,7 @@ fn draw_cell(
     drawer: &impl DrawerTrait,
     game_state: &GameState,
     cell_index: CellIndex,
-    drawing: &Drawing,
+    drawing: &DrawingState,
 ) {
     let screen_width = drawer.screen_width();
     let min_cell = &drawing.min_cell;
@@ -67,7 +67,7 @@ fn get_opacity(
     cell_index: &CellIndex,
     tile_type: TileType,
     game_state: &GameState,
-    drawing: &Drawing,
+    drawing: &DrawingState,
     min_cell: &CellIndex,
     max_cell: &CellIndex,
 ) -> f32 {
@@ -82,7 +82,7 @@ fn draw_pressure_number(
     drawer: &impl DrawerTrait,
     cell_index: CellIndex,
     screen_width: f32,
-    drawing: &Drawing,
+    drawing: &DrawingState,
     max_cell: &CellIndex,
     cell: &Cell,
 ) {
@@ -153,7 +153,7 @@ fn get_opacity_to_see_robot(
 }
 
 #[allow(dead_code)]
-fn draw_cell_hit_box(drawer: &impl DrawerTrait, cell_index: CellIndex, drawing: &Drawing) {
+fn draw_cell_hit_box(drawer: &impl DrawerTrait, cell_index: CellIndex, drawing: &DrawingState) {
     let mut subcell: SubCellIndex = cell_index.cast();
     let size = 2.0;
     let color = Color::new(1.0, 1.0, 1.0, 1.0);

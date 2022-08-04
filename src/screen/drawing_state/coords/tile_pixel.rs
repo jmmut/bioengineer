@@ -1,16 +1,16 @@
-use crate::screen::drawing::assets::PIXELS_PER_TILE_WIDTH;
-use crate::screen::drawing::coords::cast::Cast;
-use crate::screen::drawing::{assets, Drawing, SubTilePosition, TilePosition};
+use crate::screen::drawing_state::assets::PIXELS_PER_TILE_WIDTH;
+use crate::screen::drawing_state::coords::cast::Cast;
+use crate::screen::drawing_state::{assets, DrawingState, SubTilePosition, TilePosition};
 use crate::screen::input::PixelPosition;
 
-pub fn tile_to_pixel(tile: TilePosition, drawing: &Drawing, screen_width: f32) -> PixelPosition {
+pub fn tile_to_pixel(tile: TilePosition, drawing: &DrawingState, screen_width: f32) -> PixelPosition {
     let subtile = SubTilePosition::new(tile.x as f32, tile.y as f32);
     subtile_to_pixel(subtile, drawing, screen_width)
 }
 
 pub fn subtile_to_pixel(
     tile: SubTilePosition,
-    drawing: &Drawing,
+    drawing: &DrawingState,
     screen_width: f32,
 ) -> PixelPosition {
     let offset = pixel_offset(drawing, screen_width);
@@ -21,7 +21,7 @@ pub fn subtile_to_pixel(
 #[allow(dead_code)]
 pub fn pixel_to_tile(
     pixel_position: PixelPosition,
-    drawing: &Drawing,
+    drawing: &DrawingState,
     screen_width: f32,
 ) -> TilePosition {
     let offset = pixel_offset(drawing, screen_width);
@@ -30,7 +30,7 @@ pub fn pixel_to_tile(
 }
 pub fn pixel_to_subtile(
     pixel_position: PixelPosition,
-    drawing: &Drawing,
+    drawing: &DrawingState,
     screen_width: f32,
 ) -> SubTilePosition {
     let offset = pixel_offset(drawing, screen_width);
@@ -38,7 +38,7 @@ pub fn pixel_to_subtile(
     subtile
 }
 
-pub fn pixel_offset(drawing: &Drawing, screen_width: f32) -> PixelPosition {
+pub fn pixel_offset(drawing: &DrawingState, screen_width: f32) -> PixelPosition {
     let center_tile = PIXELS_PER_TILE_WIDTH as f32 * 0.5;
     let screen_center = screen_width / 2.0;
     let pixels_subtile_offset = subtile_to_pixel_offset(drawing.subtile_offset);
@@ -69,7 +69,7 @@ mod tests {
     use super::*;
 
     fn tile_to_pixel_to_tile(initial_tile: TilePosition) {
-        let drawing = Drawing::new();
+        let drawing = DrawingState::new();
         let pixel = tile_to_pixel(initial_tile, &drawing, 800.0);
         let final_subtile = pixel_to_subtile(pixel, &drawing, 800.0);
         let intial_subtile = SubTilePosition::new(initial_tile.x as f32, initial_tile.y as f32);

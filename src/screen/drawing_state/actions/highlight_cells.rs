@@ -1,5 +1,5 @@
-use crate::screen::drawing::coords::cell_pixel::clicked_cell;
-use crate::screen::drawing::Drawing;
+use crate::screen::drawing_state::coords::cell_pixel::clicked_cell;
+use crate::screen::drawing_state::DrawingState;
 use crate::screen::input::PixelPosition;
 use crate::world::map::cell_envelope::{is_horizontally_inside, Envelope};
 use crate::world::map::{CellCubeIterator, CellIndex};
@@ -10,7 +10,7 @@ pub fn highlight_cells_from_pixels(
     start_level: i32,
     end: PixelPosition,
     screen_width: f32,
-    drawing_: &mut Drawing,
+    drawing_: &mut DrawingState,
 ) {
     let mut start_cell = clicked_cell(start, screen_width, drawing_);
     start_cell.y = start_level;

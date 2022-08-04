@@ -1,23 +1,23 @@
-use crate::screen::drawing::coords::cell_tile::{
+use crate::screen::drawing_state::coords::cell_tile::{
     cell_to_tile, subcell_to_subtile, subtile_to_subcell, subtile_to_subcell_offset, tile_to_cell,
 };
-use crate::screen::drawing::coords::tile_pixel::{
+use crate::screen::drawing_state::coords::tile_pixel::{
     pixel_to_subtile, pixel_to_subtile_offset, pixel_to_tile, subtile_to_pixel, tile_to_pixel,
 };
-use crate::screen::drawing::coords::truncate::truncate_cell_offset;
-use crate::screen::drawing::tiles::hitbox_offset;
-use crate::screen::drawing::{Drawing, SubCellIndex, SubTilePosition};
+use crate::screen::drawing_state::coords::truncate::truncate_cell_offset;
+use crate::screen::drawing_state::tiles::hitbox_offset;
+use crate::screen::drawing_state::{DrawingState, SubCellIndex, SubTilePosition};
 use crate::screen::input::PixelPosition;
 use crate::world::map::CellIndex;
 
-pub fn clicked_cell(click: PixelPosition, screen_width: f32, drawing_: &Drawing) -> CellIndex {
+pub fn clicked_cell(click: PixelPosition, screen_width: f32, drawing_: &DrawingState) -> CellIndex {
     let moved_selected = click + hitbox_offset();
     let subcell = pixel_to_subcell_center(moved_selected, drawing_, screen_width);
     let (cell, _) = truncate_cell_offset(subcell);
     cell
 }
 
-pub fn cell_to_pixel(cell_index: CellIndex, drawing: &Drawing, screen_width: f32) -> PixelPosition {
+pub fn cell_to_pixel(cell_index: CellIndex, drawing: &DrawingState, screen_width: f32) -> PixelPosition {
     let tile = cell_to_tile(cell_index, &drawing.min_cell, &drawing.max_cell);
     tile_to_pixel(tile, drawing, screen_width)
 }
@@ -25,7 +25,7 @@ pub fn cell_to_pixel(cell_index: CellIndex, drawing: &Drawing, screen_width: f32
 #[allow(dead_code)]
 pub fn pixel_to_cell(
     pixel_position: PixelPosition,
-    drawing: &Drawing,
+    drawing: &DrawingState,
     screen_width: f32,
 ) -> CellIndex {
     let tile = pixel_to_tile(pixel_position, drawing, screen_width);
@@ -36,7 +36,7 @@ pub fn pixel_to_cell(
 #[allow(dead_code)]
 pub fn pixel_to_subcell(
     pixel_position: PixelPosition,
-    drawing: &Drawing,
+    drawing: &DrawingState,
     screen_width: f32,
 ) -> SubCellIndex {
     let subtile = pixel_to_subtile(pixel_position, drawing, screen_width);
@@ -51,7 +51,7 @@ pub fn pixel_to_subcell_offset(pixel_diff: PixelPosition) -> SubCellIndex {
 
 pub fn pixel_to_subcell_center(
     pixel: PixelPosition,
-    drawing: &Drawing,
+    drawing: &DrawingState,
     screen_width: f32,
 ) -> SubCellIndex {
     let subtile = pixel_to_subtile(pixel, drawing, screen_width);
@@ -65,7 +65,7 @@ pub fn pixel_to_subcell_center(
 
 pub fn subcell_center_to_pixel(
     subcell: SubCellIndex,
-    drawing: &Drawing,
+    drawing: &DrawingState,
     screen_width: f32,
 ) -> PixelPosition {
     let subtile = subcell_to_subtile(subcell, &drawing.min_cell, &drawing.max_cell);
@@ -83,11 +83,11 @@ fn tile_offset() -> SubTilePosition {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::screen::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-    use crate::screen::drawing::coords::cell_pixel::{
+    use crate::screen::drawing_state::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+    use crate::screen::drawing_state::coords::cell_pixel::{
         cell_to_pixel, pixel_to_cell, pixel_to_subcell_center, subcell_center_to_pixel,
     };
-    use crate::screen::drawing::Drawing;
+    use crate::screen::drawing_state::DrawingState;
     use crate::world::map::CellIndex;
 
     #[test]
@@ -124,7 +124,7 @@ mod tests {
     }
 
     fn cell_to_pixel_to_cell(initial_cell: CellIndex) {
-        let mut drawing = Drawing::new();
+        let mut drawing = DrawingState::new();
         drawing.max_cell.y = initial_cell.y;
         let screen_width = 800.0;
         let pixel = cell_to_pixel(initial_cell, &drawing, screen_width);
@@ -141,7 +141,7 @@ mod tests {
     }
 
     fn pixel_to_subcell_to_pixel(initial_pixel: PixelPosition) {
-        let drawing = Drawing::new();
+        let drawing = DrawingState::new();
         let screen_width = 800.0;
         let subcell = pixel_to_subcell_center(initial_pixel, &drawing, screen_width);
         let final_pixel = subcell_center_to_pixel(subcell, &drawing, screen_width);

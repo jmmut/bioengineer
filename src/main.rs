@@ -24,7 +24,7 @@ use crate::common::profiling::ScopedProfiler;
 use screen::gui::Gui;
 use crate::screen::Screen;
 use crate::world::World;
-use screen::drawing::{draw, DrawerTrait};
+use screen::drawing_state::{draw, DrawerTrait};
 use world::game_state::GameState;
 use screen::input::InputSourceTrait;
 

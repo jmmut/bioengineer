@@ -1,5 +1,5 @@
-use crate::screen::drawing::coords::cast::Cast;
-use crate::screen::drawing::{SubCellIndex, SubTilePosition, TilePosition};
+use crate::screen::drawing_state::coords::cast::Cast;
+use crate::screen::drawing_state::{SubCellIndex, SubTilePosition, TilePosition};
 use crate::world::map::CellIndex;
 
 #[allow(dead_code)]

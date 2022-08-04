@@ -1,4 +1,4 @@
-use crate::screen::drawing::Drawing;
+use crate::screen::drawing_state::DrawingState;
 use crate::world::game_state::TransformationTask;
 use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
 use crate::screen::gui_actions::GuiActions;
@@ -79,7 +79,7 @@ pub fn show_available_actions(
     drawer: &impl DrawerTrait,
     game_state: &GameState,
     unhandled_input: GuiActions,
-    drawing: &Drawing,
+    drawing: &DrawingState,
 ) -> GuiActions {
     let drawing_ = drawing;
     let mut transformation_clicked = Option::None;

@@ -1,11 +1,11 @@
-use crate::screen::drawing::coords::cell_pixel::pixel_to_subcell_offset;
-use crate::screen::drawing::coords::cell_tile::subcell_to_subtile_offset;
-use crate::screen::drawing::coords::truncate::truncate_cell_offset;
-use crate::screen::drawing::{Drawing, SubCellIndex};
+use crate::screen::drawing_state::coords::cell_pixel::pixel_to_subcell_offset;
+use crate::screen::drawing_state::coords::cell_tile::subcell_to_subtile_offset;
+use crate::screen::drawing_state::coords::truncate::truncate_cell_offset;
+use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::screen::input::PixelPosition;
 use crate::world::map::{CellIndex, Map};
 
-pub fn move_map_horizontally(drawing: &mut Drawing, diff: PixelPosition, _screen_width: f32) {
+pub fn move_map_horizontally(drawing: &mut DrawingState, diff: PixelPosition, _screen_width: f32) {
     let subcell_diff_ = pixel_to_subcell_offset(diff);
 
     // let new_cell_offset = pixel_to_cell_offset(diff);
@@ -21,7 +21,7 @@ pub fn move_map_horizontally(drawing: &mut Drawing, diff: PixelPosition, _screen
 }
 
 pub fn move_map_horizontally_to(
-    drawing_: &mut Drawing,
+    drawing_: &mut DrawingState,
     truncated_cell_diff: CellIndex,
     truncated_subcell_diff: SubCellIndex,
 ) {

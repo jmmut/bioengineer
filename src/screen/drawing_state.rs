@@ -4,9 +4,9 @@ pub mod coords;
 pub mod hud;
 mod tiles;
 
-use crate::screen::drawing::actions::change_height::change_height_rel;
-use crate::screen::drawing::actions::highlight_cells::highlight_cells_from_pixels;
-use crate::screen::drawing::actions::move_horizontally::{move_map_horizontally, move_map_horizontally_to};
+use crate::screen::drawing_state::actions::change_height::change_height_rel;
+use crate::screen::drawing_state::actions::highlight_cells::highlight_cells_from_pixels;
+use crate::screen::drawing_state::actions::move_horizontally::{move_map_horizontally, move_map_horizontally_to};
 use crate::world::game_state::GameState;
 use crate::screen::gui::GuiActions;
 use crate::screen::input::{CellSelection, CellSelectionType, PixelPosition};
@@ -19,7 +19,7 @@ pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
-pub fn draw(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &Drawing) {
+pub fn draw(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &DrawingState) {
     drawer.clear_background(GREY);
     tiles::draw_map(drawer, game_state, drawing);
     hud::draw_fps(drawer, game_state);
@@ -27,7 +27,7 @@ pub fn draw(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &Drawing
     hud::draw_networks(drawer, game_state);
 }
 
-pub struct Drawing {
+pub struct DrawingState {
     min_cell: CellIndex,
     max_cell: CellIndex,
     subtile_offset: SubTilePosition,
@@ -36,9 +36,9 @@ pub struct Drawing {
     highlight_start_height: i32,
 }
 
-impl Drawing {
+impl DrawingState {
     pub fn new() -> Self {
-        Drawing {
+        DrawingState {
             min_cell: CellIndex::new(-10, -1, -10),
             max_cell: CellIndex::new(9, 1, 9),
             subtile_offset: SubTilePosition::new(0.0, 0.0),

@@ -2,7 +2,7 @@ mod networks;
 pub mod robots;
 
 use crate::world::map::Map;
-use crate::screen::drawing::Drawing;
+use crate::screen::drawing_state::DrawingState;
 use crate::world::game_state::networks::Networks;
 use crate::world::game_state::robots::{
     is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
@@ -24,7 +24,7 @@ pub struct GameState {
     pub previous_frame_ts: f64,
     pub current_frame_ts: f64,
     pub map: Map,
-    pub drawing: Drawing,
+    pub drawing: DrawingState,
     pub advancing_fluids: bool,
     pub advance_fluid_every_n_frames: i32,
     pub advance_robots_every_n_frames: i32,
@@ -52,7 +52,7 @@ impl GameState {
             previous_frame_ts: now() - 1.0,
             current_frame_ts: now(),
             map,
-            drawing: Drawing::new(),
+            drawing: DrawingState::new(),
             advancing_fluids: DEFAULT_ADVANCING_FLUIDS,
             advance_fluid_every_n_frames: DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES,
             advance_robots_every_n_frames: DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES,
@@ -220,10 +220,10 @@ impl GameState {
         self.previous_frame_ts = self.current_frame_ts;
         self.current_frame_ts = now();
     }
-    pub fn get_drawing(&self) -> &Drawing {
+    pub fn get_drawing(&self) -> &DrawingState {
         &self.drawing
     }
-    pub fn get_drawing_mut(&mut self) -> &mut Drawing {
+    pub fn get_drawing_mut(&mut self) -> &mut DrawingState {
         &mut self.drawing
     }
 }

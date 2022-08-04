@@ -1,4 +1,4 @@
-use crate::screen::drawing::{SubCellIndex, SubTilePosition, TilePosition};
+use crate::screen::drawing_state::{SubCellIndex, SubTilePosition, TilePosition};
 use crate::world::map::CellIndex;
 
 /// Uses type inference to do an explicit cast, but without writing the target type.
