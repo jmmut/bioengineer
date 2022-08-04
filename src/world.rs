@@ -12,8 +12,10 @@ impl World {
         }
     }
 
-    pub fn update(&mut self, gui_actions: GuiActions) {
+    /// returns if the game should do another iteration
+    pub fn update(&mut self, gui_actions: GuiActions) -> bool {
         self.game_state.update_with_gui_actions(&gui_actions);
         self.game_state.advance_frame();
+        gui_actions.should_continue()
     }
 }
