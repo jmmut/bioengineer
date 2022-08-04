@@ -1,4 +1,4 @@
-use crate::game_state::robots::CellIndexDiff;
+use crate::world::game_state::robots::CellIndexDiff;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use std::slice::Iter;

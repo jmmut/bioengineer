@@ -1,5 +1,5 @@
 use crate::drawing::Drawing;
-use crate::game_state::TransformationTask;
+use crate::world::game_state::TransformationTask;
 use crate::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
 use crate::gui_actions::GuiActions;
 use crate::input::{CellSelection, Input};

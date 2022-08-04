@@ -1,6 +1,5 @@
 mod common;
 mod drawing;
-mod game_state;
 mod gui;
 mod gui_actions;
 mod input;
@@ -30,7 +29,7 @@ use crate::gui::Gui;
 use crate::screen::Screen;
 use crate::world::World;
 use drawing::{draw, DrawerTrait};
-use game_state::GameState;
+use world::game_state::GameState;
 use input::InputSourceTrait;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1600;

@@ -1,5 +1,6 @@
 
 pub mod map;
+pub mod game_state;
 
 use crate::gui_actions::GuiActions;
 use crate::GameState;
