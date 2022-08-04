@@ -1,6 +1,6 @@
 use crate::game_state::{Task, TransformationTask};
-use crate::map::Map;
-use crate::map::{is_walkable_horizontal, is_walkable_vertical, CellIndex, TileType};
+use crate::world::map::Map;
+use crate::world::map::{is_walkable_horizontal, is_walkable_vertical, CellIndex, TileType};
 use std::cmp::Ordering;
 use std::collections::VecDeque;
 use std::vec::IntoIter;
@@ -160,8 +160,8 @@ pub fn is_vertical_direction(origin_pos: &CellIndex, target_pos: &CellIndex) -> 
 mod tests {
     use super::*;
     use crate::game_state::GameState;
-    use crate::map::transform_cells::Transformation;
-    use crate::map::{Cell, TileType};
+    use crate::world::map::transform_cells::Transformation;
+    use crate::world::map::{Cell, TileType};
     use std::collections::HashSet;
 
     mod movement {

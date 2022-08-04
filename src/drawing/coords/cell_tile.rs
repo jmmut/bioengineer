@@ -1,6 +1,6 @@
 use crate::drawing::coords::cast::Cast;
 use crate::drawing::{SubCellIndex, SubTilePosition, TilePosition};
-use crate::map::CellIndex;
+use crate::world::map::CellIndex;
 
 #[allow(dead_code)]
 pub fn cell_to_tile_unwrapped(

@@ -12,8 +12,8 @@ pub const SIZE: usize = SIZE_X * SIZE_Y * SIZE_Z;
 
 use super::trunc::trunc_towards_neg_inf;
 use super::{Cell, CellIndex};
-pub use crate::map::chunk::cell_iter::CellIter;
-use crate::map::chunk::chunk_cell_index_iter::{
+pub use crate::world::map::chunk::cell_iter::CellIter;
+use crate::world::map::chunk::chunk_cell_index_iter::{
     chunk_local_index_to_global_index, ChunkCellIndexIter,
 };
 use crate::IVec3;

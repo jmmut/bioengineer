@@ -3,8 +3,8 @@ use crate::game_state::TransformationTask;
 use crate::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
 use crate::gui_actions::GuiActions;
 use crate::input::{CellSelection, Input};
-use crate::map::transform_cells::allowed_transformations;
-use crate::map::TileType;
+use crate::world::map::transform_cells::allowed_transformations;
+use crate::world::map::TileType;
 use crate::Rect;
 use crate::{DrawerTrait, GameState};
 

@@ -1,4 +1,4 @@
-use crate::map::CellIndex;
+use crate::world::map::CellIndex;
 
 #[allow(unused)]
 fn envelope(cells: &Vec<CellIndex>) -> (CellIndex, CellIndex) {

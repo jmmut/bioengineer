@@ -1,7 +1,7 @@
 use crate::game_state::TransformationTask;
 use crate::input::Input;
-use crate::map::transform_cells::Transformation;
-use crate::map::CellIndex;
+use crate::world::map::transform_cells::Transformation;
+use crate::world::map::CellIndex;
 
 pub struct GuiActions {
     pub input: Input,

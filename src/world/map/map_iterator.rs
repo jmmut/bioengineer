@@ -1,7 +1,7 @@
-use crate::map::chunk::cell_iter::CellIterItem;
-use crate::map::chunk::{CellIter, Chunk, ChunkIndex};
-use crate::map::ref_mut_iterator::RefMutIterator;
-use crate::map::CellIndex;
+use crate::world::map::chunk::cell_iter::CellIterItem;
+use crate::world::map::chunk::{CellIter, Chunk, ChunkIndex};
+use crate::world::map::ref_mut_iterator::RefMutIterator;
+use crate::world::map::CellIndex;
 use std::collections::hash_map::IntoIter;
 use std::collections::HashMap;
 
@@ -120,8 +120,8 @@ impl<'a> RefMutIterator<'a, CellIterItem<'a>> for MutMapIterator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::map::chunk;
-    use crate::map::Map;
+    use crate::world::map::chunk;
+    use crate::world::map::Map;
     // #[test]
     // fn test_basic_map_iterator() {
     //     let map = Map::new_for_cube(CellIndex::new(0, 0, 0), CellIndex::new(0, 0, 1));

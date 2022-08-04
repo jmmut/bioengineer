@@ -1,16 +1,16 @@
 mod networks;
 pub mod robots;
 
-use super::map::Map;
+use crate::world::map::Map;
 use crate::drawing::Drawing;
 use crate::game_state::networks::Networks;
 use crate::game_state::robots::{
     is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
 };
 use crate::gui::GuiActions;
-use crate::map::fluids::{FluidMode, Fluids};
-use crate::map::transform_cells::Transformation;
-use crate::map::CellIndex;
+use crate::world::map::fluids::{FluidMode, Fluids};
+use crate::world::map::transform_cells::Transformation;
+use crate::world::map::CellIndex;
 use crate::now;
 use std::collections::{HashSet, VecDeque};
 

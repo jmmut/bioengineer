@@ -1,5 +1,5 @@
-use crate::map::chunk::{ChunkIndex, SIZE_X, SIZE_Y, SIZE_Z};
-use crate::map::CellIndex;
+use crate::world::map::chunk::{ChunkIndex, SIZE_X, SIZE_Y, SIZE_Z};
+use crate::world::map::CellIndex;
 
 pub struct ChunkCellIndexIter {
     i: CellIndex,

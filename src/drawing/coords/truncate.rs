@@ -1,6 +1,6 @@
 use crate::drawing::SubCellIndex;
-use crate::map::trunc::trunc_towards_neg_inf_f;
-use crate::map::CellIndex;
+use crate::world::map::trunc::trunc_towards_neg_inf_f;
+use crate::world::map::CellIndex;
 
 pub fn truncate_cell_offset(subcell_diff: SubCellIndex) -> (CellIndex, SubCellIndex) {
     let mut cell_diff = CellIndex::new(0, subcell_diff.y as i32, 0);

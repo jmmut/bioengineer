@@ -1,8 +1,8 @@
 use crate::drawing::coords::cell_pixel::clicked_cell;
 use crate::drawing::Drawing;
 use crate::input::PixelPosition;
-use crate::map::cell_envelope::{is_horizontally_inside, Envelope};
-use crate::map::{CellCubeIterator, CellIndex};
+use crate::world::map::cell_envelope::{is_horizontally_inside, Envelope};
+use crate::world::map::{CellCubeIterator, CellIndex};
 use std::collections::HashSet;
 
 pub fn highlight_cells_from_pixels(

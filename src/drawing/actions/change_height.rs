@@ -1,5 +1,5 @@
 use crate::drawing::Drawing;
-use crate::map::Map;
+use crate::world::map::Map;
 
 pub fn change_height_rel(drawing: &mut Drawing, y: i32) {
     if y != 0 {

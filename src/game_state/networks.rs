@@ -1,6 +1,6 @@
 use crate::game_state::robots::CellIndexDiff;
-use crate::map::cell::is_networkable;
-use crate::map::{CellIndex, TileType};
+use crate::world::map::cell::is_networkable;
+use crate::world::map::{CellIndex, TileType};
 use std::slice::Iter;
 
 const KILO: f64 = 1.0e3;
@@ -250,7 +250,7 @@ fn format_unit(quantity: f64, unit_name: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::map::{CellIndex, TileType};
+    use crate::world::map::{CellIndex, TileType};
 
     #[test]
     fn test_join_networks() {

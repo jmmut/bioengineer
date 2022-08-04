@@ -1,5 +1,5 @@
 use crate::drawing::{SubCellIndex, SubTilePosition, TilePosition};
-use crate::map::CellIndex;
+use crate::world::map::CellIndex;
 
 /// Uses type inference to do an explicit cast, but without writing the target type.
 pub trait Cast<T> {

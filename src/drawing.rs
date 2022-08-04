@@ -10,7 +10,7 @@ use crate::drawing::actions::move_horizontally::{move_map_horizontally, move_map
 use crate::game_state::GameState;
 use crate::gui::GuiActions;
 use crate::input::{CellSelection, CellSelectionType, PixelPosition};
-use crate::map::{CellIndex, TileType};
+use crate::world::map::{CellIndex, TileType};
 use crate::{Color, IVec2, Texture2D, Vec2, Vec3};
 use std::collections::HashSet;
 

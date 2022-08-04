@@ -1,6 +1,6 @@
-use crate::map::chunk::{get_cell_index, Chunk};
-use crate::map::ref_mut_iterator::RefMutIterator;
-use crate::map::{Cell, CellIndex};
+use crate::world::map::chunk::{get_cell_index, Chunk};
+use crate::world::map::ref_mut_iterator::RefMutIterator;
+use crate::world::map::{Cell, CellIndex};
 
 pub struct CellIter {
     cells: Vec<Cell>,

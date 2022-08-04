@@ -25,7 +25,7 @@ pub trait RefMutIterator<'a, T: 'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::map::ref_mut_iterator::RefMutIterator;
+    use crate::world::map::ref_mut_iterator::RefMutIterator;
 
     struct MyList {
         pub vec: Vec<i32>,

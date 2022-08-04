@@ -3,7 +3,7 @@ use crate::drawing::coords::cell_tile::subcell_to_subtile_offset;
 use crate::drawing::coords::truncate::truncate_cell_offset;
 use crate::drawing::{Drawing, SubCellIndex};
 use crate::input::PixelPosition;
-use crate::map::{CellIndex, Map};
+use crate::world::map::{CellIndex, Map};
 
 pub fn move_map_horizontally(drawing: &mut Drawing, diff: PixelPosition, _screen_width: f32) {
     let subcell_diff_ = pixel_to_subcell_offset(diff);

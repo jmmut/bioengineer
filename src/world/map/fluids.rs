@@ -1,8 +1,8 @@
 use crate::common::profiling::ScopedProfiler;
-use crate::map::chunk::cell_iter::CellIterItem;
-use crate::map::fluids::FluidStage::Downwards;
-use crate::map::ref_mut_iterator::RefMutIterator;
-use crate::map::{
+use crate::world::map::chunk::cell_iter::CellIterItem;
+use crate::world::map::fluids::FluidStage::Downwards;
+use crate::world::map::ref_mut_iterator::RefMutIterator;
+use crate::world::map::{
     cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, Cell, CellCubeIterator, CellIndex,
     Map, TileType,
 };
@@ -319,7 +319,7 @@ fn print_map_pressures(map: &Map) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::map::Map;
+    use crate::world::map::Map;
     use crate::IVec3;
     use std::panic;
 

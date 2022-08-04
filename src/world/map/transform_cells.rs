@@ -1,4 +1,4 @@
-use crate::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
+use crate::world::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
 use crate::GameState;
 use std::collections::HashSet;
 
@@ -141,7 +141,7 @@ impl Transformation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::map::{Cell, TileType};
+    use crate::world::map::{Cell, TileType};
 
     struct CellTransformationFixture {
         pub cell: Cell,

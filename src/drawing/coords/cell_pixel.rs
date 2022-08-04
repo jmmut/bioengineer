@@ -8,7 +8,7 @@ use crate::drawing::coords::truncate::truncate_cell_offset;
 use crate::drawing::tiles::hitbox_offset;
 use crate::drawing::{Drawing, SubCellIndex, SubTilePosition};
 use crate::input::PixelPosition;
-use crate::map::CellIndex;
+use crate::world::map::CellIndex;
 
 pub fn clicked_cell(click: PixelPosition, screen_width: f32, drawing_: &Drawing) -> CellIndex {
     let moved_selected = click + hitbox_offset();
@@ -88,7 +88,7 @@ mod tests {
         cell_to_pixel, pixel_to_cell, pixel_to_subcell_center, subcell_center_to_pixel,
     };
     use crate::drawing::Drawing;
-    use crate::map::CellIndex;
+    use crate::world::map::CellIndex;
 
     #[test]
     fn test_pixel_to_cell_offset_basic() {

@@ -1,4 +1,4 @@
-use crate::map::CellIndex;
+use crate::world::map::CellIndex;
 use std::cmp::{max, min};
 
 pub struct CellCubeIterator {

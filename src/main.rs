@@ -4,7 +4,6 @@ mod game_state;
 mod gui;
 mod gui_actions;
 mod input;
-mod map;
 mod screen;
 mod world;
 
