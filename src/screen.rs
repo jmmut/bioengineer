@@ -1,9 +1,10 @@
 use drawing::Drawing;
 use crate::gui_actions::GuiActions;
 use crate::world::World;
-use crate::{draw, DrawerTrait, gui, Gui, InputSourceTrait};
+use crate::{draw, DrawerTrait, Gui, InputSourceTrait};
 
 pub mod drawing;
+pub mod gui;
 
 pub struct Screen<Drawer: DrawerTrait, InputSource: InputSourceTrait> {
     drawer: Drawer,

@@ -1,5 +1,4 @@
 mod common;
-mod gui;
 mod gui_actions;
 mod input;
 mod screen;
@@ -24,7 +23,7 @@ use external::drawing_macroquad::DrawingMacroquad as DrawingImpl;
 use external::input_macroquad::InputMacroquad as InputSource;
 
 use crate::common::profiling::ScopedProfiler;
-use crate::gui::Gui;
+use screen::gui::Gui;
 use crate::screen::Screen;
 use crate::world::World;
 use screen::drawing::{draw, DrawerTrait};

@@ -7,7 +7,7 @@ use crate::world::game_state::networks::Networks;
 use crate::world::game_state::robots::{
     is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
 };
-use crate::gui::GuiActions;
+use crate::screen::gui::GuiActions;
 use crate::world::map::fluids::{FluidMode, Fluids};
 use crate::world::map::transform_cells::Transformation;
 use crate::world::map::CellIndex;

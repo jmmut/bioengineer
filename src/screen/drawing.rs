@@ -8,7 +8,7 @@ use crate::screen::drawing::actions::change_height::change_height_rel;
 use crate::screen::drawing::actions::highlight_cells::highlight_cells_from_pixels;
 use crate::screen::drawing::actions::move_horizontally::{move_map_horizontally, move_map_horizontally_to};
 use crate::world::game_state::GameState;
-use crate::gui::GuiActions;
+use crate::screen::gui::GuiActions;
 use crate::input::{CellSelection, CellSelectionType, PixelPosition};
 use crate::world::map::{CellIndex, TileType};
 use crate::{Color, IVec2, Texture2D, Vec2, Vec3};

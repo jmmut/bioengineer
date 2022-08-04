@@ -8,7 +8,7 @@ use macroquad::ui::{root_ui, Skin};
 use macroquad::window::{clear_background, screen_height, screen_width};
 
 use crate::screen::drawing::{assets, DrawerTrait, Drawing};
-use crate::gui::FONT_SIZE;
+use crate::screen::gui::FONT_SIZE;
 use crate::world::map::TileType;
 
 pub struct DrawingMacroquad {
