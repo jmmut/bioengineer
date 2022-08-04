@@ -1,7 +1,7 @@
-use crate::drawing::coords::cast::Cast;
-use crate::drawing::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
-use crate::drawing::coords::truncate::assert_in_range_0_1;
-use crate::drawing::{assets, Drawing, SubCellIndex};
+use crate::screen::drawing::coords::cast::Cast;
+use crate::screen::drawing::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
+use crate::screen::drawing::coords::truncate::assert_in_range_0_1;
+use crate::screen::drawing::{assets, Drawing, SubCellIndex};
 use crate::world::game_state::robots::Robot;
 use crate::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::input::PixelPosition;

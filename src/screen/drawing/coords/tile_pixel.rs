@@ -1,6 +1,6 @@
-use crate::drawing::assets::PIXELS_PER_TILE_WIDTH;
-use crate::drawing::coords::cast::Cast;
-use crate::drawing::{assets, Drawing, SubTilePosition, TilePosition};
+use crate::screen::drawing::assets::PIXELS_PER_TILE_WIDTH;
+use crate::screen::drawing::coords::cast::Cast;
+use crate::screen::drawing::{assets, Drawing, SubTilePosition, TilePosition};
 use crate::input::PixelPosition;
 
 pub fn tile_to_pixel(tile: TilePosition, drawing: &Drawing, screen_width: f32) -> PixelPosition {

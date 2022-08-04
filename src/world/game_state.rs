@@ -2,7 +2,7 @@ mod networks;
 pub mod robots;
 
 use crate::world::map::Map;
-use crate::drawing::Drawing;
+use crate::screen::drawing::Drawing;
 use crate::world::game_state::networks::Networks;
 use crate::world::game_state::robots::{
     is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,

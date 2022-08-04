@@ -1,7 +1,7 @@
-use crate::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use crate::drawing::coords::cell_pixel::clicked_cell;
-use crate::drawing::hud::FULL_OPAQUE;
-use crate::drawing::{hud, Drawing};
+use crate::screen::drawing::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use crate::screen::drawing::coords::cell_pixel::clicked_cell;
+use crate::screen::drawing::hud::FULL_OPAQUE;
+use crate::screen::drawing::{hud, Drawing};
 use crate::world::game_state::Task;
 pub use crate::gui_actions::GuiActions;
 use crate::input::Input;

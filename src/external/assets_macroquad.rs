@@ -1,4 +1,4 @@
-use crate::drawing::assets::{extract_images, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use crate::screen::drawing::assets::{extract_images, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use macroquad::texture::{FilterMode, Texture2D};
 
 pub async fn load_tileset(path: &str) -> Vec<Texture2D> {

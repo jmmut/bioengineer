@@ -1,4 +1,4 @@
-use crate::drawing::Drawing;
+use crate::screen::drawing::Drawing;
 use crate::world::game_state::TransformationTask;
 use crate::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
 use crate::gui_actions::GuiActions;

@@ -1,4 +1,4 @@
-use crate::drawing::SubCellIndex;
+use crate::screen::drawing::SubCellIndex;
 use crate::world::map::trunc::trunc_towards_neg_inf_f;
 use crate::world::map::CellIndex;
 

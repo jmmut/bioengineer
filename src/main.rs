@@ -1,5 +1,4 @@
 mod common;
-mod drawing;
 mod gui;
 mod gui_actions;
 mod input;
@@ -28,7 +27,7 @@ use crate::common::profiling::ScopedProfiler;
 use crate::gui::Gui;
 use crate::screen::Screen;
 use crate::world::World;
-use drawing::{draw, DrawerTrait};
+use screen::drawing::{draw, DrawerTrait};
 use world::game_state::GameState;
 use input::InputSourceTrait;
 
