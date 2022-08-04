@@ -123,11 +123,9 @@ fn new_frame<D: DrawerTrait, I: InputSourceTrait>(
     screen: &mut Screen<D, I>,
     world: &mut World,
 ) -> bool {
-    let gui_actions = screen.get_gui_actions();
+    screen.draw(&world);
+    let gui_actions = screen.get_gui_actions(&world);
     let should_continue = gui_actions.should_continue();
-    if should_continue {
-        world.update(gui_actions);
-        screen.draw(world);
-    }
+    world.update(gui_actions);
     should_continue
 }

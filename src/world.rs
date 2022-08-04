@@ -1,13 +1,18 @@
+use crate::GameState;
 use crate::gui_actions::GuiActions;
 
-pub struct World {}
+pub struct World {
+    pub game_state: GameState,
+}
 
 impl World {
     pub fn new() -> Self {
-        World {}
+        World {
+            game_state: GameState::new(),
+        }
     }
 
     pub fn update(&mut self, gui_actions: GuiActions) {
-        todo!()
+        self.game_state.update_with_gui_actions(&gui_actions);
     }
 }
