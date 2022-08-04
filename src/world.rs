@@ -2,7 +2,7 @@
 pub mod map;
 pub mod game_state;
 
-use crate::gui_actions::GuiActions;
+use crate::screen::gui_actions::GuiActions;
 use crate::GameState;
 
 pub struct World {
