@@ -1,32 +1,48 @@
 use crate::screen::drawing_state::coords::cell_pixel::clicked_cell;
 use crate::screen::drawing_state::DrawingState;
-use crate::screen::input::PixelPosition;
+use crate::screen::input::{CellSelection, CellSelectionType, PixelPosition};
 use crate::world::map::cell_envelope::{is_horizontally_inside, Envelope};
 use crate::world::map::{CellCubeIterator, CellIndex};
 use std::collections::HashSet;
 
-pub fn highlight_cells_from_pixels(
-    start: PixelPosition,
-    start_level: i32,
-    end: PixelPosition,
-    screen_width: f32,
-    drawing_: &mut DrawingState,
-) {
-    let mut start_cell = clicked_cell(start, screen_width, drawing_);
-    start_cell.y = start_level;
-    let end_cell = clicked_cell(end, screen_width, drawing_);
-    let shown_cube = Envelope {
-        min_cell: drawing_.min_cell,
-        max_cell: drawing_.max_cell,
-    };
-    // println!("start level: {}, end level: {}", start_cell.y, end_cell.y);
-    highlight_cells(
-        start_cell,
-        end_cell,
-        shown_cube,
-        &mut drawing_.highlighted_cells,
-    );
-    // (start_cell, end_cell)
+impl DrawingState {
+    pub fn maybe_select_cells(&mut self, cell_selection: &CellSelection, screen_width: f32) {
+        if cell_selection.state == CellSelectionType::SelectionStarted {
+            self.highlight_start_height = self.max_cell.y;
+        }
+        if let Option::Some(selection) = &cell_selection.selection {
+            self.highlight_cells_from_pixels(
+                selection.start,
+                self.highlight_start_height,
+                selection.end,
+                screen_width,
+            );
+        }
+    }
+
+    fn highlight_cells_from_pixels(
+        &mut self,
+        start: PixelPosition,
+        start_level: i32,
+        end: PixelPosition,
+        screen_width: f32,
+    ) {
+        let mut start_cell = clicked_cell(start, screen_width, self);
+        start_cell.y = start_level;
+        let end_cell = clicked_cell(end, screen_width, self);
+        let shown_cube = Envelope {
+            min_cell: self.min_cell,
+            max_cell: self.max_cell,
+        };
+        // println!("start level: {}, end level: {}", start_cell.y, end_cell.y);
+        highlight_cells(
+            start_cell,
+            end_cell,
+            shown_cube,
+            &mut self.highlighted_cells,
+        );
+        // (start_cell, end_cell)
+    }
 }
 
 fn highlight_cells(

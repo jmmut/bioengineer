@@ -5,64 +5,86 @@ use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::screen::input::PixelPosition;
 use crate::world::map::{CellIndex, Map};
 
-pub fn move_map_horizontally(drawing: &mut DrawingState, diff: PixelPosition, _screen_width: f32) {
-    let subcell_diff_ = pixel_to_subcell_offset(diff);
-
-    // let new_cell_offset = pixel_to_cell_offset(diff);
-
-    // println!(
-    //     "pixel_diff: {}, subcell_diff: {}",
-    //     diff, subcell_diff_
-    // );
-    let (truncated_cell_diff, truncated_subcell_diff) =
-        truncate_cell_offset(subcell_diff_ + drawing.subcell_diff);
-
-    move_map_horizontally_to(drawing, truncated_cell_diff, truncated_subcell_diff);
-}
-
-pub fn move_map_horizontally_to(
-    drawing_: &mut DrawingState,
-    truncated_cell_diff: CellIndex,
-    truncated_subcell_diff: SubCellIndex,
-) {
-    drawing_.subcell_diff = truncated_subcell_diff;
-
-    // println!(
-    //     "truncated_cell_diff: {}, truncated_subcell_diff: {}",
-    //     truncated_cell_diff, truncated_subcell_diff
-    // );
-    let min_cell = &mut drawing_.min_cell;
-    let max_cell = &mut drawing_.max_cell;
-
-    max_cell.x -= truncated_cell_diff.x;
-    min_cell.x -= truncated_cell_diff.x;
-    max_cell.z -= truncated_cell_diff.z;
-    min_cell.z -= truncated_cell_diff.z;
-    if move_inside_range_min_equals(
-        &mut min_cell.x,
-        &mut max_cell.x,
-        Map::default_min_cell().x,
-        Map::default_max_cell().x,
+impl DrawingState {
+    pub fn maybe_move_map_horizontally(
+        &mut self,
+        diff: PixelPosition,
+        go_to_robot: Option<CellIndex>,
+        screen_width: f32,
     ) {
-        drawing_.subcell_diff.x = 0.0;
-    }
-    if move_inside_range_min_equals(
-        &mut min_cell.z,
-        &mut max_cell.z,
-        Map::default_min_cell().z,
-        Map::default_max_cell().z,
-    ) {
-        drawing_.subcell_diff.z = 0.0;
+        if diff != PixelPosition::new(0.0, 0.0) {
+            self.move_map_horizontally(diff, screen_width);
+        }
+        if let Option::Some(robot_pos) = go_to_robot {
+            let center = CellIndex::new(
+                (self.max_cell.x + self.min_cell.x) / 2,
+                0,
+                (self.max_cell.z + self.min_cell.z) / 2,
+            );
+            let cell_diff = center - robot_pos;
+            self.move_map_horizontally_to(cell_diff, SubCellIndex::default());
+        }
     }
 
-    drawing_.subtile_offset = subcell_to_subtile_offset(drawing_.subcell_diff);
-    // {
-    //     let test_cell = CellIndex::new(2, drawing_.max_cell.y, 2);
-    //     let p = cell_to_pixel(test_cell, drawing_, screen_width);
-    //     let test_cell_2 = pixel_to_cell(p, drawing_, screen_width);
-    //     println!("for test_cell {}, got cell {}", test_cell, test_cell_2);
-    // }
-    // println!("subtile_offset: {}\n ", drawing_.subtile_offset);
+    fn move_map_horizontally(&mut self, diff: PixelPosition, _screen_width: f32) {
+        let subcell_diff_ = pixel_to_subcell_offset(diff);
+
+        // let new_cell_offset = pixel_to_cell_offset(diff);
+
+        // println!(
+        //     "pixel_diff: {}, subcell_diff: {}",
+        //     diff, subcell_diff_
+        // );
+        let (truncated_cell_diff, truncated_subcell_diff) =
+            truncate_cell_offset(subcell_diff_ + self.subcell_diff);
+
+        self.move_map_horizontally_to(truncated_cell_diff, truncated_subcell_diff);
+    }
+
+    fn move_map_horizontally_to(
+        &mut self,
+        truncated_cell_diff: CellIndex,
+        truncated_subcell_diff: SubCellIndex,
+    ) {
+        self.subcell_diff = truncated_subcell_diff;
+
+        // println!(
+        //     "truncated_cell_diff: {}, truncated_subcell_diff: {}",
+        //     truncated_cell_diff, truncated_subcell_diff
+        // );
+        let min_cell = &mut self.min_cell;
+        let max_cell = &mut self.max_cell;
+
+        max_cell.x -= truncated_cell_diff.x;
+        min_cell.x -= truncated_cell_diff.x;
+        max_cell.z -= truncated_cell_diff.z;
+        min_cell.z -= truncated_cell_diff.z;
+        if move_inside_range_min_equals(
+            &mut min_cell.x,
+            &mut max_cell.x,
+            Map::default_min_cell().x,
+            Map::default_max_cell().x,
+        ) {
+            self.subcell_diff.x = 0.0;
+        }
+        if move_inside_range_min_equals(
+            &mut min_cell.z,
+            &mut max_cell.z,
+            Map::default_min_cell().z,
+            Map::default_max_cell().z,
+        ) {
+            self.subcell_diff.z = 0.0;
+        }
+
+        self.subtile_offset = subcell_to_subtile_offset(self.subcell_diff);
+        // {
+        //     let test_cell = CellIndex::new(2, self.max_cell.y, 2);
+        //     let p = cell_to_pixel(test_cell, self, screen_width);
+        //     let test_cell_2 = pixel_to_cell(p, self, screen_width);
+        //     println!("for test_cell {}, got cell {}", test_cell, test_cell_2);
+        // }
+        // println!("subtile_offset: {}\n ", self.subtile_offset);
+    }
 }
 
 /// returns if it moved min and max
