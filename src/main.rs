@@ -20,7 +20,7 @@ use external::drawing_macroquad::DrawingMacroquad as DrawingImpl;
 use external::input_macroquad::InputMacroquad as InputSource;
 
 use common::profiling::ScopedProfiler;
-use screen::drawer::DrawerTrait;
+use screen::drawer_trait::DrawerTrait;
 use screen::gui::Gui;
 use screen::input::InputSourceTrait;
 use screen::Screen;

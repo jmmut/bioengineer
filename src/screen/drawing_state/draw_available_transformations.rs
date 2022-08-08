@@ -7,7 +7,7 @@ use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
 use crate::Rect;
 use crate::GameState;
-use crate::screen::drawer::DrawerTrait;
+use crate::screen::drawer_trait::DrawerTrait;
 
 pub fn show_available_transformations(
     drawer: &impl DrawerTrait,

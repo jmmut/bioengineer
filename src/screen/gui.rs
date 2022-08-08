@@ -8,7 +8,7 @@ use crate::screen::input::Input;
 use crate::world::map::TileType;
 use crate::Color;
 use crate::GameState;
-use crate::screen::drawer::DrawerTrait;
+use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::draw_available_transformations::show_available_transformations;
 
 pub struct Gui;
@@ -31,7 +31,7 @@ impl Gui {
 
 impl Gui {
     pub fn receive_actions(
-        self: &mut Self,
+        self: &Self,
         input: Input,
         drawer: &impl DrawerTrait,
         game_state: &GameState,

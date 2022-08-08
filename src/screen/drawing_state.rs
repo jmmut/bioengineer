@@ -8,7 +8,7 @@ use crate::screen::gui::GuiActions;
 use crate::world::map::CellIndex;
 use crate::{Color, IVec2, Vec2, Vec3};
 use std::collections::HashSet;
-use crate::screen::drawer::DrawerTrait;
+use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::hud;
 
 pub type TilePosition = IVec2;

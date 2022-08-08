@@ -1,4 +1,4 @@
-use drawer::DrawerTrait;
+use drawer_trait::DrawerTrait;
 use drawing_state::{draw, DrawingState};
 use gui_actions::GuiActions;
 use crate::world::World;
@@ -8,7 +8,7 @@ pub mod drawing_state;
 pub mod gui;
 pub mod input;
 pub mod gui_actions;
-pub mod drawer;
+pub mod drawer_trait;
 pub mod assets;
 pub mod hud;
 

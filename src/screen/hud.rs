@@ -1,5 +1,5 @@
 use crate::GameState;
-use crate::screen::drawer::DrawerTrait;
+use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
 
 pub const FULL_OPAQUE: f32 = 1.0;
