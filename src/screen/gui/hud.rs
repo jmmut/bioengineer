@@ -51,10 +51,10 @@ pub fn draw_networks(drawer: &impl DrawerTrait, game_state: &GameState) {
         FONT_SIZE,
         TEXT_COLOR,
     );
-    for (i, network) in game_state.networks.iter().enumerate() {
+    for (network_id, network) in game_state.networks.iter().enumerate() {
         let text = format!(
             "  Network #{} - Power generated: {}. Power required: {}.",
-            i,
+            network_id,
             network.get_power_generated_str(),
             network.get_power_required_str(),
         );
@@ -66,7 +66,7 @@ pub fn draw_networks(drawer: &impl DrawerTrait, game_state: &GameState) {
         drawer.draw_text(
             text.as_str(),
             20.0,
-            drawer.screen_height() - FONT_SIZE * (2.0 + (network_count - i) as f32),
+            drawer.screen_height() - FONT_SIZE * (2.0 + (network_count - network_id) as f32),
             FONT_SIZE,
             text_color,
         );
