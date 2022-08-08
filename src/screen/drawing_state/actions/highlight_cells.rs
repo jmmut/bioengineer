@@ -1,4 +1,4 @@
-use crate::screen::drawing_state::coords::cell_pixel::clicked_cell;
+use crate::screen::gui::coords::cell_pixel::clicked_cell;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::input::{CellSelection, CellSelectionType, PixelPosition};
 use crate::world::map::cell_envelope::{is_horizontally_inside, Envelope};

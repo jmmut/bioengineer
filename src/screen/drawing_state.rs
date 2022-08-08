@@ -1,9 +1,7 @@
 mod actions;
-pub mod coords;
-mod draw_map;
 
 use crate::world::game_state::GameState;
-use crate::screen::gui::GuiActions;
+use crate::screen::gui::{draw_map, GuiActions};
 use crate::world::map::CellIndex;
 use crate::{Color, IVec2, Vec2, Vec3};
 use std::collections::HashSet;
@@ -24,10 +22,10 @@ pub fn draw(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &Drawing
 }
 
 pub struct DrawingState {
-    min_cell: CellIndex,
-    max_cell: CellIndex,
-    subtile_offset: SubTilePosition,
-    subcell_diff: SubCellIndex,
+    pub min_cell: CellIndex,
+    pub max_cell: CellIndex,
+    pub subtile_offset: SubTilePosition,
+    pub subcell_diff: SubCellIndex,
     pub highlighted_cells: HashSet<CellIndex>,
     highlight_start_height: i32,
 }

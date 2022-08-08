@@ -1,5 +1,5 @@
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use crate::screen::drawing_state::coords::cell_pixel::clicked_cell;
+use coords::cell_pixel::clicked_cell;
 use hud::FULL_OPAQUE;
 use crate::screen::drawing_state::DrawingState;
 use crate::world::game_state::Task;
@@ -14,6 +14,8 @@ use draw_available_transformations::show_available_transformations;
 pub mod gui_actions;
 pub mod hud;
 pub mod draw_available_transformations;
+pub mod draw_map;
+pub mod coords;
 
 pub struct Gui;
 

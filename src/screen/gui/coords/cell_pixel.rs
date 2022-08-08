@@ -1,11 +1,11 @@
-use crate::screen::drawing_state::coords::cell_tile::{
+use crate::screen::gui::coords::cell_tile::{
     cell_to_tile, subcell_to_subtile, subtile_to_subcell, subtile_to_subcell_offset, tile_to_cell,
 };
-use crate::screen::drawing_state::coords::tile_pixel::{
+use crate::screen::gui::coords::tile_pixel::{
     pixel_to_subtile, pixel_to_subtile_offset, pixel_to_tile, subtile_to_pixel, tile_to_pixel,
 };
-use crate::screen::drawing_state::coords::truncate::truncate_cell_offset;
-use crate::screen::drawing_state::draw_map::hitbox_offset;
+use crate::screen::gui::coords::truncate::truncate_cell_offset;
+use crate::screen::gui::draw_map::hitbox_offset;
 use crate::screen::drawing_state::{DrawingState, SubCellIndex, SubTilePosition};
 use crate::screen::input::PixelPosition;
 use crate::world::map::CellIndex;
@@ -84,7 +84,7 @@ fn tile_offset() -> SubTilePosition {
 mod tests {
     use super::*;
     use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-    use crate::screen::drawing_state::coords::cell_pixel::{
+    use crate::screen::gui::coords::cell_pixel::{
         cell_to_pixel, pixel_to_cell, pixel_to_subcell_center, subcell_center_to_pixel,
     };
     use crate::screen::drawing_state::DrawingState;

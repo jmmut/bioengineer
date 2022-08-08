@@ -1,6 +1,6 @@
-use crate::screen::drawing_state::coords::cast::Cast;
-use crate::screen::drawing_state::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
-use crate::screen::drawing_state::coords::truncate::assert_in_range_0_1;
+use crate::screen::gui::coords::cast::Cast;
+use crate::screen::gui::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
+use crate::screen::gui::coords::truncate::assert_in_range_0_1;
 use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::world::game_state::robots::Robot;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};

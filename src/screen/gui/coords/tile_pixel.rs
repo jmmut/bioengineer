@@ -1,6 +1,6 @@
 use crate::screen::assets;
 use crate::screen::assets::PIXELS_PER_TILE_WIDTH;
-use crate::screen::drawing_state::coords::cast::Cast;
+use crate::screen::gui::coords::cast::Cast;
 use crate::screen::drawing_state::{DrawingState, SubTilePosition, TilePosition};
 use crate::screen::input::PixelPosition;
 
