@@ -9,7 +9,7 @@ use crate::world::map::TileType;
 use crate::Color;
 use crate::GameState;
 use crate::screen::drawer::DrawerTrait;
-use crate::screen::hud;
+use crate::screen::drawing_state::draw_available_transformations::show_available_transformations;
 
 pub struct Gui;
 
@@ -45,8 +45,7 @@ impl Gui {
             cancel_task: Option::None,
             do_now_task: Option::None,
         };
-        let unhandled_input =
-            hud::show_available_actions(drawer, game_state, unhandled_input, drawing);
+        let unhandled_input = show_available_transformations(drawer, game_state, unhandled_input, drawing);
         let unhandled_input = robot_movement_from_pixel_to_cell(drawer, unhandled_input, drawing);
         let unhandled_input = draw_robot_queue(drawer, game_state, unhandled_input);
         unhandled_input

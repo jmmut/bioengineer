@@ -1,6 +1,7 @@
 mod actions;
 pub mod coords;
 mod draw_map;
+pub mod draw_available_transformations;
 
 use crate::world::game_state::GameState;
 use crate::screen::gui::GuiActions;
