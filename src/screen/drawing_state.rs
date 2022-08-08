@@ -2,7 +2,7 @@ mod actions;
 pub mod assets;
 pub mod coords;
 pub mod hud;
-mod tiles;
+mod draw_map;
 
 use crate::world::game_state::GameState;
 use crate::screen::gui::GuiActions;
@@ -18,7 +18,7 @@ const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
 pub fn draw(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &DrawingState) {
     drawer.clear_background(GREY);
-    tiles::draw_map(drawer, game_state, drawing);
+    draw_map::draw_map(drawer, game_state, drawing);
     hud::draw_fps(drawer, game_state);
     hud::draw_level(drawer, drawing.min_cell.y, drawing.max_cell.y);
     hud::draw_networks(drawer, game_state);
