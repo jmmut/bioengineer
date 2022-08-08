@@ -1,15 +1,19 @@
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawing_state::coords::cell_pixel::clicked_cell;
-use crate::screen::hud::FULL_OPAQUE;
+use hud::FULL_OPAQUE;
 use crate::screen::drawing_state::DrawingState;
 use crate::world::game_state::Task;
-pub use crate::screen::gui_actions::GuiActions;
+pub use gui_actions::GuiActions;
 use crate::screen::input::Input;
 use crate::world::map::TileType;
 use crate::Color;
 use crate::GameState;
 use crate::screen::drawer_trait::DrawerTrait;
-use crate::screen::drawing_state::draw_available_transformations::show_available_transformations;
+use draw_available_transformations::show_available_transformations;
+
+pub mod gui_actions;
+pub mod hud;
+pub mod draw_available_transformations;
 
 pub struct Gui;
 

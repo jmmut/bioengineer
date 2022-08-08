@@ -1,7 +1,7 @@
 use crate::screen::drawing_state::DrawingState;
 use crate::world::game_state::TransformationTask;
 use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
-use crate::screen::gui_actions::GuiActions;
+use crate::screen::gui::gui_actions::GuiActions;
 use crate::screen::input::{CellSelection, Input};
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
