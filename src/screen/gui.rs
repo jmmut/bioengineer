@@ -1,13 +1,14 @@
 use crate::screen::drawing_state::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawing_state::coords::cell_pixel::clicked_cell;
 use crate::screen::drawing_state::hud::FULL_OPAQUE;
-use crate::screen::drawing_state::{hud, DrawingState};
+use crate::screen::drawing_state::{DrawingState, hud};
 use crate::world::game_state::Task;
 pub use crate::screen::gui_actions::GuiActions;
 use crate::screen::input::Input;
 use crate::world::map::TileType;
 use crate::Color;
-use crate::{DrawerTrait, GameState};
+use crate::GameState;
+use crate::screen::drawer::DrawerTrait;
 
 pub struct Gui;
 

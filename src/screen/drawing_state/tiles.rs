@@ -5,9 +5,10 @@ use crate::screen::drawing_state::{assets, DrawingState, SubCellIndex};
 use crate::world::game_state::robots::Robot;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::input::PixelPosition;
-use crate::world::map::{is_covering, Cell, CellIndex, TileType};
+use crate::world::map::{Cell, CellIndex, is_covering, TileType};
 use crate::Color;
-use crate::{DrawerTrait, GameState};
+use crate::GameState;
+use crate::screen::drawer::DrawerTrait;
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);

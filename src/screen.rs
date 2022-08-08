@@ -1,12 +1,14 @@
-use drawing_state::DrawingState;
+use drawer::DrawerTrait;
+use drawing_state::{DrawingState, draw};
 use gui_actions::GuiActions;
 use crate::world::World;
-use crate::{draw, DrawerTrait, Gui, InputSourceTrait};
+use crate::{Gui, InputSourceTrait};
 
 pub mod drawing_state;
 pub mod gui;
 pub mod input;
 pub mod gui_actions;
+pub mod drawer;
 
 pub struct Screen<Drawer: DrawerTrait, InputSource: InputSourceTrait> {
     drawer: Drawer,

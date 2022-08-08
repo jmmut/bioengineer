@@ -12,21 +12,20 @@ use macroquad::color::Color;
 use macroquad::math::{IVec2, IVec3, Rect, Vec2, Vec3};
 use macroquad::miniquad::date::now;
 use macroquad::prelude::next_frame;
-use macroquad::texture::Image;
-use macroquad::texture::Texture2D;
+use macroquad::texture::{Image, Texture2D};
 use macroquad::window::Conf;
 
 use external::assets_macroquad::load_tileset;
 use external::drawing_macroquad::DrawingMacroquad as DrawingImpl;
 use external::input_macroquad::InputMacroquad as InputSource;
 
-use crate::common::profiling::ScopedProfiler;
+use common::profiling::ScopedProfiler;
+use screen::drawer::DrawerTrait;
 use screen::gui::Gui;
-use crate::screen::Screen;
-use crate::world::World;
-use screen::drawing_state::{draw, DrawerTrait};
-use world::game_state::GameState;
 use screen::input::InputSourceTrait;
+use screen::Screen;
+use world::game_state::GameState;
+use world::World;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1600;
 const DEFAULT_WINDOW_HEIGHT: i32 = 900;

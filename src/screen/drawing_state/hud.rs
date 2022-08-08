@@ -6,7 +6,8 @@ use crate::screen::input::{CellSelection, Input};
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
 use crate::Rect;
-use crate::{DrawerTrait, GameState};
+use crate::GameState;
+use crate::screen::drawer::DrawerTrait;
 
 pub const FULL_OPAQUE: f32 = 1.0;
 
