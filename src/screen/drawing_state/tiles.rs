@@ -10,6 +10,7 @@ use crate::Color;
 use crate::{DrawerTrait, GameState};
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
+const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);
 
 pub fn draw_map(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &DrawingState) {
     let min_cell = &drawing.min_cell;
@@ -40,8 +41,7 @@ fn draw_cell(
     //     println!("selected something");
     // }
     if drawing.highlighted_cells.contains(&cell_index) {
-        let selection_color = Color::new(0.2, 0.8, 0.2, 1.0);
-        drawer.draw_colored_texture(tile_type, pixel.x, pixel.y, selection_color);
+        drawer.draw_colored_texture(tile_type, pixel.x, pixel.y, SELECTION_COLOR);
     } else {
         let opacity = get_opacity(
             &cell_index,
