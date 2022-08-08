@@ -1,4 +1,7 @@
-mod actions;
+
+pub mod change_height;
+pub mod highlight_cells;
+pub mod move_horizontally;
 
 use crate::world::game_state::GameState;
 use crate::screen::gui::{draw_map, GuiActions};
