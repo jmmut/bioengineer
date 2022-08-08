@@ -54,7 +54,7 @@ pub fn draw_networks(drawer: &impl DrawerTrait, game_state: &GameState) {
     for (network_id, network) in game_state.networks.iter().enumerate() {
         let text = format!(
             "  Network #{} - Power generated: {}. Power required: {}.",
-            network_id,
+            network_id + 1,
             network.get_power_generated_str(),
             network.get_power_required_str(),
         );
