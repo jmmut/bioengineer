@@ -1,13 +1,14 @@
 use crate::screen::drawing_state::coords::cast::Cast;
 use crate::screen::drawing_state::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
 use crate::screen::drawing_state::coords::truncate::assert_in_range_0_1;
-use crate::screen::drawing_state::{assets, DrawingState, SubCellIndex};
+use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::world::game_state::robots::Robot;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::input::PixelPosition;
 use crate::world::map::{Cell, CellIndex, is_covering, TileType};
 use crate::Color;
 use crate::GameState;
+use crate::screen::assets;
 use crate::screen::drawer::DrawerTrait;
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;

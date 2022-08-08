@@ -1,5 +1,4 @@
 mod actions;
-pub mod assets;
 pub mod coords;
 pub mod hud;
 mod draw_map;

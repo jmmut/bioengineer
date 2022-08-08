@@ -1,4 +1,4 @@
-use crate::screen::drawing_state::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawing_state::coords::cell_pixel::clicked_cell;
 use crate::screen::drawing_state::hud::FULL_OPAQUE;
 use crate::screen::drawing_state::{DrawingState, hud};

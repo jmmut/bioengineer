@@ -1,5 +1,5 @@
 use drawer::DrawerTrait;
-use drawing_state::{DrawingState, draw};
+use drawing_state::{draw, DrawingState};
 use gui_actions::GuiActions;
 use crate::world::World;
 use crate::{Gui, InputSourceTrait};
@@ -9,6 +9,7 @@ pub mod gui;
 pub mod input;
 pub mod gui_actions;
 pub mod drawer;
+pub mod assets;
 
 pub struct Screen<Drawer: DrawerTrait, InputSource: InputSourceTrait> {
     drawer: Drawer,

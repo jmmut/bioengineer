@@ -83,7 +83,7 @@ fn tile_offset() -> SubTilePosition {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::screen::drawing_state::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+    use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
     use crate::screen::drawing_state::coords::cell_pixel::{
         cell_to_pixel, pixel_to_cell, pixel_to_subcell_center, subcell_center_to_pixel,
     };
