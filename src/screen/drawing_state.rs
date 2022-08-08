@@ -1,6 +1,5 @@
 mod actions;
 pub mod coords;
-pub mod hud;
 mod draw_map;
 
 use crate::world::game_state::GameState;
@@ -9,6 +8,7 @@ use crate::world::map::CellIndex;
 use crate::{Color, IVec2, Vec2, Vec3};
 use std::collections::HashSet;
 use crate::screen::drawer::DrawerTrait;
+use crate::screen::hud;
 
 pub type TilePosition = IVec2;
 pub type SubTilePosition = Vec2;

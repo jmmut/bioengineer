@@ -10,6 +10,7 @@ pub mod input;
 pub mod gui_actions;
 pub mod drawer;
 pub mod assets;
+pub mod hud;
 
 pub struct Screen<Drawer: DrawerTrait, InputSource: InputSourceTrait> {
     drawer: Drawer,
