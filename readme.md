@@ -6,7 +6,7 @@
 
 Then, clone the repo:
 ```
-git clone bitbucket.org:jmmut/bioengineer.git
+git clone git@github.com:jmmut/bioengineer.git
 cd bioengineer
 ```
 
@@ -31,7 +31,7 @@ cargo build -r --target wasm32-unknown-unknown
 cp -r target/wasm32-unknown-unknown/release/*.wasm export_html/
 cp -r assets/ export_html/
 
-# you can zip the folder and upload it to itch.io with butler
+# you can zip the folder and upload it to itch.io with butler (you'll have to install butler and log in!)
 zip -r wasm.zip export_html/*
 butler push wasm.zip jmmut/Bioengineer:html5
 
