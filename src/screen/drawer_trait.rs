@@ -1,8 +1,7 @@
-
-use crate::Texture2D;
-use crate::Color;
-use crate::Vec2;
 use crate::world::map::TileType;
+use crate::Color;
+use crate::Texture2D;
+use crate::Vec2;
 
 /// Trait to be implemented by a graphics library.
 /// The purpose of this class is to decouple the project from the graphics library.

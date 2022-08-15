@@ -49,29 +49,30 @@ pub fn move_robot_to_position(
     map: &Map,
 ) -> Option<CellIndexDiff> {
     let mut dirs = Vec::new();
-    if target_pos.x > current_pos.x {
-        dirs.push(CellIndexDiff::new(1, 0, 0));
-    } else if target_pos.x < current_pos.x {
-        dirs.push(CellIndexDiff::new(-1, 0, 0));
+
+    match target_pos.x.cmp(&current_pos.x) {
+        Ordering::Greater => dirs.push(CellIndexDiff::new(1, 0, 0)),
+        Ordering::Less => dirs.push(CellIndexDiff::new(-1, 0, 0)),
+        Ordering::Equal => {}
     }
-    if target_pos.y > current_pos.y {
-        dirs.push(CellIndexDiff::new(0, 1, 0));
-    } else if target_pos.y < current_pos.y {
-        dirs.push(CellIndexDiff::new(0, -1, 0));
+    match target_pos.y.cmp(&current_pos.y) {
+        Ordering::Greater => dirs.push(CellIndexDiff::new(0, 1, 0)),
+        Ordering::Less => dirs.push(CellIndexDiff::new(0, -1, 0)),
+        Ordering::Equal => {}
     }
-    if target_pos.z > current_pos.z {
-        dirs.push(CellIndexDiff::new(0, 0, 1));
-    } else if target_pos.z < current_pos.z {
-        dirs.push(CellIndexDiff::new(0, 0, -1));
+    match target_pos.z.cmp(&current_pos.z) {
+        Ordering::Greater => dirs.push(CellIndexDiff::new(0, 0, 1)),
+        Ordering::Less => dirs.push(CellIndexDiff::new(0, 0, -1)),
+        Ordering::Equal => {}
     }
 
     let path = try_move(&dirs, current_pos, *target_pos, map);
-    let movement = path.and_then(|p| p.last().map(|c| *c));
+    let movement = path.and_then(|p| p.last().copied());
     movement
 }
 
 fn try_move(
-    dirs: &Vec<CellIndexDiff>,
+    dirs: &[CellIndexDiff],
     current_pos: CellIndex,
     target_pos: CellIndex,
     map: &Map,

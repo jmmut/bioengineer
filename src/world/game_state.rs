@@ -1,16 +1,16 @@
 mod networks;
 pub mod robots;
 
-use crate::world::map::Map;
+use crate::now;
+use crate::screen::gui::GuiActions;
 use crate::world::game_state::networks::Networks;
 use crate::world::game_state::robots::{
     is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
 };
-use crate::screen::gui::GuiActions;
 use crate::world::map::fluids::{FluidMode, Fluids};
 use crate::world::map::transform_cells::Transformation;
 use crate::world::map::CellIndex;
-use crate::now;
+use crate::world::map::Map;
 use std::collections::{HashSet, VecDeque};
 
 const DEFAULT_PROFILE_ENABLED: bool = false;
@@ -67,7 +67,7 @@ impl GameState {
         if gui_actions.input.toggle_fluids {
             self.advancing_fluids = !self.advancing_fluids;
         }
-        if self.should_advance_fluids_this_frame(&gui_actions) {
+        if self.should_advance_fluids_this_frame(gui_actions) {
             self.fluids.advance(&mut self.map);
         }
 
@@ -117,7 +117,7 @@ impl GameState {
     /// returns Some: more movement needed. None: destination reached.
     fn move_robots_to_position(&mut self, movement_target: &CellIndex) -> Option<CellIndex> {
         for robot in &mut self.robots {
-            let movement_opt = move_robot_to_position(robot.position, &movement_target, &self.map);
+            let movement_opt = move_robot_to_position(robot.position, movement_target, &self.map);
             if let Option::Some(movement) = movement_opt {
                 robot.position += movement;
                 if robot.position == *movement_target {

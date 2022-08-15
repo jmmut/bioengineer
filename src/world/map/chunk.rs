@@ -10,8 +10,8 @@ const SIZE_Y_I32: i32 = SIZE_Y as i32;
 const SIZE_Z_I32: i32 = SIZE_Z as i32;
 pub const SIZE: usize = SIZE_X * SIZE_Y * SIZE_Z;
 
-use crate::common::trunc::trunc_towards_neg_inf;
 use super::{Cell, CellIndex};
+use crate::common::trunc::trunc_towards_neg_inf;
 pub use crate::world::map::chunk::cell_iter::CellIter;
 use crate::world::map::chunk::chunk_cell_index_iter::{
     chunk_local_index_to_global_index, ChunkCellIndexIter,

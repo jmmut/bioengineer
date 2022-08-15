@@ -1,15 +1,15 @@
+use crate::screen::assets;
+use crate::screen::drawer_trait::DrawerTrait;
+use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::screen::gui::coords::cast::Cast;
 use crate::screen::gui::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
 use crate::screen::gui::coords::truncate::assert_in_range_0_1;
-use crate::screen::drawing_state::{DrawingState, SubCellIndex};
-use crate::world::game_state::robots::Robot;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::input::PixelPosition;
-use crate::world::map::{Cell, CellIndex, is_covering, TileType};
+use crate::world::game_state::robots::Robot;
+use crate::world::map::{is_covering, Cell, CellIndex, TileType};
 use crate::Color;
 use crate::GameState;
-use crate::screen::assets;
-use crate::screen::drawer_trait::DrawerTrait;
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);
@@ -135,11 +135,7 @@ fn get_border_opacity(
     })
 }
 
-fn get_opacity_to_see_robot(
-    cell_index: &CellIndex,
-    tile_type: TileType,
-    robots: &[Robot],
-) -> f32 {
+fn get_opacity_to_see_robot(cell_index: &CellIndex, tile_type: TileType, robots: &[Robot]) -> f32 {
     if is_covering(tile_type) {
         let mut cells_with_reduced_opacity = Vec::new();
         for robot in robots {

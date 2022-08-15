@@ -1,5 +1,5 @@
-use crate::screen::drawing_state::SubCellIndex;
 use crate::common::trunc::trunc_towards_neg_inf_f;
+use crate::screen::drawing_state::SubCellIndex;
 use crate::world::map::CellIndex;
 
 pub fn truncate_cell_offset(subcell_diff: SubCellIndex) -> (CellIndex, SubCellIndex) {

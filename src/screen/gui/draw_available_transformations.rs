@@ -1,13 +1,13 @@
+use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
-use crate::world::game_state::TransformationTask;
-use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::screen::gui::gui_actions::GuiActions;
+use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::screen::input::{CellSelection, Input};
+use crate::world::game_state::TransformationTask;
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
-use crate::Rect;
 use crate::GameState;
-use crate::screen::drawer_trait::DrawerTrait;
+use crate::Rect;
 
 pub fn show_available_transformations(
     drawer: &impl DrawerTrait,
