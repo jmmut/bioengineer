@@ -1,4 +1,5 @@
 # Bioengineer
+![build status badge](https://github.com/jmmut/bioengineer/actions/workflows/rust.yml/badge.svg)
 
 ## Play the game
 
