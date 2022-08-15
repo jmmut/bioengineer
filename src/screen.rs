@@ -1,8 +1,9 @@
 use drawer_trait::DrawerTrait;
 use drawing_state::{draw, DrawingState};
 use gui::gui_actions::GuiActions;
+use gui::Gui;
 use crate::world::World;
-use crate::{Gui, InputSourceTrait};
+use crate::InputSourceTrait;
 
 pub mod drawing_state;
 pub mod gui;
@@ -19,7 +20,7 @@ pub struct Screen<Drawer: DrawerTrait, InputSource: InputSourceTrait> {
 
 impl<Drawer: DrawerTrait, InputSource: InputSourceTrait> Screen<Drawer, InputSource> {
     pub fn new(mut drawer: Drawer, input_source: InputSource) -> Self {
-        let gui = gui::Gui::new(&mut drawer);
+        let gui = Gui::new(&mut drawer);
         let drawing_state = DrawingState::new();
         Screen {
             drawer,

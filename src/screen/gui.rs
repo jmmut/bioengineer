@@ -37,7 +37,7 @@ impl Gui {
 
 impl Gui {
     pub fn receive_actions(
-        self: &Self,
+        &self,
         input: Input,
         drawer: &impl DrawerTrait,
         game_state: &GameState,
@@ -118,8 +118,7 @@ pub fn draw_robot_queue(
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
-    let mut task_index = 0;
-    for task in &game_state.task_queue {
+    for (task_index, task) in game_state.task_queue.iter().enumerate() {
         column += 1.0;
         let tile = match task {
             Task::Transform(transform) => transform.transformation.new_tile_type,
@@ -145,7 +144,6 @@ pub fn draw_robot_queue(
         ) {
             do_now_task = Option::Some(task_index);
         }
-        task_index += 1;
     }
     GuiActions {
         go_to_robot,

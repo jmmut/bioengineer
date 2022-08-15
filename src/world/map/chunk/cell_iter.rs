@@ -38,7 +38,7 @@ pub struct CellIterItem<'a> {
 }
 
 impl<'a> RefMutIterator<'a, CellIterItem<'a>> for CellIter {
-    fn next(self: &'a mut Self) -> Option<CellIterItem<'a>> {
+    fn next(&'a mut self) -> Option<CellIterItem<'a>> {
         return if self.has_next() {
             self.i += 1;
             let i_usize = self.i as usize;

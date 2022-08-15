@@ -48,10 +48,10 @@ fn draw_cell(
         let opacity = get_opacity(
             &cell_index,
             tile_type,
-            &game_state,
-            &drawing,
-            &min_cell,
-            &max_cell,
+            game_state,
+            drawing,
+            min_cell,
+            max_cell,
         );
         // let opacity = 1.0; // for debugging
         drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, opacity);
@@ -74,7 +74,7 @@ fn get_opacity(
     max_cell: &CellIndex,
 ) -> f32 {
     let border_opacity = get_border_opacity(cell_index, min_cell, max_cell, &drawing.subcell_diff);
-    let opacity_to_see_robot = get_opacity_to_see_robot(&cell_index, tile_type, &game_state.robots);
+    let opacity_to_see_robot = get_opacity_to_see_robot(cell_index, tile_type, &game_state.robots);
     let opacity = f32::min(border_opacity, opacity_to_see_robot);
     opacity
 }
@@ -138,7 +138,7 @@ fn get_border_opacity(
 fn get_opacity_to_see_robot(
     cell_index: &CellIndex,
     tile_type: TileType,
-    robots: &Vec<Robot>,
+    robots: &[Robot],
 ) -> f32 {
     if is_covering(tile_type) {
         let mut cells_with_reduced_opacity = Vec::new();

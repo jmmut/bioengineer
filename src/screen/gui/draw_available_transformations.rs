@@ -17,7 +17,7 @@ pub fn show_available_transformations(
 ) -> GuiActions {
     let drawing_ = drawing;
     let mut transformation_clicked = Option::None;
-    let mut cell_selection = unhandled_input.input.cell_selection.clone();
+    let mut cell_selection = unhandled_input.input.cell_selection;
     if drawing_.highlighted_cells.len() > 0 {
         let transformations = allowed_transformations(&drawing_.highlighted_cells, game_state);
         let line_height = FONT_SIZE * 1.5;
@@ -55,7 +55,7 @@ pub fn show_available_transformations(
             }
             i += 1.0;
         }
-        if let Option::Some(selection) = unhandled_input.input.cell_selection.selection.clone() {
+        if let Option::Some(selection) = unhandled_input.input.cell_selection.selection {
             if panel.contains(selection.end) {
                 // TODO: if clicking a button near the bottom of the panel, it selects a cell out
                 //       of screen

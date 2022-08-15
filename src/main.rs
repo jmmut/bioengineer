@@ -21,7 +21,7 @@ use external::input_macroquad::InputMacroquad as InputSource;
 
 use common::profiling::ScopedProfiler;
 use screen::drawer_trait::DrawerTrait;
-use screen::gui::Gui;
+// use screen::gui::Gui;
 use screen::input::InputSourceTrait;
 use screen::Screen;
 use world::game_state::GameState;
@@ -29,7 +29,7 @@ use world::World;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1600;
 const DEFAULT_WINDOW_HEIGHT: i32 = 900;
-const DEFAULT_WINDOW_TITLE: &'static str = "Bioengineer";
+const DEFAULT_WINDOW_TITLE: &str = "Bioengineer";
 
 #[macroquad::main(window_conf)]
 async fn main() {
