@@ -76,12 +76,10 @@ impl Networks {
 
     pub fn get_adjacent_networks(&self, cell_index: CellIndex) -> Vec<usize> {
         let mut adjacents = Vec::new();
-        let mut i = 0;
-        for network in &self.networks {
+        for (i, network) in self.networks.iter().enumerate() {
             if network.is_adjacent(cell_index) {
                 adjacents.push(i);
             }
-            i += 1;
         }
         adjacents
     }

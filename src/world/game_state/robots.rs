@@ -49,29 +49,30 @@ pub fn move_robot_to_position(
     map: &Map,
 ) -> Option<CellIndexDiff> {
     let mut dirs = Vec::new();
-    if target_pos.x > current_pos.x {
-        dirs.push(CellIndexDiff::new(1, 0, 0));
-    } else if target_pos.x < current_pos.x {
-        dirs.push(CellIndexDiff::new(-1, 0, 0));
+
+    match target_pos.x.cmp(&current_pos.x) {
+        Ordering::Greater => dirs.push(CellIndexDiff::new(1, 0, 0)),
+        Ordering::Less => dirs.push(CellIndexDiff::new(-1, 0, 0)),
+        Ordering::Equal => {}
     }
-    if target_pos.y > current_pos.y {
-        dirs.push(CellIndexDiff::new(0, 1, 0));
-    } else if target_pos.y < current_pos.y {
-        dirs.push(CellIndexDiff::new(0, -1, 0));
+    match target_pos.y.cmp(&current_pos.y) {
+        Ordering::Greater => dirs.push(CellIndexDiff::new(0, 1, 0)),
+        Ordering::Less => dirs.push(CellIndexDiff::new(0, -1, 0)),
+        Ordering::Equal => {}
     }
-    if target_pos.z > current_pos.z {
-        dirs.push(CellIndexDiff::new(0, 0, 1));
-    } else if target_pos.z < current_pos.z {
-        dirs.push(CellIndexDiff::new(0, 0, -1));
+    match target_pos.z.cmp(&current_pos.z) {
+        Ordering::Greater => dirs.push(CellIndexDiff::new(0, 0, 1)),
+        Ordering::Less => dirs.push(CellIndexDiff::new(0, 0, -1)),
+        Ordering::Equal => {}
     }
 
     let path = try_move(&dirs, current_pos, *target_pos, map);
-    let movement = path.and_then(|p| p.last().map(|c| *c));
+    let movement = path.and_then(|p| p.last().copied());
     movement
 }
 
 fn try_move(
-    dirs: &Vec<CellIndexDiff>,
+    dirs: &[CellIndexDiff],
     current_pos: CellIndex,
     target_pos: CellIndex,
     map: &Map,
@@ -359,11 +360,11 @@ mod tests {
             let initial_pos = CellIndex::new(0, 0, 0);
             let closest_target = CellIndex::new(-1, 0, 2);
             let farthest_target = CellIndex::new(2, 0, 2);
-            let mut transformation_task = TransformationTask {
+            let transformation_task = TransformationTask {
                 to_transform: HashSet::from([farthest_target, closest_target]),
                 transformation: Transformation::to(TileType::Stairs),
             };
-            let mut iter = order_by_closest_target(&mut transformation_task, initial_pos);
+            let mut iter = order_by_closest_target(&transformation_task, initial_pos);
             assert_eq!(iter.next().unwrap(), closest_target);
             assert_eq!(iter.next().unwrap(), farthest_target);
         }

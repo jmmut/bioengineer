@@ -16,7 +16,7 @@ pub fn extract_images(
             let components = get_components(
                 i_width,
                 i_height,
-                &image,
+                image,
                 tiles_per_tile_line,
                 tiles_per_tile_column,
                 pixels_per_tile_width,

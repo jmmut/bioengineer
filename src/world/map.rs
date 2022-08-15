@@ -7,16 +7,17 @@ mod map_iterator;
 mod ref_mut_iterator;
 pub mod transform_cells;
 
+use std::cmp::Ordering;
+use crate::common::trunc::trunc_towards_neg_inf;
 use crate::world::map::chunk::{get_chunk_index, get_required_chunks};
 use crate::{IVec3, now};
 use chunk::{Chunk, ChunkIndex};
 use opensimplex_noise_rs::OpenSimplexNoise;
 use std::collections::HashMap;
-use crate::common::trunc::trunc_towards_neg_inf;
 
 // use crate::world::map::map_iterator::MapIterator;
 pub use crate::world::map::cell::{
-    Cell, is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, TileType,
+    is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, Cell, TileType,
 };
 pub use crate::world::map::cell_cube_iterator::CellCubeIterator;
 use crate::world::map::cell_envelope::Envelope;
@@ -60,15 +61,13 @@ impl Map {
 
     pub fn _new_from_pressures(cells: Vec<i32>, min_cell: CellIndex, max_cell: CellIndex) -> Self {
         let mut map = Self::new_for_cube(min_cell, max_cell);
-        let mut i = 0;
-        for cell_index in CellCubeIterator::new(min_cell, max_cell) {
+        for (i, cell_index) in CellCubeIterator::new(min_cell, max_cell).enumerate() {
             map.get_cell_mut(cell_index).pressure = cells[i];
             map.get_cell_mut(cell_index).tile_type = if cells[i] >= 0 {
                 TileType::DirtyWaterWall
             } else {
                 TileType::WallRock
             };
-            i += 1;
         }
         map
     }
@@ -250,12 +249,10 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
                 TileType::WallRock
             };
         } else {
-            cell.tile_type = if cell_index.y < 0 {
-                TileType::DirtyWaterWall
-            } else if cell_index.y == 0 {
-                TileType::DirtyWaterSurface
-            } else {
-                TileType::Air
+            cell.tile_type = match cell_index.y.cmp(&0) {
+                Ordering::Greater => TileType::Air,
+                Ordering::Less => TileType::DirtyWaterWall,
+                Ordering::Equal => TileType::DirtyWaterSurface,
             };
             cell.pressure = i32::max(0, 10 - 10 * cell_index.y);
         }
@@ -264,19 +261,18 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
 
 fn choose_tile(value: f64, cell_index: CellIndex) -> TileType {
     use TileType::*;
-    let surface_level = trunc_towards_neg_inf((value * 0.5 * MAP_SIZE as f64) as i32, 2);
-    if cell_index.y < surface_level {
-        WallRock
-    } else if cell_index.y > surface_level {
-        if cell_index.y < 0 {
-            DirtyWaterWall
-        } else if cell_index.y == 0 {
-            DirtyWaterSurface
-        } else {
-            Air
+    let terrain_height = trunc_towards_neg_inf((value * 0.5 * MAP_SIZE as f64) as i32, 2);
+    match cell_index.y.cmp(&terrain_height) {
+        Ordering::Less => WallRock,
+        Ordering::Equal => FloorDirt,
+        Ordering::Greater => {
+            let water_height = 0;
+            match cell_index.y.cmp(&water_height) {
+                Ordering::Less => DirtyWaterWall,
+                Ordering::Equal => DirtyWaterSurface,
+                Ordering::Greater => Air,
+            }
         }
-    } else {
-        FloorDirt
     }
 }
 

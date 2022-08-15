@@ -1,13 +1,13 @@
+use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
-use crate::world::game_state::TransformationTask;
-use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::screen::gui::gui_actions::GuiActions;
+use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::screen::input::{CellSelection, Input};
+use crate::world::game_state::TransformationTask;
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
-use crate::Rect;
 use crate::GameState;
-use crate::screen::drawer_trait::DrawerTrait;
+use crate::Rect;
 
 pub fn show_available_transformations(
     drawer: &impl DrawerTrait,
@@ -17,7 +17,7 @@ pub fn show_available_transformations(
 ) -> GuiActions {
     let drawing_ = drawing;
     let mut transformation_clicked = Option::None;
-    let mut cell_selection = unhandled_input.input.cell_selection.clone();
+    let mut cell_selection = unhandled_input.input.cell_selection;
     if drawing_.highlighted_cells.len() > 0 {
         let transformations = allowed_transformations(&drawing_.highlighted_cells, game_state);
         let line_height = FONT_SIZE * 1.5;
@@ -55,7 +55,7 @@ pub fn show_available_transformations(
             }
             i += 1.0;
         }
-        if let Option::Some(selection) = unhandled_input.input.cell_selection.selection.clone() {
+        if let Option::Some(selection) = unhandled_input.input.cell_selection.selection {
             if panel.contains(selection.end) {
                 // TODO: if clicking a button near the bottom of the panel, it selects a cell out
                 //       of screen

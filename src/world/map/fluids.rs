@@ -661,14 +661,14 @@ mod tests {
         let computed_together = compute_n_steps(
             min_cell,
             max_cell,
-            &cells.clone(),
+            &cells,
             iterations,
             FluidMode::AllTogether,
         );
         let computed_in_stages = compute_n_steps(
             min_cell,
             max_cell,
-            &cells.clone(),
+            &cells,
             iterations * 5,
             FluidMode::InStages,
         );
@@ -679,11 +679,11 @@ mod tests {
     fn compute_n_steps(
         min_cell: IVec3,
         max_cell: IVec3,
-        cells: &Vec<i32>,
+        cells: &[i32],
         iterations: i32,
         mode: FluidMode,
     ) -> Vec<i32> {
-        let mut map = Map::_new_from_pressures(cells.clone(), min_cell, max_cell);
+        let mut map = Map::_new_from_pressures(cells.to_vec(), min_cell, max_cell);
         let mut fluids = Fluids::new(mode);
         for _ in 0..iterations {
             fluids.advance(&mut map);

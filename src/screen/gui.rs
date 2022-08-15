@@ -1,21 +1,21 @@
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use coords::cell_pixel::clicked_cell;
-use hud::FULL_OPAQUE;
+use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
-use crate::world::game_state::Task;
-pub use gui_actions::GuiActions;
 use crate::screen::input::Input;
+use crate::world::game_state::Task;
 use crate::world::map::TileType;
 use crate::Color;
 use crate::GameState;
-use crate::screen::drawer_trait::DrawerTrait;
+use coords::cell_pixel::clicked_cell;
 use draw_available_transformations::show_available_transformations;
+pub use gui_actions::GuiActions;
+use hud::FULL_OPAQUE;
 
-pub mod gui_actions;
-pub mod hud;
+pub mod coords;
 pub mod draw_available_transformations;
 pub mod draw_map;
-pub mod coords;
+pub mod gui_actions;
+pub mod hud;
 
 pub struct Gui;
 
@@ -37,7 +37,7 @@ impl Gui {
 
 impl Gui {
     pub fn receive_actions(
-        self: &Self,
+        &self,
         input: Input,
         drawer: &impl DrawerTrait,
         game_state: &GameState,
@@ -51,7 +51,8 @@ impl Gui {
             cancel_task: Option::None,
             do_now_task: Option::None,
         };
-        let unhandled_input = show_available_transformations(drawer, game_state, unhandled_input, drawing);
+        let unhandled_input =
+            show_available_transformations(drawer, game_state, unhandled_input, drawing);
         let unhandled_input = robot_movement_from_pixel_to_cell(drawer, unhandled_input, drawing);
         let unhandled_input = draw_robot_queue(drawer, game_state, unhandled_input);
         unhandled_input
@@ -118,8 +119,7 @@ pub fn draw_robot_queue(
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
-    let mut task_index = 0;
-    for task in &game_state.task_queue {
+    for (task_index, task) in game_state.task_queue.iter().enumerate() {
         column += 1.0;
         let tile = match task {
             Task::Transform(transform) => transform.transformation.new_tile_type,
@@ -145,7 +145,6 @@ pub fn draw_robot_queue(
         ) {
             do_now_task = Option::Some(task_index);
         }
-        task_index += 1;
     }
     GuiActions {
         go_to_robot,

@@ -1,3 +1,4 @@
+use crate::screen::drawing_state::{DrawingState, SubCellIndex, SubTilePosition};
 use crate::screen::gui::coords::cell_tile::{
     cell_to_tile, subcell_to_subtile, subtile_to_subcell, subtile_to_subcell_offset, tile_to_cell,
 };
@@ -6,7 +7,6 @@ use crate::screen::gui::coords::tile_pixel::{
 };
 use crate::screen::gui::coords::truncate::truncate_cell_offset;
 use crate::screen::gui::draw_map::hitbox_offset;
-use crate::screen::drawing_state::{DrawingState, SubCellIndex, SubTilePosition};
 use crate::screen::input::PixelPosition;
 use crate::world::map::CellIndex;
 
@@ -17,7 +17,11 @@ pub fn clicked_cell(click: PixelPosition, screen_width: f32, drawing_: &DrawingS
     cell
 }
 
-pub fn cell_to_pixel(cell_index: CellIndex, drawing: &DrawingState, screen_width: f32) -> PixelPosition {
+pub fn cell_to_pixel(
+    cell_index: CellIndex,
+    drawing: &DrawingState,
+    screen_width: f32,
+) -> PixelPosition {
     let tile = cell_to_tile(cell_index, &drawing.min_cell, &drawing.max_cell);
     tile_to_pixel(tile, drawing, screen_width)
 }
@@ -84,10 +88,10 @@ fn tile_offset() -> SubTilePosition {
 mod tests {
     use super::*;
     use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+    use crate::screen::drawing_state::DrawingState;
     use crate::screen::gui::coords::cell_pixel::{
         cell_to_pixel, pixel_to_cell, pixel_to_subcell_center, subcell_center_to_pixel,
     };
-    use crate::screen::drawing_state::DrawingState;
     use crate::world::map::CellIndex;
 
     #[test]

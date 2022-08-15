@@ -1,5 +1,5 @@
-use crate::world::game_state::TransformationTask;
 use crate::screen::input::Input;
+use crate::world::game_state::TransformationTask;
 use crate::world::map::CellIndex;
 
 pub struct GuiActions {

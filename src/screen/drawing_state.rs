@@ -1,15 +1,14 @@
-
 pub mod change_height;
 pub mod highlight_cells;
 pub mod move_horizontally;
 
-use crate::world::game_state::GameState;
+use crate::screen::drawer_trait::DrawerTrait;
+use crate::screen::gui::hud;
 use crate::screen::gui::{draw_map, GuiActions};
+use crate::world::game_state::GameState;
 use crate::world::map::CellIndex;
 use crate::{Color, IVec2, Vec2, Vec3};
 use std::collections::HashSet;
-use crate::screen::drawer_trait::DrawerTrait;
-use crate::screen::gui::hud;
 
 pub type TilePosition = IVec2;
 pub type SubTilePosition = Vec2;
@@ -55,5 +54,4 @@ impl DrawingState {
         );
         self.maybe_select_cells(&input.cell_selection, screen_width);
     }
-
 }

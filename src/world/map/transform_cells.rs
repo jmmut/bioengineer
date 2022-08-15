@@ -102,8 +102,7 @@ pub fn set_intersection<T: PartialEq + Copy>(transformations_per_cell: Vec<Vec<T
             let mut result = Vec::new();
             for should_be_present_in_all in first {
                 let mut present = true;
-                for i in 1..transformations_per_cell.len() {
-                    let transformations = &transformations_per_cell[i];
+                for transformations in transformations_per_cell.iter().skip(1) {
                     if !transformations.contains(should_be_present_in_all) {
                         present = false;
                     }

@@ -1,7 +1,7 @@
 use crate::world::map::CellIndex;
 
 #[allow(unused)]
-fn envelope(cells: &Vec<CellIndex>) -> (CellIndex, CellIndex) {
+fn envelope(cells: &[CellIndex]) -> (CellIndex, CellIndex) {
     let mut envelope = Envelope::new();
     for cell_index in cells {
         envelope.add(cell_index);

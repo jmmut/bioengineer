@@ -82,7 +82,7 @@ impl MutMapIterator {
         let optional_chunk = chunk_iterator.next();
         let cell_iterator = optional_chunk
             .map(|chunk| chunk.1.into_iter_mut())
-            .unwrap_or(CellIter::default());
+            .unwrap_or_default();
         Self {
             chunk_iterator,
             cell_iterator,
@@ -97,7 +97,7 @@ impl MutMapIterator {
         let optional_next_chunk = self.chunk_iterator.next();
         let next_chunk_cell_iterator = optional_next_chunk
             .map(|chunk| chunk.1.into_iter_mut())
-            .unwrap_or(CellIter::default());
+            .unwrap_or_default();
         let previous_chunk_cell_iterator =
             std::mem::replace(&mut self.cell_iterator, next_chunk_cell_iterator);
         previous_chunk_cell_iterator

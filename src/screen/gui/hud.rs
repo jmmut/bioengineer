@@ -1,10 +1,9 @@
-
 //! HUD (Heads Up Display) is (in this project) the part of the GUI that is not interactive, only
 //! visual information is displayed.
 
-use crate::GameState;
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
+use crate::GameState;
 
 pub const FULL_OPAQUE: f32 = 1.0;
 
