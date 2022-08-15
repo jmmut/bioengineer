@@ -37,7 +37,7 @@ impl Gui {
 
 impl Gui {
     pub fn receive_actions(
-        self: &Self,
+        &self,
         input: Input,
         drawer: &impl DrawerTrait,
         game_state: &GameState,
