@@ -1,6 +1,12 @@
 # Bioengineer
 
-## Run the game
+## Play the game
+
+https://jmmut.itch.io/bioengineer
+
+At the moment you can play in the browser (playable with mouse and keyboard), and the plan is to add downloadable native versions.
+
+## Compile and run the game
 
 [Install rust](https://www.rust-lang.org/tools/install).
 
