@@ -37,9 +37,19 @@ impl DrawerTrait for DrawingMacroquad {
     // self.debug_draw_all_textures();
     // }
 
+    fn screen_width(&self) -> f32 {
+        screen_width()
+    }
+    fn screen_height(&self) -> f32 {
+        screen_height()
+    }
+    fn clear_background(&self, color: Color) {
+        clear_background(color);
+    }
     fn draw_texture(&self, tile: TileType, x: f32, y: f32) {
         self.draw_transparent_texture(tile, x, y, 1.0);
     }
+
     fn draw_transparent_texture(&self, tile: TileType, x: f32, y: f32, opacity_coef: f32) {
         let mask_color = Color::new(1.0, 1.0, 1.0, opacity_coef);
         draw_texture(self.textures[tile as usize], x, y, mask_color);
@@ -49,16 +59,6 @@ impl DrawerTrait for DrawingMacroquad {
     }
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         draw_rectangle(x, y, w, h, color);
-    }
-
-    fn clear_background(&self, color: Color) {
-        clear_background(color);
-    }
-    fn screen_width(&self) -> f32 {
-        screen_width()
-    }
-    fn screen_height(&self) -> f32 {
-        screen_height()
     }
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         draw_text(text, x, y, font_size, color);

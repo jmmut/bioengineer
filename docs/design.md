@@ -73,7 +73,7 @@ you can focus, but chill and wholesome.
 I would like the music to change depending on the terraforming stage. At the beginning, the ambient
 should be space-y and misterious. To convey the feeling of being abandoned by yourself in a barren
 planet (think pads and strings). Then, the more infrastructure you deploy, the more it feels like
-home, with industrial touches (think Factorio, Rammstein or Slipknot, but chill). Then when 
+home, with industrial touches (think Factorio, Rammstein or Slipknot, but chill). Then, when 
 you introduce life, the music must convey nature and life (think flutes).
 
 
