@@ -1,4 +1,4 @@
-use crate::input::{CellSelection, Input, InputSourceTrait, PixelPosition, PixelSelection};
+use crate::screen::input::{CellSelection, Input, InputSourceTrait, PixelPosition, PixelSelection};
 
 use macroquad::input::{
     is_key_pressed, is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released,

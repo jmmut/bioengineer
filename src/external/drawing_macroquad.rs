@@ -7,16 +7,18 @@ use macroquad::texture::draw_texture;
 use macroquad::ui::{root_ui, Skin};
 use macroquad::window::{clear_background, screen_height, screen_width};
 
-use crate::drawing::{assets, Drawing, DrawingTrait};
-use crate::gui::FONT_SIZE;
-use crate::map::TileType;
+use crate::screen::assets;
+use crate::screen::drawer_trait::DrawerTrait;
+use crate::screen::drawing_state::DrawingState;
+use crate::screen::gui::FONT_SIZE;
+use crate::world::map::TileType;
 
 pub struct DrawingMacroquad {
-    pub drawing: Drawing,
+    pub drawing: DrawingState,
     pub textures: Vec<Texture2D>,
 }
 
-impl DrawingTrait for DrawingMacroquad {
+impl DrawerTrait for DrawingMacroquad {
     fn new(textures: Vec<Texture2D>) -> DrawingMacroquad {
         // let textures = load_tileset(tileset_path);
         println!(
@@ -26,7 +28,7 @@ impl DrawingTrait for DrawingMacroquad {
             textures[0].height()
         );
         DrawingMacroquad {
-            drawing: Drawing::new(),
+            drawing: DrawingState::new(),
             textures,
         }
     }
