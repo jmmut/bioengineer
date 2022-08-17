@@ -21,6 +21,7 @@ pub use crate::world::map::cell::{
 };
 pub use crate::world::map::cell_cube_iterator::CellCubeIterator;
 use crate::world::map::cell_envelope::Envelope;
+use crate::world::map::chunk::chunks::Chunks;
 use crate::world::map::map_iterator::MutMapIterator;
 
 /// The axis are isometric:
@@ -33,7 +34,7 @@ const MAP_SIZE: i32 = 64;
 
 #[derive(Clone)]
 pub struct Map {
-    chunks: HashMap<ChunkIndex, Chunk>,
+    chunks: Chunks,
     min_cell: CellIndex,
     max_cell: CellIndex,
     ship_position: Option<CellIndex>,
@@ -45,7 +46,7 @@ impl Map {
     }
 
     pub fn new_for_cube(min_cell: CellIndex, max_cell: CellIndex) -> Self {
-        let mut chunks = HashMap::new();
+        let mut chunks = Chunks::new();
         let chunk_indexes = get_required_chunks(min_cell, max_cell);
         for chunk_index in chunk_indexes {
             chunks.insert(chunk_index, Chunk::new_from_chunk_index(chunk_index));
@@ -73,7 +74,7 @@ impl Map {
     }
 
     pub fn _new_from_tiles(default_cell: Cell, tiles: Vec<(CellIndex, TileType)>) -> Self {
-        let mut chunks = HashMap::new();
+        let mut chunks = Chunks::new();
         let mut envelope = Envelope::new();
         for (cell_index, _tile) in &tiles {
             let chunk_indexes = get_required_chunks(*cell_index, *cell_index);

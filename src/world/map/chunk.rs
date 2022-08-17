@@ -1,5 +1,6 @@
 pub mod cell_iter;
 pub mod chunk_cell_index_iter;
+pub mod chunks;
 
 pub const SIZE_X: usize = 16;
 pub const SIZE_Y: usize = 4;
@@ -18,6 +19,7 @@ use crate::world::map::chunk::chunk_cell_index_iter::{
 };
 use crate::IVec3;
 use std::collections::HashMap;
+use crate::world::map::chunk::chunks::Chunks;
 
 pub type ChunkIndex = IVec3;
 
@@ -64,7 +66,7 @@ impl Chunk {
     pub fn into_iter_mut(self) -> CellIter {
         CellIter::new(self.cells, self.origin)
     }
-    pub fn into_hash(self, chunks: &mut HashMap<ChunkIndex, Chunk>) {
+    pub fn into_hash(self, chunks: &mut Chunks) {
         chunks.insert(get_chunk_index(&self.origin), self);
     }
 }
