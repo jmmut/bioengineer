@@ -1,47 +1,111 @@
+
 use std::collections::HashMap;
 use crate::world::map::chunk::{Chunk, ChunkIndex};
 
 
-pub type Chunks = HashMap<ChunkIndex, Chunk>;
+// pub type Chunks = HashMap<ChunkIndex, Chunk>;
+pub type IntoIter = IntoIter2;
 
-/*
 pub struct Chunks {
     inner_map: HashMap<ChunkIndex, Chunk>,
 }
 
+type ChunkEntry = (ChunkIndex, Chunk);
 
 impl Chunks {
     pub fn new() -> Self {
-        todo!()
+        Chunks {
+            inner_map : HashMap::new()
+        }
     }
 
-    pub fn insert(&self, chunk_index: ChunkIndex, chunk: Chunk) {
-        todo!()
+    pub fn insert(&mut self, chunk_index: ChunkIndex, chunk: Chunk) -> Option<Chunk> {
+        self.inner_map.insert(chunk_index, chunk)
     }
 
-    pub(crate) fn get_mut(&self, p0: &ChunkIndex) -> Option<&mut Chunk>{
-        todo!()
+    pub fn get_mut(&mut self, chunk_index: &ChunkIndex) -> Option<&mut Chunk>{
+        self.inner_map.get_mut(chunk_index)
     }
 
-    pub(crate) fn get(&self, p0: &ChunkIndex) -> Option<&Chunk> {
-        todo!()
+    pub fn get(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
+        self.inner_map.get(chunk_index)
+    }
+
+    pub fn len(&self) -> usize {
+        self.inner_map.len()
+    }
+
+    pub fn iter(&self) -> Iter2<'_> {
+        Iter2 { inner: self.inner_map.iter() }
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut2<'_> {
+        IterMut2 {inner: self.inner_map.iter_mut() }
+    }
+}
+impl Clone for Chunks {
+    fn clone(&self) -> Self {
+        Chunks {inner_map: self.inner_map.clone() }
     }
 }
 
 impl IntoIterator for Chunks {
-    type Item = ();
-    type IntoIter = ();
+    type Item = (ChunkIndex, Chunk);
+    type IntoIter = IntoIter2;
 
     fn into_iter(self) -> Self::IntoIter {
-        todo!()
+        IntoIter2(self.inner_map.into_iter())
+    }
+}
+impl<'a> IntoIterator for &'a mut Chunks {
+    type Item = (&'a ChunkIndex, &'a mut Chunk);
+    type IntoIter = IterMut2<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        IterMut2{ inner: self.inner_map.iter_mut() }
+    }
+}
+
+pub struct IntoIter2(std::collections::hash_map::IntoIter<ChunkIndex, Chunk>);
+
+impl Iterator for IntoIter2 {
+    type Item = (ChunkIndex, Chunk);
+    fn next(&mut self) -> Option<Self::Item> {
+        // access fields of a tuple struct numerically
+        self.0.next()
     }
 }
 
 
 
- */
+
+pub struct Iter2<'a> {
+    inner: std::collections::hash_map::Iter<'a, ChunkIndex, Chunk>,
+}
+
+impl<'a> Iterator for Iter2<'a> {
+    type Item = (&'a ChunkIndex, &'a Chunk);
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+}
 
 
+pub struct IterMut2<'a> {
+    inner: std::collections::hash_map::IterMut<'a, ChunkIndex, Chunk>,
+}
+
+impl<'a> Iterator for IterMut2<'a> {
+    type Item = (&'a ChunkIndex, &'a mut Chunk);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next()
+    }
+}
+
+
+
+mod list {
 pub struct List<T> {
     head: Link<T>,
 }
@@ -113,7 +177,6 @@ pub struct IntoIter<T>(List<T>);
 impl<T> Iterator for IntoIter<T> {
     type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
-        // access fields of a tuple struct numerically
         self.0.pop()
     }
 }
@@ -234,3 +297,4 @@ mod test {
 }
 
 
+}
