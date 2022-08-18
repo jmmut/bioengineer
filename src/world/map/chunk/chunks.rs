@@ -5,16 +5,28 @@ use std::cell::RefCell;
 pub use vec_impl::{Chunks, IntoIter};
 
 pub static mut CACHE_MISSES : i64 = 0;
-pub static mut CACHE_HITS : i64 = 0;
+pub static mut CACHE_HOT_HITS : i64 = 0;
+pub static mut CACHE_COLD_HITS : i64 = 0;
 
 
+pub fn print_cache_stats() {
+    unsafe {
+        let total_requests = (CACHE_HOT_HITS + CACHE_COLD_HITS + CACHE_MISSES) as f64;
+        println!("Cache hits: hot: {}, cold: {}. cache misses: {}, ratio cached: {}, ratio hot: {}",
+                 CACHE_HOT_HITS,
+                 CACHE_COLD_HITS,
+                 CACHE_MISSES,
+                 (CACHE_HOT_HITS + CACHE_COLD_HITS) as f64 / total_requests,
+                 CACHE_HOT_HITS as f64 / total_requests);
+    }
+}
 
 mod vec_impl {
     use std::cell::RefCell;
     use std::collections::VecDeque;
     use std::ops::{Deref, DerefMut};
     use crate::world::map::chunk::{Chunk, ChunkIndex};
-    use super::{CACHE_HITS, CACHE_MISSES};
+    use super::{CACHE_HOT_HITS, CACHE_COLD_HITS, CACHE_MISSES};
 
     fn record_cache_miss() {
         unsafe {
@@ -23,11 +35,34 @@ mod vec_impl {
         }
     }
 
-    fn record_cache_hit() {
+    fn record_cache_hot_hit() {
         unsafe {
-            let current_hits = CACHE_HITS;
-            CACHE_HITS = current_hits + 1;
+            let current_hits = CACHE_HOT_HITS;
+            CACHE_HOT_HITS = current_hits + 1;
         }
+    }
+
+
+    fn record_cache_cold_hit() {
+        unsafe {
+            let current_hits = CACHE_COLD_HITS;
+            CACHE_COLD_HITS = current_hits + 1;
+        }
+    }
+
+    fn add_to_cache(i: usize, wrapped_cache: &RefCell<VecDeque<usize>>) {
+        let mut cache = wrapped_cache.take();
+        if cache.len() == 0 {
+            cache.push_front(i);
+        } else {
+            if !(i.eq(cache.front().unwrap())) {
+                cache.push_front(i);
+                if cache.len() > 2 {
+                    cache.pop_back();
+                }
+            }
+        }
+        wrapped_cache.replace(cache);
     }
 
     // pub type Chunks = HashMap<ChunkIndex, Chunk>;
@@ -64,17 +99,7 @@ mod vec_impl {
         pub fn get_mut(&mut self, chunk_index: &ChunkIndex) -> Option<&mut Chunk> {
             for (i, (present_chunk_index, present_chunk)) in self.inner_vec.iter_mut().enumerate() {
                 if (*present_chunk_index).eq(chunk_index) {
-                    let lru = self.recently_used.get_mut();
-                    if lru.len() == 0 {
-                        lru.push_front(i);
-                    } else {
-                        if !(i.eq(lru.front().unwrap())) {
-                            lru.push_front(i);
-                            if lru.len() > 2 {
-                                lru.pop_back();
-                            }
-                        }
-                    }
+                    add_to_cache(i, &self.recently_used);
                     return Option::Some(present_chunk);
                 }
             }
@@ -85,7 +110,7 @@ mod vec_impl {
             if let Option::Some(i) = self.recently_used.borrow().deref().front() {
                 if let Option::Some(entry) = self.inner_vec.get(*i) {
                     if entry.0.eq(chunk_index) {
-                        record_cache_hit();
+                        record_cache_hot_hit();
                         return Option::Some(&entry.1)
                     }
                 }
@@ -93,7 +118,7 @@ mod vec_impl {
             if let Option::Some(i) = self.recently_used.borrow().deref().back() {
                 if let Option::Some(entry) = self.inner_vec.get(*i) {
                     if entry.0.eq(chunk_index) {
-                        record_cache_hit();
+                        record_cache_cold_hit();
                         return Option::Some(&entry.1)
                     }
                 }
@@ -101,18 +126,7 @@ mod vec_impl {
             record_cache_miss();
             for (i, (present_chunk_index, present_chunk)) in self.inner_vec.iter().enumerate() {
                 if present_chunk_index.eq(chunk_index) {
-                    let mut lru = self.recently_used.take();
-                    if lru.len() == 0 {
-                        lru.push_front(i);
-                    } else {
-                        if !(i.eq(lru.front().unwrap())) {
-                            lru.push_front(i);
-                            if lru.len() > 2 {
-                                lru.pop_back();
-                            }
-                        }
-                    }
-                    self.recently_used.replace(lru);
+                    add_to_cache(i, &self.recently_used);
                     return Option::Some(present_chunk);
                 }
             }
