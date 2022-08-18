@@ -21,6 +21,12 @@ mod vec_impl {
         recently_used: IndexCache,
     }
 
+    impl Default for Chunks {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl Chunks {
         pub fn new() -> Self {
             Chunks {
@@ -183,6 +189,12 @@ mod hash_impl {
 
     pub struct Chunks {
         inner_map: HashMap<ChunkIndex, Chunk>,
+    }
+
+    impl Default for Chunks {
+        fn default() -> Self {
+            Self::new()
+        }
     }
 
     impl Chunks {
