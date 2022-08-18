@@ -1,21 +1,17 @@
 
-use std::cell::RefCell;
-
 // comment/uncomment to choose Chunks implementation:
 // pub use hash_impl::{Chunks, IntoIter};
 pub use vec_impl::{Chunks, IntoIter};
+// pub type Chunks = HashMap<ChunkIndex, Chunk>;
+// pub type IntoIter = std::collections::hash_map::IntoIter<ChunkIndex, Chunk>;
 
 pub mod cache;
 
 mod vec_impl {
-    use std::cell::RefCell;
-    use std::collections::{HashMap, VecDeque};
-    use std::ops::{Deref, DerefMut};
+    use std::collections::HashMap;
     use crate::world::map::chunk::{Chunk, ChunkIndex};
     use crate::world::map::chunk::chunks::cache::{IndexCache, record_cache_cold_hit, record_cache_hot_hit, record_cache_miss};
 
-
-    // pub type Chunks = HashMap<ChunkIndex, Chunk>;
     pub type IntoIter = IntoIter2;
 
 
@@ -24,8 +20,6 @@ mod vec_impl {
         inner_map: HashMap<ChunkIndex, usize>,
         recently_used: IndexCache,
     }
-
-    type ChunkEntry = (ChunkIndex, Chunk);
 
     impl Chunks {
         pub fn new() -> Self {
@@ -181,13 +175,12 @@ mod hash_impl {
     use std::collections::HashMap;
     use crate::world::map::chunk::{Chunk, ChunkIndex};
     // pub type Chunks = HashMap<ChunkIndex, Chunk>;
+    #[allow(unused)]
     pub type IntoIter = IntoIter2;
 
     pub struct Chunks {
         inner_map: HashMap<ChunkIndex, Chunk>,
     }
-
-    type ChunkEntry = (ChunkIndex, Chunk);
 
     impl Chunks {
         pub fn new() -> Self {

@@ -1,9 +1,7 @@
 use crate::world::map::chunk::cell_iter::CellIterItem;
-use crate::world::map::chunk::{CellIter, Chunk, ChunkIndex, chunks};
+use crate::world::map::chunk::{CellIter, chunks};
 use crate::world::map::ref_mut_iterator::RefMutIterator;
 use crate::world::map::CellIndex;
-use std::collections::hash_map::IntoIter;
-use std::collections::HashMap;
 use crate::world::map::chunk::chunks::Chunks;
 
 /*

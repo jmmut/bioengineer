@@ -18,7 +18,6 @@ use crate::world::map::chunk::chunk_cell_index_iter::{
     chunk_local_index_to_global_index, ChunkCellIndexIter,
 };
 use crate::IVec3;
-use std::collections::HashMap;
 use crate::world::map::chunk::chunks::Chunks;
 
 pub type ChunkIndex = IVec3;

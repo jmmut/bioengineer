@@ -7,22 +7,19 @@ mod map_iterator;
 mod ref_mut_iterator;
 pub mod transform_cells;
 
-use std::cmp::Ordering;
-use crate::common::trunc::trunc_towards_neg_inf;
-use crate::world::map::chunk::{get_chunk_index, get_required_chunks};
-use crate::{IVec3, now};
-use chunk::{Chunk, ChunkIndex};
-use opensimplex_noise_rs::OpenSimplexNoise;
-use std::collections::HashMap;
-
-// use crate::world::map::map_iterator::MapIterator;
-pub use crate::world::map::cell::{
+pub use cell::{
     is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, Cell, TileType,
 };
-pub use crate::world::map::cell_cube_iterator::CellCubeIterator;
-use crate::world::map::cell_envelope::Envelope;
-use crate::world::map::chunk::chunks::Chunks;
-use crate::world::map::map_iterator::MutMapIterator;
+pub use cell_cube_iterator::CellCubeIterator;
+use cell_envelope::Envelope;
+use chunk::Chunk;
+use chunk::chunks::Chunks;
+use chunk::{get_chunk_index, get_required_chunks};
+use crate::common::trunc::trunc_towards_neg_inf;
+use crate::{IVec3, now};
+use map_iterator::MutMapIterator;
+use opensimplex_noise_rs::OpenSimplexNoise;
+use std::cmp::Ordering;
 
 /// The axis are isometric:
 /// - x: right towards camera

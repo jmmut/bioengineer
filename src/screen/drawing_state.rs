@@ -2,10 +2,9 @@ pub mod change_height;
 pub mod highlight_cells;
 pub mod move_horizontally;
 
-use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::GuiActions;
 use crate::world::map::CellIndex;
-use crate::{Color, IVec2, Vec2, Vec3};
+use crate::{IVec2, Vec2, Vec3};
 use std::collections::HashSet;
 
 pub type TilePosition = IVec2;
