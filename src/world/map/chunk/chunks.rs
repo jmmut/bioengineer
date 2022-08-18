@@ -23,7 +23,7 @@ pub fn print_cache_stats() {
 
 mod vec_impl {
     use std::cell::RefCell;
-    use std::collections::VecDeque;
+    use std::collections::{HashMap, VecDeque};
     use std::ops::{Deref, DerefMut};
     use crate::world::map::chunk::{Chunk, ChunkIndex};
     use super::{CACHE_HOT_HITS, CACHE_COLD_HITS, CACHE_MISSES};
@@ -71,6 +71,7 @@ mod vec_impl {
 
     pub struct Chunks {
         inner_vec: Vec<(ChunkIndex, Chunk)>,
+        inner_map: HashMap<ChunkIndex, usize>,
         recently_used: RefCell<VecDeque<usize>>,
     }
 
@@ -79,7 +80,8 @@ mod vec_impl {
     impl Chunks {
         pub fn new() -> Self {
             Chunks {
-                inner_vec : Vec::new(),
+                inner_vec: Vec::new(),
+                inner_map: HashMap::new(),
                 recently_used: RefCell::new(VecDeque::new()),
             }
         }
@@ -92,6 +94,7 @@ mod vec_impl {
                 Option::Some(previous)
             } else {
                 self.inner_vec.push((chunk_index, chunk));
+                self.inner_map.insert(chunk_index, self.inner_vec.len() - 1);
                 Option::None
             }
         }
@@ -120,11 +123,9 @@ mod vec_impl {
         }
 
         fn full_scan(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
-            for (i, (present_chunk_index, present_chunk)) in self.inner_vec.iter().enumerate() {
-                if present_chunk_index.eq(chunk_index) {
-                    add_to_cache(i, &self.recently_used);
-                    return Option::Some(present_chunk);
-                }
+            if let Option::Some(i) = self.inner_map.get(chunk_index) {
+                    add_to_cache(*i, &self.recently_used);
+                return Option::Some(&self.inner_vec.get(*i).unwrap().1)
             }
             return Option::None
         }
@@ -175,6 +176,7 @@ mod vec_impl {
         fn clone(&self) -> Self {
             Chunks {
                 inner_vec: self.inner_vec.clone(),
+                inner_map: self.inner_map.clone(),
                 recently_used: RefCell::new(VecDeque::new()),
             }
         }
