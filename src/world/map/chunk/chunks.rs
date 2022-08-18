@@ -1,15 +1,37 @@
 
+use std::cell::RefCell;
 
 // pub use hash_impl::{Chunks, IntoIter};
 pub use vec_impl::{Chunks, IntoIter};
 
+pub static mut CACHE_MISSES : i64 = 0;
+pub static mut CACHE_HITS : i64 = 0;
+
+
+
 mod vec_impl {
     use std::cell::RefCell;
-    use std::collections::HashMap;
     use std::ops::Deref;
     use crate::world::map::chunk::{Chunk, ChunkIndex};
+    use super::{CACHE_HITS, CACHE_MISSES};
+
+    fn record_cache_miss() {
+        unsafe {
+            let current_misses = CACHE_MISSES;
+            CACHE_MISSES = current_misses + 1;
+        }
+    }
+
+    fn record_cache_hit() {
+        unsafe {
+            let current_hits = CACHE_HITS;
+            CACHE_HITS = current_hits + 1;
+        }
+    }
+
     // pub type Chunks = HashMap<ChunkIndex, Chunk>;
     pub type IntoIter = IntoIter2;
+
 
     pub struct Chunks {
         inner_vec: Vec<(ChunkIndex, Chunk)>,
@@ -52,10 +74,12 @@ mod vec_impl {
             if let Option::Some(i) = self.recently_used.borrow().deref() {
                 if let Option::Some(entry) = self.inner_vec.get(*i) {
                     if entry.0.eq(chunk_index) {
+                        record_cache_hit();
                         return Option::Some(&entry.1)
                     }
                 }
             }
+            record_cache_miss();
             for (i, (present_chunk_index, present_chunk)) in self.inner_vec.iter().enumerate() {
                 if present_chunk_index.eq(chunk_index) {
                     self.recently_used.replace(Option::Some(i));

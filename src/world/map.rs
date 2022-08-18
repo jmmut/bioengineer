@@ -1,7 +1,7 @@
 pub mod cell;
 mod cell_cube_iterator;
 pub mod cell_envelope;
-mod chunk;
+pub mod chunk;
 pub mod fluids;
 mod map_iterator;
 mod ref_mut_iterator;
