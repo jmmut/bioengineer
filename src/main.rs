@@ -26,7 +26,7 @@ use screen::input::InputSourceTrait;
 use screen::Screen;
 use world::game_state::GameState;
 use world::World;
-use crate::world::map::chunk::chunks::print_cache_stats;
+use crate::world::map::chunk::chunks::cache::print_cache_stats;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1600;
 const DEFAULT_WINDOW_HEIGHT: i32 = 900;
