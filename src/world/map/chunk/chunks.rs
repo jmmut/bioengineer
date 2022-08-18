@@ -12,7 +12,7 @@ mod vec_impl {
     use std::collections::{HashMap, VecDeque};
     use std::ops::{Deref, DerefMut};
     use crate::world::map::chunk::{Chunk, ChunkIndex};
-    use crate::world::map::chunk::chunks::cache::{add_to_cache, record_cache_cold_hit, record_cache_hot_hit, record_cache_miss};
+    use crate::world::map::chunk::chunks::cache::{IndexCache, record_cache_cold_hit, record_cache_hot_hit, record_cache_miss};
 
 
     // pub type Chunks = HashMap<ChunkIndex, Chunk>;
@@ -22,7 +22,7 @@ mod vec_impl {
     pub struct Chunks {
         inner_vec: Vec<(ChunkIndex, Chunk)>,
         inner_map: HashMap<ChunkIndex, usize>,
-        recently_used: RefCell<[usize; 2]>,
+        recently_used: IndexCache,
     }
 
     type ChunkEntry = (ChunkIndex, Chunk);
@@ -32,7 +32,7 @@ mod vec_impl {
             Chunks {
                 inner_vec: Vec::new(),
                 inner_map: HashMap::new(),
-                recently_used: RefCell::new([0, 0]),
+                recently_used: IndexCache::new(),
             }
         }
 
@@ -49,12 +49,10 @@ mod vec_impl {
             }
         }
 
+        /// note that get_mut doesn't use the cache! Didn't need it so far
         pub fn get_mut(&mut self, chunk_index: &ChunkIndex) -> Option<&mut Chunk> {
-            for (i, (present_chunk_index, present_chunk)) in self.inner_vec.iter_mut().enumerate() {
-                if (*present_chunk_index).eq(chunk_index) {
-                    add_to_cache(i, &self.recently_used);
-                    return Option::Some(present_chunk);
-                }
+            if let Option::Some(i) = self.inner_map.get(chunk_index) {
+                return self.inner_vec.get_mut(*i).map(|entry| &mut entry.1)
             }
             return Option::None
         }
@@ -74,14 +72,14 @@ mod vec_impl {
 
         fn full_scan(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
             if let Option::Some(i) = self.inner_map.get(chunk_index) {
-                add_to_cache(*i, &self.recently_used);
-                return Option::Some(&self.inner_vec.get(*i).unwrap().1)
+                self.recently_used.add_to_cache(*i);
+                return self.inner_vec.get(*i).map(|entry| &entry.1)
             }
             return Option::None
         }
 
         fn try_hot_cache(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
-            let i = self.get_hot_cached_index();
+            let i = self.recently_used.get_hot_cached_index();
             if let Option::Some(entry) = self.inner_vec.get(i) {
                 if entry.0.eq(chunk_index) {
                     record_cache_hot_hit();
@@ -91,24 +89,16 @@ mod vec_impl {
             Option::None
         }
 
-        fn get_hot_cached_index(&self) -> usize {
-            self.recently_used.borrow().deref()[0]
-        }
-
         fn try_cold_cache(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
-            let i = self.get_cold_cached_index();
+            let i = self.recently_used.get_cold_cached_index();
             if let Option::Some(entry) = self.inner_vec.get(i) {
                 if entry.0.eq(chunk_index) {
-                    add_to_cache(i, &self.recently_used);
+                    self.recently_used.add_to_cache(i);
                     record_cache_cold_hit();
                     return Option::Some(&entry.1)
                 }
             }
             Option::None
-        }
-
-        fn get_cold_cached_index(&self) -> usize {
-            self.recently_used.borrow().deref()[1]
         }
 
         pub fn len(&self) -> usize {
@@ -128,7 +118,7 @@ mod vec_impl {
             Chunks {
                 inner_vec: self.inner_vec.clone(),
                 inner_map: self.inner_map.clone(),
-                recently_used: RefCell::new([0, 0]),
+                recently_used: IndexCache::new(),
             }
         }
     }
