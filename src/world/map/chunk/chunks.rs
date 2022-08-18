@@ -107,6 +107,29 @@ mod vec_impl {
         }
 
         pub fn get(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
+            let result = self.try_hot_cache(chunk_index);
+            if result.is_some() {
+                return result;
+            }
+            let result = self.try_cold_cache(chunk_index);
+            if result.is_some() {
+                return result;
+            }
+            record_cache_miss();
+            self.full_scan(chunk_index)
+        }
+
+        fn full_scan(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
+            for (i, (present_chunk_index, present_chunk)) in self.inner_vec.iter().enumerate() {
+                if present_chunk_index.eq(chunk_index) {
+                    add_to_cache(i, &self.recently_used);
+                    return Option::Some(present_chunk);
+                }
+            }
+            return Option::None
+        }
+
+        fn try_hot_cache(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
             if let Option::Some(i) = self.recently_used.borrow().deref().front() {
                 if let Option::Some(entry) = self.inner_vec.get(*i) {
                     if entry.0.eq(chunk_index) {
@@ -115,22 +138,25 @@ mod vec_impl {
                     }
                 }
             }
-            if let Option::Some(i) = self.recently_used.borrow().deref().back() {
-                if let Option::Some(entry) = self.inner_vec.get(*i) {
+            Option::None
+        }
+
+        fn try_cold_cache(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
+            let i_option = self.get_cold_cached_index();
+            if let Option::Some(i) = i_option {
+                if let Option::Some(entry) = self.inner_vec.get(i) {
                     if entry.0.eq(chunk_index) {
+                        add_to_cache(i, &self.recently_used);
                         record_cache_cold_hit();
                         return Option::Some(&entry.1)
                     }
                 }
             }
-            record_cache_miss();
-            for (i, (present_chunk_index, present_chunk)) in self.inner_vec.iter().enumerate() {
-                if present_chunk_index.eq(chunk_index) {
-                    add_to_cache(i, &self.recently_used);
-                    return Option::Some(present_chunk);
-                }
-            }
-            return Option::None
+            Option::None
+        }
+
+        fn get_cold_cached_index(&self) -> Option<usize> {
+            self.recently_used.borrow().deref().back().copied()
         }
 
         pub fn len(&self) -> usize {
