@@ -1,0 +1,1073 @@
+got 32 textures. The first one is 64 by 64 pixels
+frame: 0 - frame time: 1000.000 ms, fps: 1.000, previous ts: 1660850637.1249845 - 1660850636.1249843
+Spent: 9.942 ms on: fluid stage: Downwards
+Spent: 22.500 ms on: whole toplevel frame
+frame: 1 - frame time: 22.501 ms, fps: 44.442, previous ts: 1660850637.1474855 - 1660850637.1249845
+Spent: 10.369 ms on: fluid stage: SidewaysPrepare
+Spent: 10.823 ms on: whole toplevel frame
+frame: 2 - frame time: 15.909 ms, fps: 62.857, previous ts: 1660850637.1633947 - 1660850637.1474855
+Spent: 18.609 ms on: fluid stage: SidewaysApply
+Spent: 19.163 ms on: whole toplevel frame
+frame: 3 - frame time: 21.344 ms, fps: 46.851, previous ts: 1660850637.1847389 - 1660850637.1633947
+Spent: 8.898 ms on: fluid stage: Upwards
+Spent: 9.342 ms on: whole toplevel frame
+frame: 4 - frame time: 10.998 ms, fps: 90.929, previous ts: 1660850637.1957364 - 1660850637.1847389
+Spent: 4.758 ms on: fluid stage: TileUpdate
+Spent: 5.207 ms on: whole toplevel frame
+frame: 5 - frame time: 6.056 ms, fps: 165.137, previous ts: 1660850637.201792 - 1660850637.1957364
+Spent: 8.988 ms on: fluid stage: Downwards
+Spent: 9.433 ms on: whole toplevel frame
+frame: 6 - frame time: 15.647 ms, fps: 63.910, previous ts: 1660850637.217439 - 1660850637.201792
+Spent: 9.037 ms on: fluid stage: SidewaysPrepare
+Spent: 9.286 ms on: whole toplevel frame
+frame: 7 - frame time: 16.556 ms, fps: 60.403, previous ts: 1660850637.2339945 - 1660850637.217439
+Spent: 17.357 ms on: fluid stage: SidewaysApply
+Spent: 17.610 ms on: whole toplevel frame
+frame: 8 - frame time: 24.856 ms, fps: 40.232, previous ts: 1660850637.2588506 - 1660850637.2339945
+Spent: 8.705 ms on: fluid stage: Upwards
+Spent: 8.951 ms on: whole toplevel frame
+frame: 9 - frame time: 9.591 ms, fps: 104.266, previous ts: 1660850637.2684414 - 1660850637.2588506
+Spent: 4.942 ms on: fluid stage: TileUpdate
+Spent: 5.188 ms on: whole toplevel frame
+frame: 10 - frame time: 11.362 ms, fps: 88.010, previous ts: 1660850637.2798038 - 1660850637.2684414
+Spent: 8.892 ms on: fluid stage: Downwards
+Spent: 9.345 ms on: whole toplevel frame
+frame: 11 - frame time: 21.045 ms, fps: 47.518, previous ts: 1660850637.3008485 - 1660850637.2798038
+Spent: 9.401 ms on: fluid stage: SidewaysPrepare
+Spent: 9.659 ms on: whole toplevel frame
+frame: 12 - frame time: 16.816 ms, fps: 59.467, previous ts: 1660850637.3176646 - 1660850637.3008485
+Spent: 17.750 ms on: fluid stage: SidewaysApply
+Spent: 18.022 ms on: whole toplevel frame
+frame: 13 - frame time: 25.033 ms, fps: 39.948, previous ts: 1660850637.3426974 - 1660850637.3176646
+Spent: 9.259 ms on: fluid stage: Upwards
+Spent: 9.506 ms on: whole toplevel frame
+frame: 14 - frame time: 10.122 ms, fps: 98.796, previous ts: 1660850637.3528192 - 1660850637.3426974
+Spent: 4.768 ms on: fluid stage: TileUpdate
+Spent: 5.039 ms on: whole toplevel frame
+frame: 15 - frame time: 10.217 ms, fps: 97.877, previous ts: 1660850637.3630362 - 1660850637.3528192
+Spent: 9.101 ms on: fluid stage: Downwards
+Spent: 9.331 ms on: whole toplevel frame
+frame: 16 - frame time: 20.878 ms, fps: 47.898, previous ts: 1660850637.383914 - 1660850637.3630362
+Spent: 8.844 ms on: fluid stage: SidewaysPrepare
+Spent: 9.077 ms on: whole toplevel frame
+frame: 17 - frame time: 16.426 ms, fps: 60.880, previous ts: 1660850637.4003398 - 1660850637.383914
+Spent: 17.378 ms on: fluid stage: SidewaysApply
+Spent: 17.614 ms on: whole toplevel frame
+frame: 18 - frame time: 25.127 ms, fps: 39.798, previous ts: 1660850637.4254665 - 1660850637.4003398
+Spent: 8.790 ms on: fluid stage: Upwards
+Spent: 9.099 ms on: whole toplevel frame
+frame: 19 - frame time: 9.701 ms, fps: 103.087, previous ts: 1660850637.435167 - 1660850637.4254665
+Spent: 4.858 ms on: fluid stage: TileUpdate
+Spent: 5.098 ms on: whole toplevel frame
+frame: 20 - frame time: 11.129 ms, fps: 89.856, previous ts: 1660850637.446296 - 1660850637.435167
+Spent: 8.987 ms on: fluid stage: Downwards
+Spent: 9.220 ms on: whole toplevel frame
+frame: 21 - frame time: 20.796 ms, fps: 48.087, previous ts: 1660850637.4670918 - 1660850637.446296
+Spent: 9.269 ms on: fluid stage: SidewaysPrepare
+Spent: 9.658 ms on: whole toplevel frame
+frame: 22 - frame time: 17.118 ms, fps: 58.420, previous ts: 1660850637.4842093 - 1660850637.4670918
+Spent: 18.107 ms on: fluid stage: SidewaysApply
+Spent: 18.349 ms on: whole toplevel frame
+frame: 23 - frame time: 25.344 ms, fps: 39.457, previous ts: 1660850637.5095532 - 1660850637.4842093
+Spent: 9.018 ms on: fluid stage: Upwards
+Spent: 9.292 ms on: whole toplevel frame
+frame: 24 - frame time: 9.931 ms, fps: 100.699, previous ts: 1660850637.5194838 - 1660850637.5095532
+Spent: 4.619 ms on: fluid stage: TileUpdate
+Spent: 4.869 ms on: whole toplevel frame
+frame: 25 - frame time: 9.921 ms, fps: 100.800, previous ts: 1660850637.5294044 - 1660850637.5194838
+Spent: 9.065 ms on: fluid stage: Downwards
+Spent: 9.299 ms on: whole toplevel frame
+frame: 26 - frame time: 21.086 ms, fps: 47.425, previous ts: 1660850637.5504901 - 1660850637.5294044
+Spent: 9.408 ms on: fluid stage: SidewaysPrepare
+Spent: 9.635 ms on: whole toplevel frame
+frame: 27 - frame time: 17.015 ms, fps: 58.773, previous ts: 1660850637.5675046 - 1660850637.5504901
+Spent: 17.241 ms on: fluid stage: SidewaysApply
+Spent: 17.481 ms on: whole toplevel frame
+frame: 28 - frame time: 24.585 ms, fps: 40.676, previous ts: 1660850637.5920894 - 1660850637.5675046
+Spent: 9.303 ms on: fluid stage: Upwards
+Spent: 9.551 ms on: whole toplevel frame
+frame: 29 - frame time: 10.154 ms, fps: 98.483, previous ts: 1660850637.6022434 - 1660850637.5920894
+Spent: 4.561 ms on: fluid stage: TileUpdate
+Spent: 4.797 ms on: whole toplevel frame
+frame: 30 - frame time: 10.568 ms, fps: 94.628, previous ts: 1660850637.612811 - 1660850637.6022434
+Spent: 8.848 ms on: fluid stage: Downwards
+Spent: 9.084 ms on: whole toplevel frame
+frame: 31 - frame time: 20.803 ms, fps: 48.071, previous ts: 1660850637.6336138 - 1660850637.612811
+Spent: 9.178 ms on: fluid stage: SidewaysPrepare
+Spent: 9.414 ms on: whole toplevel frame
+frame: 32 - frame time: 16.992 ms, fps: 58.853, previous ts: 1660850637.6506054 - 1660850637.6336138
+Spent: 17.474 ms on: fluid stage: SidewaysApply
+Spent: 17.706 ms on: whole toplevel frame
+frame: 33 - frame time: 24.985 ms, fps: 40.024, previous ts: 1660850637.6755903 - 1660850637.6506054
+Spent: 9.086 ms on: fluid stage: Upwards
+Spent: 9.321 ms on: whole toplevel frame
+frame: 34 - frame time: 9.919 ms, fps: 100.820, previous ts: 1660850637.685509 - 1660850637.6755903
+Spent: 4.606 ms on: fluid stage: TileUpdate
+Spent: 5.037 ms on: whole toplevel frame
+frame: 35 - frame time: 10.718 ms, fps: 93.298, previous ts: 1660850637.6962273 - 1660850637.685509
+Spent: 8.841 ms on: fluid stage: Downwards
+Spent: 9.073 ms on: whole toplevel frame
+frame: 36 - frame time: 20.708 ms, fps: 48.291, previous ts: 1660850637.7169352 - 1660850637.6962273
+Spent: 9.168 ms on: fluid stage: SidewaysPrepare
+Spent: 9.404 ms on: whole toplevel frame
+frame: 37 - frame time: 17.058 ms, fps: 58.625, previous ts: 1660850637.7339928 - 1660850637.7169352
+Spent: 17.565 ms on: fluid stage: SidewaysApply
+Spent: 17.879 ms on: whole toplevel frame
+frame: 38 - frame time: 25.150 ms, fps: 39.762, previous ts: 1660850637.7591424 - 1660850637.7339928
+Spent: 8.825 ms on: fluid stage: Upwards
+Spent: 9.060 ms on: whole toplevel frame
+frame: 39 - frame time: 9.666 ms, fps: 103.458, previous ts: 1660850637.7688081 - 1660850637.7591424
+Spent: 4.853 ms on: fluid stage: TileUpdate
+Spent: 5.088 ms on: whole toplevel frame
+frame: 40 - frame time: 10.864 ms, fps: 92.051, previous ts: 1660850637.7796717 - 1660850637.7688081
+Spent: 8.835 ms on: fluid stage: Downwards
+Spent: 9.265 ms on: whole toplevel frame
+frame: 41 - frame time: 20.823 ms, fps: 48.023, previous ts: 1660850637.800495 - 1660850637.7796717
+Spent: 9.097 ms on: fluid stage: SidewaysPrepare
+Spent: 9.331 ms on: whole toplevel frame
+frame: 42 - frame time: 16.819 ms, fps: 59.455, previous ts: 1660850637.8173144 - 1660850637.800495
+Spent: 17.226 ms on: fluid stage: SidewaysApply
+Spent: 17.525 ms on: whole toplevel frame
+frame: 43 - frame time: 24.743 ms, fps: 40.415, previous ts: 1660850637.8420575 - 1660850637.8173144
+Spent: 8.976 ms on: fluid stage: Upwards
+Spent: 9.223 ms on: whole toplevel frame
+frame: 44 - frame time: 9.883 ms, fps: 101.180, previous ts: 1660850637.8519409 - 1660850637.8420575
+Spent: 4.564 ms on: fluid stage: TileUpdate
+Spent: 4.838 ms on: whole toplevel frame
+frame: 45 - frame time: 10.936 ms, fps: 91.445, previous ts: 1660850637.8628764 - 1660850637.8519409
+Spent: 8.849 ms on: fluid stage: Downwards
+Spent: 9.084 ms on: whole toplevel frame
+frame: 46 - frame time: 20.753 ms, fps: 48.186, previous ts: 1660850637.8836293 - 1660850637.8628764
+Spent: 9.017 ms on: fluid stage: SidewaysPrepare
+Spent: 9.251 ms on: whole toplevel frame
+frame: 47 - frame time: 16.877 ms, fps: 59.252, previous ts: 1660850637.9005065 - 1660850637.8836293
+Spent: 17.319 ms on: fluid stage: SidewaysApply
+Spent: 17.559 ms on: whole toplevel frame
+frame: 48 - frame time: 24.913 ms, fps: 40.140, previous ts: 1660850637.925419 - 1660850637.9005065
+Spent: 9.146 ms on: fluid stage: Upwards
+Spent: 9.422 ms on: whole toplevel frame
+frame: 49 - frame time: 10.023 ms, fps: 99.774, previous ts: 1660850637.9354417 - 1660850637.925419
+Spent: 4.870 ms on: fluid stage: TileUpdate
+Spent: 5.105 ms on: whole toplevel frame
+frame: 50 - frame time: 10.858 ms, fps: 92.100, previous ts: 1660850637.9462996 - 1660850637.9354417
+Spent: 9.227 ms on: fluid stage: Downwards
+Spent: 9.457 ms on: whole toplevel frame
+frame: 51 - frame time: 21.016 ms, fps: 47.584, previous ts: 1660850637.9673152 - 1660850637.9462996
+Spent: 9.425 ms on: fluid stage: SidewaysPrepare
+Spent: 9.661 ms on: whole toplevel frame
+frame: 52 - frame time: 16.981 ms, fps: 58.890, previous ts: 1660850637.984296 - 1660850637.9673152
+Spent: 17.689 ms on: fluid stage: SidewaysApply
+Spent: 17.927 ms on: whole toplevel frame
+frame: 53 - frame time: 24.850 ms, fps: 40.241, previous ts: 1660850638.0091465 - 1660850637.984296
+Spent: 8.907 ms on: fluid stage: Upwards
+Spent: 9.143 ms on: whole toplevel frame
+frame: 54 - frame time: 9.744 ms, fps: 102.625, previous ts: 1660850638.0188906 - 1660850638.0091465
+Spent: 4.916 ms on: fluid stage: TileUpdate
+Spent: 5.166 ms on: whole toplevel frame
+frame: 55 - frame time: 10.863 ms, fps: 92.053, previous ts: 1660850638.029754 - 1660850638.0188906
+Spent: 8.930 ms on: fluid stage: Downwards
+Spent: 9.166 ms on: whole toplevel frame
+frame: 56 - frame time: 20.773 ms, fps: 48.139, previous ts: 1660850638.050527 - 1660850638.029754
+Spent: 9.170 ms on: fluid stage: SidewaysPrepare
+Spent: 9.435 ms on: whole toplevel frame
+frame: 57 - frame time: 16.843 ms, fps: 59.371, previous ts: 1660850638.0673704 - 1660850638.050527
+Spent: 17.142 ms on: fluid stage: SidewaysApply
+Spent: 17.382 ms on: whole toplevel frame
+frame: 58 - frame time: 24.625 ms, fps: 40.609, previous ts: 1660850638.0919952 - 1660850638.0673704
+Spent: 10.377 ms on: fluid stage: Upwards
+Spent: 10.618 ms on: whole toplevel frame
+frame: 59 - frame time: 11.215 ms, fps: 89.168, previous ts: 1660850638.10321 - 1660850638.0919952
+Spent: 4.925 ms on: fluid stage: TileUpdate
+Spent: 5.173 ms on: whole toplevel frame
+frame: 60 - frame time: 10.120 ms, fps: 98.815, previous ts: 1660850638.11333 - 1660850638.10321
+Spent: 9.384 ms on: fluid stage: Downwards
+Spent: 9.655 ms on: whole toplevel frame
+frame: 61 - frame time: 20.923 ms, fps: 47.794, previous ts: 1660850638.134253 - 1660850638.11333
+Spent: 8.977 ms on: fluid stage: SidewaysPrepare
+Spent: 9.227 ms on: whole toplevel frame
+frame: 62 - frame time: 16.247 ms, fps: 61.552, previous ts: 1660850638.1504996 - 1660850638.134253
+Spent: 17.378 ms on: fluid stage: SidewaysApply
+Spent: 17.643 ms on: whole toplevel frame
+frame: 63 - frame time: 25.064 ms, fps: 39.898, previous ts: 1660850638.1755636 - 1660850638.1504996
+Spent: 8.881 ms on: fluid stage: Upwards
+Spent: 9.127 ms on: whole toplevel frame
+frame: 64 - frame time: 9.742 ms, fps: 102.651, previous ts: 1660850638.1853054 - 1660850638.1755636
+Spent: 4.732 ms on: fluid stage: TileUpdate
+Spent: 4.983 ms on: whole toplevel frame
+frame: 65 - frame time: 10.935 ms, fps: 91.453, previous ts: 1660850638.19624 - 1660850638.1853054
+Spent: 8.799 ms on: fluid stage: Downwards
+Spent: 9.053 ms on: whole toplevel frame
+frame: 66 - frame time: 20.787 ms, fps: 48.107, previous ts: 1660850638.217027 - 1660850638.19624
+Spent: 8.998 ms on: fluid stage: SidewaysPrepare
+Spent: 9.278 ms on: whole toplevel frame
+frame: 67 - frame time: 16.832 ms, fps: 59.412, previous ts: 1660850638.2338586 - 1660850638.217027
+Spent: 17.284 ms on: fluid stage: SidewaysApply
+Spent: 17.534 ms on: whole toplevel frame
+frame: 68 - frame time: 24.931 ms, fps: 40.111, previous ts: 1660850638.2587893 - 1660850638.2338586
+Spent: 8.776 ms on: fluid stage: Upwards
+Spent: 9.024 ms on: whole toplevel frame
+frame: 69 - frame time: 9.705 ms, fps: 103.036, previous ts: 1660850638.2684946 - 1660850638.2587893
+Spent: 4.687 ms on: fluid stage: TileUpdate
+Spent: 4.968 ms on: whole toplevel frame
+frame: 70 - frame time: 11.109 ms, fps: 90.020, previous ts: 1660850638.2796032 - 1660850638.2684946
+Spent: 9.006 ms on: fluid stage: Downwards
+Spent: 9.247 ms on: whole toplevel frame
+frame: 71 - frame time: 20.885 ms, fps: 47.881, previous ts: 1660850638.3004882 - 1660850638.2796032
+Spent: 9.125 ms on: fluid stage: SidewaysPrepare
+Spent: 9.397 ms on: whole toplevel frame
+frame: 72 - frame time: 16.795 ms, fps: 59.542, previous ts: 1660850638.3172832 - 1660850638.3004882
+Spent: 18.164 ms on: fluid stage: SidewaysApply
+Spent: 18.439 ms on: whole toplevel frame
+frame: 73 - frame time: 25.747 ms, fps: 38.840, previous ts: 1660850638.34303 - 1660850638.3172832
+Spent: 9.548 ms on: fluid stage: Upwards
+Spent: 9.789 ms on: whole toplevel frame
+frame: 74 - frame time: 10.438 ms, fps: 95.806, previous ts: 1660850638.3534677 - 1660850638.34303
+Spent: 5.087 ms on: fluid stage: TileUpdate
+Spent: 5.377 ms on: whole toplevel frame
+frame: 75 - frame time: 9.843 ms, fps: 101.596, previous ts: 1660850638.3633106 - 1660850638.3534677
+Spent: 9.650 ms on: fluid stage: Downwards
+Spent: 9.924 ms on: whole toplevel frame
+frame: 76 - frame time: 21.266 ms, fps: 47.022, previous ts: 1660850638.384577 - 1660850638.3633106
+Spent: 9.169 ms on: fluid stage: SidewaysPrepare
+Spent: 9.411 ms on: whole toplevel frame
+frame: 77 - frame time: 16.191 ms, fps: 61.764, previous ts: 1660850638.4007678 - 1660850638.384577
+Spent: 17.816 ms on: fluid stage: SidewaysApply
+Spent: 18.067 ms on: whole toplevel frame
+frame: 78 - frame time: 25.258 ms, fps: 39.591, previous ts: 1660850638.4260259 - 1660850638.4007678
+Spent: 9.382 ms on: fluid stage: Upwards
+Spent: 9.650 ms on: whole toplevel frame
+frame: 79 - frame time: 10.378 ms, fps: 96.359, previous ts: 1660850638.4364038 - 1660850638.4260259
+Spent: 4.825 ms on: fluid stage: TileUpdate
+Spent: 5.057 ms on: whole toplevel frame
+frame: 80 - frame time: 9.901 ms, fps: 101.002, previous ts: 1660850638.4463046 - 1660850638.4364038
+Spent: 9.183 ms on: fluid stage: Downwards
+Spent: 9.409 ms on: whole toplevel frame
+frame: 81 - frame time: 21.002 ms, fps: 47.614, previous ts: 1660850638.4673066 - 1660850638.4463046
+Spent: 9.347 ms on: fluid stage: SidewaysPrepare
+Spent: 9.599 ms on: whole toplevel frame
+frame: 82 - frame time: 16.963 ms, fps: 58.952, previous ts: 1660850638.4842696 - 1660850638.4673066
+Spent: 18.016 ms on: fluid stage: SidewaysApply
+Spent: 18.267 ms on: whole toplevel frame
+frame: 83 - frame time: 25.323 ms, fps: 39.490, previous ts: 1660850638.5095923 - 1660850638.4842696
+Spent: 9.057 ms on: fluid stage: Upwards
+Spent: 9.307 ms on: whole toplevel frame
+frame: 84 - frame time: 9.986 ms, fps: 100.136, previous ts: 1660850638.5195787 - 1660850638.5095923
+Spent: 4.939 ms on: fluid stage: TileUpdate
+Spent: 5.180 ms on: whole toplevel frame
+frame: 85 - frame time: 10.204 ms, fps: 97.998, previous ts: 1660850638.529783 - 1660850638.5195787
+Spent: 9.011 ms on: fluid stage: Downwards
+Spent: 9.262 ms on: whole toplevel frame
+frame: 86 - frame time: 20.837 ms, fps: 47.992, previous ts: 1660850638.5506196 - 1660850638.529783
+Spent: 9.115 ms on: fluid stage: SidewaysPrepare
+Spent: 9.409 ms on: whole toplevel frame
+frame: 87 - frame time: 16.681 ms, fps: 59.949, previous ts: 1660850638.5673006 - 1660850638.5506196
+Spent: 17.912 ms on: fluid stage: SidewaysApply
+Spent: 18.169 ms on: whole toplevel frame
+frame: 88 - frame time: 25.482 ms, fps: 39.244, previous ts: 1660850638.5927823 - 1660850638.5673006
+Spent: 9.133 ms on: fluid stage: Upwards
+Spent: 9.378 ms on: whole toplevel frame
+frame: 89 - frame time: 9.996 ms, fps: 100.038, previous ts: 1660850638.6027784 - 1660850638.5927823
+Spent: 4.827 ms on: fluid stage: TileUpdate
+Spent: 5.079 ms on: whole toplevel frame
+frame: 90 - frame time: 10.234 ms, fps: 97.710, previous ts: 1660850638.6130128 - 1660850638.6027784
+Spent: 9.379 ms on: fluid stage: Downwards
+Spent: 9.632 ms on: whole toplevel frame
+frame: 91 - frame time: 21.257 ms, fps: 47.043, previous ts: 1660850638.6342697 - 1660850638.6130128
+Spent: 9.371 ms on: fluid stage: SidewaysPrepare
+Spent: 9.616 ms on: whole toplevel frame
+frame: 92 - frame time: 16.637 ms, fps: 60.108, previous ts: 1660850638.6509066 - 1660850638.6342697
+Spent: 18.142 ms on: fluid stage: SidewaysApply
+Spent: 18.560 ms on: whole toplevel frame
+frame: 93 - frame time: 25.601 ms, fps: 39.060, previous ts: 1660850638.676508 - 1660850638.6509066
+Spent: 9.263 ms on: fluid stage: Upwards
+Spent: 9.505 ms on: whole toplevel frame
+frame: 94 - frame time: 10.135 ms, fps: 98.671, previous ts: 1660850638.6866426 - 1660850638.676508
+Spent: 4.872 ms on: fluid stage: TileUpdate
+Spent: 5.121 ms on: whole toplevel frame
+frame: 95 - frame time: 9.737 ms, fps: 102.706, previous ts: 1660850638.6963792 - 1660850638.6866426
+Spent: 8.891 ms on: fluid stage: Downwards
+Spent: 9.171 ms on: whole toplevel frame
+frame: 96 - frame time: 20.743 ms, fps: 48.210, previous ts: 1660850638.7171218 - 1660850638.6963792
+Spent: 9.389 ms on: fluid stage: SidewaysPrepare
+Spent: 9.663 ms on: whole toplevel frame
+frame: 97 - frame time: 17.204 ms, fps: 58.127, previous ts: 1660850638.7343254 - 1660850638.7171218
+Spent: 18.226 ms on: fluid stage: SidewaysApply
+Spent: 18.566 ms on: whole toplevel frame
+frame: 98 - frame time: 25.548 ms, fps: 39.141, previous ts: 1660850638.7598739 - 1660850638.7343254
+Spent: 9.238 ms on: fluid stage: Upwards
+Spent: 9.487 ms on: whole toplevel frame
+frame: 99 - frame time: 10.144 ms, fps: 98.585, previous ts: 1660850638.7700174 - 1660850638.7598739
+Spent: 5.039 ms on: fluid stage: TileUpdate
+Spent: 5.282 ms on: whole toplevel frame
+frame: 100 - frame time: 9.897 ms, fps: 101.043, previous ts: 1660850638.7799141 - 1660850638.7700174
+Spent: 9.358 ms on: fluid stage: Downwards
+Spent: 9.604 ms on: whole toplevel frame
+frame: 101 - frame time: 20.972 ms, fps: 47.683, previous ts: 1660850638.800886 - 1660850638.7799141
+Spent: 8.877 ms on: fluid stage: SidewaysPrepare
+Spent: 9.130 ms on: whole toplevel frame
+frame: 102 - frame time: 16.172 ms, fps: 61.835, previous ts: 1660850638.817058 - 1660850638.800886
+Spent: 17.602 ms on: fluid stage: SidewaysApply
+Spent: 17.856 ms on: whole toplevel frame
+frame: 103 - frame time: 25.512 ms, fps: 39.198, previous ts: 1660850638.8425696 - 1660850638.817058
+Spent: 9.122 ms on: fluid stage: Upwards
+Spent: 9.382 ms on: whole toplevel frame
+frame: 104 - frame time: 9.996 ms, fps: 100.041, previous ts: 1660850638.8525655 - 1660850638.8425696
+Spent: 4.798 ms on: fluid stage: TileUpdate
+Spent: 5.120 ms on: whole toplevel frame
+frame: 105 - frame time: 10.501 ms, fps: 95.232, previous ts: 1660850638.8630662 - 1660850638.8525655
+Spent: 9.205 ms on: fluid stage: Downwards
+Spent: 9.475 ms on: whole toplevel frame
+frame: 106 - frame time: 21.016 ms, fps: 47.582, previous ts: 1660850638.8840826 - 1660850638.8630662
+Spent: 9.301 ms on: fluid stage: SidewaysPrepare
+Spent: 9.573 ms on: whole toplevel frame
+frame: 107 - frame time: 16.736 ms, fps: 59.752, previous ts: 1660850638.9008183 - 1660850638.8840826
+Spent: 17.749 ms on: fluid stage: SidewaysApply
+Spent: 18.040 ms on: whole toplevel frame
+frame: 108 - frame time: 25.154 ms, fps: 39.755, previous ts: 1660850638.9259722 - 1660850638.9008183
+Spent: 9.270 ms on: fluid stage: Upwards
+Spent: 9.518 ms on: whole toplevel frame
+frame: 109 - frame time: 10.544 ms, fps: 94.838, previous ts: 1660850638.9365165 - 1660850638.9259722
+Spent: 4.886 ms on: fluid stage: TileUpdate
+Spent: 5.146 ms on: whole toplevel frame
+frame: 110 - frame time: 9.919 ms, fps: 100.812, previous ts: 1660850638.946436 - 1660850638.9365165
+Spent: 8.878 ms on: fluid stage: Downwards
+Spent: 9.162 ms on: whole toplevel frame
+frame: 111 - frame time: 20.731 ms, fps: 48.237, previous ts: 1660850638.967167 - 1660850638.946436
+Spent: 9.205 ms on: fluid stage: SidewaysPrepare
+Spent: 9.457 ms on: whole toplevel frame
+frame: 112 - frame time: 16.928 ms, fps: 59.074, previous ts: 1660850638.9840949 - 1660850638.967167
+Spent: 17.326 ms on: fluid stage: SidewaysApply
+Spent: 17.581 ms on: whole toplevel frame
+frame: 113 - frame time: 24.845 ms, fps: 40.249, previous ts: 1660850639.0089402 - 1660850638.9840949
+Spent: 8.814 ms on: fluid stage: Upwards
+Spent: 9.064 ms on: whole toplevel frame
+frame: 114 - frame time: 9.888 ms, fps: 101.133, previous ts: 1660850639.0188282 - 1660850639.0089402
+Spent: 4.915 ms on: fluid stage: TileUpdate
+Spent: 5.182 ms on: whole toplevel frame
+frame: 115 - frame time: 10.912 ms, fps: 91.645, previous ts: 1660850639.0297399 - 1660850639.0188282
+Spent: 8.858 ms on: fluid stage: Downwards
+Spent: 9.110 ms on: whole toplevel frame
+frame: 116 - frame time: 20.910 ms, fps: 47.823, previous ts: 1660850639.0506501 - 1660850639.0297399
+Spent: 8.837 ms on: fluid stage: SidewaysPrepare
+Spent: 9.128 ms on: whole toplevel frame
+frame: 117 - frame time: 16.478 ms, fps: 60.686, previous ts: 1660850639.0671284 - 1660850639.0506501
+Spent: 17.661 ms on: fluid stage: SidewaysApply
+Spent: 17.918 ms on: whole toplevel frame
+frame: 118 - frame time: 25.435 ms, fps: 39.315, previous ts: 1660850639.0925639 - 1660850639.0671284
+Spent: 9.060 ms on: fluid stage: Upwards
+Spent: 9.309 ms on: whole toplevel frame
+frame: 119 - frame time: 9.925 ms, fps: 100.752, previous ts: 1660850639.1024892 - 1660850639.0925639
+Spent: 4.812 ms on: fluid stage: TileUpdate
+Spent: 5.065 ms on: whole toplevel frame
+frame: 120 - frame time: 10.515 ms, fps: 95.098, previous ts: 1660850639.1130047 - 1660850639.1024892
+Spent: 8.930 ms on: fluid stage: Downwards
+Spent: 9.202 ms on: whole toplevel frame
+frame: 121 - frame time: 20.772 ms, fps: 48.142, previous ts: 1660850639.1337767 - 1660850639.1130047
+Spent: 9.357 ms on: fluid stage: SidewaysPrepare
+Spent: 9.618 ms on: whole toplevel frame
+frame: 122 - frame time: 17.138 ms, fps: 58.350, previous ts: 1660850639.1509147 - 1660850639.1337767
+Spent: 18.157 ms on: fluid stage: SidewaysApply
+Spent: 18.454 ms on: whole toplevel frame
+frame: 123 - frame time: 25.514 ms, fps: 39.194, previous ts: 1660850639.176429 - 1660850639.1509147
+Spent: 9.344 ms on: fluid stage: Upwards
+Spent: 9.588 ms on: whole toplevel frame
+frame: 124 - frame time: 10.228 ms, fps: 97.774, previous ts: 1660850639.1866567 - 1660850639.176429
+Spent: 4.812 ms on: fluid stage: TileUpdate
+Spent: 5.054 ms on: whole toplevel frame
+frame: 125 - frame time: 9.686 ms, fps: 103.239, previous ts: 1660850639.196343 - 1660850639.1866567
+Spent: 8.802 ms on: fluid stage: Downwards
+Spent: 9.172 ms on: whole toplevel frame
+frame: 126 - frame time: 20.802 ms, fps: 48.072, previous ts: 1660850639.2171452 - 1660850639.196343
+Spent: 9.176 ms on: fluid stage: SidewaysPrepare
+Spent: 9.446 ms on: whole toplevel frame
+frame: 127 - frame time: 16.868 ms, fps: 59.283, previous ts: 1660850639.2340136 - 1660850639.2171452
+Spent: 17.772 ms on: fluid stage: SidewaysApply
+Spent: 18.032 ms on: whole toplevel frame
+frame: 128 - frame time: 25.301 ms, fps: 39.523, previous ts: 1660850639.259315 - 1660850639.2340136
+Spent: 8.915 ms on: fluid stage: Upwards
+Spent: 9.251 ms on: whole toplevel frame
+frame: 129 - frame time: 9.906 ms, fps: 100.951, previous ts: 1660850639.2692208 - 1660850639.259315
+Spent: 4.693 ms on: fluid stage: TileUpdate
+Spent: 4.940 ms on: whole toplevel frame
+frame: 130 - frame time: 10.398 ms, fps: 96.173, previous ts: 1660850639.2796187 - 1660850639.2692208
+Spent: 8.968 ms on: fluid stage: Downwards
+Spent: 9.230 ms on: whole toplevel frame
+frame: 131 - frame time: 20.888 ms, fps: 47.874, previous ts: 1660850639.3005068 - 1660850639.2796187
+Spent: 9.098 ms on: fluid stage: SidewaysPrepare
+Spent: 9.362 ms on: whole toplevel frame
+frame: 132 - frame time: 16.806 ms, fps: 59.502, previous ts: 1660850639.317313 - 1660850639.3005068
+Spent: 18.058 ms on: fluid stage: SidewaysApply
+Spent: 18.318 ms on: whole toplevel frame
+frame: 133 - frame time: 25.687 ms, fps: 38.930, previous ts: 1660850639.3430004 - 1660850639.317313
+Spent: 8.890 ms on: fluid stage: Upwards
+Spent: 9.141 ms on: whole toplevel frame
+frame: 134 - frame time: 9.773 ms, fps: 102.328, previous ts: 1660850639.352773 - 1660850639.3430004
+Spent: 4.871 ms on: fluid stage: TileUpdate
+Spent: 5.145 ms on: whole toplevel frame
+frame: 135 - frame time: 10.454 ms, fps: 95.656, previous ts: 1660850639.3632271 - 1660850639.352773
+Spent: 9.386 ms on: fluid stage: Downwards
+Spent: 9.667 ms on: whole toplevel frame
+frame: 136 - frame time: 21.077 ms, fps: 47.445, previous ts: 1660850639.384304 - 1660850639.3632271
+Spent: 9.005 ms on: fluid stage: SidewaysPrepare
+Spent: 9.261 ms on: whole toplevel frame
+frame: 137 - frame time: 16.355 ms, fps: 61.142, previous ts: 1660850639.4006593 - 1660850639.384304
+Spent: 17.386 ms on: fluid stage: SidewaysApply
+Spent: 17.643 ms on: whole toplevel frame
+frame: 138 - frame time: 24.992 ms, fps: 40.013, previous ts: 1660850639.425651 - 1660850639.4006593
+Spent: 9.178 ms on: fluid stage: Upwards
+Spent: 9.431 ms on: whole toplevel frame
+frame: 139 - frame time: 10.109 ms, fps: 98.925, previous ts: 1660850639.4357598 - 1660850639.425651
+Spent: 4.717 ms on: fluid stage: TileUpdate
+Spent: 4.969 ms on: whole toplevel frame
+frame: 140 - frame time: 10.489 ms, fps: 95.342, previous ts: 1660850639.4462483 - 1660850639.4357598
+Spent: 8.854 ms on: fluid stage: Downwards
+Spent: 9.149 ms on: whole toplevel frame
+frame: 141 - frame time: 20.846 ms, fps: 47.972, previous ts: 1660850639.467094 - 1660850639.4462483
+Spent: 9.311 ms on: fluid stage: SidewaysPrepare
+Spent: 9.564 ms on: whole toplevel frame
+frame: 142 - frame time: 17.117 ms, fps: 58.422, previous ts: 1660850639.4842107 - 1660850639.467094
+Spent: 17.565 ms on: fluid stage: SidewaysApply
+Spent: 17.827 ms on: whole toplevel frame
+frame: 143 - frame time: 24.907 ms, fps: 40.150, previous ts: 1660850639.5091176 - 1660850639.4842107
+Spent: 9.240 ms on: fluid stage: Upwards
+Spent: 9.614 ms on: whole toplevel frame
+frame: 144 - frame time: 10.234 ms, fps: 97.710, previous ts: 1660850639.519352 - 1660850639.5091176
+Spent: 4.829 ms on: fluid stage: TileUpdate
+Spent: 5.101 ms on: whole toplevel frame
+frame: 145 - frame time: 10.331 ms, fps: 96.792, previous ts: 1660850639.5296834 - 1660850639.519352
+Spent: 8.867 ms on: fluid stage: Downwards
+Spent: 9.125 ms on: whole toplevel frame
+frame: 146 - frame time: 20.750 ms, fps: 48.193, previous ts: 1660850639.5504332 - 1660850639.5296834
+Spent: 9.074 ms on: fluid stage: SidewaysPrepare
+Spent: 9.367 ms on: whole toplevel frame
+frame: 147 - frame time: 16.869 ms, fps: 59.280, previous ts: 1660850639.5673022 - 1660850639.5504332
+Spent: 17.699 ms on: fluid stage: SidewaysApply
+Spent: 17.975 ms on: whole toplevel frame
+frame: 148 - frame time: 25.403 ms, fps: 39.366, previous ts: 1660850639.592705 - 1660850639.5673022
+Spent: 9.076 ms on: fluid stage: Upwards
+Spent: 9.327 ms on: whole toplevel frame
+frame: 149 - frame time: 9.971 ms, fps: 100.294, previous ts: 1660850639.6026757 - 1660850639.592705
+Spent: 4.927 ms on: fluid stage: TileUpdate
+Spent: 5.175 ms on: whole toplevel frame
+frame: 150 - frame time: 10.453 ms, fps: 95.671, previous ts: 1660850639.6131282 - 1660850639.6026757
+Spent: 9.171 ms on: fluid stage: Downwards
+Spent: 9.428 ms on: whole toplevel frame
+frame: 151 - frame time: 20.924 ms, fps: 47.792, previous ts: 1660850639.634052 - 1660850639.6131282
+Spent: 8.992 ms on: fluid stage: SidewaysPrepare
+Spent: 9.246 ms on: whole toplevel frame
+frame: 152 - frame time: 16.478 ms, fps: 60.687, previous ts: 1660850639.65053 - 1660850639.634052
+Spent: 17.692 ms on: fluid stage: SidewaysApply
+Spent: 17.989 ms on: whole toplevel frame
+frame: 153 - frame time: 25.407 ms, fps: 39.360, previous ts: 1660850639.6759367 - 1660850639.65053
+Spent: 9.134 ms on: fluid stage: Upwards
+Spent: 9.413 ms on: whole toplevel frame
+frame: 154 - frame time: 10.009 ms, fps: 99.907, previous ts: 1660850639.685946 - 1660850639.6759367
+Spent: 4.834 ms on: fluid stage: TileUpdate
+Spent: 5.087 ms on: whole toplevel frame
+frame: 155 - frame time: 10.421 ms, fps: 95.958, previous ts: 1660850639.6963673 - 1660850639.685946
+Spent: 8.887 ms on: fluid stage: Downwards
+Spent: 9.139 ms on: whole toplevel frame
+frame: 156 - frame time: 20.732 ms, fps: 48.234, previous ts: 1660850639.7170994 - 1660850639.6963673
+Spent: 9.483 ms on: fluid stage: SidewaysPrepare
+Spent: 9.735 ms on: whole toplevel frame
+frame: 157 - frame time: 17.258 ms, fps: 57.943, previous ts: 1660850639.7343578 - 1660850639.7170994
+Spent: 17.905 ms on: fluid stage: SidewaysApply
+Spent: 18.283 ms on: whole toplevel frame
+frame: 158 - frame time: 25.180 ms, fps: 39.715, previous ts: 1660850639.7595375 - 1660850639.7343578
+Spent: 8.869 ms on: fluid stage: Upwards
+Spent: 9.113 ms on: whole toplevel frame
+frame: 159 - frame time: 9.741 ms, fps: 102.656, previous ts: 1660850639.7692788 - 1660850639.7595375
+Spent: 4.888 ms on: fluid stage: TileUpdate
+Spent: 5.162 ms on: whole toplevel frame
+frame: 160 - frame time: 10.480 ms, fps: 95.421, previous ts: 1660850639.7797587 - 1660850639.7692788
+Spent: 9.129 ms on: fluid stage: Downwards
+Spent: 9.402 ms on: whole toplevel frame
+frame: 161 - frame time: 20.911 ms, fps: 47.821, previous ts: 1660850639.8006701 - 1660850639.7797587
+Spent: 8.944 ms on: fluid stage: SidewaysPrepare
+Spent: 9.191 ms on: whole toplevel frame
+frame: 162 - frame time: 16.475 ms, fps: 60.696, previous ts: 1660850639.8171456 - 1660850639.8006701
+Spent: 17.552 ms on: fluid stage: SidewaysApply
+Spent: 17.830 ms on: whole toplevel frame
+frame: 163 - frame time: 25.313 ms, fps: 39.506, previous ts: 1660850639.8424582 - 1660850639.8171456
+Spent: 8.860 ms on: fluid stage: Upwards
+Spent: 9.109 ms on: whole toplevel frame
+frame: 164 - frame time: 9.826 ms, fps: 101.774, previous ts: 1660850639.852284 - 1660850639.8424582
+Spent: 4.597 ms on: fluid stage: TileUpdate
+Spent: 4.874 ms on: whole toplevel frame
+frame: 165 - frame time: 10.637 ms, fps: 94.009, previous ts: 1660850639.8629212 - 1660850639.852284
+Spent: 9.248 ms on: fluid stage: Downwards
+Spent: 9.523 ms on: whole toplevel frame
+frame: 166 - frame time: 21.217 ms, fps: 47.132, previous ts: 1660850639.884138 - 1660850639.8629212
+Spent: 8.961 ms on: fluid stage: SidewaysPrepare
+Spent: 9.210 ms on: whole toplevel frame
+frame: 167 - frame time: 16.347 ms, fps: 61.174, previous ts: 1660850639.9004848 - 1660850639.884138
+Spent: 17.012 ms on: fluid stage: SidewaysApply
+Spent: 17.265 ms on: whole toplevel frame
+frame: 168 - frame time: 24.750 ms, fps: 40.405, previous ts: 1660850639.9252343 - 1660850639.9004848
+Spent: 8.856 ms on: fluid stage: Upwards
+Spent: 9.095 ms on: whole toplevel frame
+frame: 169 - frame time: 9.746 ms, fps: 102.605, previous ts: 1660850639.9349804 - 1660850639.9252343
+Spent: 4.870 ms on: fluid stage: TileUpdate
+Spent: 5.130 ms on: whole toplevel frame
+frame: 170 - frame time: 11.440 ms, fps: 87.410, previous ts: 1660850639.9464207 - 1660850639.9349804
+Spent: 8.771 ms on: fluid stage: Downwards
+Spent: 9.053 ms on: whole toplevel frame
+frame: 171 - frame time: 20.590 ms, fps: 48.568, previous ts: 1660850639.9670103 - 1660850639.9464207
+Spent: 9.294 ms on: fluid stage: SidewaysPrepare
+Spent: 9.542 ms on: whole toplevel frame
+frame: 172 - frame time: 17.191 ms, fps: 58.171, previous ts: 1660850639.984201 - 1660850639.9670103
+Spent: 17.676 ms on: fluid stage: SidewaysApply
+Spent: 17.932 ms on: whole toplevel frame
+frame: 173 - frame time: 25.025 ms, fps: 39.960, previous ts: 1660850640.0092258 - 1660850639.984201
+Spent: 8.925 ms on: fluid stage: Upwards
+Spent: 9.175 ms on: whole toplevel frame
+frame: 174 - frame time: 9.796 ms, fps: 102.081, previous ts: 1660850640.019022 - 1660850640.0092258
+Spent: 4.820 ms on: fluid stage: TileUpdate
+Spent: 5.081 ms on: whole toplevel frame
+frame: 175 - frame time: 10.708 ms, fps: 93.389, previous ts: 1660850640.0297298 - 1660850640.019022
+Spent: 9.115 ms on: fluid stage: Downwards
+Spent: 9.363 ms on: whole toplevel frame
+frame: 176 - frame time: 20.940 ms, fps: 47.756, previous ts: 1660850640.0506697 - 1660850640.0297298
+Spent: 9.111 ms on: fluid stage: SidewaysPrepare
+Spent: 9.390 ms on: whole toplevel frame
+frame: 177 - frame time: 16.688 ms, fps: 59.924, previous ts: 1660850640.0673575 - 1660850640.0506697
+Spent: 17.235 ms on: fluid stage: SidewaysApply
+Spent: 17.490 ms on: whole toplevel frame
+frame: 178 - frame time: 24.925 ms, fps: 40.121, previous ts: 1660850640.0922823 - 1660850640.0673575
+Spent: 9.077 ms on: fluid stage: Upwards
+Spent: 9.323 ms on: whole toplevel frame
+frame: 179 - frame time: 9.975 ms, fps: 100.246, previous ts: 1660850640.1022577 - 1660850640.0922823
+Spent: 4.576 ms on: fluid stage: TileUpdate
+Spent: 4.850 ms on: whole toplevel frame
+frame: 180 - frame time: 10.587 ms, fps: 94.454, previous ts: 1660850640.112845 - 1660850640.1022577
+Spent: 9.200 ms on: fluid stage: Downwards
+Spent: 9.449 ms on: whole toplevel frame
+frame: 181 - frame time: 21.238 ms, fps: 47.086, previous ts: 1660850640.1340826 - 1660850640.112845
+Spent: 8.824 ms on: fluid stage: SidewaysPrepare
+Spent: 9.075 ms on: whole toplevel frame
+frame: 182 - frame time: 16.269 ms, fps: 61.466, previous ts: 1660850640.1503518 - 1660850640.1340826
+Spent: 17.320 ms on: fluid stage: SidewaysApply
+Spent: 17.606 ms on: whole toplevel frame
+frame: 183 - frame time: 25.211 ms, fps: 39.665, previous ts: 1660850640.175563 - 1660850640.1503518
+Spent: 8.859 ms on: fluid stage: Upwards
+Spent: 9.091 ms on: whole toplevel frame
+frame: 184 - frame time: 9.689 ms, fps: 103.209, previous ts: 1660850640.1852522 - 1660850640.175563
+Spent: 4.634 ms on: fluid stage: TileUpdate
+Spent: 4.870 ms on: whole toplevel frame
+frame: 185 - frame time: 10.865 ms, fps: 92.039, previous ts: 1660850640.1961172 - 1660850640.1852522
+Spent: 8.786 ms on: fluid stage: Downwards
+Spent: 9.021 ms on: whole toplevel frame
+frame: 186 - frame time: 20.894 ms, fps: 47.861, previous ts: 1660850640.2170112 - 1660850640.1961172
+Spent: 9.158 ms on: fluid stage: SidewaysPrepare
+Spent: 9.396 ms on: whole toplevel frame
+frame: 187 - frame time: 16.986 ms, fps: 58.871, previous ts: 1660850640.2339976 - 1660850640.2170112
+Spent: 17.506 ms on: fluid stage: SidewaysApply
+Spent: 17.746 ms on: whole toplevel frame
+frame: 188 - frame time: 24.997 ms, fps: 40.004, previous ts: 1660850640.2589948 - 1660850640.2339976
+Spent: 8.993 ms on: fluid stage: Upwards
+Spent: 9.234 ms on: whole toplevel frame
+frame: 189 - frame time: 9.855 ms, fps: 101.473, previous ts: 1660850640.2688496 - 1660850640.2589948
+Spent: 4.742 ms on: fluid stage: TileUpdate
+Spent: 4.981 ms on: whole toplevel frame
+frame: 190 - frame time: 10.796 ms, fps: 92.630, previous ts: 1660850640.2796452 - 1660850640.2688496
+Spent: 8.969 ms on: fluid stage: Downwards
+Spent: 9.205 ms on: whole toplevel frame
+frame: 191 - frame time: 20.812 ms, fps: 48.050, previous ts: 1660850640.3004568 - 1660850640.2796452
+Spent: 9.130 ms on: fluid stage: SidewaysPrepare
+Spent: 9.370 ms on: whole toplevel frame
+frame: 192 - frame time: 16.831 ms, fps: 59.414, previous ts: 1660850640.3172877 - 1660850640.3004568
+Spent: 17.713 ms on: fluid stage: SidewaysApply
+Spent: 17.958 ms on: whole toplevel frame
+frame: 193 - frame time: 25.301 ms, fps: 39.524, previous ts: 1660850640.3425887 - 1660850640.3172877
+Spent: 9.378 ms on: fluid stage: Upwards
+Spent: 9.632 ms on: whole toplevel frame
+frame: 194 - frame time: 10.273 ms, fps: 97.343, previous ts: 1660850640.3528616 - 1660850640.3425887
+Spent: 4.980 ms on: fluid stage: TileUpdate
+Spent: 5.338 ms on: whole toplevel frame
+frame: 195 - frame time: 10.472 ms, fps: 95.497, previous ts: 1660850640.3633332 - 1660850640.3528616
+Spent: 9.336 ms on: fluid stage: Downwards
+Spent: 9.586 ms on: whole toplevel frame
+frame: 196 - frame time: 20.938 ms, fps: 47.760, previous ts: 1660850640.3842714 - 1660850640.3633332
+Spent: 9.281 ms on: fluid stage: SidewaysPrepare
+Spent: 9.535 ms on: whole toplevel frame
+frame: 197 - frame time: 16.620 ms, fps: 60.169, previous ts: 1660850640.4008913 - 1660850640.3842714
+Spent: 18.122 ms on: fluid stage: SidewaysApply
+Spent: 18.383 ms on: whole toplevel frame
+frame: 198 - frame time: 25.517 ms, fps: 39.190, previous ts: 1660850640.426408 - 1660850640.4008913
+Spent: 9.281 ms on: fluid stage: Upwards
+Spent: 9.530 ms on: whole toplevel frame
+frame: 199 - frame time: 10.221 ms, fps: 97.833, previous ts: 1660850640.4366295 - 1660850640.426408
+Spent: 4.961 ms on: fluid stage: TileUpdate
+Spent: 5.292 ms on: whole toplevel frame
+frame: 200 - frame time: 10.021 ms, fps: 99.791, previous ts: 1660850640.4466505 - 1660850640.4366295
+Spent: 9.097 ms on: fluid stage: Downwards
+Spent: 9.385 ms on: whole toplevel frame
+frame: 201 - frame time: 20.785 ms, fps: 48.111, previous ts: 1660850640.4674356 - 1660850640.4466505
+Spent: 9.476 ms on: fluid stage: SidewaysPrepare
+Spent: 9.730 ms on: whole toplevel frame
+frame: 202 - frame time: 16.971 ms, fps: 58.925, previous ts: 1660850640.4844062 - 1660850640.4674356
+Spent: 17.998 ms on: fluid stage: SidewaysApply
+Spent: 18.253 ms on: whole toplevel frame
+frame: 203 - frame time: 25.163 ms, fps: 39.741, previous ts: 1660850640.5095692 - 1660850640.4844062
+Spent: 9.156 ms on: fluid stage: Upwards
+Spent: 9.405 ms on: whole toplevel frame
+frame: 204 - frame time: 10.101 ms, fps: 98.997, previous ts: 1660850640.5196705 - 1660850640.5095692
+Spent: 4.863 ms on: fluid stage: TileUpdate
+Spent: 5.113 ms on: whole toplevel frame
+frame: 205 - frame time: 10.153 ms, fps: 98.490, previous ts: 1660850640.5298238 - 1660850640.5196705
+Spent: 9.094 ms on: fluid stage: Downwards
+Spent: 9.344 ms on: whole toplevel frame
+frame: 206 - frame time: 20.930 ms, fps: 47.778, previous ts: 1660850640.5507538 - 1660850640.5298238
+Spent: 9.122 ms on: fluid stage: SidewaysPrepare
+Spent: 9.414 ms on: whole toplevel frame
+frame: 207 - frame time: 16.698 ms, fps: 59.886, previous ts: 1660850640.5674522 - 1660850640.5507538
+Spent: 17.691 ms on: fluid stage: SidewaysApply
+Spent: 17.944 ms on: whole toplevel frame
+frame: 208 - frame time: 25.173 ms, fps: 39.726, previous ts: 1660850640.592625 - 1660850640.5674522
+Spent: 9.187 ms on: fluid stage: Upwards
+Spent: 9.437 ms on: whole toplevel frame
+frame: 209 - frame time: 10.090 ms, fps: 99.107, previous ts: 1660850640.602715 - 1660850640.592625
+Spent: 4.653 ms on: fluid stage: TileUpdate
+Spent: 4.905 ms on: whole toplevel frame
+frame: 210 - frame time: 10.263 ms, fps: 97.440, previous ts: 1660850640.6129777 - 1660850640.602715
+Spent: 9.054 ms on: fluid stage: Downwards
+Spent: 9.320 ms on: whole toplevel frame
+frame: 211 - frame time: 21.019 ms, fps: 47.576, previous ts: 1660850640.6339967 - 1660850640.6129777
+Spent: 8.945 ms on: fluid stage: SidewaysPrepare
+Spent: 9.194 ms on: whole toplevel frame
+frame: 212 - frame time: 16.553 ms, fps: 60.411, previous ts: 1660850640.65055 - 1660850640.6339967
+Spent: 17.339 ms on: fluid stage: SidewaysApply
+Spent: 17.636 ms on: whole toplevel frame
+frame: 213 - frame time: 25.056 ms, fps: 39.910, previous ts: 1660850640.6756063 - 1660850640.65055
+Spent: 8.936 ms on: fluid stage: Upwards
+Spent: 9.182 ms on: whole toplevel frame
+frame: 214 - frame time: 9.794 ms, fps: 102.098, previous ts: 1660850640.6854007 - 1660850640.6756063
+Spent: 4.823 ms on: fluid stage: TileUpdate
+Spent: 5.080 ms on: whole toplevel frame
+frame: 215 - frame time: 10.980 ms, fps: 91.076, previous ts: 1660850640.6963806 - 1660850640.6854007
+Spent: 9.065 ms on: fluid stage: Downwards
+Spent: 9.316 ms on: whole toplevel frame
+frame: 216 - frame time: 21.097 ms, fps: 47.399, previous ts: 1660850640.717478 - 1660850640.6963806
+Spent: 9.484 ms on: fluid stage: SidewaysPrepare
+Spent: 9.739 ms on: whole toplevel frame
+frame: 217 - frame time: 16.939 ms, fps: 59.036, previous ts: 1660850640.734417 - 1660850640.717478
+Spent: 17.755 ms on: fluid stage: SidewaysApply
+Spent: 18.101 ms on: whole toplevel frame
+frame: 218 - frame time: 24.980 ms, fps: 40.032, previous ts: 1660850640.7593973 - 1660850640.734417
+Spent: 8.888 ms on: fluid stage: Upwards
+Spent: 9.254 ms on: whole toplevel frame
+frame: 219 - frame time: 9.886 ms, fps: 101.155, previous ts: 1660850640.769283 - 1660850640.7593973
+Spent: 4.886 ms on: fluid stage: TileUpdate
+Spent: 5.127 ms on: whole toplevel frame
+frame: 220 - frame time: 10.517 ms, fps: 95.085, previous ts: 1660850640.7798 - 1660850640.769283
+Spent: 8.973 ms on: fluid stage: Downwards
+Spent: 9.222 ms on: whole toplevel frame
+frame: 221 - frame time: 20.827 ms, fps: 48.016, previous ts: 1660850640.8006265 - 1660850640.7798
+Spent: 9.036 ms on: fluid stage: SidewaysPrepare
+Spent: 9.292 ms on: whole toplevel frame
+frame: 222 - frame time: 16.758 ms, fps: 59.671, previous ts: 1660850640.817385 - 1660850640.8006265
+Spent: 17.750 ms on: fluid stage: SidewaysApply
+Spent: 18.005 ms on: whole toplevel frame
+frame: 223 - frame time: 25.266 ms, fps: 39.579, previous ts: 1660850640.842651 - 1660850640.817385
+Spent: 8.776 ms on: fluid stage: Upwards
+Spent: 9.026 ms on: whole toplevel frame
+frame: 224 - frame time: 9.659 ms, fps: 103.527, previous ts: 1660850640.8523102 - 1660850640.842651
+Spent: 4.759 ms on: fluid stage: TileUpdate
+Spent: 5.065 ms on: whole toplevel frame
+frame: 225 - frame time: 10.765 ms, fps: 92.891, previous ts: 1660850640.8630755 - 1660850640.8523102
+Spent: 8.935 ms on: fluid stage: Downwards
+Spent: 9.180 ms on: whole toplevel frame
+frame: 226 - frame time: 20.773 ms, fps: 48.139, previous ts: 1660850640.8838487 - 1660850640.8630755
+Spent: 9.073 ms on: fluid stage: SidewaysPrepare
+Spent: 9.326 ms on: whole toplevel frame
+frame: 227 - frame time: 16.777 ms, fps: 59.607, previous ts: 1660850640.9006252 - 1660850640.8838487
+Spent: 17.017 ms on: fluid stage: SidewaysApply
+Spent: 17.290 ms on: whole toplevel frame
+frame: 228 - frame time: 24.638 ms, fps: 40.587, previous ts: 1660850640.9252634 - 1660850640.9006252
+Spent: 8.914 ms on: fluid stage: Upwards
+Spent: 9.190 ms on: whole toplevel frame
+frame: 229 - frame time: 9.933 ms, fps: 100.679, previous ts: 1660850640.935196 - 1660850640.9252634
+Spent: 4.879 ms on: fluid stage: TileUpdate
+Spent: 5.133 ms on: whole toplevel frame
+frame: 230 - frame time: 11.236 ms, fps: 88.996, previous ts: 1660850640.9464324 - 1660850640.935196
+Spent: 8.893 ms on: fluid stage: Downwards
+Spent: 9.175 ms on: whole toplevel frame
+frame: 231 - frame time: 20.719 ms, fps: 48.265, previous ts: 1660850640.9671512 - 1660850640.9464324
+Spent: 9.443 ms on: fluid stage: SidewaysPrepare
+Spent: 9.698 ms on: whole toplevel frame
+frame: 232 - frame time: 17.255 ms, fps: 57.956, previous ts: 1660850640.9844058 - 1660850640.9671512
+Spent: 17.348 ms on: fluid stage: SidewaysApply
+Spent: 17.605 ms on: whole toplevel frame
+frame: 233 - frame time: 24.490 ms, fps: 40.834, previous ts: 1660850641.0088954 - 1660850640.9844058
+Spent: 8.961 ms on: fluid stage: Upwards
+Spent: 9.213 ms on: whole toplevel frame
+frame: 234 - frame time: 9.830 ms, fps: 101.727, previous ts: 1660850641.0187256 - 1660850641.0088954
+Spent: 4.736 ms on: fluid stage: TileUpdate
+Spent: 5.042 ms on: whole toplevel frame
+frame: 235 - frame time: 10.926 ms, fps: 91.529, previous ts: 1660850641.0296512 - 1660850641.0187256
+Spent: 9.051 ms on: fluid stage: Downwards
+Spent: 9.304 ms on: whole toplevel frame
+frame: 236 - frame time: 20.956 ms, fps: 47.718, previous ts: 1660850641.0506074 - 1660850641.0296512
+Spent: 8.938 ms on: fluid stage: SidewaysPrepare
+Spent: 9.231 ms on: whole toplevel frame
+frame: 237 - frame time: 16.593 ms, fps: 60.266, previous ts: 1660850641.0672004 - 1660850641.0506074
+Spent: 17.187 ms on: fluid stage: SidewaysApply
+Spent: 17.445 ms on: whole toplevel frame
+frame: 238 - frame time: 24.980 ms, fps: 40.032, previous ts: 1660850641.0921807 - 1660850641.0672004
+Spent: 9.220 ms on: fluid stage: Upwards
+Spent: 9.474 ms on: whole toplevel frame
+frame: 239 - frame time: 10.094 ms, fps: 99.065, previous ts: 1660850641.1022751 - 1660850641.0921807
+Spent: 4.758 ms on: fluid stage: TileUpdate
+Spent: 5.053 ms on: whole toplevel frame
+frame: 240 - frame time: 10.777 ms, fps: 92.792, previous ts: 1660850641.113052 - 1660850641.1022751
+Spent: 9.013 ms on: fluid stage: Downwards
+Spent: 9.267 ms on: whole toplevel frame
+frame: 241 - frame time: 22.081 ms, fps: 45.288, previous ts: 1660850641.1351328 - 1660850641.113052
+Spent: 8.930 ms on: fluid stage: SidewaysPrepare
+Spent: 9.232 ms on: whole toplevel frame
+frame: 242 - frame time: 15.622 ms, fps: 64.014, previous ts: 1660850641.1507545 - 1660850641.1351328
+Spent: 17.112 ms on: fluid stage: SidewaysApply
+Spent: 17.399 ms on: whole toplevel frame
+frame: 243 - frame time: 24.790 ms, fps: 40.339, previous ts: 1660850641.1755443 - 1660850641.1507545
+Spent: 8.914 ms on: fluid stage: Upwards
+Spent: 9.165 ms on: whole toplevel frame
+frame: 244 - frame time: 9.913 ms, fps: 100.878, previous ts: 1660850641.1854572 - 1660850641.1755443
+Spent: 4.671 ms on: fluid stage: TileUpdate
+Spent: 4.923 ms on: whole toplevel frame
+frame: 245 - frame time: 10.916 ms, fps: 91.607, previous ts: 1660850641.1963735 - 1660850641.1854572
+Spent: 8.702 ms on: fluid stage: Downwards
+Spent: 8.956 ms on: whole toplevel frame
+frame: 246 - frame time: 20.689 ms, fps: 48.334, previous ts: 1660850641.217063 - 1660850641.1963735
+Spent: 8.981 ms on: fluid stage: SidewaysPrepare
+Spent: 9.234 ms on: whole toplevel frame
+frame: 247 - frame time: 16.953 ms, fps: 58.987, previous ts: 1660850641.2340157 - 1660850641.217063
+Spent: 17.187 ms on: fluid stage: SidewaysApply
+Spent: 17.444 ms on: whole toplevel frame
+frame: 248 - frame time: 24.954 ms, fps: 40.074, previous ts: 1660850641.2589698 - 1660850641.2340157
+Spent: 8.731 ms on: fluid stage: Upwards
+Spent: 8.981 ms on: whole toplevel frame
+frame: 249 - frame time: 9.656 ms, fps: 103.566, previous ts: 1660850641.2686255 - 1660850641.2589698
+Spent: 4.695 ms on: fluid stage: TileUpdate
+Spent: 4.947 ms on: whole toplevel frame
+frame: 250 - frame time: 11.131 ms, fps: 89.839, previous ts: 1660850641.2797565 - 1660850641.2686255
+Spent: 8.769 ms on: fluid stage: Downwards
+Spent: 9.021 ms on: whole toplevel frame
+frame: 251 - frame time: 20.712 ms, fps: 48.280, previous ts: 1660850641.300469 - 1660850641.2797565
+Spent: 8.828 ms on: fluid stage: SidewaysPrepare
+Spent: 9.079 ms on: whole toplevel frame
+frame: 252 - frame time: 16.768 ms, fps: 59.638, previous ts: 1660850641.3172367 - 1660850641.300469
+Spent: 17.287 ms on: fluid stage: SidewaysApply
+Spent: 17.535 ms on: whole toplevel frame
+frame: 253 - frame time: 25.094 ms, fps: 39.850, previous ts: 1660850641.3423307 - 1660850641.3172367
+Spent: 8.862 ms on: fluid stage: Upwards
+Spent: 9.113 ms on: whole toplevel frame
+frame: 254 - frame time: 9.821 ms, fps: 101.821, previous ts: 1660850641.3521519 - 1660850641.3423307
+Spent: 4.892 ms on: fluid stage: TileUpdate
+Spent: 5.138 ms on: whole toplevel frame
+frame: 255 - frame time: 11.202 ms, fps: 89.269, previous ts: 1660850641.363354 - 1660850641.3521519
+Spent: 8.874 ms on: fluid stage: Downwards
+Spent: 9.129 ms on: whole toplevel frame
+frame: 256 - frame time: 20.575 ms, fps: 48.603, previous ts: 1660850641.383929 - 1660850641.363354
+Spent: 8.788 ms on: fluid stage: SidewaysPrepare
+Spent: 9.044 ms on: whole toplevel frame
+frame: 257 - frame time: 16.564 ms, fps: 60.372, previous ts: 1660850641.400493 - 1660850641.383929
+Spent: 16.968 ms on: fluid stage: SidewaysApply
+Spent: 17.223 ms on: whole toplevel frame
+frame: 258 - frame time: 24.817 ms, fps: 40.295, previous ts: 1660850641.42531 - 1660850641.400493
+Spent: 9.068 ms on: fluid stage: Upwards
+Spent: 9.360 ms on: whole toplevel frame
+frame: 259 - frame time: 10.054 ms, fps: 99.464, previous ts: 1660850641.4353638 - 1660850641.42531
+Spent: 4.732 ms on: fluid stage: TileUpdate
+Spent: 4.974 ms on: whole toplevel frame
+frame: 260 - frame time: 11.070 ms, fps: 90.330, previous ts: 1660850641.4464343 - 1660850641.4353638
+Spent: 9.057 ms on: fluid stage: Downwards
+Spent: 9.349 ms on: whole toplevel frame
+frame: 261 - frame time: 21.037 ms, fps: 47.535, previous ts: 1660850641.4674716 - 1660850641.4464343
+Spent: 9.235 ms on: fluid stage: SidewaysPrepare
+Spent: 9.512 ms on: whole toplevel frame
+frame: 262 - frame time: 16.858 ms, fps: 59.320, previous ts: 1660850641.4843295 - 1660850641.4674716
+Spent: 17.758 ms on: fluid stage: SidewaysApply
+Spent: 18.047 ms on: whole toplevel frame
+frame: 263 - frame time: 25.158 ms, fps: 39.749, previous ts: 1660850641.5094872 - 1660850641.4843295
+Spent: 9.238 ms on: fluid stage: Upwards
+Spent: 9.495 ms on: whole toplevel frame
+frame: 264 - frame time: 10.210 ms, fps: 97.947, previous ts: 1660850641.5196967 - 1660850641.5094872
+Spent: 4.763 ms on: fluid stage: TileUpdate
+Spent: 5.128 ms on: whole toplevel frame
+frame: 265 - frame time: 10.219 ms, fps: 97.861, previous ts: 1660850641.5299153 - 1660850641.5196967
+Spent: 9.208 ms on: fluid stage: Downwards
+Spent: 9.458 ms on: whole toplevel frame
+frame: 266 - frame time: 21.019 ms, fps: 47.575, previous ts: 1660850641.5509348 - 1660850641.5299153
+Spent: 9.164 ms on: fluid stage: SidewaysPrepare
+Spent: 9.421 ms on: whole toplevel frame
+frame: 267 - frame time: 16.741 ms, fps: 59.733, previous ts: 1660850641.5676758 - 1660850641.5509348
+Spent: 17.684 ms on: fluid stage: SidewaysApply
+Spent: 17.937 ms on: whole toplevel frame
+frame: 268 - frame time: 25.108 ms, fps: 39.828, previous ts: 1660850641.592784 - 1660850641.5676758
+Spent: 9.016 ms on: fluid stage: Upwards
+Spent: 9.293 ms on: whole toplevel frame
+frame: 269 - frame time: 9.969 ms, fps: 100.311, previous ts: 1660850641.602753 - 1660850641.592784
+Spent: 4.634 ms on: fluid stage: TileUpdate
+Spent: 4.904 ms on: whole toplevel frame
+frame: 270 - frame time: 10.300 ms, fps: 97.088, previous ts: 1660850641.6130528 - 1660850641.602753
+Spent: 8.886 ms on: fluid stage: Downwards
+Spent: 9.284 ms on: whole toplevel frame
+frame: 271 - frame time: 21.038 ms, fps: 47.532, previous ts: 1660850641.6340911 - 1660850641.6130528
+Spent: 9.052 ms on: fluid stage: SidewaysPrepare
+Spent: 9.306 ms on: whole toplevel frame
+frame: 272 - frame time: 16.682 ms, fps: 59.943, previous ts: 1660850641.6507735 - 1660850641.6340911
+Spent: 17.210 ms on: fluid stage: SidewaysApply
+Spent: 17.466 ms on: whole toplevel frame
+frame: 273 - frame time: 24.993 ms, fps: 40.012, previous ts: 1660850641.6757662 - 1660850641.6507735
+Spent: 8.948 ms on: fluid stage: Upwards
+Spent: 9.198 ms on: whole toplevel frame
+frame: 274 - frame time: 10.098 ms, fps: 99.034, previous ts: 1660850641.6858637 - 1660850641.6757662
+Spent: 4.802 ms on: fluid stage: TileUpdate
+Spent: 5.057 ms on: whole toplevel frame
+frame: 275 - frame time: 10.650 ms, fps: 93.895, previous ts: 1660850641.696514 - 1660850641.6858637
+Spent: 9.033 ms on: fluid stage: Downwards
+Spent: 9.287 ms on: whole toplevel frame
+frame: 276 - frame time: 20.919 ms, fps: 47.803, previous ts: 1660850641.717433 - 1660850641.696514
+Spent: 9.162 ms on: fluid stage: SidewaysPrepare
+Spent: 9.427 ms on: whole toplevel frame
+frame: 277 - frame time: 16.807 ms, fps: 59.500, previous ts: 1660850641.7342398 - 1660850641.717433
+Spent: 17.637 ms on: fluid stage: SidewaysApply
+Spent: 17.988 ms on: whole toplevel frame
+frame: 278 - frame time: 25.183 ms, fps: 39.709, previous ts: 1660850641.7594233 - 1660850641.7342398
+Spent: 8.910 ms on: fluid stage: Upwards
+Spent: 9.164 ms on: whole toplevel frame
+frame: 279 - frame time: 9.873 ms, fps: 101.285, previous ts: 1660850641.7692964 - 1660850641.7594233
+Spent: 4.579 ms on: fluid stage: TileUpdate
+Spent: 4.832 ms on: whole toplevel frame
+frame: 280 - frame time: 10.414 ms, fps: 96.028, previous ts: 1660850641.77971 - 1660850641.7692964
+Spent: 8.914 ms on: fluid stage: Downwards
+Spent: 9.166 ms on: whole toplevel frame
+frame: 281 - frame time: 20.964 ms, fps: 47.700, previous ts: 1660850641.8006744 - 1660850641.77971
+Spent: 8.962 ms on: fluid stage: SidewaysPrepare
+Spent: 9.218 ms on: whole toplevel frame
+frame: 282 - frame time: 16.765 ms, fps: 59.649, previous ts: 1660850641.817439 - 1660850641.8006744
+Spent: 17.872 ms on: fluid stage: SidewaysApply
+Spent: 18.142 ms on: whole toplevel frame
+frame: 283 - frame time: 25.464 ms, fps: 39.271, previous ts: 1660850641.8429034 - 1660850641.817439
+Spent: 9.047 ms on: fluid stage: Upwards
+Spent: 9.321 ms on: whole toplevel frame
+frame: 284 - frame time: 9.990 ms, fps: 100.096, previous ts: 1660850641.8528938 - 1660850641.8429034
+Spent: 4.978 ms on: fluid stage: TileUpdate
+Spent: 5.301 ms on: whole toplevel frame
+frame: 285 - frame time: 10.510 ms, fps: 95.148, previous ts: 1660850641.8634038 - 1660850641.8528938
+Spent: 8.856 ms on: fluid stage: Downwards
+Spent: 9.143 ms on: whole toplevel frame
+frame: 286 - frame time: 20.557 ms, fps: 48.645, previous ts: 1660850641.883961 - 1660850641.8634038
+Spent: 9.151 ms on: fluid stage: SidewaysPrepare
+Spent: 9.410 ms on: whole toplevel frame
+frame: 287 - frame time: 16.912 ms, fps: 59.131, previous ts: 1660850641.9008727 - 1660850641.883961
+Spent: 17.324 ms on: fluid stage: SidewaysApply
+Spent: 17.576 ms on: whole toplevel frame
+frame: 288 - frame time: 24.874 ms, fps: 40.203, previous ts: 1660850641.9257467 - 1660850641.9008727
+Spent: 9.314 ms on: fluid stage: Upwards
+Spent: 9.566 ms on: whole toplevel frame
+frame: 289 - frame time: 10.262 ms, fps: 97.447, previous ts: 1660850641.9360087 - 1660850641.9257467
+Spent: 5.538 ms on: fluid stage: TileUpdate
+Spent: 47.200 ms on: whole toplevel frame
+frame: 290 - frame time: 52.656 ms, fps: 18.991, previous ts: 1660850641.9886646 - 1660850641.9360087
+Spent: 10.645 ms on: fluid stage: Downwards
+Spent: 10.922 ms on: whole toplevel frame
+frame: 291 - frame time: 11.770 ms, fps: 84.965, previous ts: 1660850642.0004342 - 1660850641.9886646
+Spent: 10.412 ms on: fluid stage: SidewaysPrepare
+Spent: 10.689 ms on: whole toplevel frame
+frame: 292 - frame time: 11.411 ms, fps: 87.631, previous ts: 1660850642.0118456 - 1660850642.0004342
+Spent: 18.147 ms on: fluid stage: SidewaysApply
+Spent: 18.397 ms on: whole toplevel frame
+frame: 293 - frame time: 19.091 ms, fps: 52.380, previous ts: 1660850642.030937 - 1660850642.0118456
+Spent: 9.411 ms on: fluid stage: Upwards
+Spent: 9.686 ms on: whole toplevel frame
+frame: 294 - frame time: 10.362 ms, fps: 96.507, previous ts: 1660850642.0412989 - 1660850642.030937
+Spent: 4.742 ms on: fluid stage: TileUpdate
+Spent: 5.020 ms on: whole toplevel frame
+frame: 295 - frame time: 5.708 ms, fps: 175.193, previous ts: 1660850642.0470068 - 1660850642.0412989
+Spent: 8.846 ms on: fluid stage: Downwards
+Spent: 9.278 ms on: whole toplevel frame
+frame: 296 - frame time: 20.435 ms, fps: 48.936, previous ts: 1660850642.0674417 - 1660850642.0470068
+Spent: 8.990 ms on: fluid stage: SidewaysPrepare
+Spent: 9.268 ms on: whole toplevel frame
+frame: 297 - frame time: 16.672 ms, fps: 59.982, previous ts: 1660850642.0841134 - 1660850642.0674417
+Spent: 17.400 ms on: fluid stage: SidewaysApply
+Spent: 17.655 ms on: whole toplevel frame
+frame: 298 - frame time: 25.009 ms, fps: 39.986, previous ts: 1660850642.109122 - 1660850642.0841134
+Spent: 9.073 ms on: fluid stage: Upwards
+Spent: 9.317 ms on: whole toplevel frame
+frame: 299 - frame time: 10.012 ms, fps: 99.876, previous ts: 1660850642.1191344 - 1660850642.109122
+Spent: 4.545 ms on: fluid stage: TileUpdate
+Spent: 4.815 ms on: whole toplevel frame
+frame: 300 - frame time: 10.495 ms, fps: 95.286, previous ts: 1660850642.1296291 - 1660850642.1191344
+Spent: 9.032 ms on: fluid stage: Downwards
+Spent: 9.284 ms on: whole toplevel frame
+frame: 301 - frame time: 21.132 ms, fps: 47.322, previous ts: 1660850642.150761 - 1660850642.1296291
+Spent: 9.008 ms on: fluid stage: SidewaysPrepare
+Spent: 9.259 ms on: whole toplevel frame
+frame: 302 - frame time: 16.724 ms, fps: 59.794, previous ts: 1660850642.167485 - 1660850642.150761
+Spent: 17.573 ms on: fluid stage: SidewaysApply
+Spent: 17.862 ms on: whole toplevel frame
+frame: 303 - frame time: 25.192 ms, fps: 39.695, previous ts: 1660850642.1926773 - 1660850642.167485
+Spent: 9.135 ms on: fluid stage: Upwards
+Spent: 9.388 ms on: whole toplevel frame
+frame: 304 - frame time: 10.089 ms, fps: 99.114, previous ts: 1660850642.2027667 - 1660850642.1926773
+Spent: 4.950 ms on: fluid stage: TileUpdate
+Spent: 5.226 ms on: whole toplevel frame
+frame: 305 - frame time: 10.577 ms, fps: 94.541, previous ts: 1660850642.213344 - 1660850642.2027667
+Spent: 8.924 ms on: fluid stage: Downwards
+Spent: 9.238 ms on: whole toplevel frame
+frame: 306 - frame time: 20.729 ms, fps: 48.241, previous ts: 1660850642.2340734 - 1660850642.213344
+Spent: 9.164 ms on: fluid stage: SidewaysPrepare
+Spent: 9.401 ms on: whole toplevel frame
+frame: 307 - frame time: 16.749 ms, fps: 59.705, previous ts: 1660850642.2508225 - 1660850642.2340734
+Spent: 17.117 ms on: fluid stage: SidewaysApply
+Spent: 17.393 ms on: whole toplevel frame
+frame: 308 - frame time: 24.662 ms, fps: 40.548, previous ts: 1660850642.2754848 - 1660850642.2508225
+Spent: 9.061 ms on: fluid stage: Upwards
+Spent: 9.296 ms on: whole toplevel frame
+frame: 309 - frame time: 9.972 ms, fps: 100.280, previous ts: 1660850642.285457 - 1660850642.2754848
+Spent: 4.643 ms on: fluid stage: TileUpdate
+Spent: 4.879 ms on: whole toplevel frame
+frame: 310 - frame time: 10.853 ms, fps: 92.144, previous ts: 1660850642.2963095 - 1660850642.285457
+Spent: 8.926 ms on: fluid stage: Downwards
+Spent: 9.166 ms on: whole toplevel frame
+frame: 311 - frame time: 20.968 ms, fps: 47.691, previous ts: 1660850642.317278 - 1660850642.2963095
+Spent: 9.045 ms on: fluid stage: SidewaysPrepare
+Spent: 9.282 ms on: whole toplevel frame
+frame: 312 - frame time: 16.759 ms, fps: 59.669, previous ts: 1660850642.334037 - 1660850642.317278
+Spent: 17.664 ms on: fluid stage: SidewaysApply
+Spent: 17.903 ms on: whole toplevel frame
+frame: 313 - frame time: 25.294 ms, fps: 39.535, previous ts: 1660850642.359331 - 1660850642.334037
+Spent: 9.309 ms on: fluid stage: Upwards
+Spent: 9.555 ms on: whole toplevel frame
+frame: 314 - frame time: 10.337 ms, fps: 96.737, previous ts: 1660850642.3696682 - 1660850642.359331
+Spent: 4.865 ms on: fluid stage: TileUpdate
+Spent: 5.096 ms on: whole toplevel frame
+frame: 315 - frame time: 10.216 ms, fps: 97.883, previous ts: 1660850642.3798845 - 1660850642.3696682
+Spent: 8.843 ms on: fluid stage: Downwards
+Spent: 9.074 ms on: whole toplevel frame
+frame: 316 - frame time: 20.601 ms, fps: 48.542, previous ts: 1660850642.400485 - 1660850642.3798845
+Spent: 8.960 ms on: fluid stage: SidewaysPrepare
+Spent: 9.199 ms on: whole toplevel frame
+frame: 317 - frame time: 16.773 ms, fps: 59.620, previous ts: 1660850642.417258 - 1660850642.400485
+Spent: 17.413 ms on: fluid stage: SidewaysApply
+Spent: 17.652 ms on: whole toplevel frame
+frame: 318 - frame time: 25.165 ms, fps: 39.737, previous ts: 1660850642.4424233 - 1660850642.417258
+Spent: 8.908 ms on: fluid stage: Upwards
+Spent: 9.144 ms on: whole toplevel frame
+frame: 319 - frame time: 9.821 ms, fps: 101.821, previous ts: 1660850642.4522445 - 1660850642.4424233
+Spent: 4.776 ms on: fluid stage: TileUpdate
+Spent: 5.049 ms on: whole toplevel frame
+frame: 320 - frame time: 10.902 ms, fps: 91.723, previous ts: 1660850642.463147 - 1660850642.4522445
+Spent: 9.067 ms on: fluid stage: Downwards
+Spent: 9.341 ms on: whole toplevel frame
+frame: 321 - frame time: 21.103 ms, fps: 47.387, previous ts: 1660850642.4842496 - 1660850642.463147
+Spent: 8.950 ms on: fluid stage: SidewaysPrepare
+Spent: 9.189 ms on: whole toplevel frame
+frame: 322 - frame time: 16.366 ms, fps: 61.100, previous ts: 1660850642.500616 - 1660850642.4842496
+Spent: 17.217 ms on: fluid stage: SidewaysApply
+Spent: 17.462 ms on: whole toplevel frame
+frame: 323 - frame time: 24.991 ms, fps: 40.015, previous ts: 1660850642.5256069 - 1660850642.500616
+Spent: 9.063 ms on: fluid stage: Upwards
+Spent: 9.300 ms on: whole toplevel frame
+frame: 324 - frame time: 10.009 ms, fps: 99.912, previous ts: 1660850642.5356157 - 1660850642.5256069
+Spent: 4.581 ms on: fluid stage: TileUpdate
+Spent: 4.819 ms on: whole toplevel frame
+frame: 325 - frame time: 10.636 ms, fps: 94.024, previous ts: 1660850642.5462513 - 1660850642.5356157
+Spent: 8.810 ms on: fluid stage: Downwards
+Spent: 9.096 ms on: whole toplevel frame
+frame: 326 - frame time: 20.958 ms, fps: 47.714, previous ts: 1660850642.5672095 - 1660850642.5462513
+Spent: 9.117 ms on: fluid stage: SidewaysPrepare
+Spent: 9.377 ms on: whole toplevel frame
+frame: 327 - frame time: 16.985 ms, fps: 58.876, previous ts: 1660850642.5841944 - 1660850642.5672095
+Spent: 17.481 ms on: fluid stage: SidewaysApply
+Spent: 17.745 ms on: whole toplevel frame
+frame: 328 - frame time: 25.027 ms, fps: 39.956, previous ts: 1660850642.6092217 - 1660850642.5841944
+Spent: 8.728 ms on: fluid stage: Upwards
+Spent: 9.026 ms on: whole toplevel frame
+frame: 329 - frame time: 9.776 ms, fps: 102.290, previous ts: 1660850642.6189978 - 1660850642.6092217
+Spent: 4.770 ms on: fluid stage: TileUpdate
+Spent: 5.026 ms on: whole toplevel frame
+frame: 330 - frame time: 10.854 ms, fps: 92.128, previous ts: 1660850642.6298523 - 1660850642.6189978
+Spent: 9.015 ms on: fluid stage: Downwards
+Spent: 9.274 ms on: whole toplevel frame
+frame: 331 - frame time: 20.913 ms, fps: 47.818, previous ts: 1660850642.650765 - 1660850642.6298523
+Spent: 9.183 ms on: fluid stage: SidewaysPrepare
+Spent: 9.443 ms on: whole toplevel frame
+frame: 332 - frame time: 16.858 ms, fps: 59.319, previous ts: 1660850642.667623 - 1660850642.650765
+Spent: 17.443 ms on: fluid stage: SidewaysApply
+Spent: 17.714 ms on: whole toplevel frame
+frame: 333 - frame time: 24.893 ms, fps: 40.172, previous ts: 1660850642.692516 - 1660850642.667623
+Spent: 9.077 ms on: fluid stage: Upwards
+Spent: 9.321 ms on: whole toplevel frame
+frame: 334 - frame time: 10.010 ms, fps: 99.900, previous ts: 1660850642.702526 - 1660850642.692516
+Spent: 4.800 ms on: fluid stage: TileUpdate
+Spent: 5.050 ms on: whole toplevel frame
+frame: 335 - frame time: 10.688 ms, fps: 93.562, previous ts: 1660850642.7132142 - 1660850642.702526
+Spent: 9.314 ms on: fluid stage: Downwards
+Spent: 9.562 ms on: whole toplevel frame
+frame: 336 - frame time: 21.168 ms, fps: 47.242, previous ts: 1660850642.734382 - 1660850642.7132142
+Spent: 9.434 ms on: fluid stage: SidewaysPrepare
+Spent: 9.689 ms on: whole toplevel frame
+frame: 337 - frame time: 16.781 ms, fps: 59.591, previous ts: 1660850642.751163 - 1660850642.734382
+Spent: 17.538 ms on: fluid stage: SidewaysApply
+Spent: 17.793 ms on: whole toplevel frame
+frame: 338 - frame time: 24.960 ms, fps: 40.064, previous ts: 1660850642.7761233 - 1660850642.751163
+Spent: 9.082 ms on: fluid stage: Upwards
+Spent: 9.321 ms on: whole toplevel frame
+frame: 339 - frame time: 10.008 ms, fps: 99.919, previous ts: 1660850642.7861314 - 1660850642.7761233
+Spent: 4.933 ms on: fluid stage: TileUpdate
+Spent: 5.174 ms on: whole toplevel frame
+frame: 340 - frame time: 10.541 ms, fps: 94.868, previous ts: 1660850642.7966723 - 1660850642.7861314
+Spent: 8.886 ms on: fluid stage: Downwards
+Spent: 9.135 ms on: whole toplevel frame
+frame: 341 - frame time: 20.620 ms, fps: 48.497, previous ts: 1660850642.8172922 - 1660850642.7966723
+Spent: 8.980 ms on: fluid stage: SidewaysPrepare
+Spent: 9.228 ms on: whole toplevel frame
+frame: 342 - frame time: 16.721 ms, fps: 59.806, previous ts: 1660850642.834013 - 1660850642.8172922
+Spent: 17.458 ms on: fluid stage: SidewaysApply
+Spent: 17.714 ms on: whole toplevel frame
+frame: 343 - frame time: 25.180 ms, fps: 39.715, previous ts: 1660850642.8591926 - 1660850642.834013
+Spent: 8.828 ms on: fluid stage: Upwards
+Spent: 9.089 ms on: whole toplevel frame
+frame: 344 - frame time: 9.793 ms, fps: 102.113, previous ts: 1660850642.8689857 - 1660850642.8591926
+Spent: 4.819 ms on: fluid stage: TileUpdate
+Spent: 5.068 ms on: whole toplevel frame
+frame: 345 - frame time: 10.903 ms, fps: 91.719, previous ts: 1660850642.8798885 - 1660850642.8689857
+Spent: 9.017 ms on: fluid stage: Downwards
+Spent: 9.266 ms on: whole toplevel frame
+frame: 346 - frame time: 21.019 ms, fps: 47.575, previous ts: 1660850642.900908 - 1660850642.8798885
+Spent: 9.112 ms on: fluid stage: SidewaysPrepare
+Spent: 9.363 ms on: whole toplevel frame
+frame: 347 - frame time: 16.635 ms, fps: 60.115, previous ts: 1660850642.9175427 - 1660850642.900908
+Spent: 17.347 ms on: fluid stage: SidewaysApply
+Spent: 17.598 ms on: whole toplevel frame
+frame: 348 - frame time: 24.845 ms, fps: 40.249, previous ts: 1660850642.9423878 - 1660850642.9175427
+Spent: 8.844 ms on: fluid stage: Upwards
+Spent: 9.159 ms on: whole toplevel frame
+frame: 349 - frame time: 9.840 ms, fps: 101.628, previous ts: 1660850642.9522276 - 1660850642.9423878
+Spent: 4.731 ms on: fluid stage: TileUpdate
+Spent: 4.999 ms on: whole toplevel frame
+frame: 350 - frame time: 10.967 ms, fps: 91.181, previous ts: 1660850642.9631948 - 1660850642.9522276
+Spent: 9.091 ms on: fluid stage: Downwards
+Spent: 9.341 ms on: whole toplevel frame
+frame: 351 - frame time: 21.139 ms, fps: 47.305, previous ts: 1660850642.9843342 - 1660850642.9631948
+Spent: 8.865 ms on: fluid stage: SidewaysPrepare
+Spent: 9.116 ms on: whole toplevel frame
+frame: 352 - frame time: 16.259 ms, fps: 61.505, previous ts: 1660850643.000593 - 1660850642.9843342
+Spent: 17.747 ms on: fluid stage: SidewaysApply
+Spent: 17.994 ms on: whole toplevel frame
+frame: 353 - frame time: 25.533 ms, fps: 39.164, previous ts: 1660850643.0261264 - 1660850643.000593
+Spent: 9.190 ms on: fluid stage: Upwards
+Spent: 9.432 ms on: whole toplevel frame
+frame: 354 - frame time: 10.175 ms, fps: 98.285, previous ts: 1660850643.036301 - 1660850643.0261264
+Spent: 4.747 ms on: fluid stage: TileUpdate
+Spent: 4.998 ms on: whole toplevel frame
+frame: 355 - frame time: 10.187 ms, fps: 98.163, previous ts: 1660850643.046488 - 1660850643.036301
+Spent: 8.952 ms on: fluid stage: Downwards
+Spent: 9.215 ms on: whole toplevel frame
+frame: 356 - frame time: 20.887 ms, fps: 47.877, previous ts: 1660850643.067375 - 1660850643.046488
+Spent: 9.089 ms on: fluid stage: SidewaysPrepare
+Spent: 9.320 ms on: whole toplevel frame
+Cache hits: hot: 150432369, cold: 25491817. cache misses: 4965119, ratio cached: 0.9725516165812014, ratio hot: 0.8316266625050055

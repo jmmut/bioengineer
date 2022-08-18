@@ -1,9 +1,10 @@
 use crate::world::map::chunk::cell_iter::CellIterItem;
-use crate::world::map::chunk::{CellIter, Chunk, ChunkIndex};
+use crate::world::map::chunk::{CellIter, Chunk, ChunkIndex, chunks};
 use crate::world::map::ref_mut_iterator::RefMutIterator;
 use crate::world::map::CellIndex;
 use std::collections::hash_map::IntoIter;
 use std::collections::HashMap;
+use crate::world::map::chunk::chunks::Chunks;
 
 /*
 /// Note that this iterator needs a &Map. That is, iterate a map by reference:
@@ -63,9 +64,9 @@ impl Iterator for MapIterator<'_> {
 */
 
 pub struct MutMapIterator {
-    chunk_iterator: IntoIter<ChunkIndex, Chunk>,
+    chunk_iterator: chunks::IntoIter,
     cell_iterator: CellIter,
-    pub collected_chunks: HashMap<ChunkIndex, Chunk>,
+    pub collected_chunks: Chunks,
     pub min_cell: CellIndex,
     pub max_cell: CellIndex,
     pub ship_position: Option<CellIndex>,
@@ -73,7 +74,7 @@ pub struct MutMapIterator {
 
 impl MutMapIterator {
     pub fn new(
-        chunks: HashMap<ChunkIndex, Chunk>,
+        chunks: Chunks,
         min_cell: CellIndex,
         max_cell: CellIndex,
         ship_position: Option<CellIndex>,
@@ -86,7 +87,7 @@ impl MutMapIterator {
         Self {
             chunk_iterator,
             cell_iterator,
-            collected_chunks: HashMap::new(),
+            collected_chunks: Chunks::new(),
             min_cell,
             max_cell,
             ship_position,

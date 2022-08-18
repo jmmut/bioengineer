@@ -1,0 +1,65 @@
+warning: `bioengineer` (bin "bioengineer") generated 19 warnings
+    Finished release [optimized] target(s) in 0.03s
+     Running `target/release/bioengineer`
+got 32 textures. The first one is 64 by 64 pixels
+frame: 0 - frame time: 1000.000 ms, fps: 1.000, previous ts: 1660780474.385758 - 1660780473.3857574
+Spent: 124.902 ms on: fluid stage: Downwards
+Spent: 140.189 ms on: whole toplevel frame
+frame: 1 - frame time: 140.190 ms, fps: 7.133, previous ts: 1660780474.5259476 - 1660780474.385758
+Spent: 137.384 ms on: fluid stage: SidewaysPrepare
+Spent: 138.486 ms on: whole toplevel frame
+frame: 2 - frame time: 143.183 ms, fps: 6.984, previous ts: 1660780474.6691303 - 1660780474.5259476
+Spent: 281.827 ms on: fluid stage: SidewaysApply
+Spent: 282.640 ms on: whole toplevel frame
+frame: 3 - frame time: 285.660 ms, fps: 3.501, previous ts: 1660780474.9547906 - 1660780474.6691303
+Spent: 93.876 ms on: fluid stage: Upwards
+Spent: 94.650 ms on: whole toplevel frame
+frame: 4 - frame time: 96.366 ms, fps: 10.377, previous ts: 1660780475.0511563 - 1660780474.9547906
+Spent: 62.501 ms on: fluid stage: TileUpdate
+Spent: 62.994 ms on: whole toplevel frame
+frame: 5 - frame time: 63.875 ms, fps: 15.656, previous ts: 1660780475.115031 - 1660780475.0511563
+Spent: 115.463 ms on: fluid stage: Downwards
+Spent: 116.153 ms on: whole toplevel frame
+frame: 6 - frame time: 116.859 ms, fps: 8.557, previous ts: 1660780475.2318902 - 1660780475.115031
+Spent: 124.232 ms on: fluid stage: SidewaysPrepare
+Spent: 125.022 ms on: whole toplevel frame
+frame: 7 - frame time: 125.944 ms, fps: 7.940, previous ts: 1660780475.357834 - 1660780475.2318902
+Spent: 284.977 ms on: fluid stage: SidewaysApply
+Spent: 285.727 ms on: whole toplevel frame
+frame: 8 - frame time: 286.690 ms, fps: 3.488, previous ts: 1660780475.644524 - 1660780475.357834
+Spent: 105.733 ms on: fluid stage: Upwards
+Spent: 106.555 ms on: whole toplevel frame
+frame: 9 - frame time: 107.477 ms, fps: 9.304, previous ts: 1660780475.752001 - 1660780475.644524
+Spent: 66.000 ms on: fluid stage: TileUpdate
+Spent: 66.498 ms on: whole toplevel frame
+frame: 10 - frame time: 67.428 ms, fps: 14.831, previous ts: 1660780475.8194287 - 1660780475.752001
+Spent: 121.033 ms on: fluid stage: Downwards
+Spent: 122.092 ms on: whole toplevel frame
+frame: 11 - frame time: 123.334 ms, fps: 8.108, previous ts: 1660780475.9427629 - 1660780475.8194287
+Spent: 137.210 ms on: fluid stage: SidewaysPrepare
+Spent: 137.917 ms on: whole toplevel frame
+frame: 12 - frame time: 139.119 ms, fps: 7.188, previous ts: 1660780476.0818818 - 1660780475.9427629
+Spent: 295.102 ms on: fluid stage: SidewaysApply
+Spent: 295.662 ms on: whole toplevel frame
+frame: 13 - frame time: 296.460 ms, fps: 3.373, previous ts: 1660780476.378342 - 1660780476.0818818
+Spent: 99.942 ms on: fluid stage: Upwards
+Spent: 100.596 ms on: whole toplevel frame
+frame: 14 - frame time: 101.529 ms, fps: 9.849, previous ts: 1660780476.4798706 - 1660780476.378342
+Spent: 65.247 ms on: fluid stage: TileUpdate
+Spent: 65.758 ms on: whole toplevel frame
+frame: 15 - frame time: 66.514 ms, fps: 15.035, previous ts: 1660780476.546384 - 1660780476.4798706
+Spent: 118.301 ms on: fluid stage: Downwards
+Spent: 118.825 ms on: whole toplevel frame
+frame: 16 - frame time: 119.625 ms, fps: 8.359, previous ts: 1660780476.6660092 - 1660780476.546384
+Spent: 132.336 ms on: fluid stage: SidewaysPrepare
+Spent: 132.892 ms on: whole toplevel frame
+frame: 17 - frame time: 133.813 ms, fps: 7.473, previous ts: 1660780476.7998226 - 1660780476.6660092
+Spent: 276.092 ms on: fluid stage: SidewaysApply
+Spent: 276.577 ms on: whole toplevel frame
+frame: 18 - frame time: 277.343 ms, fps: 3.606, previous ts: 1660780477.0771654 - 1660780476.7998226
+Spent: 100.047 ms on: fluid stage: Upwards
+Spent: 100.622 ms on: whole toplevel frame
+frame: 19 - frame time: 101.466 ms, fps: 9.856, previous ts: 1660780477.1786313 - 1660780477.0771654
+Spent: 64.953 ms on: fluid stage: TileUpdate
+Spent: 65.660 ms on: whole toplevel frame
+

@@ -13,8 +13,8 @@ use crate::world::map::CellIndex;
 use crate::world::map::Map;
 use std::collections::{HashSet, VecDeque};
 
-const DEFAULT_PROFILE_ENABLED: bool = false;
-const DEFAULT_ADVANCING_FLUIDS: bool = false;
+const DEFAULT_PROFILE_ENABLED: bool = true;
+const DEFAULT_ADVANCING_FLUIDS: bool = true;
 const DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES: i32 = 1;
 const DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES: i32 = 15;
 
