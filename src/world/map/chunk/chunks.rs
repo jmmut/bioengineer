@@ -4,13 +4,16 @@
 pub use vec_impl::{Chunks, IntoIter};
 
 mod vec_impl {
+    use std::cell::RefCell;
     use std::collections::HashMap;
+    use std::ops::Deref;
     use crate::world::map::chunk::{Chunk, ChunkIndex};
     // pub type Chunks = HashMap<ChunkIndex, Chunk>;
     pub type IntoIter = IntoIter2;
 
     pub struct Chunks {
         inner_vec: Vec<(ChunkIndex, Chunk)>,
+        recently_used: RefCell<Option<usize>>,
     }
 
     type ChunkEntry = (ChunkIndex, Chunk);
@@ -19,6 +22,7 @@ mod vec_impl {
         pub fn new() -> Self {
             Chunks {
                 inner_vec : Vec::new(),
+                recently_used: RefCell::new(Option::None),
             }
         }
 
@@ -37,6 +41,7 @@ mod vec_impl {
         pub fn get_mut(&mut self, chunk_index: &ChunkIndex) -> Option<&mut Chunk> {
             for (i, (present_chunk_index, present_chunk)) in self.inner_vec.iter_mut().enumerate() {
                 if (*present_chunk_index).eq(chunk_index) {
+                    self.recently_used.replace(Option::Some(i));
                     return Option::Some(present_chunk);
                 }
             }
@@ -44,8 +49,16 @@ mod vec_impl {
         }
 
         pub fn get(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
+            if let Option::Some(i) = self.recently_used.borrow().deref() {
+                if let Option::Some(entry) = self.inner_vec.get(*i) {
+                    if entry.0.eq(chunk_index) {
+                        return Option::Some(&entry.1)
+                    }
+                }
+            }
             for (i, (present_chunk_index, present_chunk)) in self.inner_vec.iter().enumerate() {
                 if present_chunk_index.eq(chunk_index) {
+                    self.recently_used.replace(Option::Some(i));
                     return Option::Some(present_chunk);
                 }
             }
@@ -68,6 +81,7 @@ mod vec_impl {
         fn clone(&self) -> Self {
             Chunks {
                 inner_vec: self.inner_vec.clone(),
+                recently_used: RefCell::new(Option::None),
             }
         }
     }
