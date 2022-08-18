@@ -11,7 +11,8 @@ pub static mut CACHE_HITS : i64 = 0;
 
 mod vec_impl {
     use std::cell::RefCell;
-    use std::ops::Deref;
+    use std::collections::VecDeque;
+    use std::ops::{Deref, DerefMut};
     use crate::world::map::chunk::{Chunk, ChunkIndex};
     use super::{CACHE_HITS, CACHE_MISSES};
 
@@ -35,7 +36,7 @@ mod vec_impl {
 
     pub struct Chunks {
         inner_vec: Vec<(ChunkIndex, Chunk)>,
-        recently_used: RefCell<Option<usize>>,
+        recently_used: RefCell<VecDeque<usize>>,
     }
 
     type ChunkEntry = (ChunkIndex, Chunk);
@@ -44,7 +45,7 @@ mod vec_impl {
         pub fn new() -> Self {
             Chunks {
                 inner_vec : Vec::new(),
-                recently_used: RefCell::new(Option::None),
+                recently_used: RefCell::new(VecDeque::new()),
             }
         }
 
@@ -63,7 +64,17 @@ mod vec_impl {
         pub fn get_mut(&mut self, chunk_index: &ChunkIndex) -> Option<&mut Chunk> {
             for (i, (present_chunk_index, present_chunk)) in self.inner_vec.iter_mut().enumerate() {
                 if (*present_chunk_index).eq(chunk_index) {
-                    self.recently_used.replace(Option::Some(i));
+                    let lru = self.recently_used.get_mut();
+                    if lru.len() == 0 {
+                        lru.push_front(i);
+                    } else {
+                        if !(i.eq(lru.front().unwrap())) {
+                            lru.push_front(i);
+                            if lru.len() > 2 {
+                                lru.pop_back();
+                            }
+                        }
+                    }
                     return Option::Some(present_chunk);
                 }
             }
@@ -71,7 +82,15 @@ mod vec_impl {
         }
 
         pub fn get(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
-            if let Option::Some(i) = self.recently_used.borrow().deref() {
+            if let Option::Some(i) = self.recently_used.borrow().deref().front() {
+                if let Option::Some(entry) = self.inner_vec.get(*i) {
+                    if entry.0.eq(chunk_index) {
+                        record_cache_hit();
+                        return Option::Some(&entry.1)
+                    }
+                }
+            }
+            if let Option::Some(i) = self.recently_used.borrow().deref().back() {
                 if let Option::Some(entry) = self.inner_vec.get(*i) {
                     if entry.0.eq(chunk_index) {
                         record_cache_hit();
@@ -82,7 +101,18 @@ mod vec_impl {
             record_cache_miss();
             for (i, (present_chunk_index, present_chunk)) in self.inner_vec.iter().enumerate() {
                 if present_chunk_index.eq(chunk_index) {
-                    self.recently_used.replace(Option::Some(i));
+                    let mut lru = self.recently_used.take();
+                    if lru.len() == 0 {
+                        lru.push_front(i);
+                    } else {
+                        if !(i.eq(lru.front().unwrap())) {
+                            lru.push_front(i);
+                            if lru.len() > 2 {
+                                lru.pop_back();
+                            }
+                        }
+                    }
+                    self.recently_used.replace(lru);
                     return Option::Some(present_chunk);
                 }
             }
@@ -105,7 +135,7 @@ mod vec_impl {
         fn clone(&self) -> Self {
             Chunks {
                 inner_vec: self.inner_vec.clone(),
-                recently_used: RefCell::new(Option::None),
+                recently_used: RefCell::new(VecDeque::new()),
             }
         }
     }
