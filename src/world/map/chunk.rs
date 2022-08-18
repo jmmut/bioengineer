@@ -17,8 +17,8 @@ pub use crate::world::map::chunk::cell_iter::CellIter;
 use crate::world::map::chunk::chunk_cell_index_iter::{
     chunk_local_index_to_global_index, ChunkCellIndexIter,
 };
-use crate::IVec3;
 use crate::world::map::chunk::chunks::Chunks;
+use crate::IVec3;
 
 pub type ChunkIndex = IVec3;
 

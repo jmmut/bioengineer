@@ -1,4 +1,3 @@
-
 // comment/uncomment to choose Chunks implementation:
 // pub use hash_impl::{Chunks, IntoIter};
 pub use vec_impl::{Chunks, IntoIter};
@@ -8,12 +7,13 @@ pub use vec_impl::{Chunks, IntoIter};
 pub mod cache;
 
 mod vec_impl {
-    use std::collections::HashMap;
+    use crate::world::map::chunk::chunks::cache::{
+        record_cache_cold_hit, record_cache_hot_hit, record_cache_miss, IndexCache,
+    };
     use crate::world::map::chunk::{Chunk, ChunkIndex};
-    use crate::world::map::chunk::chunks::cache::{IndexCache, record_cache_cold_hit, record_cache_hot_hit, record_cache_miss};
+    use std::collections::HashMap;
 
     pub type IntoIter = IntoIter2;
-
 
     pub struct Chunks {
         inner_vec: Vec<(ChunkIndex, Chunk)>,
@@ -40,15 +40,15 @@ mod vec_impl {
                 self.inner_vec.push((chunk_index, chunk));
                 self.inner_map.insert(chunk_index, self.inner_vec.len() - 1);
                 Option::None
-            }
+            };
         }
 
         /// note that get_mut doesn't use the cache! Didn't need it so far
         pub fn get_mut(&mut self, chunk_index: &ChunkIndex) -> Option<&mut Chunk> {
             if let Option::Some(i) = self.inner_map.get(chunk_index) {
-                return self.inner_vec.get_mut(*i).map(|entry| &mut entry.1)
+                return self.inner_vec.get_mut(*i).map(|entry| &mut entry.1);
             }
-            return Option::None
+            return Option::None;
         }
 
         pub fn get(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
@@ -67,9 +67,9 @@ mod vec_impl {
         fn full_scan(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
             if let Option::Some(i) = self.inner_map.get(chunk_index) {
                 self.recently_used.add_to_cache(*i);
-                return self.inner_vec.get(*i).map(|entry| &entry.1)
+                return self.inner_vec.get(*i).map(|entry| &entry.1);
             }
-            return Option::None
+            return Option::None;
         }
 
         fn try_hot_cache(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
@@ -77,7 +77,7 @@ mod vec_impl {
             if let Option::Some(entry) = self.inner_vec.get(i) {
                 if entry.0.eq(chunk_index) {
                     record_cache_hot_hit();
-                    return Option::Some(&entry.1)
+                    return Option::Some(&entry.1);
                 }
             }
             Option::None
@@ -89,7 +89,7 @@ mod vec_impl {
                 if entry.0.eq(chunk_index) {
                     self.recently_used.add_to_cache(i);
                     record_cache_cold_hit();
-                    return Option::Some(&entry.1)
+                    return Option::Some(&entry.1);
                 }
             }
             Option::None
@@ -100,11 +100,15 @@ mod vec_impl {
         }
 
         pub fn iter(&self) -> Iter2<'_> {
-            Iter2 { inner: self.inner_vec.iter() }
+            Iter2 {
+                inner: self.inner_vec.iter(),
+            }
         }
 
         pub fn iter_mut(&mut self) -> IterMut2<'_> {
-            IterMut2 {inner: self.inner_vec.iter_mut() }
+            IterMut2 {
+                inner: self.inner_vec.iter_mut(),
+            }
         }
     }
     impl Clone for Chunks {
@@ -131,7 +135,9 @@ mod vec_impl {
         type IntoIter = IterMut2<'a>;
 
         fn into_iter(self) -> Self::IntoIter {
-            IterMut2{ inner: self.inner_vec.iter_mut() }
+            IterMut2 {
+                inner: self.inner_vec.iter_mut(),
+            }
         }
     }
 
@@ -144,36 +150,33 @@ mod vec_impl {
         }
     }
 
-
     pub struct Iter2<'a> {
         inner: std::slice::Iter<'a, (ChunkIndex, Chunk)>,
     }
 
     impl<'a> Iterator for Iter2<'a> {
-        type Item = &'a(ChunkIndex, Chunk);
+        type Item = &'a (ChunkIndex, Chunk);
         fn next(&mut self) -> Option<Self::Item> {
             self.inner.next()
         }
     }
-
 
     pub struct IterMut2<'a> {
         inner: std::slice::IterMut<'a, (ChunkIndex, Chunk)>,
     }
 
     impl<'a> Iterator for IterMut2<'a> {
-        type Item =  &'a mut (ChunkIndex, Chunk);
+        type Item = &'a mut (ChunkIndex, Chunk);
 
         fn next(&mut self) -> Option<Self::Item> {
             self.inner.next()
         }
     }
-
 }
 
 mod hash_impl {
-    use std::collections::HashMap;
     use crate::world::map::chunk::{Chunk, ChunkIndex};
+    use std::collections::HashMap;
     // pub type Chunks = HashMap<ChunkIndex, Chunk>;
     #[allow(unused)]
     pub type IntoIter = IntoIter2;
@@ -185,7 +188,7 @@ mod hash_impl {
     impl Chunks {
         pub fn new() -> Self {
             Chunks {
-                inner_map : HashMap::new()
+                inner_map: HashMap::new(),
             }
         }
 
@@ -193,7 +196,7 @@ mod hash_impl {
             self.inner_map.insert(chunk_index, chunk)
         }
 
-        pub fn get_mut(&mut self, chunk_index: &ChunkIndex) -> Option<&mut Chunk>{
+        pub fn get_mut(&mut self, chunk_index: &ChunkIndex) -> Option<&mut Chunk> {
             self.inner_map.get_mut(chunk_index)
         }
 
@@ -206,16 +209,22 @@ mod hash_impl {
         }
 
         pub fn iter(&self) -> Iter2<'_> {
-            Iter2 { inner: self.inner_map.iter() }
+            Iter2 {
+                inner: self.inner_map.iter(),
+            }
         }
 
         pub fn iter_mut(&mut self) -> IterMut2<'_> {
-            IterMut2 {inner: self.inner_map.iter_mut() }
+            IterMut2 {
+                inner: self.inner_map.iter_mut(),
+            }
         }
     }
     impl Clone for Chunks {
         fn clone(&self) -> Self {
-            Chunks {inner_map: self.inner_map.clone() }
+            Chunks {
+                inner_map: self.inner_map.clone(),
+            }
         }
     }
 
@@ -233,7 +242,9 @@ mod hash_impl {
         type IntoIter = IterMut2<'a>;
 
         fn into_iter(self) -> Self::IntoIter {
-            IterMut2{ inner: self.inner_map.iter_mut() }
+            IterMut2 {
+                inner: self.inner_map.iter_mut(),
+            }
         }
     }
 
@@ -246,7 +257,6 @@ mod hash_impl {
         }
     }
 
-
     pub struct Iter2<'a> {
         inner: std::collections::hash_map::Iter<'a, ChunkIndex, Chunk>,
     }
@@ -257,7 +267,6 @@ mod hash_impl {
             self.inner.next()
         }
     }
-
 
     pub struct IterMut2<'a> {
         inner: std::collections::hash_map::IterMut<'a, ChunkIndex, Chunk>,
@@ -270,5 +279,4 @@ mod hash_impl {
             self.inner.next()
         }
     }
-
 }

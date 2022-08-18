@@ -22,11 +22,11 @@ use external::input_macroquad::InputMacroquad as InputSource;
 use common::profiling::ScopedProfiler;
 use screen::drawer_trait::DrawerTrait;
 // use screen::gui::Gui;
+use crate::world::map::chunk::chunks::cache::print_cache_stats;
 use screen::input::InputSourceTrait;
 use screen::Screen;
 use world::game_state::GameState;
 use world::World;
-use crate::world::map::chunk::chunks::cache::print_cache_stats;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1600;
 const DEFAULT_WINDOW_HEIGHT: i32 = 900;

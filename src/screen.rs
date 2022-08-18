@@ -1,11 +1,11 @@
+use crate::screen::gui::{draw_map, hud};
 use crate::world::World;
+use crate::Color;
 use crate::{GameState, InputSourceTrait};
 use drawer_trait::DrawerTrait;
 use drawing_state::DrawingState;
 use gui::gui_actions::GuiActions;
 use gui::Gui;
-use crate::screen::gui::{draw_map, hud};
-use crate::Color;
 
 pub mod assets;
 pub mod drawer_trait;

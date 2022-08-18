@@ -7,16 +7,16 @@ mod map_iterator;
 mod ref_mut_iterator;
 pub mod transform_cells;
 
+use crate::common::trunc::trunc_towards_neg_inf;
+use crate::{now, IVec3};
 pub use cell::{
     is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, Cell, TileType,
 };
 pub use cell_cube_iterator::CellCubeIterator;
 use cell_envelope::Envelope;
-use chunk::Chunk;
 use chunk::chunks::Chunks;
+use chunk::Chunk;
 use chunk::{get_chunk_index, get_required_chunks};
-use crate::common::trunc::trunc_towards_neg_inf;
-use crate::{IVec3, now};
 use map_iterator::MutMapIterator;
 use opensimplex_noise_rs::OpenSimplexNoise;
 use std::cmp::Ordering;

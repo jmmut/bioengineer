@@ -1,8 +1,8 @@
 use crate::world::map::chunk::cell_iter::CellIterItem;
-use crate::world::map::chunk::{CellIter, chunks};
+use crate::world::map::chunk::chunks::Chunks;
+use crate::world::map::chunk::{chunks, CellIter};
 use crate::world::map::ref_mut_iterator::RefMutIterator;
 use crate::world::map::CellIndex;
-use crate::world::map::chunk::chunks::Chunks;
 
 /*
 /// Note that this iterator needs a &Map. That is, iterate a map by reference:
