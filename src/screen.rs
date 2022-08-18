@@ -1,15 +1,19 @@
 use crate::world::World;
-use crate::InputSourceTrait;
+use crate::{GameState, InputSourceTrait};
 use drawer_trait::DrawerTrait;
-use drawing_state::{draw, DrawingState};
+use drawing_state::DrawingState;
 use gui::gui_actions::GuiActions;
 use gui::Gui;
+use crate::screen::gui::{draw_map, hud};
+use crate::Color;
 
 pub mod assets;
 pub mod drawer_trait;
 pub mod drawing_state;
 pub mod gui;
 pub mod input;
+
+const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
 pub struct Screen<Drawer: DrawerTrait, InputSource: InputSourceTrait> {
     drawer: Drawer,
@@ -43,4 +47,12 @@ impl<Drawer: DrawerTrait, InputSource: InputSourceTrait> Screen<Drawer, InputSou
     pub fn draw(&self, world: &World) {
         draw(&self.drawer, &world.game_state, &self.drawing_state);
     }
+}
+
+pub fn draw(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &DrawingState) {
+    drawer.clear_background(GREY);
+    draw_map::draw_map(drawer, game_state, drawing);
+    hud::draw_fps(drawer, game_state);
+    hud::draw_level(drawer, drawing.min_cell.y, drawing.max_cell.y);
+    hud::draw_networks(drawer, game_state);
 }

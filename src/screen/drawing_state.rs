@@ -3,9 +3,7 @@ pub mod highlight_cells;
 pub mod move_horizontally;
 
 use crate::screen::drawer_trait::DrawerTrait;
-use crate::screen::gui::hud;
-use crate::screen::gui::{draw_map, GuiActions};
-use crate::world::game_state::GameState;
+use crate::screen::gui::GuiActions;
 use crate::world::map::CellIndex;
 use crate::{Color, IVec2, Vec2, Vec3};
 use std::collections::HashSet;
@@ -13,15 +11,6 @@ use std::collections::HashSet;
 pub type TilePosition = IVec2;
 pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
-const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
-
-pub fn draw(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &DrawingState) {
-    drawer.clear_background(GREY);
-    draw_map::draw_map(drawer, game_state, drawing);
-    hud::draw_fps(drawer, game_state);
-    hud::draw_level(drawer, drawing.min_cell.y, drawing.max_cell.y);
-    hud::draw_networks(drawer, game_state);
-}
 
 pub struct DrawingState {
     pub min_cell: CellIndex,

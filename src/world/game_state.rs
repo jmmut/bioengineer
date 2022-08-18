@@ -15,7 +15,7 @@ use std::collections::{HashSet, VecDeque};
 
 const DEFAULT_PROFILE_ENABLED: bool = true;
 const DEFAULT_ADVANCING_FLUIDS: bool = true;
-const DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES: i32 = 1;
+const DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES: i32 = 10;
 const DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES: i32 = 15;
 
 pub struct GameState {
