@@ -52,15 +52,10 @@ mod vec_impl {
 
     fn add_to_cache(i: usize, wrapped_cache: &RefCell<VecDeque<usize>>) {
         let mut cache = wrapped_cache.take();
-        if cache.len() == 0 {
+        assert_eq!(cache.len(), 2);
+        if !(i.eq(cache.front().unwrap())) {
             cache.push_front(i);
-        } else {
-            if !(i.eq(cache.front().unwrap())) {
-                cache.push_front(i);
-                if cache.len() > 2 {
-                    cache.pop_back();
-                }
-            }
+            cache.pop_back();
         }
         wrapped_cache.replace(cache);
     }
@@ -82,7 +77,7 @@ mod vec_impl {
             Chunks {
                 inner_vec: Vec::new(),
                 inner_map: HashMap::new(),
-                recently_used: RefCell::new(VecDeque::new()),
+                recently_used: RefCell::new(VecDeque::from(vec![0, 0])),
             }
         }
 
@@ -124,15 +119,15 @@ mod vec_impl {
 
         fn full_scan(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
             if let Option::Some(i) = self.inner_map.get(chunk_index) {
-                    add_to_cache(*i, &self.recently_used);
+                add_to_cache(*i, &self.recently_used);
                 return Option::Some(&self.inner_vec.get(*i).unwrap().1)
             }
             return Option::None
         }
 
         fn try_hot_cache(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
-            if let Option::Some(i) = self.recently_used.borrow().deref().front() {
-                if let Option::Some(entry) = self.inner_vec.get(*i) {
+            if let Option::Some(i) = self.get_hot_cached_index() {
+                if let Option::Some(entry) = self.inner_vec.get(i) {
                     if entry.0.eq(chunk_index) {
                         record_cache_hot_hit();
                         return Option::Some(&entry.1)
@@ -140,6 +135,10 @@ mod vec_impl {
                 }
             }
             Option::None
+        }
+
+        fn get_hot_cached_index(&self) -> Option<usize> {
+            self.recently_used.borrow().deref().front().copied()
         }
 
         fn try_cold_cache(&self, chunk_index: &ChunkIndex) -> Option<&Chunk> {
@@ -177,7 +176,7 @@ mod vec_impl {
             Chunks {
                 inner_vec: self.inner_vec.clone(),
                 inner_map: self.inner_map.clone(),
-                recently_used: RefCell::new(VecDeque::new()),
+                recently_used: RefCell::new(VecDeque::from(vec![0, 0])),
             }
         }
     }
