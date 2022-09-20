@@ -11,6 +11,7 @@ pub trait InputSourceTrait {
 pub struct Input {
     pub quit: bool,
     pub regenerate_map: bool,
+    pub toggle_profiling: bool,
     pub toggle_fluids: bool,
     pub single_fluid: bool,
     pub change_height_rel: i32,

@@ -64,6 +64,9 @@ impl GameState {
     pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) {
         self.update_task_queue(gui_actions);
 
+        if gui_actions.input.toggle_profiling {
+            self.profile = !self.profile;
+        }
         if gui_actions.input.toggle_fluids {
             self.advancing_fluids = !self.advancing_fluids;
         }

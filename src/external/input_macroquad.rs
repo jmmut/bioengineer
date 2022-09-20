@@ -114,6 +114,7 @@ impl InputSourceTrait for InputMacroquad {
     fn get_input(&mut self) -> Input {
         let quit = is_key_pressed(KeyCode::Escape);
         let regenerate_map = is_key_pressed(KeyCode::M);
+        let toggle_profiling = is_key_pressed(KeyCode::P);
         let toggle_fluids = is_key_pressed(KeyCode::Space);
         let single_fluid = is_key_pressed(KeyCode::N);
         let change_height_rel = self.get_mouse_wheel_height_diff();
@@ -123,6 +124,7 @@ impl InputSourceTrait for InputMacroquad {
         Input {
             quit,
             regenerate_map,
+            toggle_profiling,
             toggle_fluids,
             single_fluid,
             change_height_rel,
