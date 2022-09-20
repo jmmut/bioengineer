@@ -1,5 +1,5 @@
 use crate::screen::input::Input;
-use crate::world::game_state::TransformationTask;
+use crate::world::game_state::{GameGoalState, TransformationTask};
 use crate::world::map::CellIndex;
 
 pub struct GuiActions {
@@ -9,6 +9,7 @@ pub struct GuiActions {
     pub go_to_robot: Option<CellIndex>,
     pub cancel_task: Option<usize>,
     pub do_now_task: Option<usize>,
+    pub next_game_goal_state: Option<GameGoalState>,
 }
 
 impl GuiActions {

@@ -1,11 +1,12 @@
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
-use crate::screen::input::Input;
+use crate::screen::input::{CellSelection, Input};
+use crate::world::game_state::GameGoalState::{Finished, PostFinished};
 use crate::world::game_state::Task;
 use crate::world::map::TileType;
-use crate::Color;
 use crate::GameState;
+use crate::{Color, Rect, Vec2};
 use coords::cell_pixel::clicked_cell;
 use draw_available_transformations::show_available_transformations;
 pub use gui_actions::GuiActions;
@@ -50,11 +51,13 @@ impl Gui {
             go_to_robot: Option::None,
             cancel_task: Option::None,
             do_now_task: Option::None,
+            next_game_goal_state: Option::None,
         };
         let unhandled_input =
             show_available_transformations(drawer, game_state, unhandled_input, drawing);
         let unhandled_input = robot_movement_from_pixel_to_cell(drawer, unhandled_input, drawing);
         let unhandled_input = draw_robot_queue(drawer, game_state, unhandled_input);
+        let unhandled_input = draw_game_finished(drawer, game_state, unhandled_input);
         unhandled_input
     }
     fn set_skin(drawer: &mut impl DrawerTrait) {
@@ -150,6 +153,60 @@ pub fn draw_robot_queue(
         go_to_robot,
         cancel_task,
         do_now_task,
+        ..gui_actions
+    }
+}
+
+pub fn draw_game_finished(
+    drawer: &impl DrawerTrait,
+    game_state: &GameState,
+    gui_actions: GuiActions,
+) -> GuiActions {
+    let mut input = gui_actions.input;
+    let next_game_goal_state = if game_state.goal_state == Finished {
+        let panel_title = "You won!";
+        let text_size = drawer.measure_text(panel_title, FONT_SIZE);
+        let width_by_title = text_size.x * 3.0;
+        let height_per_line = text_size.y * 2.0;
+        let center = Vec2::new(drawer.screen_width() / 2.0, drawer.screen_height() / 2.0);
+
+        let panel = Rect::new(
+            center.x - width_by_title / 2.0,
+            center.y - height_per_line * 2.0,
+            width_by_title,
+            height_per_line * 5.0,
+        );
+        drawer.draw_rectangle(panel.x, panel.y, panel.w, panel.h, BACKGROUND_UI_COLOR);
+
+        if let Option::Some(selection) = input.cell_selection.selection {
+            if panel.contains(selection.end) {
+                input.cell_selection = CellSelection::no_selection();
+            }
+        }
+
+        drawer.draw_text(
+            panel_title,
+            center.x - text_size.x / 2.0,
+            center.y - height_per_line,
+            FONT_SIZE,
+            TEXT_COLOR,
+        );
+        if drawer.do_button(
+            "Continue",
+            center.x - text_size.x / 2.0,
+            center.y + height_per_line,
+        ) {
+            Some(PostFinished)
+        } else {
+            None
+        }
+        // TODO: add restarted state
+    } else {
+        None
+    };
+    GuiActions {
+        next_game_goal_state,
+        input,
         ..gui_actions
     }
 }

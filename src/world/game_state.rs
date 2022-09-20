@@ -7,6 +7,7 @@ use crate::world::game_state::networks::Networks;
 use crate::world::game_state::robots::{
     is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
 };
+use crate::world::game_state::GameGoalState::{Finished, Started};
 use crate::world::map::fluids::{FluidMode, Fluids};
 use crate::world::map::transform_cells::Transformation;
 use crate::world::map::CellIndex;
@@ -17,6 +18,13 @@ const DEFAULT_PROFILE_ENABLED: bool = false;
 const DEFAULT_ADVANCING_FLUIDS: bool = false;
 const DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES: i32 = 10;
 const DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES: i32 = 15;
+
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum GameGoalState {
+    Started,
+    Finished,
+    PostFinished,
+}
 
 pub struct GameState {
     pub frame_index: i32,
@@ -31,6 +39,7 @@ pub struct GameState {
     pub robots: Vec<Robot>,
     pub task_queue: VecDeque<Task>,
     pub networks: Networks,
+    pub goal_state: GameGoalState,
 }
 
 impl GameState {
@@ -58,6 +67,7 @@ impl GameState {
             robots,
             task_queue: VecDeque::new(),
             networks: Networks::new(),
+            goal_state: Finished,
         }
     }
 
@@ -77,6 +87,7 @@ impl GameState {
         if gui_actions.input.regenerate_map {
             self.map.regenerate();
         }
+        self.goal_state = gui_actions.next_game_goal_state.unwrap_or(self.goal_state);
     }
 
     fn update_task_queue(&mut self, gui_actions: &GuiActions) {
