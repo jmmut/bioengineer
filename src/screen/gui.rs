@@ -36,7 +36,7 @@ impl Gui {
 }
 
 impl Gui {
-    pub fn receive_actions(
+    pub fn process_input(
         &self,
         input: Input,
         drawer: &impl DrawerTrait,

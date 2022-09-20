@@ -58,7 +58,7 @@ pub fn show_available_transformations(
         if let Option::Some(selection) = unhandled_input.input.cell_selection.selection {
             if panel.contains(selection.end) {
                 // TODO: if clicking a button near the bottom of the panel, it selects a cell out
-                //       of screen
+                //       of screen. maybe solved.
                 cell_selection = CellSelection::no_selection();
             }
         }

@@ -72,7 +72,7 @@ pub fn move_robot_to_position(
 }
 
 fn try_move(
-    dirs: &[CellIndexDiff],
+    directions: &[CellIndexDiff],
     current_pos: CellIndex,
     target_pos: CellIndex,
     map: &Map,
@@ -81,14 +81,14 @@ fn try_move(
         Option::Some(Vec::new())
     } else {
         let diff = manhattan_distance(target_pos, current_pos);
-        for dir in dirs {
+        for dir in directions {
             let possible_new_pos = current_pos + *dir;
             let walkable = is_position_walkable(map, &possible_new_pos, &current_pos);
             if walkable {
                 let moving_to_dir_gets_us_closer =
                     manhattan_distance(target_pos, possible_new_pos) < diff;
                 if moving_to_dir_gets_us_closer {
-                    let path = try_move(dirs, possible_new_pos, target_pos, map);
+                    let path = try_move(directions, possible_new_pos, target_pos, map);
                     if let Option::Some(mut some_path) = path {
                         some_path.push(*dir);
                         return Option::Some(some_path);

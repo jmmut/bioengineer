@@ -64,7 +64,7 @@ fn frame<D: DrawerTrait, I: InputSourceTrait>(
     world: &mut World,
 ) -> bool {
     let _profiler = ScopedProfiler::new_named(world.game_state.profile, "whole toplevel frame");
-    screen.draw(world);
+    screen.draw(world); //TODO: render gui to a texture and draw at the end of the frame
     let gui_actions = screen.get_gui_actions(world);
     let should_continue = world.update(gui_actions);
     should_continue
