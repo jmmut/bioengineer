@@ -164,6 +164,8 @@ pub fn draw_game_finished(
 ) -> GuiActions {
     let mut input = gui_actions.input;
     let next_game_goal_state = if game_state.goal_state == Finished {
+        input.cell_selection = CellSelection::no_selection();
+        input.robot_movement = None;
         let panel_title = "You won!";
         let text_size = drawer.measure_text(panel_title, FONT_SIZE);
         let width_by_title = text_size.x * 3.0;
@@ -177,12 +179,6 @@ pub fn draw_game_finished(
             height_per_line * 5.0,
         );
         drawer.draw_rectangle(panel.x, panel.y, panel.w, panel.h, BACKGROUND_UI_COLOR);
-
-        if let Option::Some(selection) = input.cell_selection.selection {
-            if panel.contains(selection.end) {
-                input.cell_selection = CellSelection::no_selection();
-            }
-        }
 
         drawer.draw_text(
             panel_title,
