@@ -262,23 +262,34 @@ fn adjacent_positions() -> Vec<CellIndexDiff> {
 fn format_unit(quantity: f64, unit_name: &str) -> String {
     let unsigned_quantity = quantity.abs().floor();
     if unsigned_quantity < KILO {
-        format!("{} {}", quantity.floor(), unit_name)
+        format!("{} {}", round_with_some_decimals(quantity), unit_name)
     } else if unsigned_quantity < MEGA {
-        format!("{} K{}", (quantity / KILO).floor(), unit_name)
+        format!("{} K{}", round_with_some_decimals(quantity / KILO), unit_name)
     } else if unsigned_quantity < GIGA {
-        format!("{} M{}", (quantity / MEGA).floor(), unit_name)
+        format!("{} M{}", round_with_some_decimals(quantity / MEGA), unit_name)
     } else if unsigned_quantity < TERA {
-        format!("{} G{}", (quantity / GIGA).floor(), unit_name)
+        format!("{} G{}", round_with_some_decimals(quantity / GIGA), unit_name)
     } else if unsigned_quantity < PETA {
-        format!("{} T{}", (quantity / TERA).floor(), unit_name)
+        format!("{} T{}", round_with_some_decimals(quantity / TERA), unit_name)
     } else if unsigned_quantity < EXA {
-        format!("{} P{}", (quantity / PETA).floor(), unit_name)
+        format!("{} P{}", round_with_some_decimals(quantity / PETA), unit_name)
     } else if unsigned_quantity < ZETTA {
-        format!("{} E{}", (quantity / EXA).floor(), unit_name)
+        format!("{} E{}", round_with_some_decimals(quantity / EXA), unit_name)
     } else if unsigned_quantity < YOTTA {
-        format!("{} Z{}", (quantity / ZETTA).floor(), unit_name)
+        format!("{} Z{}", round_with_some_decimals(quantity / ZETTA), unit_name)
     } else {
-        format!("{} Y{}", (quantity / YOTTA).floor(), unit_name)
+        format!("{} Y{}", round_with_some_decimals(quantity / YOTTA), unit_name)
+    }
+}
+
+fn round_with_some_decimals(quantity: f64) -> f64 {
+    let unsigned_quantity = quantity.abs();
+    if unsigned_quantity >= 100.0 {
+        quantity.floor()
+    } else if unsigned_quantity >= 10.0 {
+        (quantity * 10.0).floor() / 10.0
+    } else {
+        (quantity * 100.0).floor() / 100.0
     }
 }
 
@@ -354,10 +365,15 @@ mod tests {
     fn test_format_units() {
         assert_eq!(format_unit(1000.0, " paperclips"), "1 K paperclips");
         assert_eq!(format_unit(0.0, "W"), "0 W");
-        assert_eq!(format_unit(0.5, "W"), "0 W");
-        assert_eq!(format_unit(-0.5, "W"), "-1 W");
+        assert_eq!(format_unit(0.5, "W"), "0.5 W");
+        assert_eq!(format_unit(-0.5, "W"), "-0.5 W");
+        assert_eq!(format_unit(10.0, "W"), "10 W");
         assert_eq!(format_unit(999.0, "W"), "999 W");
         assert_eq!(format_unit(1000.0, "W"), "1 KW");
+        assert_eq!(format_unit(1110.0, "W"), "1.11 KW");
+        assert_eq!(format_unit(10000.0, "W"), "10 KW");
+        assert_eq!(format_unit(10100.0, "W"), "10.1 KW");
+        assert_eq!(format_unit(100100.0, "W"), "100 KW");
         assert_eq!(format_unit(999999.0, "W"), "999 KW");
         assert_eq!(format_unit(1000000.0, "W"), "1 MW");
         assert_eq!(format_unit(999999999.0, "W"), "999 MW");
