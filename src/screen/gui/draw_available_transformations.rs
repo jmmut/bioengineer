@@ -87,6 +87,7 @@ fn to_action_str(tile: TileType) -> &'static str {
         TileType::Air => "Remove cell",
         TileType::Wire => "Build plumbing",
         TileType::MachineAssembler => "Build assembler",
+        TileType::MachineAirCleaner => "Build air cleaner",
         TileType::MachineDrill => "Build drill",
         TileType::MachineSolarPanel => "Build solar panel",
         TileType::MachineShip => "Build space ship",

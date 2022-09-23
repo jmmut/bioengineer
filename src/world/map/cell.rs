@@ -22,6 +22,7 @@ pub enum TileType {
     Air = 26,
     Wire = 5,
     MachineAssembler = 12,
+    MachineAirCleaner = 30,
     MachineDrill = 13,
     MachineSolarPanel = 21,
     MachineShip = 28,
@@ -55,6 +56,7 @@ pub fn is_walkable_horizontal(tile: TileType) -> bool {
         Stairs,
         Wire,
         MachineAssembler,
+        MachineAirCleaner,
         MachineDrill,
         MachineSolarPanel,
         MachineShip,
@@ -78,6 +80,7 @@ pub fn is_covering(tile: TileType) -> bool {
         DirtyWaterWall,
         CleanWaterWall,
         MachineAssembler,
+        MachineAirCleaner,
         MachineDrill,
         MachineSolarPanel,
         MachineShip,
@@ -86,7 +89,7 @@ pub fn is_covering(tile: TileType) -> bool {
 }
 
 pub fn is_networkable(tile: TileType) -> bool {
-    [Wire, MachineAssembler, MachineDrill, MachineSolarPanel].contains(&tile)
+    [Wire, MachineAssembler, MachineAirCleaner, MachineDrill, MachineSolarPanel].contains(&tile)
 }
 
 impl Cell {

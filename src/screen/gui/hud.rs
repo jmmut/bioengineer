@@ -52,10 +52,11 @@ pub fn draw_networks(drawer: &impl DrawerTrait, game_state: &GameState) {
     );
     for (network_id, network) in game_state.networks.iter().enumerate() {
         let text = format!(
-            "  Network #{} - Power generated: {}. Power required: {}.",
+            "  Network #{} - Power generated: {}. Power required: {}. Air cleaned: {}",
             network_id + 1,
             network.get_power_generated_str(),
             network.get_power_required_str(),
+            network.get_air_cleaned_str(),
         );
         let text_color = if network.is_power_satisfied() {
             TEXT_COLOR

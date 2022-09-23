@@ -33,7 +33,7 @@ pub fn allowed_transformations_of_cell(
 ) -> Vec<Transformation> {
     use TileType::*;
 
-    let mut machines = vec![MachineAssembler, MachineDrill, Wire];
+    let mut machines = vec![MachineAssembler, MachineAirCleaner, MachineDrill, Wire];
     if solar_allowed(cell_index, map) {
         machines.push(MachineSolarPanel);
     }
@@ -55,6 +55,7 @@ pub fn allowed_transformations_of_cell(
         Air => vec![DirtyWaterSurface, DirtyWaterWall, WallRock],
         Wire => vec![FloorRock],
         MachineAssembler => vec![FloorRock],
+        MachineAirCleaner => vec![FloorRock],
         MachineDrill => vec![FloorRock],
         MachineSolarPanel => vec![FloorRock],
         MachineShip => vec![FloorRock],
@@ -178,6 +179,7 @@ mod tests {
             transformation,
             vec![
                 Transformation::to(TileType::MachineAssembler),
+                Transformation::to(TileType::MachineAirCleaner),
                 Transformation::to(TileType::MachineDrill),
                 Transformation::to(TileType::Wire),
                 Transformation::to(TileType::MachineSolarPanel),
@@ -198,6 +200,7 @@ mod tests {
             transformation,
             vec![
                 Transformation::to(TileType::MachineAssembler),
+                Transformation::to(TileType::MachineAirCleaner),
                 Transformation::to(TileType::MachineDrill),
                 Transformation::to(TileType::Wire),
                 Transformation::to(TileType::Stairs),

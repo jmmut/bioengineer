@@ -1,7 +1,7 @@
 use crate::world::game_state::robots::CellIndexDiff;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
-use std::slice::Iter;
+use std::slice::{Iter, IterMut};
 
 const KILO: f64 = 1.0e3;
 const MEGA: f64 = 1.0e6;
@@ -18,6 +18,7 @@ pub struct Networks {
 
 pub struct Network {
     pub nodes: Vec<Node>,
+    pub air_cleaned: f64,
 }
 
 pub struct Node {
@@ -109,13 +110,41 @@ impl Networks {
     pub fn iter(&self) -> Iter<Network> {
         self.networks.iter()
     }
+
+    pub fn iter_mut(&mut self) -> IterMut<Network> {
+        self.networks.iter_mut()
+    }
+
+    pub fn get_total_air_cleaned(&self) -> f64 {
+        let mut air_cleaned_across_in_all_networks = 0.0;
+        for network in &self.networks {
+            air_cleaned_across_in_all_networks += network.air_cleaned;
+        }
+        air_cleaned_across_in_all_networks
+    }
 }
 
 const POWER_PER_SOLAR_PANEL: f64 = 1000.0;
 
 impl Network {
     pub fn new() -> Self {
-        Network { nodes: Vec::new() }
+        Network {
+            nodes: Vec::new(),
+            air_cleaned: 0.0,
+        }
+    }
+    pub fn update(&mut self) {
+        let mut air_cleaners = 0;
+        for node in &self.nodes {
+            match node.tile {
+                TileType::MachineAirCleaner => air_cleaners += 1,
+                TileType::MachineAssembler => {},
+                _ => {}
+            }
+        }
+        if self.is_power_satisfied() {
+            self.air_cleaned += air_cleaners as f64;
+        }
     }
 
     pub fn len(&self) -> usize {
@@ -139,9 +168,12 @@ impl Network {
     }
 
     fn get_power_required(&self) -> f64 {
-        let solar_panels_count =
-            self.count_tiles_of_type_in(&[TileType::MachineDrill, TileType::MachineAssembler]);
-        let power = solar_panels_count as f64 * POWER_PER_SOLAR_PANEL;
+        let machines_count = self.count_tiles_of_type_in(&[
+            TileType::MachineDrill,
+            TileType::MachineAssembler,
+            TileType::MachineAirCleaner,
+        ]);
+        let power = machines_count as f64 * POWER_PER_SOLAR_PANEL;
         power
     }
 
@@ -157,6 +189,11 @@ impl Network {
             }
         }
         count
+    }
+
+    pub fn get_air_cleaned_str(&self) -> String {
+        let air_cleaned = self.air_cleaned;
+        format_unit(air_cleaned, "L")
     }
 
     #[allow(unused)]

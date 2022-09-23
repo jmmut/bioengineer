@@ -87,7 +87,8 @@ impl GameState {
         if gui_actions.input.regenerate_map {
             self.map.regenerate();
         }
-        self.goal_state = gui_actions.next_game_goal_state.unwrap_or(self.goal_state);
+        self.update_networks();
+        self.update_goal_state(gui_actions);
     }
 
     fn update_task_queue(&mut self, gui_actions: &GuiActions) {
@@ -224,6 +225,26 @@ impl GameState {
             }
         }
         return false;
+    }
+
+    fn update_networks(&mut self) {
+        for network in self.networks.iter_mut() {
+            network.update();
+        }
+    }
+
+    fn update_goal_state(&mut self, gui_actions: &GuiActions) {
+        if self.goal_state == GameGoalState::Started {
+            if self.networks.get_total_air_cleaned() > self.get_goal_air_cleaned() {
+                self.goal_state = GameGoalState::Finished;
+            }
+        } else {
+            self.goal_state = gui_actions.next_game_goal_state.unwrap_or(self.goal_state);
+        }
+    }
+
+    fn get_goal_air_cleaned(&self) -> f64 {
+        10000.0
     }
 
     pub fn advance_frame(&mut self) {
