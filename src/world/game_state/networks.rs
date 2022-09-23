@@ -1,3 +1,4 @@
+use std::collections::{BTreeSet, HashSet, VecDeque};
 use crate::world::game_state::robots::CellIndexDiff;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
@@ -24,6 +25,11 @@ pub struct Network {
 pub struct Node {
     pub position: CellIndex,
     pub tile: TileType,
+}
+
+pub fn is_adjacent(a: CellIndex, b: CellIndex) -> bool {
+    let diff: CellIndexDiff = a - b;
+    adjacent_positions().contains(&diff)
 }
 
 impl Networks {
@@ -60,19 +66,22 @@ impl Networks {
     }
 
     fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
-        let mut index_network_replaced = Option::None;
         for (i, network) in &mut self.networks.iter_mut().enumerate() {
-            if network.replace_if_present(cell_index, new_machine) {
-                index_network_replaced = Option::Some(i);
-                break;
+            match network.replace_if_present(cell_index, new_machine) {
+                Replacement::SplitNetwork => {
+                    self.split_network(i);
+                    return true;
+                }
+                Replacement::RegularReplacement => {
+                    if self.networks.get(i).unwrap().len() == 0 {
+                        self.networks.remove(i);
+                    }
+                    return true
+                }
+                Replacement::NoReplacement => {}
             }
         }
-        if let Option::Some(i) = index_network_replaced {
-            if self.networks.get(i).unwrap().len() == 0 {
-                self.networks.remove(i);
-            }
-        }
-        return index_network_replaced.is_some();
+        return false;
     }
 
     pub fn get_adjacent_networks(&self, cell_index: CellIndex) -> Vec<usize> {
@@ -128,9 +137,21 @@ impl Networks {
             network.reset();
         }
     }
+    fn split_network(&mut self, network_index: usize) {
+        let mut new_networks = self.networks.get(network_index).unwrap().copy_into_networks();
+        self.networks.remove(network_index);
+        self.networks.append(&mut new_networks.networks);
+    }
 }
 
 const POWER_PER_SOLAR_PANEL: f64 = 1000.0;
+
+#[derive(PartialEq)]
+enum Replacement {
+    SplitNetwork,
+    RegularReplacement,
+    NoReplacement,
+}
 
 impl Network {
     pub fn new() -> Self {
@@ -216,7 +237,7 @@ impl Network {
         Option::None
     }
 
-    fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
+    fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> Replacement {
         let mut index_to_change = Option::None;
         for (i, node) in self.nodes.iter().enumerate() {
             if node.position == cell_index {
@@ -228,27 +249,66 @@ impl Network {
             let should_remove = !is_networkable(new_machine);
             if should_remove {
                 self.nodes.remove(i);
+                if self.is_connected() {
+                    Replacement::RegularReplacement
+                } else {
+                    Replacement::SplitNetwork
+                }
             } else {
                 self.nodes.get_mut(i).unwrap().tile = new_machine;
+                Replacement::RegularReplacement
             }
-            true
         } else {
-            false
+            Replacement::NoReplacement
         };
     }
 
     pub fn is_adjacent(&self, cell_index: CellIndex) -> bool {
         for node in &self.nodes {
-            let diff: CellIndexDiff = node.position - cell_index;
-            if adjacent_positions().contains(&diff) {
+            if is_adjacent(node.position, cell_index) {
                 return true;
             }
         }
         return false;
     }
 
+    pub fn is_connected(&self) -> bool {
+        if self.nodes.is_empty() {
+            return true;
+        }
+        let mut reachable = HashSet::new();
+        let mut queue = VecDeque::new();
+        let first_position = self.nodes.first().unwrap().position;
+        queue.push_back(first_position);
+        reachable.insert(first_position);
+        while let Some(position) = queue.pop_front() {
+            let max_neighbours = adjacent_positions().len();
+            let mut neighbours_found = 0;
+            for other_node in &self.nodes {
+                if !reachable.contains(&other_node.position)
+                        && is_adjacent(position, other_node.position) {
+                    queue.push_back(other_node.position);
+                    reachable.insert(other_node.position);
+                    neighbours_found += 1;
+                    if neighbours_found == max_neighbours {
+                        break;
+                    }
+                }
+            }
+        }
+        return reachable.len() == self.nodes.len();
+    }
+
     pub fn add(&mut self, node: Node) {
         self.nodes.push(node);
+    }
+
+    pub fn copy_into_networks(&self) -> Networks {
+        let mut new_networks = Networks::new();
+        for node in &self.nodes {
+            new_networks.add(node.position, node.tile);
+        }
+        new_networks
     }
 
     pub fn join(&mut self, other: Network) {
@@ -258,8 +318,8 @@ impl Network {
     }
 }
 
-fn adjacent_positions() -> Vec<CellIndexDiff> {
-    vec![
+fn adjacent_positions() -> [CellIndexDiff; 6] {
+    [
         CellIndexDiff::new(1, 0, 0),
         CellIndexDiff::new(-1, 0, 0),
         CellIndexDiff::new(0, 1, 0),
@@ -306,7 +366,7 @@ fn round_with_some_decimals(quantity: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::world::map::{CellIndex, TileType};
+    use crate::world::map::{Cell, CellIndex, TileType};
 
     #[test]
     fn test_join_networks() {
@@ -356,6 +416,29 @@ mod tests {
         assert_eq!(networks.networks.get(0).unwrap().nodes.len(), 1);
         networks.replace_if_present(CellIndex::new(0, 0, 0), TileType::FloorRock);
         assert_eq!(networks.len(), 0);
+    }
+
+    #[test]
+    fn test_split_network() {
+        let mut networks = Networks::new();
+        networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
+        networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
+        networks.add(CellIndex::new(0, 0, 2), TileType::MachineAssembler);
+        assert_eq!(networks.len(), 1);
+        networks.add(CellIndex::new(0, 0, 1), TileType::FloorRock);
+        assert_eq!(networks.len(), 2);
+    }
+
+    #[test]
+    fn test_connected() {
+        let mut network = Network::new();
+        assert_eq!(network.is_connected(), true);
+        network.add(Node { position: CellIndex::new(0, 0, 0), tile: TileType::Unset });
+        assert_eq!(network.is_connected(), true);
+        network.add(Node { position: CellIndex::new(0, 0, 2), tile: TileType::Unset });
+        assert_eq!(network.is_connected(), false);
+        network.add(Node { position: CellIndex::new(0, 0, 1), tile: TileType::Unset });
+        assert_eq!(network.is_connected(), true);
     }
 
     #[test]
