@@ -1,7 +1,7 @@
-use std::collections::{BTreeSet, HashSet, VecDeque};
 use crate::world::game_state::robots::CellIndexDiff;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
+use std::collections::{HashSet, VecDeque};
 use std::slice::{Iter, IterMut};
 
 const KILO: f64 = 1.0e3;
@@ -15,11 +15,11 @@ const YOTTA: f64 = 1.0e24;
 
 pub struct Networks {
     networks: Vec<Network>,
+    air_cleaned: f64,
 }
 
 pub struct Network {
     pub nodes: Vec<Node>,
-    pub air_cleaned: f64,
 }
 
 pub struct Node {
@@ -36,6 +36,7 @@ impl Networks {
     pub fn new() -> Self {
         Networks {
             networks: Vec::new(),
+            air_cleaned: 0.0,
         }
     }
 
@@ -76,7 +77,7 @@ impl Networks {
                     if self.networks.get(i).unwrap().len() == 0 {
                         self.networks.remove(i);
                     }
-                    return true
+                    return true;
                 }
                 Replacement::NoReplacement => {}
             }
@@ -112,6 +113,13 @@ impl Networks {
         self.networks.push(network);
     }
 
+    pub fn update(&mut self) {
+        for network in self.networks.iter_mut() {
+            let update = network.update();
+            self.air_cleaned += update.air_cleaned;
+        }
+    }
+
     pub fn len(&self) -> usize {
         self.networks.len()
     }
@@ -125,26 +133,32 @@ impl Networks {
     }
 
     pub fn get_total_air_cleaned(&self) -> f64 {
-        let mut air_cleaned_across_in_all_networks = 0.0;
-        for network in &self.networks {
-            air_cleaned_across_in_all_networks += network.air_cleaned;
-        }
-        air_cleaned_across_in_all_networks
+        self.air_cleaned
+    }
+
+    pub fn get_total_air_cleaned_str(&self) -> String {
+        let air_cleaned = self.get_total_air_cleaned();
+        format_unit(air_cleaned, "L")
     }
 
     pub fn reset(&mut self) {
-        for network in &mut self.networks {
-            network.reset();
-        }
+        self.air_cleaned = 0.0;
     }
+
     fn split_network(&mut self, network_index: usize) {
-        let mut new_networks = self.networks.get(network_index).unwrap().copy_into_networks();
+        let mut new_networks = self
+            .networks
+            .get(network_index)
+            .unwrap()
+            .copy_into_networks();
         self.networks.remove(network_index);
         self.networks.append(&mut new_networks.networks);
     }
 }
 
 const POWER_PER_SOLAR_PANEL: f64 = 1000.0;
+const POWER_CONSUMED_PER_MACHINE: f64 = POWER_PER_SOLAR_PANEL;
+const AIR_CLEANED_PER_CLEANER: f64 = 1.0;
 
 #[derive(PartialEq)]
 enum Replacement {
@@ -153,29 +167,30 @@ enum Replacement {
     NoReplacement,
 }
 
+struct NetworkUpdate {
+    air_cleaned: f64,
+}
+
 impl Network {
     pub fn new() -> Self {
-        Network {
-            nodes: Vec::new(),
-            air_cleaned: 0.0,
-        }
+        Network { nodes: Vec::new() }
     }
-    pub fn update(&mut self) {
+    pub fn update(&mut self) -> NetworkUpdate {
         let mut air_cleaners = 0;
         for node in &self.nodes {
             match node.tile {
                 TileType::MachineAirCleaner => air_cleaners += 1,
-                TileType::MachineAssembler => {},
+                TileType::MachineAssembler => {}
                 _ => {}
             }
         }
-        if self.is_power_satisfied() {
-            self.air_cleaned += air_cleaners as f64;
+        NetworkUpdate {
+            air_cleaned: if self.is_power_satisfied() {
+                air_cleaners as f64 * AIR_CLEANED_PER_CLEANER
+            } else {
+                0.0
+            },
         }
-    }
-
-    pub fn reset(&mut self) {
-        self.air_cleaned = 0.0;
     }
 
     pub fn len(&self) -> usize {
@@ -222,9 +237,19 @@ impl Network {
         count
     }
 
-    pub fn get_air_cleaned_str(&self) -> String {
-        let air_cleaned = self.air_cleaned;
-        format_unit(air_cleaned, "L")
+    fn get_air_cleaned_speed(&self) -> f64 {
+        if self.is_power_satisfied() {
+            let air_cleaners_count = self.count_tiles_of_type_in(&[TileType::MachineAirCleaner]);
+            let liters = air_cleaners_count as f64 * AIR_CLEANED_PER_CLEANER;
+            liters
+        } else {
+            0.0
+        }
+    }
+
+    pub fn get_air_cleaned_speed_str(&self) -> String {
+        let air_cleaned = self.get_air_cleaned_speed();
+        format_unit(air_cleaned, "L/s")
     }
 
     #[allow(unused)]
@@ -286,7 +311,8 @@ impl Network {
             let mut neighbours_found = 0;
             for other_node in &self.nodes {
                 if !reachable.contains(&other_node.position)
-                        && is_adjacent(position, other_node.position) {
+                    && is_adjacent(position, other_node.position)
+                {
                     queue.push_back(other_node.position);
                     reachable.insert(other_node.position);
                     neighbours_found += 1;
@@ -329,26 +355,58 @@ fn adjacent_positions() -> [CellIndexDiff; 6] {
     ]
 }
 
-fn format_unit(quantity: f64, unit_name: &str) -> String {
+pub fn format_unit(quantity: f64, unit_name: &str) -> String {
     let unsigned_quantity = quantity.abs().floor();
     if unsigned_quantity < KILO {
         format!("{} {}", round_with_some_decimals(quantity), unit_name)
     } else if unsigned_quantity < MEGA {
-        format!("{} K{}", round_with_some_decimals(quantity / KILO), unit_name)
+        format!(
+            "{} K{}",
+            round_with_some_decimals(quantity / KILO),
+            unit_name
+        )
     } else if unsigned_quantity < GIGA {
-        format!("{} M{}", round_with_some_decimals(quantity / MEGA), unit_name)
+        format!(
+            "{} M{}",
+            round_with_some_decimals(quantity / MEGA),
+            unit_name
+        )
     } else if unsigned_quantity < TERA {
-        format!("{} G{}", round_with_some_decimals(quantity / GIGA), unit_name)
+        format!(
+            "{} G{}",
+            round_with_some_decimals(quantity / GIGA),
+            unit_name
+        )
     } else if unsigned_quantity < PETA {
-        format!("{} T{}", round_with_some_decimals(quantity / TERA), unit_name)
+        format!(
+            "{} T{}",
+            round_with_some_decimals(quantity / TERA),
+            unit_name
+        )
     } else if unsigned_quantity < EXA {
-        format!("{} P{}", round_with_some_decimals(quantity / PETA), unit_name)
+        format!(
+            "{} P{}",
+            round_with_some_decimals(quantity / PETA),
+            unit_name
+        )
     } else if unsigned_quantity < ZETTA {
-        format!("{} E{}", round_with_some_decimals(quantity / EXA), unit_name)
+        format!(
+            "{} E{}",
+            round_with_some_decimals(quantity / EXA),
+            unit_name
+        )
     } else if unsigned_quantity < YOTTA {
-        format!("{} Z{}", round_with_some_decimals(quantity / ZETTA), unit_name)
+        format!(
+            "{} Z{}",
+            round_with_some_decimals(quantity / ZETTA),
+            unit_name
+        )
     } else {
-        format!("{} Y{}", round_with_some_decimals(quantity / YOTTA), unit_name)
+        format!(
+            "{} Y{}",
+            round_with_some_decimals(quantity / YOTTA),
+            unit_name
+        )
     }
 }
 
@@ -366,7 +424,7 @@ fn round_with_some_decimals(quantity: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::world::map::{Cell, CellIndex, TileType};
+    use crate::world::map::{CellIndex, TileType};
 
     #[test]
     fn test_join_networks() {
@@ -430,14 +488,39 @@ mod tests {
     }
 
     #[test]
+    fn test_air_cleaned_is_kept_when_spliting_network() {
+        let expected_air_cleaned = 1.0;
+        let mut networks = Networks::new();
+        networks.add(CellIndex::new(0, 0, 0), TileType::MachineSolarPanel);
+        networks.add(CellIndex::new(0, 1, 0), TileType::MachineAirCleaner);
+        networks.update();
+        assert_eq!(networks.get_total_air_cleaned(), expected_air_cleaned);
+        networks.add(CellIndex::new(0, 0, 2), TileType::MachineAssembler);
+        assert_eq!(networks.get_total_air_cleaned(), expected_air_cleaned);
+        networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
+        assert_eq!(networks.get_total_air_cleaned(), expected_air_cleaned);
+        networks.add(CellIndex::new(0, 0, 1), TileType::FloorRock);
+        assert_eq!(networks.get_total_air_cleaned(), expected_air_cleaned);
+    }
+
+    #[test]
     fn test_connected() {
         let mut network = Network::new();
         assert_eq!(network.is_connected(), true);
-        network.add(Node { position: CellIndex::new(0, 0, 0), tile: TileType::Unset });
+        network.add(Node {
+            position: CellIndex::new(0, 0, 0),
+            tile: TileType::Unset,
+        });
         assert_eq!(network.is_connected(), true);
-        network.add(Node { position: CellIndex::new(0, 0, 2), tile: TileType::Unset });
+        network.add(Node {
+            position: CellIndex::new(0, 0, 2),
+            tile: TileType::Unset,
+        });
         assert_eq!(network.is_connected(), false);
-        network.add(Node { position: CellIndex::new(0, 0, 1), tile: TileType::Unset });
+        network.add(Node {
+            position: CellIndex::new(0, 0, 1),
+            tile: TileType::Unset,
+        });
         assert_eq!(network.is_connected(), true);
     }
 

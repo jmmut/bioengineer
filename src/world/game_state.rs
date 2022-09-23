@@ -3,7 +3,7 @@ pub mod robots;
 
 use crate::now;
 use crate::screen::gui::GuiActions;
-use crate::world::game_state::networks::Networks;
+use crate::world::game_state::networks::{format_unit, Networks};
 use crate::world::game_state::robots::{
     is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
 };
@@ -87,7 +87,7 @@ impl GameState {
         if gui_actions.input.regenerate_map {
             self.map.regenerate();
         }
-        self.update_networks();
+        self.networks.update();
         self.update_goal_state(gui_actions);
     }
 
@@ -227,18 +227,12 @@ impl GameState {
         return false;
     }
 
-    fn update_networks(&mut self) {
-        for network in self.networks.iter_mut() {
-            network.update();
-        }
-    }
-
     fn update_goal_state(&mut self, gui_actions: &GuiActions) {
         if gui_actions.input.reset_quantities {
             self.networks.reset();
         }
         if self.goal_state == GameGoalState::Started {
-            if self.networks.get_total_air_cleaned() > self.get_goal_air_cleaned() {
+            if self.networks.get_total_air_cleaned() > get_goal_air_cleaned() {
                 self.goal_state = GameGoalState::Finished;
             }
         } else {
@@ -246,15 +240,19 @@ impl GameState {
         }
     }
 
-    fn get_goal_air_cleaned(&self) -> f64 {
-        10000.0
-    }
-
     pub fn advance_frame(&mut self) {
         self.frame_index = (self.frame_index + 1) % 1000;
         self.previous_frame_ts = self.current_frame_ts;
         self.current_frame_ts = now();
     }
+}
+
+pub fn get_goal_air_cleaned() -> f64 {
+    100000.0
+}
+
+pub fn get_goal_air_cleaned_str() -> String {
+    format_unit(100000.0, "L")
 }
 
 #[derive(Clone)]
