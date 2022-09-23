@@ -18,6 +18,7 @@ pub struct Input {
     pub move_map_horizontally: PixelPosition,
     pub cell_selection: CellSelection,
     pub robot_movement: Option<PixelPosition>,
+    pub reset_quantities: bool,
 }
 
 #[derive(Copy, Clone)]

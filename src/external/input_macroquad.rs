@@ -112,25 +112,17 @@ impl InputMacroquad {
 
 impl InputSourceTrait for InputMacroquad {
     fn get_input(&mut self) -> Input {
-        let quit = is_key_pressed(KeyCode::Escape);
-        let regenerate_map = is_key_pressed(KeyCode::M);
-        let toggle_profiling = is_key_pressed(KeyCode::P);
-        let toggle_fluids = is_key_pressed(KeyCode::Space);
-        let single_fluid = is_key_pressed(KeyCode::N);
-        let change_height_rel = self.get_mouse_wheel_height_diff();
-        let move_map_horizontally = self.get_horizontal_move();
-        let cell_selection = self.get_cell_selection();
-        let robot_movement = self.get_robot_movement();
         Input {
-            quit,
-            regenerate_map,
-            toggle_profiling,
-            toggle_fluids,
-            single_fluid,
-            change_height_rel,
-            move_map_horizontally,
-            cell_selection,
-            robot_movement,
+            quit: is_key_pressed(KeyCode::Escape),
+            regenerate_map: is_key_pressed(KeyCode::M),
+            toggle_profiling: is_key_pressed(KeyCode::P),
+            toggle_fluids: is_key_pressed(KeyCode::Space),
+            single_fluid: is_key_pressed(KeyCode::N),
+            change_height_rel: self.get_mouse_wheel_height_diff(),
+            move_map_horizontally: self.get_horizontal_move(),
+            cell_selection: self.get_cell_selection(),
+            robot_movement: self.get_robot_movement(),
+            reset_quantities: is_key_pressed(KeyCode::R),
         }
     }
 }

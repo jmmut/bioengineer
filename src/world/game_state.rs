@@ -234,6 +234,9 @@ impl GameState {
     }
 
     fn update_goal_state(&mut self, gui_actions: &GuiActions) {
+        if gui_actions.input.reset_quantities {
+            self.networks.reset();
+        }
         if self.goal_state == GameGoalState::Started {
             if self.networks.get_total_air_cleaned() > self.get_goal_air_cleaned() {
                 self.goal_state = GameGoalState::Finished;

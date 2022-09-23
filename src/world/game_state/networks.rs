@@ -122,6 +122,12 @@ impl Networks {
         }
         air_cleaned_across_in_all_networks
     }
+
+    pub fn reset(&mut self) {
+        for network in &mut self.networks {
+            network.reset();
+        }
+    }
 }
 
 const POWER_PER_SOLAR_PANEL: f64 = 1000.0;
@@ -145,6 +151,10 @@ impl Network {
         if self.is_power_satisfied() {
             self.air_cleaned += air_cleaners as f64;
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.air_cleaned = 0.0;
     }
 
     pub fn len(&self) -> usize {
