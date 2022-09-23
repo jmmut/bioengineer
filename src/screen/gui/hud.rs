@@ -3,8 +3,8 @@
 
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
-use crate::GameState;
 use crate::world::game_state::get_goal_air_cleaned_str;
+use crate::GameState;
 
 pub const FULL_OPAQUE: f32 = 1.0;
 

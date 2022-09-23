@@ -2,7 +2,7 @@ use crate::world::game_state::robots::CellIndexDiff;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use std::collections::{HashSet, VecDeque};
-use std::slice::{Iter, IterMut};
+use std::slice::Iter;
 
 const KILO: f64 = 1.0e3;
 const MEGA: f64 = 1.0e6;
@@ -73,13 +73,13 @@ impl Networks {
                     self.split_network(i);
                     return true;
                 }
-                Replacement::RegularReplacement => {
+                Replacement::Regular => {
                     if self.networks.get(i).unwrap().len() == 0 {
                         self.networks.remove(i);
                     }
                     return true;
                 }
-                Replacement::NoReplacement => {}
+                Replacement::None => {}
             }
         }
         return false;
@@ -128,10 +128,6 @@ impl Networks {
         self.networks.iter()
     }
 
-    pub fn iter_mut(&mut self) -> IterMut<Network> {
-        self.networks.iter_mut()
-    }
-
     pub fn get_total_air_cleaned(&self) -> f64 {
         self.air_cleaned
     }
@@ -163,8 +159,8 @@ const AIR_CLEANED_PER_CLEANER: f64 = 1.0;
 #[derive(PartialEq)]
 enum Replacement {
     SplitNetwork,
-    RegularReplacement,
-    NoReplacement,
+    Regular,
+    None,
 }
 
 struct NetworkUpdate {
@@ -175,7 +171,7 @@ impl Network {
     pub fn new() -> Self {
         Network { nodes: Vec::new() }
     }
-    pub fn update(&mut self) -> NetworkUpdate {
+    fn update(&mut self) -> NetworkUpdate {
         let mut air_cleaners = 0;
         for node in &self.nodes {
             match node.tile {
@@ -219,7 +215,7 @@ impl Network {
             TileType::MachineAssembler,
             TileType::MachineAirCleaner,
         ]);
-        let power = machines_count as f64 * POWER_PER_SOLAR_PANEL;
+        let power = machines_count as f64 * POWER_CONSUMED_PER_MACHINE;
         power
     }
 
@@ -275,16 +271,16 @@ impl Network {
             if should_remove {
                 self.nodes.remove(i);
                 if self.is_connected() {
-                    Replacement::RegularReplacement
+                    Replacement::Regular
                 } else {
                     Replacement::SplitNetwork
                 }
             } else {
                 self.nodes.get_mut(i).unwrap().tile = new_machine;
-                Replacement::RegularReplacement
+                Replacement::Regular
             }
         } else {
-            Replacement::NoReplacement
+            Replacement::None
         };
     }
 
