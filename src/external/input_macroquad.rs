@@ -65,6 +65,17 @@ impl InputMacroquad {
         }
     }
 
+    fn get_changed_height(&mut self) -> i32 {
+        let total_diff = self.get_mouse_wheel_height_diff() + self.get_vertical_arrow_pressed();
+        if total_diff > 0 {
+            1
+        } else if total_diff < 0 {
+            -1
+        } else {
+            0
+        }
+    }
+
     fn get_mouse_wheel_height_diff(&mut self) -> i32 {
         let (mouse_x, mouse_y) = mouse_wheel();
         if mouse_x != 0.0 || mouse_y != 0.0 {
@@ -79,6 +90,11 @@ impl InputMacroquad {
             0
         };
         change_height_rel
+    }
+
+    fn get_vertical_arrow_pressed(&mut self) -> i32 {
+        (if is_key_pressed(KeyCode::Up) { 1 } else { 0 }
+            + if is_key_pressed(KeyCode::Down) { -1 } else { 0 })
     }
 
     fn get_cell_selection(&mut self) -> CellSelection {
@@ -118,7 +134,7 @@ impl InputSourceTrait for InputMacroquad {
             toggle_profiling: is_key_pressed(KeyCode::P),
             toggle_fluids: is_key_pressed(KeyCode::Space),
             single_fluid: is_key_pressed(KeyCode::N),
-            change_height_rel: self.get_mouse_wheel_height_diff(),
+            change_height_rel: self.get_changed_height(),
             move_map_horizontally: self.get_horizontal_move(),
             cell_selection: self.get_cell_selection(),
             robot_movement: self.get_robot_movement(),
