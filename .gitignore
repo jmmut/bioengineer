@@ -1,6 +1,7 @@
 /target
 .idea/
-export_html/bioengineer.wasm
-export_html/assets/
 wasm.zip
-assets/image/tileset.png.ln
+tileset.png.ln
+bioengineer_html*
+bioengineer_linux*
+bioengineer_windows*
