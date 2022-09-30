@@ -3,19 +3,20 @@
 # Gameplay
 
 - [x] basic mechanism to build machines
+- [/] UI
+  - [ ] top bar with "move, build, see networks, see production, see goals, help"
+  - [x] game finished GUI
+  - [x] tooltip when hovering over build buttons, explaining cost and purpose
+- [x] automated resource production
+  - [x] show machine status (producing X units per time unit, consuming, etc.)
+  - [x] show global production
+- [/] terraforming mechanics
+  - [ ] cleaning water
+  - [x] cleaning air
+  - [ ] cleaning soil
 - [/] water simulation capable of flooding your base
   - [x] communicating vessels
   - [ ] floodable floor
-- [ ] automated resource production
-  - [ ] show machine status (producing X units per time unit, consuming, etc.)
-  - [ ] show global production
-- [ ] terraforming mechanics
-  - [ ] cleaning water
-  - [ ] cleaning air
-  - [ ] cleaning soil
-- [/] UI
-  - [ ] top bar with "move, build, see networks, see production, see goals"
-  - [x] game finished GUI
 
 # Nice to haves
 
