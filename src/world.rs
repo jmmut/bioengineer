@@ -114,23 +114,7 @@ impl World {
         }
 
         if self.game_state.should_advance_robots_this_frame() {
-            if let Option::Some(task) = self.task_queue.pop_front() {
-                match task {
-                    Task::Transform(transform) => {
-                        let remaining = self.transform_cells_if_robots_can_do_so(transform);
-                        if let Option::Some(remaining_task) = remaining {
-                            self.task_queue.push_front(Task::Transform(remaining_task));
-                        }
-                        self.move_robots();
-                    }
-                    Task::Movement(movement) => {
-                        let remaining = self.move_robots_to_position(&movement);
-                        if let Option::Some(remaining_task) = remaining {
-                            self.task_queue.push_front(Task::Movement(remaining_task));
-                        }
-                    }
-                }
-            }
+            self.advance_robots_task_queue();
         }
     }
 
@@ -140,6 +124,26 @@ impl World {
     }
     fn queue_movement(&mut self, destination: CellIndex) {
         self.task_queue.push_back(Task::Movement(destination));
+    }
+
+    fn advance_robots_task_queue(&mut self) {
+        if let Option::Some(task) = self.task_queue.pop_front() {
+            match task {
+                Task::Transform(transform) => {
+                    let remaining = self.transform_cells_if_robots_can_do_so(transform);
+                    if let Option::Some(remaining_task) = remaining {
+                        self.task_queue.push_front(Task::Transform(remaining_task));
+                    }
+                    self.move_robots();
+                }
+                Task::Movement(movement) => {
+                    let remaining = self.move_robots_to_position(&movement);
+                    if let Option::Some(remaining_task) = remaining {
+                        self.task_queue.push_front(Task::Movement(remaining_task));
+                    }
+                }
+            }
+        }
     }
 
     fn transform_cells_if_robots_can_do_so(
