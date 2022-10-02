@@ -1,4 +1,3 @@
-
 pub mod game_state;
 pub mod map;
 mod networks;
@@ -14,11 +13,13 @@ use networks::Networks;
 use robots::Robot;
 
 use crate::screen::gui::gui_actions::GuiActions;
-use crate::world::game_state::{GameGoalState, get_goal_air_cleaned, TransformationTask};
 use crate::world::game_state::GameGoalState::Started;
-use crate::world::map::CellIndex;
+use crate::world::game_state::{get_goal_air_cleaned, GameGoalState, TransformationTask};
 use crate::world::map::fluids::FluidMode;
-use crate::world::robots::{is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions};
+use crate::world::map::CellIndex;
+use crate::world::robots::{
+    is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions,
+};
 
 pub struct World {
     pub map: Map,
@@ -60,11 +61,13 @@ impl World {
         gui_actions.should_continue()
     }
 
-
     pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) {
         self.update_task_queue(gui_actions);
 
-        if self.game_state.should_advance_fluids_this_frame(gui_actions) {
+        if self
+            .game_state
+            .should_advance_fluids_this_frame(gui_actions)
+        {
             self.fluids.advance(&mut self.map);
         }
 

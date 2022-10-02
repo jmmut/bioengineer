@@ -1,14 +1,14 @@
 use crate::now;
 use crate::screen::gui::GuiActions;
-use crate::world::networks::{format_unit, Networks};
-use crate::world::robots::{
-    is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
-};
 use crate::world::game_state::GameGoalState::Started;
 use crate::world::map::fluids::{FluidMode, Fluids};
 use crate::world::map::transform_cells::Transformation;
 use crate::world::map::CellIndex;
 use crate::world::map::Map;
+use crate::world::networks::{format_unit, Networks};
+use crate::world::robots::{
+    is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions, Robot,
+};
 use std::collections::{HashSet, VecDeque};
 
 const DEFAULT_PROFILE_ENABLED: bool = false;

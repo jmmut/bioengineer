@@ -6,8 +6,8 @@ use crate::screen::gui::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pi
 use crate::screen::gui::coords::truncate::assert_in_range_0_1;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::input::PixelPosition;
-use crate::world::robots::Robot;
 use crate::world::map::{is_covering, Cell, CellIndex, TileType};
+use crate::world::robots::Robot;
 use crate::{Color, World};
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
@@ -44,14 +44,7 @@ fn draw_cell(
     if drawing.highlighted_cells.contains(&cell_index) {
         drawer.draw_colored_texture(tile_type, pixel.x, pixel.y, SELECTION_COLOR);
     } else {
-        let opacity = get_opacity(
-            &cell_index,
-            tile_type,
-            world,
-            drawing,
-            min_cell,
-            max_cell,
-        );
+        let opacity = get_opacity(&cell_index, tile_type, world, drawing, min_cell, max_cell);
         // let opacity = 1.0; // for debugging
         drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, opacity);
     }

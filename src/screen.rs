@@ -36,9 +36,9 @@ impl<Drawer: DrawerTrait, InputSource: InputSourceTrait> Screen<Drawer, InputSou
 
     pub fn get_gui_actions(&mut self, world: &World) -> GuiActions {
         let input = self.input_source.get_input();
-        let gui_actions =
-            self.gui
-                .process_input(input, &self.drawer, &world, &self.drawing_state);
+        let gui_actions = self
+            .gui
+            .process_input(input, &self.drawer, &world, &self.drawing_state);
         self.drawing_state
             .apply_input(&gui_actions, self.drawer.screen_width());
         gui_actions

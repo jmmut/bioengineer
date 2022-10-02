@@ -6,8 +6,8 @@ use crate::screen::input::{CellSelection, Input};
 use crate::world::game_state::TransformationTask;
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
-use crate::{GameState, World};
 use crate::Rect;
+use crate::{GameState, World};
 
 pub fn show_available_transformations(
     drawer: &impl DrawerTrait,

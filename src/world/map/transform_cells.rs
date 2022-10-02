@@ -9,18 +9,11 @@ pub struct Transformation {
     pub new_tile_type: TileType,
 }
 
-pub fn allowed_transformations(
-    cells: &HashSet<CellIndex>,
-    map: &Map,
-) -> Vec<Transformation> {
+pub fn allowed_transformations(cells: &HashSet<CellIndex>, map: &Map) -> Vec<Transformation> {
     let mut allowed = Vec::new();
     for cell_index in cells {
         let cell = map.get_cell(*cell_index);
-        allowed.push(allowed_transformations_of_cell(
-            cell,
-            cell_index,
-            &map,
-        ));
+        allowed.push(allowed_transformations_of_cell(cell, cell_index, &map));
     }
     let common = set_intersection(allowed);
     common

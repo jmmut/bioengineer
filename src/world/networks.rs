@@ -1,6 +1,6 @@
-use crate::world::robots::CellIndexDiff;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
+use crate::world::robots::CellIndexDiff;
 use std::collections::{HashSet, VecDeque};
 use std::slice::Iter;
 
