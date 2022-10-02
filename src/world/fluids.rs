@@ -3,7 +3,6 @@ mod tests;
 
 use crate::common::profiling::ScopedProfiler;
 use crate::world::map::chunk::cell_iter::CellIterItem;
-use crate::world::map::fluids::FluidStage::Downwards;
 use crate::world::map::ref_mut_iterator::RefMutIterator;
 use crate::world::map::{
     cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, Cell, CellCubeIterator, CellIndex,
@@ -36,7 +35,7 @@ impl Fluids {
     pub fn new(mode: FluidMode) -> Self {
         Self {
             mode,
-            next_stage: Downwards,
+            next_stage: FluidStage::Downwards,
             profile: false,
         }
     }
