@@ -10,12 +10,11 @@ use crate::{Color, Rect, Vec2};
 use coords::cell_pixel::clicked_cell;
 use draw_available_transformations::show_available_transformations;
 pub use gui_actions::GuiActions;
-use hud::FULL_OPAQUE;
+use crate::screen::hud::FULL_OPAQUE;
 
 pub mod coords;
 pub mod draw_available_transformations;
 pub mod gui_actions;
-pub mod hud;
 
 pub struct Gui;
 
