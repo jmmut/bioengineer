@@ -13,13 +13,13 @@ use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::FONT_SIZE;
 use crate::world::map::TileType;
 
-pub struct DrawingMacroquad {
+pub struct DrawerMacroquad {
     pub drawing: DrawingState,
     pub textures: Vec<Texture2D>,
 }
 
-impl DrawerTrait for DrawingMacroquad {
-    fn new(textures: Vec<Texture2D>) -> DrawingMacroquad {
+impl DrawerTrait for DrawerMacroquad {
+    fn new(textures: Vec<Texture2D>) -> DrawerMacroquad {
         // let textures = load_tileset(tileset_path);
         println!(
             "got {} textures. The first one is {} by {} pixels",
@@ -27,7 +27,7 @@ impl DrawerTrait for DrawingMacroquad {
             textures[0].width(),
             textures[0].height()
         );
-        DrawingMacroquad {
+        DrawerMacroquad {
             drawing: DrawingState::new(),
             textures,
         }
@@ -111,7 +111,7 @@ impl DrawerTrait for DrawingMacroquad {
     }
 }
 
-impl DrawingMacroquad {
+impl DrawerMacroquad {
     fn _debug_draw_all_textures(&self) {
         for i in 0..self.textures.len() {
             let tiles_per_line = screen_width() as usize / assets::PIXELS_PER_TILE_WIDTH as usize;
