@@ -160,7 +160,6 @@ pub fn is_vertical_direction(origin_pos: &CellIndex, target_pos: &CellIndex) -> 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::world::game_state::GameState;
     use crate::world::map::transform_cells::Transformation;
     use crate::world::map::{Cell, TileType};
     use std::collections::HashSet;

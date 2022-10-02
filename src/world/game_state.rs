@@ -1,6 +1,6 @@
 use crate::now;
 use crate::screen::gui::GuiActions;
-use crate::world::networks::format_unit;
+use crate::world::networks::network::format_unit;
 
 const DEFAULT_PROFILE_ENABLED: bool = false;
 const DEFAULT_ADVANCING_FLUIDS: bool = false;
@@ -25,6 +25,7 @@ impl GameState {
             previous_frame_ts: now() - 1.0,
             current_frame_ts: now(),
             advancing_fluids: DEFAULT_ADVANCING_FLUIDS,
+            advancing_fluids_single_step: false,
             advance_fluid_every_n_frames: DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES,
             advance_robots_every_n_frames: DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES,
             profile: DEFAULT_PROFILE_ENABLED,
