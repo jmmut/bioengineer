@@ -4,7 +4,7 @@
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
 use crate::world::game_state::get_goal_air_cleaned_str;
-use crate::GameState;
+use crate::{GameState, World};
 
 pub const FULL_OPAQUE: f32 = 1.0;
 
@@ -41,11 +41,11 @@ pub fn draw_level(drawer: &impl DrawerTrait, min_y: i32, max_y: i32) {
     );
 }
 
-pub fn draw_networks(drawer: &impl DrawerTrait, game_state: &GameState) {
-    let network_count = game_state.networks.len();
+pub fn draw_networks(drawer: &impl DrawerTrait, world: &World) {
+    let network_count = world.networks.len();
     let text = format!(
         "Production: Air cleaned: {}, goal: {}",
-        game_state.networks.get_total_air_cleaned_str(),
+        world.networks.get_total_air_cleaned_str(),
         get_goal_air_cleaned_str(),
     );
     drawer.draw_text(
@@ -63,7 +63,7 @@ pub fn draw_networks(drawer: &impl DrawerTrait, game_state: &GameState) {
         FONT_SIZE,
         TEXT_COLOR,
     );
-    for (network_id, network) in game_state.networks.iter().enumerate() {
+    for (network_id, network) in world.networks.iter().enumerate() {
         let text = format!(
             "  Network #{} - Power generated: {}. Power required: {}. Air cleaning speed: {}",
             network_id + 1,

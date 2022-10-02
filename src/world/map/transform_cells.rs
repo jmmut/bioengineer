@@ -11,15 +11,15 @@ pub struct Transformation {
 
 pub fn allowed_transformations(
     cells: &HashSet<CellIndex>,
-    game_state: &GameState,
+    map: &Map,
 ) -> Vec<Transformation> {
     let mut allowed = Vec::new();
     for cell_index in cells {
-        let cell = game_state.map.get_cell(*cell_index);
+        let cell = map.get_cell(*cell_index);
         allowed.push(allowed_transformations_of_cell(
             cell,
             cell_index,
-            &game_state.map,
+            &map,
         ));
     }
     let common = set_intersection(allowed);
