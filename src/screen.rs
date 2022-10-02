@@ -1,4 +1,4 @@
-use crate::screen::gui::{draw_map, hud};
+use crate::screen::gui::hud;
 use crate::world::World;
 use crate::Color;
 use crate::InputSourceTrait;
@@ -12,6 +12,7 @@ pub mod drawer_trait;
 pub mod drawing_state;
 pub mod gui;
 pub mod input;
+pub mod draw_map;
 
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 

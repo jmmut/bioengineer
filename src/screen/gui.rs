@@ -14,7 +14,6 @@ use hud::FULL_OPAQUE;
 
 pub mod coords;
 pub mod draw_available_transformations;
-pub mod draw_map;
 pub mod gui_actions;
 pub mod hud;
 
