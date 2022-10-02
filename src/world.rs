@@ -3,23 +3,22 @@ pub mod map;
 mod networks;
 pub mod robots;
 
-use std::collections::VecDeque;
+use std::collections::{HashSet, VecDeque};
 
+use game_state::get_goal_air_cleaned;
 use game_state::GameState;
-use game_state::Task;
+use map::fluids::FluidMode;
 use map::fluids::Fluids;
+use map::transform_cells::Transformation;
+use map::CellIndex;
 use map::Map;
 use networks::Networks;
 use robots::Robot;
-
-use crate::screen::gui::gui_actions::GuiActions;
-use crate::world::game_state::GameGoalState::Started;
-use crate::world::game_state::{get_goal_air_cleaned, GameGoalState, TransformationTask};
-use crate::world::map::fluids::FluidMode;
-use crate::world::map::CellIndex;
-use crate::world::robots::{
+use robots::{
     is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions,
 };
+
+use crate::screen::gui::gui_actions::GuiActions;
 
 pub struct World {
     pub map: Map,
@@ -29,6 +28,25 @@ pub struct World {
     pub networks: Networks,
     pub game_state: GameState,
     pub goal_state: GameGoalState,
+}
+
+#[derive(Clone)]
+pub enum Task {
+    Transform(TransformationTask),
+    Movement(CellIndex),
+}
+
+#[derive(Clone)]
+pub struct TransformationTask {
+    pub to_transform: HashSet<CellIndex>,
+    pub transformation: Transformation,
+}
+
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum GameGoalState {
+    Started,
+    Finished,
+    PostFinished,
 }
 
 impl World {
@@ -50,7 +68,7 @@ impl World {
             task_queue: VecDeque::new(),
             networks: Networks::new(),
             game_state,
-            goal_state: Started,
+            goal_state: GameGoalState::Started,
         }
     }
 
@@ -62,12 +80,11 @@ impl World {
     }
 
     pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) {
+        self.game_state.update_with_gui_actions(gui_actions);
+
         self.update_task_queue(gui_actions);
 
-        if self
-            .game_state
-            .should_advance_fluids_this_frame(gui_actions)
-        {
+        if self.game_state.should_advance_fluids_this_frame() {
             self.fluids.advance(&mut self.map);
         }
 

@@ -351,58 +351,27 @@ fn adjacent_positions() -> [CellIndexDiff; 6] {
     ]
 }
 
+#[rustfmt::skip]
 pub fn format_unit(quantity: f64, unit_name: &str) -> String {
     let unsigned_quantity = quantity.abs().floor();
     if unsigned_quantity < KILO {
         format!("{} {}", round_with_some_decimals(quantity), unit_name)
     } else if unsigned_quantity < MEGA {
-        format!(
-            "{} K{}",
-            round_with_some_decimals(quantity / KILO),
-            unit_name
-        )
+        format!("{} K{}", round_with_some_decimals(quantity / KILO), unit_name)
     } else if unsigned_quantity < GIGA {
-        format!(
-            "{} M{}",
-            round_with_some_decimals(quantity / MEGA),
-            unit_name
-        )
+        format!("{} M{}", round_with_some_decimals(quantity / MEGA), unit_name)
     } else if unsigned_quantity < TERA {
-        format!(
-            "{} G{}",
-            round_with_some_decimals(quantity / GIGA),
-            unit_name
-        )
+        format!("{} G{}", round_with_some_decimals(quantity / GIGA), unit_name)
     } else if unsigned_quantity < PETA {
-        format!(
-            "{} T{}",
-            round_with_some_decimals(quantity / TERA),
-            unit_name
-        )
+        format!("{} T{}", round_with_some_decimals(quantity / TERA), unit_name)
     } else if unsigned_quantity < EXA {
-        format!(
-            "{} P{}",
-            round_with_some_decimals(quantity / PETA),
-            unit_name
-        )
+        format!("{} P{}", round_with_some_decimals(quantity / PETA), unit_name)
     } else if unsigned_quantity < ZETTA {
-        format!(
-            "{} E{}",
-            round_with_some_decimals(quantity / EXA),
-            unit_name
-        )
+        format!("{} E{}", round_with_some_decimals(quantity / EXA), unit_name)
     } else if unsigned_quantity < YOTTA {
-        format!(
-            "{} Z{}",
-            round_with_some_decimals(quantity / ZETTA),
-            unit_name
-        )
+        format!("{} Z{}", round_with_some_decimals(quantity / ZETTA), unit_name)
     } else {
-        format!(
-            "{} Y{}",
-            round_with_some_decimals(quantity / YOTTA),
-            unit_name
-        )
+        format!("{} Y{}", round_with_some_decimals(quantity / YOTTA), unit_name)
     }
 }
 

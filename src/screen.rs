@@ -1,7 +1,7 @@
 use crate::screen::gui::{draw_map, hud};
 use crate::world::World;
 use crate::Color;
-use crate::{GameState, InputSourceTrait};
+use crate::InputSourceTrait;
 use drawer_trait::DrawerTrait;
 use drawing_state::DrawingState;
 use gui::gui_actions::GuiActions;
