@@ -6,21 +6,20 @@ use crate::screen::gui::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pi
 use crate::screen::gui::coords::truncate::assert_in_range_0_1;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::input::PixelPosition;
-use crate::world::game_state::robots::Robot;
 use crate::world::map::{is_covering, Cell, CellIndex, TileType};
-use crate::Color;
-use crate::GameState;
+use crate::world::robots::Robot;
+use crate::{Color, World};
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);
 
-pub fn draw_map(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &DrawingState) {
+pub fn draw_map(drawer: &impl DrawerTrait, world: &World, drawing: &DrawingState) {
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
     for i_y in min_cell.y..=max_cell.y {
         for i_z in min_cell.z..=max_cell.z {
             for i_x in min_cell.x..=max_cell.x {
-                draw_cell(drawer, game_state, CellIndex::new(i_x, i_y, i_z), drawing);
+                draw_cell(drawer, world, CellIndex::new(i_x, i_y, i_z), drawing);
             }
         }
     }
@@ -28,14 +27,14 @@ pub fn draw_map(drawer: &impl DrawerTrait, game_state: &GameState, drawing: &Dra
 
 fn draw_cell(
     drawer: &impl DrawerTrait,
-    game_state: &GameState,
+    world: &World,
     cell_index: CellIndex,
     drawing: &DrawingState,
 ) {
     let screen_width = drawer.screen_width();
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
-    let cell = game_state.map.get_cell(cell_index);
+    let cell = world.map.get_cell(cell_index);
     let tile_type = cell.tile_type;
 
     let pixel = cell_to_pixel(cell_index, drawing, screen_width);
@@ -45,20 +44,13 @@ fn draw_cell(
     if drawing.highlighted_cells.contains(&cell_index) {
         drawer.draw_colored_texture(tile_type, pixel.x, pixel.y, SELECTION_COLOR);
     } else {
-        let opacity = get_opacity(
-            &cell_index,
-            tile_type,
-            game_state,
-            drawing,
-            min_cell,
-            max_cell,
-        );
+        let opacity = get_opacity(&cell_index, tile_type, world, drawing, min_cell, max_cell);
         // let opacity = 1.0; // for debugging
         drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, opacity);
     }
     // draw_pressure_number(drawer, cell_index, screen_width, drawing, max_cell, cell)
     // draw_cell_hit_box(drawer, game_state, cell_index);
-    if game_state.robots.contains(&Robot {
+    if world.robots.contains(&Robot {
         position: cell_index,
     }) {
         drawer.draw_transparent_texture(TileType::Robot, pixel.x, pixel.y, 1.0);
@@ -68,13 +60,13 @@ fn draw_cell(
 fn get_opacity(
     cell_index: &CellIndex,
     tile_type: TileType,
-    game_state: &GameState,
+    world: &World,
     drawing: &DrawingState,
     min_cell: &CellIndex,
     max_cell: &CellIndex,
 ) -> f32 {
     let border_opacity = get_border_opacity(cell_index, min_cell, max_cell, &drawing.subcell_diff);
-    let opacity_to_see_robot = get_opacity_to_see_robot(cell_index, tile_type, &game_state.robots);
+    let opacity_to_see_robot = get_opacity_to_see_robot(cell_index, tile_type, &world.robots);
     let opacity = f32::min(border_opacity, opacity_to_see_robot);
     opacity
 }

@@ -2,15 +2,14 @@ pub mod cell;
 mod cell_cube_iterator;
 pub mod cell_envelope;
 pub mod chunk;
-pub mod fluids;
 mod map_iterator;
-mod ref_mut_iterator;
+pub mod ref_mut_iterator;
 pub mod transform_cells;
 
 use crate::common::trunc::trunc_towards_neg_inf;
-use crate::{now, IVec3};
+use crate::{IVec3, now};
 pub use cell::{
-    is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, Cell, TileType,
+    Cell, is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, TileType,
 };
 pub use cell_cube_iterator::CellCubeIterator;
 use cell_envelope::Envelope;

@@ -1,6 +1,6 @@
-use crate::world::game_state::{Task, TransformationTask};
 use crate::world::map::Map;
 use crate::world::map::{is_walkable_horizontal, is_walkable_vertical, CellIndex, TileType};
+use crate::world::{Task, TransformationTask};
 use std::cmp::Ordering;
 use std::collections::VecDeque;
 use std::vec::IntoIter;
@@ -160,7 +160,6 @@ pub fn is_vertical_direction(origin_pos: &CellIndex, target_pos: &CellIndex) -> 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::world::game_state::GameState;
     use crate::world::map::transform_cells::Transformation;
     use crate::world::map::{Cell, TileType};
     use std::collections::HashSet;
@@ -282,6 +281,7 @@ mod tests {
 
     mod tasks {
         use super::*;
+        use crate::World;
 
         #[test]
         fn test_move_robot_basic_task() {
@@ -320,39 +320,39 @@ mod tests {
 
         #[test]
         fn test_move_robot_temporarily_unreachable() {
-            let mut game_state = GameState::new();
+            let mut world = World::new();
             let initial_pos = CellIndex::new(0, 1, 0);
             let below_pos = CellIndex::new(0, 0, 0);
             let transformation_task = TransformationTask {
                 to_transform: HashSet::from([below_pos, initial_pos]),
                 transformation: Transformation::to(TileType::Stairs),
             };
-            game_state.task_queue = VecDeque::from([Task::Transform(transformation_task.clone())]);
-            game_state.map = Map::_new_from_tiles(
+            world.task_queue = VecDeque::from([Task::Transform(transformation_task.clone())]);
+            world.map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
                 vec![(below_pos, TileType::FloorDirt)],
             );
-            game_state.robots.first_mut().unwrap().position = initial_pos;
+            world.robots.first_mut().unwrap().position = initial_pos;
 
-            assert_positions_equal(&game_state, TileType::FloorDirt, TileType::FloorDirt);
+            assert_positions_equal(&world, TileType::FloorDirt, TileType::FloorDirt);
 
             let transformation_task =
-                game_state.transform_cells_if_robots_can_do_so(transformation_task);
-            game_state.move_robots();
+                world.transform_cells_if_robots_can_do_so(transformation_task);
+            world.move_robots();
 
-            assert_positions_equal(&game_state, TileType::FloorDirt, TileType::Stairs);
+            assert_positions_equal(&world, TileType::FloorDirt, TileType::Stairs);
 
-            game_state.transform_cells_if_robots_can_do_so(transformation_task.unwrap());
-            game_state.move_robots();
+            world.transform_cells_if_robots_can_do_so(transformation_task.unwrap());
+            world.move_robots();
 
-            assert_positions_equal(&game_state, TileType::Stairs, TileType::Stairs);
+            assert_positions_equal(&world, TileType::Stairs, TileType::Stairs);
         }
 
-        fn assert_positions_equal(game_state: &GameState, tile: TileType, second_tile: TileType) {
+        fn assert_positions_equal(world: &World, tile: TileType, second_tile: TileType) {
             let index = CellIndex::new(0, 0, 0);
-            assert_eq!(game_state.map.get_cell(index).tile_type, tile);
+            assert_eq!(world.map.get_cell(index).tile_type, tile);
             let other_index = CellIndex::new(0, 1, 0);
-            assert_eq!(game_state.map.get_cell(other_index).tile_type, second_tile);
+            assert_eq!(world.map.get_cell(other_index).tile_type, second_tile);
         }
 
         #[test]
@@ -382,20 +382,20 @@ mod tests {
         fn vertical_task(initial_tile: TileType, expected_target_transformation: TileType) {
             let initial_pos = CellIndex::new(0, 1, 0);
             let target = CellIndex::new(0, 0, 0);
-            let mut game_state = GameState::new();
+            let mut world = World::new();
             let transformation_task = TransformationTask {
                 to_transform: HashSet::from([target]),
                 transformation: Transformation::to(TileType::MachineAssembler),
             };
-            game_state.task_queue = VecDeque::from([Task::Transform(transformation_task.clone())]);
-            game_state.map = Map::_new_from_tiles(
+            world.task_queue = VecDeque::from([Task::Transform(transformation_task.clone())]);
+            world.map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
                 vec![(target, TileType::FloorDirt), (initial_pos, initial_tile)],
             );
-            game_state.robots.first_mut().unwrap().position = initial_pos;
-            game_state.transform_cells_if_robots_can_do_so(transformation_task);
+            world.robots.first_mut().unwrap().position = initial_pos;
+            world.transform_cells_if_robots_can_do_so(transformation_task);
             assert_eq!(
-                game_state.map.get_cell(target).tile_type,
+                world.map.get_cell(target).tile_type,
                 expected_target_transformation
             );
         }

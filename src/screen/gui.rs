@@ -2,21 +2,19 @@ use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::input::{CellSelection, Input};
-use crate::world::game_state::GameGoalState::{Finished, PostFinished};
-use crate::world::game_state::Task;
 use crate::world::map::TileType;
-use crate::GameState;
+use crate::world::GameGoalState::{Finished, PostFinished};
+use crate::world::Task;
+use crate::World;
 use crate::{Color, Rect, Vec2};
 use coords::cell_pixel::clicked_cell;
 use draw_available_transformations::show_available_transformations;
 pub use gui_actions::GuiActions;
-use hud::FULL_OPAQUE;
+use crate::screen::hud::FULL_OPAQUE;
 
 pub mod coords;
 pub mod draw_available_transformations;
-pub mod draw_map;
 pub mod gui_actions;
-pub mod hud;
 
 pub struct Gui;
 
@@ -41,7 +39,7 @@ impl Gui {
         &self,
         input: Input,
         drawer: &impl DrawerTrait,
-        game_state: &GameState,
+        world: &World,
         drawing: &DrawingState,
     ) -> GuiActions {
         let unhandled_input = GuiActions {
@@ -54,10 +52,10 @@ impl Gui {
             next_game_goal_state: Option::None,
         };
         let unhandled_input =
-            show_available_transformations(drawer, game_state, unhandled_input, drawing);
+            show_available_transformations(drawer, world, unhandled_input, drawing);
         let unhandled_input = robot_movement_from_pixel_to_cell(drawer, unhandled_input, drawing);
-        let unhandled_input = draw_robot_queue(drawer, game_state, unhandled_input);
-        let unhandled_input = draw_game_finished(drawer, game_state, unhandled_input);
+        let unhandled_input = draw_robot_queue(drawer, world, unhandled_input);
+        let unhandled_input = draw_game_finished(drawer, world, unhandled_input);
         unhandled_input
     }
     fn set_skin(drawer: &mut impl DrawerTrait) {
@@ -89,13 +87,13 @@ fn robot_movement_from_pixel_to_cell(
 
 pub fn draw_robot_queue(
     drawer: &impl DrawerTrait,
-    game_state: &GameState,
+    world: &World,
     gui_actions: GuiActions,
 ) -> GuiActions {
     let mut column = 1.0;
     let icon_width = PIXELS_PER_TILE_WIDTH as f32 * 1.5;
     let pixel_height = drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
-    let queue_length = game_state.task_queue.len();
+    let queue_length = world.task_queue.len();
     let panel_width = (queue_length + 1) as f32 * icon_width;
     drawer.draw_rectangle(
         drawer.screen_width() - panel_width,
@@ -117,12 +115,12 @@ pub fn draw_robot_queue(
         drawer.screen_width() - column * icon_width,
         pixel_height - button_height,
     ) {
-        go_to_robot = Option::Some(game_state.robots.first().unwrap().position);
+        go_to_robot = Option::Some(world.robots.first().unwrap().position);
     }
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
-    for (task_index, task) in game_state.task_queue.iter().enumerate() {
+    for (task_index, task) in world.task_queue.iter().enumerate() {
         column += 1.0;
         let tile = match task {
             Task::Transform(transform) => transform.transformation.new_tile_type,
@@ -159,11 +157,11 @@ pub fn draw_robot_queue(
 
 pub fn draw_game_finished(
     drawer: &impl DrawerTrait,
-    game_state: &GameState,
+    world: &World,
     gui_actions: GuiActions,
 ) -> GuiActions {
     let mut input = gui_actions.input;
-    let next_game_goal_state = if game_state.goal_state == Finished {
+    let next_game_goal_state = if world.goal_state == Finished {
         input.cell_selection = CellSelection::no_selection();
         input.robot_movement = None;
         let panel_title = "You won!";

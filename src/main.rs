@@ -4,7 +4,7 @@ mod world;
 
 mod external {
     pub mod assets_macroquad;
-    pub mod drawing_macroquad;
+    pub mod drawer_macroquad;
     pub mod input_macroquad;
 }
 
@@ -16,7 +16,7 @@ use macroquad::texture::{Image, Texture2D};
 use macroquad::window::Conf;
 
 use external::assets_macroquad::load_tileset;
-use external::drawing_macroquad::DrawingMacroquad as DrawingImpl;
+use external::drawer_macroquad::DrawerMacroquad as DrawerImpl;
 use external::input_macroquad::InputMacroquad as InputSource;
 
 use common::profiling::ScopedProfiler;
@@ -51,9 +51,9 @@ fn window_conf() -> Conf {
     }
 }
 
-async fn factory() -> (Screen<DrawingImpl, InputSource>, World) {
+async fn factory() -> (Screen<DrawerImpl, InputSource>, World) {
     let tileset = load_tileset("assets/image/tileset.png");
-    let drawer = DrawingImpl::new(tileset.await);
+    let drawer = DrawerImpl::new(tileset.await);
     let input_source = InputSource::new();
     (Screen::new(drawer, input_source), World::new())
 }

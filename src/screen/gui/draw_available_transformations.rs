@@ -3,23 +3,22 @@ use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::screen::input::{CellSelection, Input};
-use crate::world::game_state::TransformationTask;
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
-use crate::GameState;
+use crate::world::TransformationTask;
 use crate::Rect;
+use crate::World;
 
 pub fn show_available_transformations(
     drawer: &impl DrawerTrait,
-    game_state: &GameState,
+    world: &World,
     unhandled_input: GuiActions,
     drawing: &DrawingState,
 ) -> GuiActions {
-    let drawing_ = drawing;
     let mut transformation_clicked = Option::None;
     let mut cell_selection = unhandled_input.input.cell_selection;
-    if drawing_.highlighted_cells.len() > 0 {
-        let transformations = allowed_transformations(&drawing_.highlighted_cells, game_state);
+    if drawing.highlighted_cells.len() > 0 {
+        let transformations = allowed_transformations(&drawing.highlighted_cells, &world.map);
         let line_height = FONT_SIZE * 1.5;
         let buttons_height = transformations.len() as f32 * line_height;
         let panel_height = buttons_height + 2.0 * line_height;
@@ -48,7 +47,7 @@ pub fn show_available_transformations(
             let text = to_action_str(transformation.new_tile_type);
             if drawer.do_button(text, big_margin_x, y) {
                 let transformation_task = TransformationTask {
-                    to_transform: drawing_.highlighted_cells.clone(),
+                    to_transform: drawing.highlighted_cells.clone(),
                     transformation,
                 };
                 transformation_clicked = Option::Some(transformation_task);

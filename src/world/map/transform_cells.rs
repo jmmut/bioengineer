@@ -1,5 +1,4 @@
 use crate::world::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
-use crate::GameState;
 use std::collections::HashSet;
 
 const AIR_LEVELS_FOR_ALLOWING_SOLAR: i32 = 20;
@@ -9,18 +8,11 @@ pub struct Transformation {
     pub new_tile_type: TileType,
 }
 
-pub fn allowed_transformations(
-    cells: &HashSet<CellIndex>,
-    game_state: &GameState,
-) -> Vec<Transformation> {
+pub fn allowed_transformations(cells: &HashSet<CellIndex>, map: &Map) -> Vec<Transformation> {
     let mut allowed = Vec::new();
     for cell_index in cells {
-        let cell = game_state.map.get_cell(*cell_index);
-        allowed.push(allowed_transformations_of_cell(
-            cell,
-            cell_index,
-            &game_state.map,
-        ));
+        let cell = map.get_cell(*cell_index);
+        allowed.push(allowed_transformations_of_cell(cell, cell_index, &map));
     }
     let common = set_intersection(allowed);
     common

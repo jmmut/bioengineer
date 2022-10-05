@@ -6,7 +6,7 @@ use crate::screen::gui::coords::tile_pixel::{
     pixel_to_subtile, pixel_to_subtile_offset, pixel_to_tile, subtile_to_pixel, tile_to_pixel,
 };
 use crate::screen::gui::coords::truncate::truncate_cell_offset;
-use crate::screen::gui::draw_map::hitbox_offset;
+use crate::screen::draw_map::hitbox_offset;
 use crate::screen::input::PixelPosition;
 use crate::world::map::CellIndex;
 

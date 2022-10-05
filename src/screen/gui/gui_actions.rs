@@ -1,6 +1,6 @@
 use crate::screen::input::Input;
-use crate::world::game_state::{GameGoalState, TransformationTask};
 use crate::world::map::CellIndex;
+use crate::world::{GameGoalState, TransformationTask};
 
 pub struct GuiActions {
     pub input: Input,
