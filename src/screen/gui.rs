@@ -18,7 +18,8 @@ pub mod gui_actions;
 
 pub struct Gui;
 
-pub const FONT_SIZE: f32 = 20.0;
+pub const FONT_SIZE: f32 = 16.0;
+pub const MARGIN: f32 = 10.0;
 pub const BLACK: Color = Color::new(0.0, 0.0, 0.0, 1.0);
 pub const TEXT_COLOR: Color = BLACK;
 pub const TEXT_COLOR_ALARM: Color = Color::new(0.40, 0.0, 0.0, 1.00);

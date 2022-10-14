@@ -10,7 +10,7 @@ use macroquad::window::{clear_background, screen_height, screen_width};
 use crate::screen::assets;
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
-use crate::screen::gui::FONT_SIZE;
+use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, MARGIN};
 use crate::world::map::TileType;
 
 pub struct DrawerMacroquad {
@@ -87,24 +87,48 @@ impl DrawerTrait for DrawerMacroquad {
         //     .text_color(text_color)
         //     .font_size(font_size)
         //     .build();
+        let margin = RectOffset::new(
+            MARGIN,
+            MARGIN,
+            MARGIN / 5.0,
+            MARGIN / 5.0,
+        );
         let button_style = root_ui()
             .style_builder()
-            // StyleBuilder{} // uncomment to get autocompletion of available methods
             .background_margin(RectOffset::new(0.0, 0.0, 0.0, 0.0))
-            .margin(RectOffset::new(
-                FONT_SIZE,
-                FONT_SIZE,
-                FONT_SIZE / 5.0,
-                FONT_SIZE / 5.0,
-            ))
+            .margin(margin.clone())
             .text_color(text_color)
             .color(background_color)
             .color_hovered(background_color_hovered)
             .color_clicked(background_color_clicked)
             .font_size(font_size as u16)
             .build();
+        let window_style =  root_ui()
+            .style_builder()
+            // .background_margin(margin.clone())
+            .margin(margin.clone())
+            .text_color(text_color)
+            .color(BACKGROUND_UI_COLOR)
+            .color_hovered(background_color_hovered)
+            .color_clicked(background_color_clicked)
+            .font_size(font_size as u16)
+            .build();
+        let window_titlebar_style =  root_ui()
+            .style_builder()
+            .text_color(text_color)
+            .color(background_color_clicked)
+            .color_hovered(background_color_hovered)
+            .color_clicked(background_color_clicked)
+            .font_size(font_size as u16)
+            .build();
         let skin = Skin {
+            // button_style: button_style.clone(),
             button_style,
+            window_style,
+            window_titlebar_style,
+            // window_style: button_style.clone(),
+            margin: MARGIN,
+            title_height: FONT_SIZE * 2.0,
             ..root_ui().default_skin()
         };
         root_ui().push_skin(&skin);
