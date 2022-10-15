@@ -14,6 +14,7 @@ use coords::cell_pixel::clicked_cell;
 use draw_available_transformations::show_available_transformations;
 pub use gui_actions::GuiActions;
 use crate::screen::hud::FULL_OPAQUE;
+use crate::world::map::cell::ExtraTextures;
 
 pub mod coords;
 pub mod draw_available_transformations;
@@ -94,6 +95,7 @@ pub fn draw_robot_queue(
     world: &World,
     gui_actions: GuiActions,
 ) -> GuiActions {
+    let margin = MARGIN;
     let mut column = 1.0;
     let icon_width = PIXELS_PER_TILE_WIDTH as f32 * 1.5;
     let icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 1.5;
@@ -106,6 +108,7 @@ pub fn draw_robot_queue(
     let window_title_height = button_height;
     // TODO: change robot_icon_height to icon_height
     let group_height = icon_height + 2.0 * button_height;
+    let robot_window_height = icon_height + 1.0 * button_height;
     let panel_height = group_height + window_title_height;
     let panel = Rect {
         x: drawer.screen_width() - panel_width,
@@ -114,23 +117,26 @@ pub fn draw_robot_queue(
         h: panel_height,
     };
     let mut go_to_robot = Option::None;
-    Window::new(hash!(), panel.point(), panel.size())
-        .label("Task queue")
-        // .titlebar(true)
+    Window::new(hash!(), Vec2::new(drawer.screen_width() - icon_width - margin,
+                                   drawer.screen_height() - robot_window_height - margin),
+    Vec2::new(icon_width, robot_window_height))
+        // .label("Task queue")
+        .titlebar(false)
         .movable(false)
         .ui(&mut root_ui(), |ui| {
-            ui.group(hash!(), Vec2::new(icon_width, group_height), |ui| {
-                // let show_robot_clicked = ui.button(None, "show");
-                // let robot_texture_copy = *drawer.get_textures().get(TileType::Robot as usize).unwrap();
-                // let robot_texture_clicked = widgets::Texture::new(
-                //     robot_texture_copy)
-                //     .size(robot_icon_width, robot_icon_height)
-                //     .position(Some(Vec2::new(robot_icon_width, robot_icon_height)))
-                    // .ui(ui);
-                // if show_robot_clicked || robot_texture_clicked {
-                //     go_to_robot = Option::Some(world.robots.first().unwrap().position);
-                // }
-            });
+            let show_robot_clicked = ui.button(None, "show");
+            let robot_texture_copy = *drawer.get_textures().get(ExtraTextures::ZoomedRobot as usize).unwrap();
+            let robot_texture_clicked = widgets::Texture::new(robot_texture_copy)
+                .size(icon_width, icon_height)
+                // .position(Some(Vec2::new(0.0, 0.0)))
+                // .position(Some(Vec2::new(-30.0, -10.0)))
+                // .position(Some(Vec2::new(-robot_icon_width, robot_icon_height)))
+                .ui(ui);
+            if show_robot_clicked
+                || robot_texture_clicked
+            {
+                go_to_robot = Option::Some(world.robots.first().unwrap().position);
+            }
 
             // for i in 0..queue_length {
             //     let task_size = Vec2::new(icon_width, PIXELS_PER_TILE_HEIGHT as f32 + button_height * 2);

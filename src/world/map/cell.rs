@@ -34,6 +34,10 @@ pub enum TileType {
     Movement = 22,
 }
 
+pub enum ExtraTextures {
+    ZoomedRobot = 32,
+}
+
 pub fn is_liquid(tile: TileType) -> bool {
     [
         DirtyWaterWall,
