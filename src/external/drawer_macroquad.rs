@@ -133,6 +133,10 @@ impl DrawerTrait for DrawerMacroquad {
         };
         root_ui().push_skin(&skin);
     }
+
+    fn get_textures(&self) -> &Vec<Texture2D> {
+        &self.textures
+    }
 }
 
 impl DrawerMacroquad {

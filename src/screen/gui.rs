@@ -1,3 +1,6 @@
+use macroquad::hash;
+use macroquad::ui::{root_ui, widgets};
+use macroquad::ui::widgets::{Group, Window};
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
@@ -93,61 +96,80 @@ pub fn draw_robot_queue(
 ) -> GuiActions {
     let mut column = 1.0;
     let icon_width = PIXELS_PER_TILE_WIDTH as f32 * 1.5;
+    let icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 1.5;
+    let robot_icon_width = PIXELS_PER_TILE_WIDTH as f32 * 2.0;
+    let robot_icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 2.0;
     let pixel_height = drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
     let queue_length = world.task_queue.len();
-    let panel_width = (queue_length + 1) as f32 * icon_width;
-    drawer.draw_rectangle(
-        drawer.screen_width() - panel_width,
-        drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32,
-        panel_width,
-        PIXELS_PER_TILE_HEIGHT as f32,
-        BACKGROUND_UI_COLOR,
-    );
-    drawer.draw_transparent_texture(
-        TileType::Robot,
-        drawer.screen_width() - column * icon_width,
-        pixel_height,
-        FULL_OPAQUE,
-    );
+    let panel_width = queue_length as f32 * icon_width + robot_icon_width;
     let button_height = FONT_SIZE * 1.5;
+    let window_title_height = button_height;
+    // TODO: change robot_icon_height to icon_height
+    let group_height = icon_height + 2.0 * button_height;
+    let panel_height = group_height + window_title_height;
+    let panel = Rect {
+        x: drawer.screen_width() - panel_width,
+        y: drawer.screen_height() - panel_height,
+        w: panel_width,
+        h: panel_height,
+    };
     let mut go_to_robot = Option::None;
-    if drawer.do_button(
-        "show",
-        drawer.screen_width() - column * icon_width,
-        pixel_height - button_height,
-    ) {
-        go_to_robot = Option::Some(world.robots.first().unwrap().position);
-    }
+    Window::new(hash!(), panel.point(), panel.size())
+        .label("Task queue")
+        // .titlebar(true)
+        .movable(false)
+        .ui(&mut root_ui(), |ui| {
+            ui.group(hash!(), Vec2::new(icon_width, group_height), |ui| {
+                // let show_robot_clicked = ui.button(None, "show");
+                // let robot_texture_copy = *drawer.get_textures().get(TileType::Robot as usize).unwrap();
+                // let robot_texture_clicked = widgets::Texture::new(
+                //     robot_texture_copy)
+                //     .size(robot_icon_width, robot_icon_height)
+                //     .position(Some(Vec2::new(robot_icon_width, robot_icon_height)))
+                    // .ui(ui);
+                // if show_robot_clicked || robot_texture_clicked {
+                //     go_to_robot = Option::Some(world.robots.first().unwrap().position);
+                // }
+            });
+
+            // for i in 0..queue_length {
+            //     let task_size = Vec2::new(icon_width, PIXELS_PER_TILE_HEIGHT as f32 + button_height * 2);
+            //     let group_id = i.to_string() + concat!(file!(), line!(), column!());
+            //     ui.group(hash!(group_id), task_size, |ui| {
+            //
+            //     });
+            // }
+        });
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
-    for (task_index, task) in world.task_queue.iter().enumerate() {
-        column += 1.0;
-        let tile = match task {
-            Task::Transform(transform) => transform.transformation.new_tile_type,
-            Task::Movement(_) => TileType::Movement,
-        };
-        drawer.draw_transparent_texture(
-            tile,
-            drawer.screen_width() - column * icon_width,
-            pixel_height,
-            FULL_OPAQUE,
-        );
-        if drawer.do_button(
-            "cancel",
-            drawer.screen_width() - column * icon_width,
-            pixel_height - button_height,
-        ) {
-            cancel_task = Option::Some(task_index);
-        }
-        if drawer.do_button(
-            "do now",
-            drawer.screen_width() - column * icon_width,
-            pixel_height - button_height * 2.0,
-        ) {
-            do_now_task = Option::Some(task_index);
-        }
-    }
+    // for (task_index, task) in world.task_queue.iter().enumerate() {
+    //     column += 1.0;
+    //     let tile = match task {
+    //         Task::Transform(transform) => transform.transformation.new_tile_type,
+    //         Task::Movement(_) => TileType::Movement,
+    //     };
+    //     drawer.draw_transparent_texture(
+    //         tile,
+    //         drawer.screen_width() - column * icon_width,
+    //         pixel_height,
+    //         FULL_OPAQUE,
+    //     );
+    //     if drawer.do_button(
+    //         "cancel",
+    //         drawer.screen_width() - column * icon_width,
+    //         pixel_height - button_height,
+    //     ) {
+    //         cancel_task = Option::Some(task_index);
+    //     }
+    //     if drawer.do_button(
+    //         "do now",
+    //         drawer.screen_width() - column * icon_width,
+    //         pixel_height - button_height * 2.0,
+    //     ) {
+    //         do_now_task = Option::Some(task_index);
+    //     }
+    // }
     GuiActions {
         go_to_robot,
         cancel_task,
