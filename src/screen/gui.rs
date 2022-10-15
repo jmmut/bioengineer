@@ -135,53 +135,51 @@ pub fn draw_robot_queue(
             .get(ExtraTextures::ZoomedRobot as usize)
             .unwrap();
         let robot_texture_clicked = widgets::Texture::new(robot_texture_copy)
-            .size(icon_width, icon_height)
-            // .position(Some(Vec2::new(0.0, 0.0)))
-            // .position(Some(Vec2::new(-30.0, -10.0)))
+            .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
+            .position(Some(Vec2::new(0.0, button_height * 2.0)))
+            // .position(Some(Vec2::new(-5.0, 0.0)))
             // .position(Some(Vec2::new(-robot_icon_width, robot_icon_height)))
             .ui(ui);
         if show_robot_clicked || robot_texture_clicked {
             go_to_robot = Option::Some(world.robots.first().unwrap().position);
         }
-
-        // for i in 0..queue_length {
-        //     let task_size = Vec2::new(icon_width, PIXELS_PER_TILE_HEIGHT as f32 + button_height * 2);
-        //     let group_id = i.to_string() + concat!(file!(), line!(), column!());
-        //     ui.group(hash!(group_id), task_size, |ui| {
-        //
-        //     });
-        // }
     });
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
-    // for (task_index, task) in world.task_queue.iter().enumerate() {
-    //     column += 1.0;
-    //     let tile = match task {
-    //         Task::Transform(transform) => transform.transformation.new_tile_type,
-    //         Task::Movement(_) => TileType::Movement,
-    //     };
-    //     drawer.draw_transparent_texture(
-    //         tile,
-    //         drawer.screen_width() - column * icon_width,
-    //         pixel_height,
-    //         FULL_OPAQUE,
-    //     );
-    //     if drawer.do_button(
-    //         "cancel",
-    //         drawer.screen_width() - column * icon_width,
-    //         pixel_height - button_height,
-    //     ) {
-    //         cancel_task = Option::Some(task_index);
-    //     }
-    //     if drawer.do_button(
-    //         "do now",
-    //         drawer.screen_width() - column * icon_width,
-    //         pixel_height - button_height * 2.0,
-    //     ) {
-    //         do_now_task = Option::Some(task_index);
-    //     }
-    // }
+    for (task_index, task) in world.task_queue.iter().enumerate() {
+        let group_id = format!("task_{}", task_index.to_string());
+        Window::new(
+            hash!(group_id),
+            Vec2::new(
+                drawer.screen_width() - icon_width * (2 + task_index) as f32 - margin,
+                drawer.screen_height() - group_height - margin,
+            ),
+            Vec2::new(icon_width, group_height),
+        )
+        .titlebar(false)
+        .ui(&mut root_ui(), |ui| {
+            if ui.button(None, "cancel") {
+                cancel_task = Option::Some(task_index);
+            }
+
+            if ui.button(None, "do now") {
+                do_now_task = Option::Some(task_index);
+            }
+
+            let tile = match task {
+                Task::Transform(transform) => transform.transformation.new_tile_type,
+                Task::Movement(_) => TileType::Movement,
+            };
+            let texture_copy = *drawer.get_textures().get(tile as usize).unwrap();
+            ui.texture(
+                texture_copy,
+                PIXELS_PER_TILE_WIDTH as f32,
+                PIXELS_PER_TILE_HEIGHT as f32,
+            );
+        });
+    }
+
     GuiActions {
         go_to_robot,
         cancel_task,

@@ -40,7 +40,7 @@ fn add_zoomed_robot(mut textures: Vec<Texture2D>) -> Vec<Texture2D> {
         subimage_end_width,
         subimage_end_height,
     );
-    let zoomed = zoom(&cropped, PIXELS_PER_TILE_WIDTH as usize, 2);
+    let zoomed = zoom(&cropped, subimage_end_width - subimage_start_width, 2);
     let texture = Texture2D::from_rgba8(PIXELS_PER_TILE_WIDTH, PIXELS_PER_TILE_HEIGHT, &zoomed);
     textures.push(texture);
     textures

@@ -45,10 +45,6 @@ pub fn record_cache_cold_hit() {
     }
 }
 
-pub struct IndexCache {
-    wrapped_cache: RefCell<[usize; 2]>,
-}
-
 /// Small cache for indexes.
 ///
 /// Assumes that the 0th index is valid, and only provides 2 cached values.
@@ -56,6 +52,10 @@ pub struct IndexCache {
 /// For the initial purpose of this class, the first cached value is a cache hit 83% of the times,
 /// and when using the second value as well the hit rate goes to 97%.
 /// If your access pattern doesn't fit these numbers, you probably need a different cache.
+pub struct IndexCache {
+    wrapped_cache: RefCell<[usize; 2]>,
+}
+
 impl IndexCache {
     pub fn new() -> Self {
         Self {

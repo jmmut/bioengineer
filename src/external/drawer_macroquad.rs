@@ -27,10 +27,12 @@ impl DrawerTrait for DrawerMacroquad {
             textures[0].width(),
             textures[0].height()
         );
-        DrawerMacroquad {
+        let d = DrawerMacroquad {
             drawing: DrawingState::new(),
             textures,
-        }
+        };
+        d._debug_draw_all_textures();
+        d
     }
 
     // fn draw(&self, game_state: &GameState) {
@@ -104,8 +106,9 @@ impl DrawerTrait for DrawerMacroquad {
             .margin(margin.clone())
             .text_color(text_color)
             .color(BACKGROUND_UI_COLOR)
-            .color_hovered(background_color_hovered)
-            .color_clicked(background_color_clicked)
+            .color_hovered(BACKGROUND_UI_COLOR)
+            .color_clicked(BACKGROUND_UI_COLOR)
+            .color_inactive(BACKGROUND_UI_COLOR)
             .font_size(font_size as u16)
             .build();
         let window_titlebar_style = root_ui()
@@ -135,7 +138,7 @@ impl DrawerTrait for DrawerMacroquad {
 }
 
 impl DrawerMacroquad {
-    fn _debug_draw_all_textures(&self) {
+    pub fn _debug_draw_all_textures(&self) {
         for i in 0..self.textures.len() {
             let tiles_per_line = screen_width() as usize / assets::PIXELS_PER_TILE_WIDTH as usize;
             if tiles_per_line > 0 {
