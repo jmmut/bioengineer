@@ -7,9 +7,9 @@ pub mod ref_mut_iterator;
 pub mod transform_cells;
 
 use crate::common::trunc::trunc_towards_neg_inf;
-use crate::{IVec3, now};
+use crate::{now, IVec3};
 pub use cell::{
-    Cell, is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, TileType,
+    is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, Cell, TileType,
 };
 pub use cell_cube_iterator::CellCubeIterator;
 use cell_envelope::Envelope;

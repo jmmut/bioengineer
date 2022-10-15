@@ -7,12 +7,12 @@ use gui::gui_actions::GuiActions;
 use gui::Gui;
 
 pub mod assets;
+pub mod draw_map;
 pub mod drawer_trait;
 pub mod drawing_state;
 pub mod gui;
-pub mod input;
-pub mod draw_map;
 pub mod hud;
+pub mod input;
 
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 

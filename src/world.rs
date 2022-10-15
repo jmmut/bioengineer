@@ -1,15 +1,15 @@
+pub mod fluids;
 pub mod game_state;
 pub mod map;
 mod networks;
 pub mod robots;
-pub mod fluids;
 
 use std::collections::{HashSet, VecDeque};
 
-use game_state::get_goal_air_cleaned;
-use game_state::GameState;
 use fluids::FluidMode;
 use fluids::Fluids;
+use game_state::get_goal_air_cleaned;
+use game_state::GameState;
 use map::transform_cells::Transformation;
 use map::CellIndex;
 use map::Map;

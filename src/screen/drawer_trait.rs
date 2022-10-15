@@ -35,7 +35,6 @@ pub trait DrawerTrait {
         background_color_clicked: Color,
     );
 
-
     // TODO: remove after refactoring GUI
     fn get_textures(&self) -> &Vec<Texture2D>;
 }

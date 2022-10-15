@@ -87,12 +87,7 @@ impl DrawerTrait for DrawerMacroquad {
         //     .text_color(text_color)
         //     .font_size(font_size)
         //     .build();
-        let margin = RectOffset::new(
-            MARGIN,
-            MARGIN,
-            MARGIN / 5.0,
-            MARGIN / 5.0,
-        );
+        let margin = RectOffset::new(MARGIN, MARGIN, MARGIN / 5.0, MARGIN / 5.0);
         let button_style = root_ui()
             .style_builder()
             .background_margin(RectOffset::new(0.0, 0.0, 0.0, 0.0))
@@ -103,7 +98,7 @@ impl DrawerTrait for DrawerMacroquad {
             .color_clicked(background_color_clicked)
             .font_size(font_size as u16)
             .build();
-        let window_style =  root_ui()
+        let window_style = root_ui()
             .style_builder()
             // .background_margin(margin.clone())
             .margin(margin.clone())
@@ -113,7 +108,7 @@ impl DrawerTrait for DrawerMacroquad {
             .color_clicked(background_color_clicked)
             .font_size(font_size as u16)
             .build();
-        let window_titlebar_style =  root_ui()
+        let window_titlebar_style = root_ui()
             .style_builder()
             .text_color(text_color)
             .color(background_color_clicked)

@@ -64,18 +64,26 @@ fn get_components(
     components
 }
 
-pub fn crop(image: &Vec<u8>, image_width_in_pixels: usize, image_height_in_pixels: usize,
-        crop_start_width_in_pixels: usize, crop_start_height_in_pixels: usize,
-        crop_end_width_in_pixels: usize, crop_end_height_in_pixels: usize) -> Vec<u8> {
-    assert_eq!(image.len(),
-               image_width_in_pixels * image_height_in_pixels * COMPONENTS_PER_PIXEL);
-    let crop_start_width_in_components =  crop_start_width_in_pixels * COMPONENTS_PER_PIXEL;
-    let crop_end_width_in_components =  crop_end_width_in_pixels * COMPONENTS_PER_PIXEL;
+pub fn crop(
+    image: &Vec<u8>,
+    image_width_in_pixels: usize,
+    image_height_in_pixels: usize,
+    crop_start_width_in_pixels: usize,
+    crop_start_height_in_pixels: usize,
+    crop_end_width_in_pixels: usize,
+    crop_end_height_in_pixels: usize,
+) -> Vec<u8> {
+    assert_eq!(
+        image.len(),
+        image_width_in_pixels * image_height_in_pixels * COMPONENTS_PER_PIXEL
+    );
+    let crop_start_width_in_components = crop_start_width_in_pixels * COMPONENTS_PER_PIXEL;
+    let crop_end_width_in_components = crop_end_width_in_pixels * COMPONENTS_PER_PIXEL;
     let components_per_line = image_width_in_pixels * COMPONENTS_PER_PIXEL;
     let mut result = Vec::<u8>::with_capacity(
         (crop_end_width_in_pixels - crop_start_width_in_pixels)
-        * (crop_end_height_in_pixels - crop_start_height_in_pixels)
-        * COMPONENTS_PER_PIXEL
+            * (crop_end_height_in_pixels - crop_start_height_in_pixels)
+            * COMPONENTS_PER_PIXEL,
     );
     for i_h in crop_start_height_in_pixels..crop_end_height_in_pixels {
         for i_w in crop_start_width_in_components..crop_end_width_in_components {
@@ -95,8 +103,11 @@ pub fn zoom(image: &Vec<u8>, image_width_in_pixels: usize, factor: usize) -> Vec
         for i_w in 0..image_width_in_pixels {
             for _i_copy in 0..factor {
                 for i_c in 0..COMPONENTS_PER_PIXEL {
-                    line.push(image[i_h * image_width_in_pixels * COMPONENTS_PER_PIXEL
-                        + i_w * COMPONENTS_PER_PIXEL + i_c]);
+                    line.push(
+                        image[i_h * image_width_in_pixels * COMPONENTS_PER_PIXEL
+                            + i_w * COMPONENTS_PER_PIXEL
+                            + i_c],
+                    );
                 }
             }
         }
@@ -190,27 +201,23 @@ mod tests {
             32, 33, 34, 35,   36, 37, 38, 39,   40, 41, 42, 43,   44, 45, 46, 47,
             48, 49, 50, 51,   52, 53, 54, 55,   56, 57, 58, 59,   60, 61, 62, 63
         ];
-        let cropped = crop(&image, 4, 4,
-                           1, 1, 3, 3);
+        let cropped = crop(&image, 4, 4, 1, 1, 3, 3);
         let expected: Vec<u8> = vec![
-            20, 21, 22, 23,   24, 25, 26, 27,
-            36, 37, 38, 39,   40, 41, 42, 43,
+            20, 21, 22, 23, 24, 25, 26, 27, 36, 37, 38, 39, 40, 41, 42, 43,
         ];
         assert_eq!(cropped, expected);
     }
-    
+
     #[test]
     fn test_zoom() {
         let image: Vec<u8> = vec![
-            20, 21, 22, 23,   24, 25, 26, 27,
-            36, 37, 38, 39,   40, 41, 42, 43,
+            20, 21, 22, 23, 24, 25, 26, 27, 36, 37, 38, 39, 40, 41, 42, 43,
         ];
         let zoomed = zoom(&image, 2, 2);
         let expected: Vec<u8> = vec![
-            20, 21, 22, 23,   20, 21, 22, 23,   24, 25, 26, 27,   24, 25, 26, 27,
-            20, 21, 22, 23,   20, 21, 22, 23,   24, 25, 26, 27,   24, 25, 26, 27,
-            36, 37, 38, 39,   36, 37, 38, 39,   40, 41, 42, 43,   40, 41, 42, 43,
-            36, 37, 38, 39,   36, 37, 38, 39,   40, 41, 42, 43,   40, 41, 42, 43,
+            20, 21, 22, 23, 20, 21, 22, 23, 24, 25, 26, 27, 24, 25, 26, 27, 20, 21, 22, 23, 20, 21,
+            22, 23, 24, 25, 26, 27, 24, 25, 26, 27, 36, 37, 38, 39, 36, 37, 38, 39, 40, 41, 42, 43,
+            40, 41, 42, 43, 36, 37, 38, 39, 36, 37, 38, 39, 40, 41, 42, 43, 40, 41, 42, 43,
         ];
         assert_eq!(zoomed, expected);
     }

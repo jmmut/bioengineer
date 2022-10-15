@@ -1,10 +1,9 @@
-use macroquad::hash;
-use macroquad::ui::{root_ui, widgets};
-use macroquad::ui::widgets::{Group, Window};
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
+use crate::screen::hud::FULL_OPAQUE;
 use crate::screen::input::{CellSelection, Input};
+use crate::world::map::cell::ExtraTextures;
 use crate::world::map::TileType;
 use crate::world::GameGoalState::{Finished, PostFinished};
 use crate::world::Task;
@@ -13,8 +12,9 @@ use crate::{Color, Rect, Vec2};
 use coords::cell_pixel::clicked_cell;
 use draw_available_transformations::show_available_transformations;
 pub use gui_actions::GuiActions;
-use crate::screen::hud::FULL_OPAQUE;
-use crate::world::map::cell::ExtraTextures;
+use macroquad::hash;
+use macroquad::ui::widgets::{Group, Window};
+use macroquad::ui::{root_ui, widgets};
 
 pub mod coords;
 pub mod draw_available_transformations;
@@ -117,35 +117,41 @@ pub fn draw_robot_queue(
         h: panel_height,
     };
     let mut go_to_robot = Option::None;
-    Window::new(hash!(), Vec2::new(drawer.screen_width() - icon_width - margin,
-                                   drawer.screen_height() - robot_window_height - margin),
-    Vec2::new(icon_width, robot_window_height))
-        // .label("Task queue")
-        .titlebar(false)
-        .movable(false)
-        .ui(&mut root_ui(), |ui| {
-            let show_robot_clicked = ui.button(None, "show");
-            let robot_texture_copy = *drawer.get_textures().get(ExtraTextures::ZoomedRobot as usize).unwrap();
-            let robot_texture_clicked = widgets::Texture::new(robot_texture_copy)
-                .size(icon_width, icon_height)
-                // .position(Some(Vec2::new(0.0, 0.0)))
-                // .position(Some(Vec2::new(-30.0, -10.0)))
-                // .position(Some(Vec2::new(-robot_icon_width, robot_icon_height)))
-                .ui(ui);
-            if show_robot_clicked
-                || robot_texture_clicked
-            {
-                go_to_robot = Option::Some(world.robots.first().unwrap().position);
-            }
+    Window::new(
+        hash!(),
+        Vec2::new(
+            drawer.screen_width() - icon_width - margin,
+            drawer.screen_height() - robot_window_height - margin,
+        ),
+        Vec2::new(icon_width, robot_window_height),
+    )
+    // .label("Task queue")
+    .titlebar(false)
+    .movable(false)
+    .ui(&mut root_ui(), |ui| {
+        let show_robot_clicked = ui.button(None, "show");
+        let robot_texture_copy = *drawer
+            .get_textures()
+            .get(ExtraTextures::ZoomedRobot as usize)
+            .unwrap();
+        let robot_texture_clicked = widgets::Texture::new(robot_texture_copy)
+            .size(icon_width, icon_height)
+            // .position(Some(Vec2::new(0.0, 0.0)))
+            // .position(Some(Vec2::new(-30.0, -10.0)))
+            // .position(Some(Vec2::new(-robot_icon_width, robot_icon_height)))
+            .ui(ui);
+        if show_robot_clicked || robot_texture_clicked {
+            go_to_robot = Option::Some(world.robots.first().unwrap().position);
+        }
 
-            // for i in 0..queue_length {
-            //     let task_size = Vec2::new(icon_width, PIXELS_PER_TILE_HEIGHT as f32 + button_height * 2);
-            //     let group_id = i.to_string() + concat!(file!(), line!(), column!());
-            //     ui.group(hash!(group_id), task_size, |ui| {
-            //
-            //     });
-            // }
-        });
+        // for i in 0..queue_length {
+        //     let task_size = Vec2::new(icon_width, PIXELS_PER_TILE_HEIGHT as f32 + button_height * 2);
+        //     let group_id = i.to_string() + concat!(file!(), line!(), column!());
+        //     ui.group(hash!(group_id), task_size, |ui| {
+        //
+        //     });
+        // }
+    });
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;

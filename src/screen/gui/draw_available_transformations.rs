@@ -1,6 +1,3 @@
-use macroquad::hash;
-use macroquad::ui::root_ui;
-use macroquad::ui::widgets::{Group, Window};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::gui_actions::GuiActions;
@@ -9,8 +6,11 @@ use crate::screen::input::{CellSelection, Input};
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
 use crate::world::TransformationTask;
-use crate::{Rect, Vec2};
 use crate::World;
+use crate::{Rect, Vec2};
+use macroquad::hash;
+use macroquad::ui::root_ui;
+use macroquad::ui::widgets::{Group, Window};
 
 pub fn show_available_transformations(
     drawer: &impl DrawerTrait,
@@ -45,18 +45,18 @@ pub fn show_available_transformations(
             .label(panel_title)
             .movable(false)
             .ui(&mut root_ui(), |ui| {
-            // ui.label(None, panel_title);
-            for transformation in transformations {
-                let text = to_action_str(transformation.new_tile_type);
-                if ui.button(None, text) {
-                    let transformation_task = TransformationTask {
-                        to_transform: drawing.highlighted_cells.clone(),
-                        transformation,
-                    };
-                    transformation_clicked = Option::Some(transformation_task);
+                // ui.label(None, panel_title);
+                for transformation in transformations {
+                    let text = to_action_str(transformation.new_tile_type);
+                    if ui.button(None, text) {
+                        let transformation_task = TransformationTask {
+                            to_transform: drawing.highlighted_cells.clone(),
+                            transformation,
+                        };
+                        transformation_clicked = Option::Some(transformation_task);
+                    }
                 }
-            }
-        });
+            });
         if let Option::Some(selection) = unhandled_input.input.cell_selection.selection {
             if panel.contains(selection.end) {
                 // TODO: if clicking a button near the bottom of the panel, it selects a cell out

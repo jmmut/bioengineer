@@ -1,6 +1,8 @@
-use crate::screen::assets::{COMPONENTS_PER_PIXEL, crop, extract_images, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH, zoom};
-use macroquad::texture::{FilterMode, Texture2D};
+use crate::screen::assets::{
+    crop, extract_images, zoom, COMPONENTS_PER_PIXEL, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH,
+};
 use crate::world::map::TileType;
+use macroquad::texture::{FilterMode, Texture2D};
 
 pub async fn load_tileset(path: &str) -> Vec<Texture2D> {
     let image_future = macroquad::texture::load_image(path);
@@ -29,9 +31,14 @@ fn add_zoomed_robot(mut textures: Vec<Texture2D>) -> Vec<Texture2D> {
     let subimage_start_height = (PIXELS_PER_TILE_HEIGHT / 4) as usize;
     let subimage_end_width = (PIXELS_PER_TILE_WIDTH * 3 / 4) as usize;
     let subimage_end_height = (PIXELS_PER_TILE_HEIGHT * 3 / 4) as usize;
-    let cropped = crop(&image.bytes, PIXELS_PER_TILE_WIDTH as usize, PIXELS_PER_TILE_HEIGHT as
-        usize, subimage_start_width, subimage_start_height,
-                       subimage_end_width, subimage_end_height
+    let cropped = crop(
+        &image.bytes,
+        PIXELS_PER_TILE_WIDTH as usize,
+        PIXELS_PER_TILE_HEIGHT as usize,
+        subimage_start_width,
+        subimage_start_height,
+        subimage_end_width,
+        subimage_end_height,
     );
     let zoomed = zoom(&cropped, PIXELS_PER_TILE_WIDTH as usize, 2);
     let texture = Texture2D::from_rgba8(PIXELS_PER_TILE_WIDTH, PIXELS_PER_TILE_HEIGHT, &zoomed);
