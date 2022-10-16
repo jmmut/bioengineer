@@ -1,9 +1,14 @@
+use macroquad::ui::Ui;
 use crate::world::map::TileType;
 use crate::Color;
 use crate::Texture2D;
 use crate::Vec2;
 
 /// Trait to be implemented by a graphics library.
+///
+/// The ui_* functions won't directly draw, but wait until the end of the frame, to support
+/// immediate mode UI.
+///
 /// The purpose of this class is to decouple the project from the graphics library.
 /// Hopefully, if I ever need to swap the graphics library (currently macroquad), classes like
 /// this one will be the only places to change.
@@ -22,8 +27,9 @@ pub trait DrawerTrait {
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
 
+    fn ui_group<'a>(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce() + 'a>);
     /// both draws and returns if it was pressed. (Immediate mode UI)
-    fn do_button(&self, text: &str, x: f32, y: f32) -> bool;
+    fn ui_button(&self, text: &str, x: f32, y: f32) -> bool;
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2;
 
     fn set_button_style(

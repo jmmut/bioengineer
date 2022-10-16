@@ -148,17 +148,18 @@ pub fn draw_robot_queue(
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
     for (task_index, task) in world.task_queue.iter().enumerate() {
-        let group_id = format!("task_{}", task_index.to_string());
-        Window::new(
-            hash!(group_id),
-            Vec2::new(
+        let tile = match task {
+            Task::Transform(transform) => transform.transformation.new_tile_type,
+            Task::Movement(_) => TileType::Movement,
+        };
+        drawer.ui_group(
                 drawer.screen_width() - icon_width * (2 + task_index) as f32 - margin,
                 drawer.screen_height() - group_height - margin,
-            ),
-            Vec2::new(icon_width, group_height),
-        )
-        .titlebar(false)
-        .ui(&mut root_ui(), |ui| {
+        icon_width,
+                group_height,
+        Box::new(|| {
+            drawer.ui_button()
+            let mut ui = root_ui();
             if ui.button(None, "cancel") {
                 cancel_task = Option::Some(task_index);
             }
@@ -166,18 +167,13 @@ pub fn draw_robot_queue(
             if ui.button(None, "do now") {
                 do_now_task = Option::Some(task_index);
             }
-
-            let tile = match task {
-                Task::Transform(transform) => transform.transformation.new_tile_type,
-                Task::Movement(_) => TileType::Movement,
-            };
             let texture_copy = *drawer.get_textures().get(tile as usize).unwrap();
             ui.texture(
                 texture_copy,
                 PIXELS_PER_TILE_WIDTH as f32,
                 PIXELS_PER_TILE_HEIGHT as f32,
             );
-        });
+        }));
     }
 
     GuiActions {
@@ -218,7 +214,7 @@ pub fn draw_game_finished(
             FONT_SIZE,
             TEXT_COLOR,
         );
-        if drawer.do_button(
+        if drawer.ui_button(
             "Continue",
             center.x - text_size.x / 2.0,
             center.y + height_per_line,

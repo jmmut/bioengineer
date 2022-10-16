@@ -1,10 +1,11 @@
 use macroquad::color::Color;
+use macroquad::hash;
 use macroquad::math::{RectOffset, Vec2};
 use macroquad::prelude::Texture2D;
 use macroquad::shapes::draw_rectangle;
 use macroquad::text::{draw_text, measure_text};
 use macroquad::texture::draw_texture;
-use macroquad::ui::{root_ui, Skin};
+use macroquad::ui::{root_ui, Skin, widgets};
 use macroquad::window::{clear_background, screen_height, screen_width};
 
 use crate::screen::assets;
@@ -66,8 +67,20 @@ impl DrawerTrait for DrawerMacroquad {
         draw_text(text, x, y, font_size, color);
     }
 
+    /// This grouping function does not support nested groups
+    fn ui_group<'a>(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce()+ 'a>) {
+        let id = hash!(x.abs() as i32, y.abs() as i32);
+        widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
+            .titlebar(false)
+            .movable(false)
+            .ui(&mut root_ui(), |ui| {
+                f()
+            });
+    }
+
+
     /// both draws and returns if it was pressed. (Immediate mode UI)
-    fn do_button(&self, text: &str, x: f32, y: f32) -> bool {
+    fn ui_button(&self, text: &str, x: f32, y: f32) -> bool {
         root_ui().button(Option::Some(Vec2::new(x, y)), text)
     }
 
