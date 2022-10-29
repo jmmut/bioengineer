@@ -27,7 +27,7 @@ pub trait DrawerTrait {
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
 
-    fn ui_group<'a>(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce() + 'a>);
+    fn ui_group<F: FnMut()>(&self, x: f32, y: f32, w: f32, h: f32, f: F);
     /// both draws and returns if it was pressed. (Immediate mode UI)
     fn ui_texture(&self, texture_index: impl TextureIndex) -> bool;
     fn ui_texture_with_pos(&self, texture_index: impl TextureIndex, x: f32, y: f32) -> bool;

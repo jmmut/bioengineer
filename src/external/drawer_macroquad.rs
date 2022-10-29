@@ -73,7 +73,7 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     /// This grouping function does not support nested groups
-    fn ui_group<'a>(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce() + 'a>) {
+    fn ui_group<F: FnMut()>(&self, x: f32, y: f32, w: f32, h: f32, mut f: F) {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)

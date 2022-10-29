@@ -6,17 +6,17 @@ use coords::cell_pixel::clicked_cell;
 use draw_available_transformations::show_available_transformations;
 pub use gui_actions::GuiActions;
 
-use crate::{Color, Rect, Vec2};
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::hud::FULL_OPAQUE;
 use crate::screen::input::{CellSelection, Input};
-use crate::World;
-use crate::world::GameGoalState::{Finished, PostFinished};
 use crate::world::map::cell::ExtraTextures;
 use crate::world::map::TileType;
+use crate::world::GameGoalState::{Finished, PostFinished};
 use crate::world::Task;
+use crate::World;
+use crate::{Color, Rect, Vec2};
 
 pub const FONT_SIZE: f32 = 16.0;
 pub const MARGIN: f32 = 10.0;
@@ -105,14 +105,14 @@ pub fn draw_robot_queue(
         drawer.screen_height() - robot_window_height - margin,
         icon_width,
         robot_window_height,
-        Box::new(|| {
+        || {
             let show_robot_clicked = drawer.ui_button("show");
             let robot_texture_clicked =
                 drawer.ui_texture_with_pos(ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
             if show_robot_clicked || robot_texture_clicked {
                 go_to_robot = Option::Some(world.robots.first().unwrap().position);
             }
-        }),
+        },
     );
 
     let mut cancel_task = Option::None;
@@ -127,7 +127,7 @@ pub fn draw_robot_queue(
             drawer.screen_height() - group_height - margin,
             icon_width,
             group_height,
-            Box::new(|| {
+            || {
                 if drawer.ui_button("cancel") {
                     cancel_task = Option::Some(task_index);
                 }
@@ -136,7 +136,7 @@ pub fn draw_robot_queue(
                     do_now_task = Option::Some(task_index);
                 }
                 drawer.ui_texture(tile);
-            }),
+            },
         );
     }
 
