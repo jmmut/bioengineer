@@ -48,8 +48,16 @@ pub fn move_robot_to_position(
     target_pos: &CellIndex,
     map: &Map,
 ) -> Option<CellIndexDiff> {
-
-    None
+    let diff = *target_pos - current_pos;
+    if manhattan_length(&diff) == 1 {
+        if is_position_walkable(&map, &current_pos, target_pos) {
+            Some(diff)
+        } else {
+            None
+        }
+    } else {
+        None
+    }
 }
 
 pub fn move_robot_to_position_old(
@@ -92,7 +100,7 @@ fn try_move(
         let diff = manhattan_distance(target_pos, current_pos);
         for dir in directions {
             let possible_new_pos = current_pos + *dir;
-            let walkable = is_position_walkable(map, &possible_new_pos, &current_pos);
+            let walkable = is_position_walkable(map, &current_pos, &possible_new_pos);
             if walkable {
                 let moving_to_dir_gets_us_closer =
                     manhattan_distance(target_pos, possible_new_pos) < diff;
@@ -112,7 +120,7 @@ fn try_move(
     }
 }
 
-fn is_position_walkable(map: &Map, possible_new_pos: &CellIndex, origin: &CellIndex) -> bool {
+fn is_position_walkable(map: &Map, origin: &CellIndex, possible_new_pos: &CellIndex) -> bool {
     let target_tile = map
         .get_cell_optional(*possible_new_pos)
         .map(|cell| cell.tile_type)
@@ -131,6 +139,10 @@ fn is_position_walkable(map: &Map, possible_new_pos: &CellIndex, origin: &CellIn
 
 fn manhattan_distance(pos: CellIndex, other_pos: CellIndex) -> i32 {
     i32::abs(pos.x - other_pos.x) + i32::abs(pos.y - other_pos.y) + i32::abs(pos.z - other_pos.z)
+}
+
+fn manhattan_length(pos: &CellIndexDiff) -> i32 {
+    i32::abs(pos.x) + i32::abs(pos.y) + i32::abs(pos.z)
 }
 
 pub fn reachable_positions() -> Vec<CellIndexDiff> {
