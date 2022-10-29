@@ -5,18 +5,23 @@ use macroquad::prelude::Texture2D;
 use macroquad::shapes::draw_rectangle;
 use macroquad::text::{draw_text, measure_text};
 use macroquad::texture::draw_texture;
-use macroquad::ui::{root_ui, Skin, widgets};
+use macroquad::ui::{root_ui, widgets, Skin, Ui};
 use macroquad::window::{clear_background, screen_height, screen_width};
+use std::cell::{Ref, RefMut};
+use std::ops::DerefMut;
 
 use crate::screen::assets;
+use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, MARGIN};
+use crate::world::map::cell::TextureIndex;
 use crate::world::map::TileType;
 
 pub struct DrawerMacroquad {
     pub drawing: DrawingState,
     pub textures: Vec<Texture2D>,
+    // pub ui: Option<RefMut<Ui>>,
 }
 
 impl DrawerTrait for DrawerMacroquad {
@@ -68,20 +73,33 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     /// This grouping function does not support nested groups
-    fn ui_group<'a>(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce()+ 'a>) {
+    fn ui_group<'a>(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce() + 'a>) {
         let id = hash!(x.abs() as i32, y.abs() as i32);
+        // let ui: impl DerefMut<Target = Ui> + Sized = root_ui();
+        // let ui = root_ui();
         widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)
             .movable(false)
-            .ui(&mut root_ui(), |ui| {
-                f()
-            });
+            .ui(&mut root_ui(), |ui| f());
+        // self.ui = None;
     }
 
+    fn ui_texture(&self, texture_index: impl TextureIndex) {
+        let texture_copy = *self.get_textures().get(texture_index.get_index()).unwrap();
+        root_ui().texture(
+            texture_copy,
+            PIXELS_PER_TILE_WIDTH as f32,
+            PIXELS_PER_TILE_HEIGHT as f32,
+        );
+    }
 
     /// both draws and returns if it was pressed. (Immediate mode UI)
-    fn ui_button(&self, text: &str, x: f32, y: f32) -> bool {
+    fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> bool {
         root_ui().button(Option::Some(Vec2::new(x, y)), text)
+    }
+
+    fn ui_button(&self, text: &str) -> bool {
+        root_ui().button(None, text)
     }
 
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {

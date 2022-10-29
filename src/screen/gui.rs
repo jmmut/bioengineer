@@ -153,27 +153,21 @@ pub fn draw_robot_queue(
             Task::Movement(_) => TileType::Movement,
         };
         drawer.ui_group(
-                drawer.screen_width() - icon_width * (2 + task_index) as f32 - margin,
-                drawer.screen_height() - group_height - margin,
-        icon_width,
-                group_height,
-        Box::new(|| {
-            drawer.ui_button()
-            let mut ui = root_ui();
-            if ui.button(None, "cancel") {
-                cancel_task = Option::Some(task_index);
-            }
+            drawer.screen_width() - icon_width * (2 + task_index) as f32 - margin,
+            drawer.screen_height() - group_height - margin,
+            icon_width,
+            group_height,
+            Box::new(|| {
+                if drawer.ui_button("cancel") {
+                    cancel_task = Option::Some(task_index);
+                }
 
-            if ui.button(None, "do now") {
-                do_now_task = Option::Some(task_index);
-            }
-            let texture_copy = *drawer.get_textures().get(tile as usize).unwrap();
-            ui.texture(
-                texture_copy,
-                PIXELS_PER_TILE_WIDTH as f32,
-                PIXELS_PER_TILE_HEIGHT as f32,
-            );
-        }));
+                if drawer.ui_button("do now") {
+                    do_now_task = Option::Some(task_index);
+                }
+                drawer.ui_texture(tile);
+            }),
+        );
     }
 
     GuiActions {
@@ -214,7 +208,7 @@ pub fn draw_game_finished(
             FONT_SIZE,
             TEXT_COLOR,
         );
-        if drawer.ui_button(
+        if drawer.ui_button_with_pos(
             "Continue",
             center.x - text_size.x / 2.0,
             center.y + height_per_line,

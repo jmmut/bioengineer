@@ -1,8 +1,9 @@
-use macroquad::ui::Ui;
+use crate::world::map::cell::TextureIndex;
 use crate::world::map::TileType;
 use crate::Color;
 use crate::Texture2D;
 use crate::Vec2;
+use macroquad::ui::Ui;
 
 /// Trait to be implemented by a graphics library.
 ///
@@ -28,8 +29,10 @@ pub trait DrawerTrait {
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
 
     fn ui_group<'a>(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce() + 'a>);
+    fn ui_texture(&self, texture_index: impl TextureIndex);
     /// both draws and returns if it was pressed. (Immediate mode UI)
-    fn ui_button(&self, text: &str, x: f32, y: f32) -> bool;
+    fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> bool;
+    fn ui_button(&self, text: &str) -> bool;
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2;
 
     fn set_button_style(

@@ -9,6 +9,10 @@ pub struct Cell {
     pub can_flow_out: bool,
 }
 
+pub trait TextureIndex {
+    fn get_index(&self) -> usize;
+}
+
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
 #[allow(dead_code)]
 pub enum TileType {
@@ -34,8 +38,20 @@ pub enum TileType {
     Movement = 22,
 }
 
+#[derive(Clone, Copy, Eq, PartialEq, Debug)]
 pub enum ExtraTextures {
     ZoomedRobot = 32,
+}
+
+impl TextureIndex for TileType {
+    fn get_index(&self) -> usize {
+        *self as usize
+    }
+}
+impl TextureIndex for ExtraTextures {
+    fn get_index(&self) -> usize {
+        *self as usize
+    }
 }
 
 pub fn is_liquid(tile: TileType) -> bool {
