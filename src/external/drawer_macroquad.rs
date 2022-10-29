@@ -5,6 +5,7 @@ use macroquad::prelude::Texture2D;
 use macroquad::shapes::draw_rectangle;
 use macroquad::text::{draw_text, measure_text};
 use macroquad::texture::draw_texture;
+use macroquad::ui::widgets::Texture;
 use macroquad::ui::{root_ui, widgets, Skin, Ui};
 use macroquad::window::{clear_background, screen_height, screen_width};
 use std::cell::{Ref, RefMut};
@@ -82,22 +83,29 @@ impl DrawerTrait for DrawerMacroquad {
         token.end(&mut root_ui());
     }
 
-    fn ui_texture(&self, texture_index: impl TextureIndex) {
+    fn ui_texture(&self, texture_index: impl TextureIndex) -> bool {
         let texture_copy = *self.get_textures().get(texture_index.get_index()).unwrap();
         root_ui().texture(
             texture_copy,
             PIXELS_PER_TILE_WIDTH as f32,
             PIXELS_PER_TILE_HEIGHT as f32,
-        );
+        )
     }
 
-    /// both draws and returns if it was pressed. (Immediate mode UI)
-    fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> bool {
-        root_ui().button(Option::Some(Vec2::new(x, y)), text)
+    fn ui_texture_with_pos(&self, texture_index: impl TextureIndex, x: f32, y: f32) -> bool {
+        let texture_copy = *self.get_textures().get(texture_index.get_index()).unwrap();
+        Texture::new(texture_copy)
+            .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
+            .position(Some(Vec2::new(x, y)))
+            .ui(&mut root_ui())
     }
 
     fn ui_button(&self, text: &str) -> bool {
         root_ui().button(None, text)
+    }
+
+    fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> bool {
+        root_ui().button(Option::Some(Vec2::new(x, y)), text)
     }
 
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {

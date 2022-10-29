@@ -1,26 +1,22 @@
+pub mod coords;
+pub mod draw_available_transformations;
+pub mod gui_actions;
+
+use coords::cell_pixel::clicked_cell;
+use draw_available_transformations::show_available_transformations;
+pub use gui_actions::GuiActions;
+
+use crate::{Color, Rect, Vec2};
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::hud::FULL_OPAQUE;
 use crate::screen::input::{CellSelection, Input};
+use crate::World;
+use crate::world::GameGoalState::{Finished, PostFinished};
 use crate::world::map::cell::ExtraTextures;
 use crate::world::map::TileType;
-use crate::world::GameGoalState::{Finished, PostFinished};
 use crate::world::Task;
-use crate::World;
-use crate::{Color, Rect, Vec2};
-use coords::cell_pixel::clicked_cell;
-use draw_available_transformations::show_available_transformations;
-pub use gui_actions::GuiActions;
-use macroquad::hash;
-use macroquad::ui::widgets::{Group, Window};
-use macroquad::ui::{root_ui, widgets};
-
-pub mod coords;
-pub mod draw_available_transformations;
-pub mod gui_actions;
-
-pub struct Gui;
 
 pub const FONT_SIZE: f32 = 16.0;
 pub const MARGIN: f32 = 10.0;
@@ -31,6 +27,8 @@ pub const BACKGROUND_UI_COLOR: Color = Color::new(0.3, 0.3, 0.4, 1.0);
 pub const BACKGROUND_UI_COLOR_BUTTON: Color = Color::new(0.32, 0.32, 0.42, 1.0);
 pub const BACKGROUND_UI_COLOR_HOVERED: Color = Color::new(0.35, 0.35, 0.45, 1.0);
 pub const BACKGROUND_UI_COLOR_CLICKED: Color = Color::new(0.25, 0.25, 0.35, 1.0);
+
+pub struct Gui;
 
 impl Gui {
     pub fn new(drawer: &mut impl DrawerTrait) -> Self {
@@ -96,54 +94,26 @@ pub fn draw_robot_queue(
     gui_actions: GuiActions,
 ) -> GuiActions {
     let margin = MARGIN;
-    let mut column = 1.0;
     let icon_width = PIXELS_PER_TILE_WIDTH as f32 * 1.5;
     let icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 1.5;
-    let robot_icon_width = PIXELS_PER_TILE_WIDTH as f32 * 2.0;
-    let robot_icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 2.0;
-    let pixel_height = drawer.screen_height() - PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
-    let queue_length = world.task_queue.len();
-    let panel_width = queue_length as f32 * icon_width + robot_icon_width;
     let button_height = FONT_SIZE * 1.5;
-    let window_title_height = button_height;
-    // TODO: change robot_icon_height to icon_height
     let group_height = icon_height + 2.0 * button_height;
     let robot_window_height = icon_height + 1.0 * button_height;
-    let panel_height = group_height + window_title_height;
-    let panel = Rect {
-        x: drawer.screen_width() - panel_width,
-        y: drawer.screen_height() - panel_height,
-        w: panel_width,
-        h: panel_height,
-    };
     let mut go_to_robot = Option::None;
-    Window::new(
-        hash!(),
-        Vec2::new(
-            drawer.screen_width() - icon_width - margin,
-            drawer.screen_height() - robot_window_height - margin,
-        ),
-        Vec2::new(icon_width, robot_window_height),
-    )
-    // .label("Task queue")
-    .titlebar(false)
-    .movable(false)
-    .ui(&mut root_ui(), |ui| {
-        let show_robot_clicked = ui.button(None, "show");
-        let robot_texture_copy = *drawer
-            .get_textures()
-            .get(ExtraTextures::ZoomedRobot as usize)
-            .unwrap();
-        let robot_texture_clicked = widgets::Texture::new(robot_texture_copy)
-            .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
-            .position(Some(Vec2::new(0.0, button_height * 2.0)))
-            // .position(Some(Vec2::new(-5.0, 0.0)))
-            // .position(Some(Vec2::new(-robot_icon_width, robot_icon_height)))
-            .ui(ui);
-        if show_robot_clicked || robot_texture_clicked {
-            go_to_robot = Option::Some(world.robots.first().unwrap().position);
-        }
-    });
+    drawer.ui_group(
+        drawer.screen_width() - icon_width - margin,
+        drawer.screen_height() - robot_window_height - margin,
+        icon_width,
+        robot_window_height,
+        Box::new(|| {
+            let show_robot_clicked = drawer.ui_button("show");
+            let robot_texture_clicked =
+                drawer.ui_texture_with_pos(ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
+            if show_robot_clicked || robot_texture_clicked {
+                go_to_robot = Option::Some(world.robots.first().unwrap().position);
+            }
+        }),
+    );
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
