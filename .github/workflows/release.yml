@@ -42,6 +42,8 @@ jobs:
         zip -FS -r bioengineer_linux.zip bioengineer_linux/*
 
     - name: Deploy Linux to itch.io
+      env:
+        BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
       run: ./butler push bioengineer_linux.zip jmmut/Bioengineer:linux
 
     - name: Compile and package WebAssembly
@@ -56,6 +58,8 @@ jobs:
         zip -FS -r wasm.zip bioengineer_html/*
 
     - name: Deploy WebAssembly to itch.io
+      env:
+        BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
       run: ./butler push wasm.zip jmmut/Bioengineer:html5
 
     - name: Compile and package Windows
@@ -68,4 +72,6 @@ jobs:
         zip -FS -r bioengineer_windows.zip bioengineer_windows/*
 
     - name: Deploy Windows to itch.io
+      env:
+        BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
       run: ./butler push bioengineer_windows.zip jmmut/Bioengineer:windows
