@@ -21,7 +21,6 @@ use crate::world::map::TileType;
 pub struct DrawerMacroquad {
     pub drawing: DrawingState,
     pub textures: Vec<Texture2D>,
-    // pub ui: Option<RefMut<Ui>>,
 }
 
 impl DrawerTrait for DrawerMacroquad {
@@ -75,13 +74,12 @@ impl DrawerTrait for DrawerMacroquad {
     /// This grouping function does not support nested groups
     fn ui_group<'a>(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce() + 'a>) {
         let id = hash!(x.abs() as i32, y.abs() as i32);
-        // let ui: impl DerefMut<Target = Ui> + Sized = root_ui();
-        // let ui = root_ui();
-        widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
+        let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)
-            .movable(false)
-            .ui(&mut root_ui(), |ui| f());
-        // self.ui = None;
+            .movable(false);
+        let token = window.begin(&mut root_ui());
+        f();
+        token.end(&mut root_ui());
     }
 
     fn ui_texture(&self, texture_index: impl TextureIndex) {
