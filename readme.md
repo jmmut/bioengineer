@@ -72,3 +72,19 @@ zip -FS -r bioengineer_linux.zip bioengineer_linux/*
 
 butler push bioengineer_linux.zip jmmut/Bioengineer:linux
 ```
+
+
+## Mac doesn't work at the moment
+
+To cross-compile from Linux to Mac, do:
+```
+rustup target add x86_64-apple-darwin
+cargo build -r --target x86_64-apple-darwin
+
+mkdir -p bioengineer_mac
+cp -r assets/ bioengineer_mac/
+cp target/x86_64-apple-darwin/release/bioengineer.exe bioengineer_mac/
+zip -FS -r bioengineer_mac.zip bioengineer_mac/*
+
+butler push bioengineer_mac.zip jmmut/Bioengineer:mac
+```

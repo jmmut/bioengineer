@@ -1,0 +1,62 @@
+name: Build
+
+on:
+  push:
+    tags: [ "*.*.*" ]
+  pull_request:
+  
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install system dependencies
+      run: sudo apt-get install libx11-dev libxi-dev libgl1-mesa-dev gcc-mingw-w64 libasound2-dev
+      
+    - name: Build
+      run: cargo build -r
+      
+    - name: Run tests
+      run: cargo test
+
+    - name: Package Linux
+      run: |
+        mkdir -p bioengineer_linux
+        cp -r assets/ bioengineer_linux/
+        cp target/release/bioengineer bioengineer_linux/
+        zip -FS -r bioengineer_linux.zip bioengineer_linux/*
+
+    - name: Deploy Linux to itch.io
+      run: butler push bioengineer_linux.zip jmmut/Bioengineer:linux
+
+    - name: Compile and package WebAssembly
+      run: |
+        rustup target add wasm32-unknown-unknown
+        cargo build -r --target wasm32-unknown-unknown
+        # the folder export_html contains the html wrapper so that the wasm can be used
+        mkdir -p bioengineer_html
+        cp -r export_html/* bioengineer_html/
+        cp -r target/wasm32-unknown-unknown/release/*.wasm bioengineer_html/
+        cp -r assets/ bioengineer_html/
+        zip -FS -r wasm.zip bioengineer_html/*
+
+    - name: Deploy WebAssembly to itch.io
+      run: butler push wasm.zip jmmut/Bioengineer:html5
+
+    - name: Compile and package Windows
+      run: |
+        rustup target add x86_64-pc-windows-gnu
+        cargo build -r --target x86_64-pc-windows-gnu
+        mkdir -p bioengineer_windows
+        cp -r assets/ bioengineer_windows/
+        cp target/x86_64-pc-windows-gnu/release/bioengineer.exe bioengineer_windows/
+        zip -FS -r bioengineer_windows.zip bioengineer_windows/*
+
+    - name: Deploy Windows to itch.io
+      run: butler push bioengineer_windows.zip jmmut/Bioengineer:windows
