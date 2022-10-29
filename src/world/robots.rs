@@ -46,6 +46,12 @@ fn order_by_closest_target(
 type SourceToOrigin = CellIndex;
 type CellAndSource = (CellIndex, SourceToOrigin);
 
+enum PathResult {
+    Some(Path),
+    None,
+    TooFar,
+}
+
 struct AStart {
     origin: CellIndex,
     visit_pending: VecDeque<CellAndSource>,
@@ -62,15 +68,15 @@ impl AStart {
         }
     }
 
-    pub fn find_path_to(&mut self, target: &CellIndex, map: &Map) -> Option<Path> {
+    pub fn find_path_to(&mut self, target: &CellIndex, map: &Map) -> PathResult {
         while let Some((current, source)) = self.visit_pending.pop_front() {
             if self.already_visited.contains_key(&current) {
                 continue;
-            } else if self.already_visited.len() > 100 {
-                return None;
+            } else if self.already_visited.len() > 100000 {
+                return PathResult::TooFar;
             } else if current == *target {
                 self.already_visited.insert(current, source);
-                return Some(self.construct_path(current));
+                return PathResult::Some(self.construct_path(current));
             } else {
                 self.already_visited.insert(current, source);
                 let mut walkable_adjacent = VecDeque::new();
@@ -81,7 +87,7 @@ impl AStart {
                     {
                         if adjacent == *target {
                             self.already_visited.insert(adjacent, current);
-                            return Some(self.construct_path(adjacent));
+                            return PathResult::Some(self.construct_path(adjacent));
                         } else {
                             walkable_adjacent.push_front((adjacent, current));
                         }
@@ -90,7 +96,7 @@ impl AStart {
                 self.visit_pending.append(&mut walkable_adjacent);
             }
         }
-        None
+        PathResult::None
     }
 
     fn construct_path(&self, mut pos: CellIndex) -> Path {
@@ -126,8 +132,11 @@ pub fn move_robot_to_position(
     } else {
         let mut a_start = AStart::new(current_pos);
         let path = a_start.find_path_to(target_pos, &map);
-        path.and_then(|p| p.last().cloned())
-            .map(|first_step| first_step - current_pos)
+        match path {
+            PathResult::Some(path) => path.last().map(|first_step| *first_step - current_pos),
+            PathResult::None => None,
+            PathResult::TooFar => None,
+        }
     }
 }
 
@@ -283,7 +292,17 @@ mod tests {
                 ],
             );
             let new_pos = move_robot_to_position(initial_pos, &target_pos, &map);
-            assert_eq!(new_pos, Option::Some(CellIndex::new(-1, 0, 0)));
+            let possible_solutions = [
+                Option::Some(CellIndex::new(-1, 0, 0)),
+                Option::Some(CellIndex::new(0, 1, 0)),
+                Option::Some(CellIndex::new(0, 0, 1)),
+            ];
+            assert!(
+                possible_solutions.contains(&new_pos),
+                "solution: {:?}, is not one of the correct ones: {:?}",
+                new_pos,
+                possible_solutions
+            );
         }
 
         #[test]
