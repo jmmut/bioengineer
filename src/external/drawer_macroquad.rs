@@ -1,3 +1,4 @@
+
 use macroquad::color::Color;
 use macroquad::hash;
 use macroquad::math::{RectOffset, Vec2};
@@ -5,11 +6,9 @@ use macroquad::prelude::Texture2D;
 use macroquad::shapes::draw_rectangle;
 use macroquad::text::{draw_text, measure_text};
 use macroquad::texture::draw_texture;
+use macroquad::ui::{root_ui, Skin, widgets};
 use macroquad::ui::widgets::Texture;
-use macroquad::ui::{root_ui, widgets, Skin, Ui};
 use macroquad::window::{clear_background, screen_height, screen_width};
-use std::cell::{Ref, RefMut};
-use std::ops::DerefMut;
 
 use crate::screen::assets;
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
@@ -73,10 +72,21 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     /// This grouping function does not support nested groups
-    fn ui_group<F: FnMut()>(&self, x: f32, y: f32, w: f32, h: f32, mut f: F) {
+    fn ui_group<F: FnOnce()>(&self, x: f32, y: f32, w: f32, h: f32, f: F) {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)
+            .movable(false);
+        let token = window.begin(&mut root_ui());
+        f();
+        token.end(&mut root_ui());
+    }
+
+    fn ui_named_group<F: FnOnce()>(&self, title: &str, x: f32, y: f32, w: f32, h: f32, f: F) {
+        let id = hash!(x.abs() as i32, y.abs() as i32);
+        let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
+            .titlebar(true)
+            .label(title)
             .movable(false);
         let token = window.begin(&mut root_ui());
         f();

@@ -6,8 +6,6 @@ use crate::screen::gui::{FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
 use crate::world::game_state::get_goal_air_cleaned_str;
 use crate::{GameState, World};
 
-pub const FULL_OPAQUE: f32 = 1.0;
-
 pub fn draw_fps(drawer: &impl DrawerTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
     if game_state.profile {

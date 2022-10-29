@@ -111,7 +111,7 @@ pub fn zoom(image: &Vec<u8>, image_width_in_pixels: usize, factor: usize) -> Vec
                 }
             }
         }
-        for i_copy in 0..factor {
+        for _ in 0..factor {
             result.append(&mut line.clone());
         }
     }

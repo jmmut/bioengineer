@@ -1,5 +1,5 @@
 use crate::screen::assets::{
-    crop, extract_images, zoom, COMPONENTS_PER_PIXEL, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH,
+    crop, extract_images, zoom, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH,
 };
 use crate::world::map::TileType;
 use macroquad::texture::{FilterMode, Texture2D};

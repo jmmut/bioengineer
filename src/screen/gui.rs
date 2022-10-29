@@ -9,7 +9,6 @@ pub use gui_actions::GuiActions;
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
-use crate::screen::hud::FULL_OPAQUE;
 use crate::screen::input::{CellSelection, Input};
 use crate::world::map::cell::ExtraTextures;
 use crate::world::map::TileType;

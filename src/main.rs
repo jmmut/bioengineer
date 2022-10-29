@@ -11,7 +11,7 @@ mod external {
 use macroquad::color::Color;
 use macroquad::math::{IVec2, IVec3, Rect, Vec2, Vec3};
 use macroquad::miniquad::date::now;
-use macroquad::prelude::next_frame;
+use macroquad::window::next_frame;
 use macroquad::texture::{Image, Texture2D};
 use macroquad::window::Conf;
 
@@ -66,6 +66,6 @@ fn frame<D: DrawerTrait, I: InputSourceTrait>(
     let _profiler = ScopedProfiler::new_named(world.game_state.profile, "whole toplevel frame");
     let gui_actions = screen.get_gui_actions(world);
     let should_continue = world.update(gui_actions);
-    screen.draw(world); //TODO: render gui to a texture and draw at the end of the frame
+    screen.draw(world);
     should_continue
 }
