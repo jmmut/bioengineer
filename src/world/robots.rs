@@ -2,7 +2,7 @@ use crate::world::map::Map;
 use crate::world::map::{is_walkable_horizontal, is_walkable_vertical, CellIndex, TileType};
 use crate::world::{Task, TransformationTask};
 use std::cmp::Ordering;
-use std::collections::VecDeque;
+use std::collections::{HashSet, VecDeque};
 use std::vec::IntoIter;
 
 #[derive(PartialEq, Copy, Clone)]
@@ -43,6 +43,25 @@ fn order_by_closest_target(
     cells.into_iter()
 }
 
+struct AStart {
+    visit_pending: VecDeque<CellIndex>,
+    already_visited: HashSet<CellIndex>,
+}
+type Path = Vec<CellIndex>;
+
+impl AStart {
+    pub fn new(origin: CellIndex) -> Self {
+        Self {
+            visit_pending: VecDeque::new(),
+            already_visited: HashSet::from([origin]),
+        }
+    }
+
+    pub fn find_path_to(&mut self, target: &CellIndex, map: &Map) -> Option<Path> {
+        None
+    }
+}
+
 pub fn move_robot_to_position(
     current_pos: CellIndex,
     target_pos: &CellIndex,
@@ -56,7 +75,9 @@ pub fn move_robot_to_position(
             None
         }
     } else {
-        None
+        let mut a_start = AStart::new(current_pos);
+        let path = a_start.find_path_to(target_pos, &map);
+        path.and_then(|p| p.first().cloned())
     }
 }
 
