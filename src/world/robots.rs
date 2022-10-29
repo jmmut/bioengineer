@@ -2,7 +2,7 @@ use crate::world::map::Map;
 use crate::world::map::{is_walkable_horizontal, is_walkable_vertical, CellIndex, TileType};
 use crate::world::{Task, TransformationTask};
 use std::cmp::Ordering;
-use std::collections::{HashSet, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::vec::IntoIter;
 
 #[derive(PartialEq, Copy, Clone)]
@@ -43,22 +43,71 @@ fn order_by_closest_target(
     cells.into_iter()
 }
 
+type SourceToOrigin = CellIndex;
+type CellAndSource = (CellIndex, SourceToOrigin);
+
 struct AStart {
-    visit_pending: VecDeque<CellIndex>,
-    already_visited: HashSet<CellIndex>,
+    origin: CellIndex,
+    visit_pending: VecDeque<CellAndSource>,
+    already_visited: HashMap<CellIndex, SourceToOrigin>,
 }
 type Path = Vec<CellIndex>;
 
 impl AStart {
     pub fn new(origin: CellIndex) -> Self {
         Self {
-            visit_pending: VecDeque::new(),
-            already_visited: HashSet::from([origin]),
+            origin,
+            visit_pending: VecDeque::from([(origin, origin)]),
+            already_visited: HashMap::new(),
         }
     }
 
     pub fn find_path_to(&mut self, target: &CellIndex, map: &Map) -> Option<Path> {
+        while let Some((current, source)) = self.visit_pending.pop_front() {
+            if self.already_visited.contains_key(&current) {
+                continue;
+            } else if self.already_visited.len() > 100 {
+                return None;
+            } else if current == *target {
+                self.already_visited.insert(current, source);
+                return Some(self.construct_path(current));
+            } else {
+                self.already_visited.insert(current, source);
+                let mut walkable_adjacent = VecDeque::new();
+                for diff in reachable_positions() {
+                    let adjacent = current + diff;
+                    if !self.already_visited.contains_key(&adjacent)
+                        && is_position_walkable(map, &current, &adjacent)
+                    {
+                        if adjacent == *target {
+                            self.already_visited.insert(adjacent, current);
+                            return Some(self.construct_path(adjacent));
+                        } else {
+                            walkable_adjacent.push_front((adjacent, current));
+                        }
+                    }
+                }
+                self.visit_pending.append(&mut walkable_adjacent);
+            }
+        }
         None
+    }
+
+    fn construct_path(&self, mut pos: CellIndex) -> Path {
+        let mut path = Vec::new();
+        while pos != self.origin {
+            path.push(pos);
+            match self.already_visited.get(&pos) {
+                None => panic!(
+                    "the source position should exist! pos: {}, already_visited: {:?}",
+                    pos, self.already_visited
+                ),
+                Some(source) => {
+                    pos = *source;
+                }
+            }
+        }
+        path
     }
 }
 
@@ -77,7 +126,8 @@ pub fn move_robot_to_position(
     } else {
         let mut a_start = AStart::new(current_pos);
         let path = a_start.find_path_to(target_pos, &map);
-        path.and_then(|p| p.first().cloned())
+        path.and_then(|p| p.last().cloned())
+            .map(|first_step| first_step - current_pos)
     }
 }
 

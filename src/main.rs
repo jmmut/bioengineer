@@ -11,8 +11,8 @@ mod external {
 use macroquad::color::Color;
 use macroquad::math::{IVec2, IVec3, Rect, Vec2, Vec3};
 use macroquad::miniquad::date::now;
-use macroquad::window::next_frame;
 use macroquad::texture::{Image, Texture2D};
+use macroquad::window::next_frame;
 use macroquad::window::Conf;
 
 use external::assets_macroquad::load_tileset;
