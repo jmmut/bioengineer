@@ -48,6 +48,15 @@ pub fn move_robot_to_position(
     target_pos: &CellIndex,
     map: &Map,
 ) -> Option<CellIndexDiff> {
+
+    None
+}
+
+pub fn move_robot_to_position_old(
+    current_pos: CellIndex,
+    target_pos: &CellIndex,
+    map: &Map,
+) -> Option<CellIndexDiff> {
     let mut dirs = Vec::new();
 
     match target_pos.x.cmp(&current_pos.x) {
