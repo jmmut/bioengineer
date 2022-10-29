@@ -69,9 +69,9 @@ impl GameState {
 }
 
 pub fn get_goal_air_cleaned() -> f64 {
-    100000.0
+    100_000.0
 }
 
 pub fn get_goal_air_cleaned_str() -> String {
-    format_unit(100000.0, "L")
+    format_unit(get_goal_air_cleaned(), "L")
 }

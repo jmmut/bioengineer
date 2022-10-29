@@ -168,24 +168,14 @@ pub fn draw_game_finished(
             width_by_title,
             height_per_line * 5.0,
         );
-        drawer.draw_rectangle(panel.x, panel.y, panel.w, panel.h, BACKGROUND_UI_COLOR);
+        let mut new_state = None;
+        drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, || {
+            if drawer.ui_button("Continue") {
+                new_state = Some(PostFinished)
+            }
+        });
+        new_state
 
-        drawer.draw_text(
-            panel_title,
-            center.x - text_size.x / 2.0,
-            center.y - height_per_line,
-            FONT_SIZE,
-            TEXT_COLOR,
-        );
-        if drawer.ui_button_with_pos(
-            "Continue",
-            center.x - text_size.x / 2.0,
-            center.y + height_per_line,
-        ) {
-            Some(PostFinished)
-        } else {
-            None
-        }
         // TODO: add restarted state
     } else {
         None
