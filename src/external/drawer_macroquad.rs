@@ -117,6 +117,10 @@ impl DrawerTrait for DrawerMacroquad {
         root_ui().button(Option::Some(Vec2::new(x, y)), text)
     }
 
+    fn ui_text(&self, text: &str) {
+        root_ui().label(None, text);
+    }
+
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {
         let text_dimensions = measure_text(text, Option::None, font_size as u16, 1.0);
         Vec2::new(text_dimensions.width, text_dimensions.height)

@@ -98,7 +98,7 @@ impl AStart {
                                 PathResult::Some(self.construct_path(adjacent))
                             } else {
                                 PathResult::Almost(self.construct_path(adjacent))
-                            }
+                            };
                         } else if walkable {
                             walkable_adjacent.push_front((adjacent, current));
                         }
@@ -225,6 +225,7 @@ fn manhattan_distance(pos: CellIndex, other_pos: CellIndex) -> i32 {
     i32::abs(pos.x - other_pos.x) + i32::abs(pos.y - other_pos.y) + i32::abs(pos.z - other_pos.z)
 }
 
+#[allow(unused)]
 fn manhattan_length(pos: &CellIndexDiff) -> i32 {
     i32::abs(pos.x) + i32::abs(pos.y) + i32::abs(pos.z)
 }
@@ -241,11 +242,7 @@ pub fn reachable_positions() -> Vec<CellIndexDiff> {
     ]
 }
 
-pub fn is_position_actionable(
-    map: &Map,
-    origin_pos: &CellIndex,
-    target_pos: &CellIndex,
-) -> bool {
+pub fn is_position_actionable(map: &Map, origin_pos: &CellIndex, target_pos: &CellIndex) -> bool {
     map.get_cell_optional(*origin_pos).map_or(false, |cell| {
         is_tile_actionable(cell.tile_type, origin_pos, target_pos)
     })
@@ -417,9 +414,7 @@ mod tests {
             let target = CellIndex::new(10, 0, 0);
             let map = Map::_new_from_tiles(
                 Cell::new(TileType::WallRock),
-                vec![
-                    (current_pos, TileType::FloorDirt),
-                ],
+                vec![(current_pos, TileType::FloorDirt)],
             );
             let moved = move_robot_to_position(current_pos, &target, &map);
             assert_eq!(moved, Option::None);
@@ -656,6 +651,5 @@ mod tests {
 
             assert_eq!(world.robots.first_mut().unwrap().position, stairs_pos);
         }
-
     }
 }

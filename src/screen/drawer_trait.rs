@@ -35,6 +35,7 @@ pub trait DrawerTrait {
     /// both draws and returns if it was pressed. (Immediate mode UI)
     fn ui_button(&self, text: &str) -> bool;
     fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> bool;
+    fn ui_text(&self, text: &str);
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2;
 
     fn set_button_style(

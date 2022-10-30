@@ -13,7 +13,7 @@ use crate::screen::input::{CellSelection, Input};
 use crate::world::map::cell::ExtraTextures;
 use crate::world::map::TileType;
 use crate::world::GameGoalState::{Finished, PostFinished};
-use crate::world::Task;
+use crate::world::{format_age, Task};
 use crate::World;
 use crate::{Color, Rect, Vec2};
 
@@ -153,23 +153,27 @@ pub fn draw_game_finished(
     gui_actions: GuiActions,
 ) -> GuiActions {
     let mut input = gui_actions.input;
-    let next_game_goal_state = if world.goal_state == Finished {
+    let next_game_goal_state = if let Finished(age) = world.goal_state {
         input.cell_selection = CellSelection::no_selection();
         input.robot_movement = None;
         let panel_title = "You won!";
-        let text_size = drawer.measure_text(panel_title, FONT_SIZE);
-        let width_by_title = text_size.x * 3.0;
-        let height_per_line = text_size.y * 2.0;
+        let time_spent = format!("Time spent: {}", format_age(age));
+        let text_size_title = drawer.measure_text(panel_title, FONT_SIZE);
+        let text_size_age = drawer.measure_text(&time_spent, FONT_SIZE);
+        let text_size_x = f32::max(text_size_title.x, text_size_age.x);
+        let panel_width = text_size_x + 5.0 * FONT_SIZE;
+        let height_per_line = text_size_title.y * 2.0;
         let center = Vec2::new(drawer.screen_width() / 2.0, drawer.screen_height() / 2.0);
 
         let panel = Rect::new(
-            center.x - width_by_title / 2.0,
+            center.x - panel_width / 2.0,
             center.y - height_per_line * 2.0,
-            width_by_title,
-            height_per_line * 5.0,
+            panel_width,
+            height_per_line * 7.0,
         );
         let mut new_state = None;
         drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, || {
+            drawer.ui_text(&time_spent);
             if drawer.ui_button("Continue") {
                 new_state = Some(PostFinished)
             }

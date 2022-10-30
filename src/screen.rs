@@ -56,4 +56,5 @@ pub fn draw(drawer: &impl DrawerTrait, world: &World, drawing: &DrawingState) {
     hud::draw_fps(drawer, &world.game_state);
     hud::draw_level(drawer, drawing.min_cell.y, drawing.max_cell.y);
     hud::draw_networks(drawer, world);
+    hud::draw_age(drawer, world);
 }

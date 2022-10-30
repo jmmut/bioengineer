@@ -21,6 +21,8 @@ use robots::{
 
 use crate::screen::gui::gui_actions::GuiActions;
 
+type AgeInMinutes = i64;
+
 pub struct World {
     pub map: Map,
     pub fluids: Fluids,
@@ -29,6 +31,7 @@ pub struct World {
     pub networks: Networks,
     pub game_state: GameState,
     pub goal_state: GameGoalState,
+    pub age_in_minutes: AgeInMinutes,
 }
 
 #[derive(Clone)]
@@ -46,7 +49,7 @@ pub struct TransformationTask {
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum GameGoalState {
     Started,
-    Finished,
+    Finished(AgeInMinutes),
     PostFinished,
 }
 
@@ -70,13 +73,14 @@ impl World {
             networks: Networks::new(),
             game_state,
             goal_state: GameGoalState::Started,
+            age_in_minutes: 0,
         }
     }
 
     /// returns if the game should do another iteration
     pub fn update(&mut self, gui_actions: GuiActions) -> bool {
         self.update_with_gui_actions(&gui_actions);
-        self.game_state.advance_frame();
+        self.advance_frame();
         gui_actions.should_continue()
     }
 
@@ -224,10 +228,95 @@ impl World {
         }
         if self.goal_state == GameGoalState::Started {
             if self.networks.get_total_air_cleaned() > get_goal_air_cleaned() {
-                self.goal_state = GameGoalState::Finished;
+                self.goal_state = GameGoalState::Finished(self.age_in_minutes);
             }
         } else {
             self.goal_state = gui_actions.next_game_goal_state.unwrap_or(self.goal_state);
         }
+    }
+
+    fn advance_frame(&mut self) {
+        self.game_state.advance_frame();
+        if self.game_state.frame_index % 60 == 0 {
+            self.age_in_minutes += 1;
+        }
+    }
+
+    pub fn get_age_str(&self) -> String {
+        format_age(self.age_in_minutes)
+    }
+}
+
+pub fn format_age(age_in_minutes: i64) -> String {
+    const MINUTES_PER_HOUR: i64 = 60;
+    const HOURS_PER_DAY: i64 = 24;
+    const DAYS_PER_YEAR: i64 = 365;
+    const HOURS_PER_YEAR: i64 = HOURS_PER_DAY * DAYS_PER_YEAR;
+
+    if age_in_minutes < MINUTES_PER_HOUR {
+        format!("{}", format_time(age_in_minutes, "minute"))
+    } else if age_in_minutes < MINUTES_PER_HOUR * HOURS_PER_DAY {
+        format!(
+            "{}, {}",
+            format_time(age_in_minutes / MINUTES_PER_HOUR, "hour"),
+            format_time(age_in_minutes % MINUTES_PER_HOUR, "minute")
+        )
+    } else if age_in_minutes < MINUTES_PER_HOUR * HOURS_PER_DAY * DAYS_PER_YEAR {
+        format!(
+            "{}, {}, {}",
+            format_time(age_in_minutes / MINUTES_PER_HOUR / HOURS_PER_DAY, "day"),
+            format_time(age_in_minutes / MINUTES_PER_HOUR % HOURS_PER_DAY, "hour"),
+            format_time(age_in_minutes % MINUTES_PER_HOUR, "minute")
+        )
+    } else {
+        format!(
+            "{}, {}, {}, {}",
+            format_time(age_in_minutes / MINUTES_PER_HOUR / HOURS_PER_YEAR, "year"),
+            format_time(
+                age_in_minutes / MINUTES_PER_HOUR / HOURS_PER_DAY % DAYS_PER_YEAR,
+                "day"
+            ),
+            format_time(age_in_minutes / MINUTES_PER_HOUR % HOURS_PER_DAY, "hour"),
+            format_time(age_in_minutes % MINUTES_PER_HOUR, "minute")
+        )
+    }
+}
+
+fn format_time(value: i64, unit: &str) -> String {
+    format!("{} {}{}", value, unit, single_str(value))
+}
+
+fn single_str(number: i64) -> String {
+    if number == 1 {
+        "".to_string()
+    } else {
+        "s".to_string()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_format_age() {
+        assert_eq!(format_age(0), "0 minutes");
+        assert_eq!(format_age(1), "1 minute");
+        assert_eq!(format_age(10), "10 minutes");
+        assert_eq!(format_age((1) * 60 + 0), "1 hour, 0 minutes");
+        assert_eq!(format_age((17) * 60 + 0), "17 hours, 0 minutes");
+        assert_eq!(format_age((26) * 60 + 0), "1 day, 2 hours, 0 minutes");
+        assert_eq!(
+            format_age((24 * 3 + 17) * 60 + 0),
+            "3 days, 17 hours, 0 minutes"
+        );
+        assert_eq!(
+            format_age((365 * 24 + 3 * 24 + 1) * 60 + 0),
+            "1 year, 3 days, 1 hour, 0 minutes"
+        );
+        assert_eq!(
+            format_age((1000000 * 365 * 24 + 24 + 10) * 60 + 0),
+            "1000000 years, 1 day, 10 hours, 0 minutes"
+        );
     }
 }

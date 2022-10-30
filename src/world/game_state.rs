@@ -62,7 +62,7 @@ impl GameState {
     }
 
     pub fn advance_frame(&mut self) {
-        self.frame_index = (self.frame_index + 1) % 1000;
+        self.frame_index = (self.frame_index + 1) % 3600;
         self.previous_frame_ts = self.current_frame_ts;
         self.current_frame_ts = now();
     }

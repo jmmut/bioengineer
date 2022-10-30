@@ -83,3 +83,16 @@ pub fn draw_networks(drawer: &impl DrawerTrait, world: &World) {
         );
     }
 }
+
+pub fn draw_age(drawer: &impl DrawerTrait, world: &World) {
+    let network_count = world.networks.len();
+    let text = format!("Time spent: {}", world.get_age_str());
+
+    drawer.draw_text(
+        text.as_str(),
+        20.0,
+        drawer.screen_height() - FONT_SIZE * (5.0 + network_count as f32),
+        FONT_SIZE,
+        TEXT_COLOR,
+    );
+}
