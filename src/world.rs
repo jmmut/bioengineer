@@ -95,6 +95,7 @@ impl World {
 
         if gui_actions.input.regenerate_map {
             self.map.regenerate();
+            self.networks.clear();
         }
         self.networks.update();
         self.update_goal_state(gui_actions);
@@ -224,7 +225,8 @@ impl World {
 
     fn update_goal_state(&mut self, gui_actions: &GuiActions) {
         if gui_actions.input.reset_quantities {
-            self.networks.reset();
+            self.networks.reset_production();
+            self.age_in_minutes = 0;
         }
         if self.goal_state == GameGoalState::Started {
             if self.networks.get_total_air_cleaned() > get_goal_air_cleaned() {

@@ -115,7 +115,7 @@ impl Networks {
         format_unit(air_cleaned, "L")
     }
 
-    pub fn reset(&mut self) {
+    pub fn reset_production(&mut self) {
         self.air_cleaned = 0.0;
     }
 
@@ -127,6 +127,11 @@ impl Networks {
             .copy_into_networks();
         self.networks.remove(network_index);
         self.networks.append(&mut new_networks.networks);
+    }
+
+    pub fn clear(&mut self) {
+        self.networks.clear();
+        self.reset_production();
     }
 }
 
