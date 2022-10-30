@@ -391,6 +391,8 @@ mod tests {
     }
 
     mod tasks {
+        use crate::screen::gui::GuiActions;
+        use crate::screen::input::{CellSelection, Input};
         use super::*;
         use crate::World;
 
@@ -515,6 +517,58 @@ mod tests {
         #[ignore]
         fn do_not_do_the_closest_task_if_it_is_blocked_by_farther_tasks() {
             panic!("unimplemented");
+        }
+
+        #[test]
+        fn almost_reaching_a_task() {
+            let mut world = World::new();
+            let initial_pos = CellIndex::new(0, 1, 0);
+            let below_pos = CellIndex::new(0, 0, 0);
+            let transformation_task = TransformationTask {
+                to_transform: HashSet::from([below_pos, initial_pos]),
+                transformation: Transformation::to(TileType::Stairs),
+            };
+            world.map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![(below_pos, TileType::FloorDirt)],
+            );
+            world.robots.first_mut().unwrap().position = CellIndex::new(1, 1, 0);
+
+            assert_positions_equal(&world, TileType::FloorDirt, TileType::FloorDirt);
+
+            let gui_actions = mock_gui_action(Some(transformation_task));
+            world.update_with_gui_actions(&gui_actions);
+
+            assert_positions_equal(&world, TileType::FloorDirt, TileType::Stairs);
+
+            let gui_actions = mock_gui_action(None);
+            world.update_with_gui_actions(&gui_actions);
+
+            assert_positions_equal(&world, TileType::Stairs, TileType::Stairs);
+        }
+
+        fn mock_gui_action(task: Option<TransformationTask>) -> GuiActions {
+             GuiActions{
+                 selected_cell_transformation: task,
+
+                 input: Input {
+                     quit: false,
+                     regenerate_map: false,
+                     toggle_profiling: false,
+                     toggle_fluids: false,
+                     single_fluid: false,
+                     change_height_rel: 0,
+                     move_map_horizontally: Default::default(),
+                     cell_selection: CellSelection::no_selection(),
+                     robot_movement: None,
+                     reset_quantities: false
+                 },
+                 robot_movement: None,
+                 go_to_robot: None,
+                 cancel_task: None,
+                 do_now_task: None,
+                 next_game_goal_state: None
+             }
         }
     }
 }
