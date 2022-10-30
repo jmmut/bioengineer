@@ -1,13 +1,13 @@
-use crate::Rect;
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
-use crate::screen::gui::FONT_SIZE;
 use crate::screen::gui::gui_actions::GuiActions;
+use crate::screen::gui::FONT_SIZE;
 use crate::screen::input::{CellSelection, Input};
-use crate::World;
-use crate::world::map::TileType;
 use crate::world::map::transform_cells::allowed_transformations;
+use crate::world::map::TileType;
 use crate::world::TransformationTask;
+use crate::Rect;
+use crate::World;
 
 pub fn show_available_transformations(
     drawer: &impl DrawerTrait,
@@ -31,24 +31,26 @@ pub fn show_available_transformations(
             max_button_width = f32::max(max_button_width, drawer.measure_text(text, FONT_SIZE).x);
         }
 
-        let panel = Rect::new(
-        panel_margin,
-        panel_margin,
-        panel_height,
-        panel_height,
-        );
-        drawer.ui_named_group(panel_title, panel_margin, panel_margin, panel_width, panel_height, || {
-            for transformation in transformations {
-                let text = to_action_str(transformation.new_tile_type);
-                if drawer.ui_button(text) {
-                    let transformation_task = TransformationTask {
-                        to_transform: drawing.highlighted_cells.clone(),
-                        transformation: transformation.clone(),
-                    };
-                    transformation_clicked = Option::Some(transformation_task);
+        let panel = Rect::new(panel_margin, panel_margin, panel_height, panel_height);
+        drawer.ui_named_group(
+            panel_title,
+            panel_margin,
+            panel_margin,
+            panel_width,
+            panel_height,
+            || {
+                for transformation in transformations {
+                    let text = to_action_str(transformation.new_tile_type);
+                    if drawer.ui_button(text) {
+                        let transformation_task = TransformationTask {
+                            to_transform: drawing.highlighted_cells.clone(),
+                            transformation: transformation.clone(),
+                        };
+                        transformation_clicked = Option::Some(transformation_task);
+                    }
                 }
-            }
-        });
+            },
+        );
         if let Option::Some(selection) = unhandled_input.input.cell_selection.selection {
             if panel.contains(selection.end) {
                 // TODO: if clicking a button near the bottom of the panel, it selects a cell out

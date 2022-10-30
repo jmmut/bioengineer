@@ -16,7 +16,7 @@ use map::Map;
 use networks::Networks;
 use robots::Robot;
 use robots::{
-    is_position_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions,
+    is_tile_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions,
 };
 
 use crate::screen::gui::gui_actions::GuiActions;
@@ -169,7 +169,7 @@ impl World {
             let reachable_position = robot.position + reachable_pos_diff;
             let transformation_here = transform.to_transform.take(&reachable_position);
             if transformation_here.is_some() {
-                if is_position_actionable(
+                if is_tile_actionable(
                     self.map.get_cell(robot.position).tile_type,
                     &robot.position,
                     &reachable_position,
