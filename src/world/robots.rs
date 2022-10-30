@@ -48,6 +48,7 @@ type CellAndSource = (CellIndex, SourceToOrigin);
 
 enum PathResult {
     Some(Path),
+    Almost(Path),
     None,
     TooFar,
 }
@@ -82,12 +83,14 @@ impl AStart {
                 let mut walkable_adjacent = VecDeque::new();
                 for diff in reachable_positions() {
                     let adjacent = current + diff;
-                    if !self.already_visited.contains_key(&adjacent)
-                        && is_position_walkable(map, &current, &adjacent)
-                    {
+                    if !self.already_visited.contains_key(&adjacent) {
                         if adjacent == *target {
                             self.already_visited.insert(adjacent, current);
-                            return PathResult::Some(self.construct_path(adjacent));
+                            return if is_position_walkable(map, &current, &adjacent) {
+                                PathResult::Some(self.construct_path(adjacent))
+                            } else {
+                                PathResult::Almost(self.construct_path(adjacent))
+                            }
                         } else {
                             walkable_adjacent.push_front((adjacent, current));
                         }
@@ -133,7 +136,9 @@ pub fn move_robot_to_position(
         let mut a_start = AStart::new(current_pos);
         let path = a_start.find_path_to(target_pos, &map);
         match path {
-            PathResult::Some(path) => path.last().map(|first_step| *first_step - current_pos),
+            PathResult::Almost(path) | PathResult::Some(path) => {
+                path.last().map(|first_step| *first_step - current_pos)
+            }
             PathResult::None => None,
             PathResult::TooFar => None,
         }
@@ -391,9 +396,9 @@ mod tests {
     }
 
     mod tasks {
+        use super::*;
         use crate::screen::gui::GuiActions;
         use crate::screen::input::{CellSelection, Input};
-        use super::*;
         use crate::World;
 
         #[test]
@@ -548,27 +553,27 @@ mod tests {
         }
 
         fn mock_gui_action(task: Option<TransformationTask>) -> GuiActions {
-             GuiActions{
-                 selected_cell_transformation: task,
+            GuiActions {
+                selected_cell_transformation: task,
 
-                 input: Input {
-                     quit: false,
-                     regenerate_map: false,
-                     toggle_profiling: false,
-                     toggle_fluids: false,
-                     single_fluid: false,
-                     change_height_rel: 0,
-                     move_map_horizontally: Default::default(),
-                     cell_selection: CellSelection::no_selection(),
-                     robot_movement: None,
-                     reset_quantities: false
-                 },
-                 robot_movement: None,
-                 go_to_robot: None,
-                 cancel_task: None,
-                 do_now_task: None,
-                 next_game_goal_state: None
-             }
+                input: Input {
+                    quit: false,
+                    regenerate_map: false,
+                    toggle_profiling: false,
+                    toggle_fluids: false,
+                    single_fluid: false,
+                    change_height_rel: 0,
+                    move_map_horizontally: Default::default(),
+                    cell_selection: CellSelection::no_selection(),
+                    robot_movement: None,
+                    reset_quantities: false,
+                },
+                robot_movement: None,
+                go_to_robot: None,
+                cancel_task: None,
+                do_now_task: None,
+                next_game_goal_state: None,
+            }
         }
     }
 }
