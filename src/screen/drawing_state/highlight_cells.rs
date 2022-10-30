@@ -6,42 +6,54 @@ use crate::world::map::{CellCubeIterator, CellIndex};
 use std::collections::HashSet;
 
 impl DrawingState {
-    pub fn maybe_select_cells(&mut self, cell_selection: &CellSelection, screen_width: f32) {
-        if cell_selection.state == CellSelectionType::SelectionStarted {
-            self.highlight_start_height = self.max_cell.y;
-        }
-        if let Option::Some(selection) = &cell_selection.selection {
-            self.highlight_cells_from_pixels(
-                selection.start,
-                self.highlight_start_height,
-                selection.end,
-                screen_width,
-            );
+    pub fn maybe_select_cells_from_pixels(
+        &mut self,
+        cell_selection: &CellSelection,
+        screen_width: f32,
+    ) {
+        match cell_selection.selection {
+            None => {}
+            Some(selection) => {
+                let start_cell = clicked_cell(selection.start, screen_width, self);
+                let end_cell = clicked_cell(selection.end, screen_width, self);
+
+                self.maybe_select_cells(
+                    start_cell,
+                    end_cell,
+                    cell_selection.state,
+                    cell_selection.addition,
+                );
+            }
         }
     }
 
-    fn highlight_cells_from_pixels(
+    fn maybe_select_cells(
         &mut self,
-        start: PixelPosition,
-        start_level: i32,
-        end: PixelPosition,
-        screen_width: f32,
+        mut start: CellIndex,
+        end: CellIndex,
+        selection_type: CellSelectionType,
+        addition: bool,
     ) {
-        let mut start_cell = clicked_cell(start, screen_width, self);
-        start_cell.y = start_level;
-        let end_cell = clicked_cell(end, screen_width, self);
         let shown_cube = Envelope {
             min_cell: self.min_cell,
             max_cell: self.max_cell,
         };
-        // println!("start level: {}, end level: {}", start_cell.y, end_cell.y);
+        if selection_type == CellSelectionType::SelectionStarted {
+            self.highlight_start_height = self.max_cell.y;
+            if addition {
+                self.highlighted_cells_consolidated
+                    .extend(self.highlighted_cells_in_progress.iter());
+            }
+        }
+        start.y = self.highlight_start_height;
         highlight_cells(
-            start_cell,
-            end_cell,
+            start,
+            end,
             shown_cube,
-            &mut self.highlighted_cells,
+            addition,
+            &mut self.highlighted_cells_in_progress,
+            &mut self.highlighted_cells_consolidated,
         );
-        // (start_cell, end_cell)
     }
 }
 
@@ -49,13 +61,17 @@ fn highlight_cells(
     start_cell: CellIndex,
     end_cell: CellIndex,
     shown_cube: Envelope,
-    highlighted_cells: &mut HashSet<CellIndex>,
+    addition: bool,
+    highlighted_cells_in_progress: &mut HashSet<CellIndex>,
+    highlighted_cells_consolidated: &mut HashSet<CellIndex>,
 ) {
     let cell_cube = CellCubeIterator::new_from_mixed(start_cell, end_cell);
-    highlighted_cells.clear();
+    if !addition {
+        highlighted_cells_in_progress.clear();
+    }
     for cell in cell_cube {
         if is_horizontally_inside(&cell, &shown_cube) {
-            highlighted_cells.insert(cell);
+            highlighted_cells_in_progress.insert(cell);
         }
     }
 }
@@ -63,6 +79,7 @@ fn highlight_cells(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::world::robots::up;
 
     #[test]
     fn test_select_higher_cell() {
@@ -71,12 +88,62 @@ mod tests {
             max_cell: CellIndex::new(0, -5, 0),
         };
         let mut highlighted = HashSet::new();
+        let mut highlighted_consolidated = HashSet::new();
         highlight_cells(
             CellIndex::new(0, 0, 0),
             CellIndex::new(0, 0, 0),
             envelope,
+            false,
             &mut highlighted,
+            &mut highlighted_consolidated,
         );
         assert_eq!(highlighted.len(), 1);
+    }
+
+    #[test]
+    fn test_reduce_selection() {
+        let start = CellIndex::new(0, 0, 0);
+        let big_end = CellIndex::new(1, 0, 2);
+        let small_end = CellIndex::new(1, 0, 1);
+        let mut highlighted = HashSet::new();
+        let mut highlighted_consolidated = HashSet::new();
+        highlight_cells(
+            start,
+            big_end,
+            Envelope {
+                min_cell: start,
+                max_cell: big_end,
+            },
+            false,
+            &mut highlighted,
+            &mut highlighted_consolidated,
+        );
+        assert_eq!(highlighted.len(), 6);
+
+        highlight_cells(
+            start,
+            big_end,
+            Envelope {
+                min_cell: start,
+                max_cell: small_end,
+            },
+            false,
+            &mut highlighted,
+            &mut highlighted_consolidated,
+        );
+        assert_eq!(highlighted.len(), 4);
+
+        highlight_cells(
+            start + up(),
+            small_end + up(),
+            Envelope {
+                min_cell: start,
+                max_cell: small_end + up(),
+            },
+            true,
+            &mut highlighted,
+            &mut highlighted_consolidated,
+        );
+        assert_eq!(highlighted.len(), 8);
     }
 }

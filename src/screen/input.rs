@@ -25,6 +25,7 @@ pub struct Input {
 pub struct CellSelection {
     pub state: CellSelectionType,
     pub selection: Option<PixelSelection>,
+    pub addition: bool,
 }
 
 impl CellSelection {
@@ -32,24 +33,28 @@ impl CellSelection {
         Self {
             state: NoSelection,
             selection: Option::None,
+            addition: false,
         }
     }
     pub fn started(selection: PixelSelection) -> Self {
         Self {
             state: SelectionStarted,
             selection: Option::Some(selection),
+            addition: false,
         }
     }
     pub fn in_progress(selection: PixelSelection) -> Self {
         Self {
             state: SelectionInProgress,
             selection: Option::Some(selection),
+            addition: false,
         }
     }
     pub fn finished(selection: PixelSelection) -> Self {
         Self {
             state: SelectionFinished,
             selection: Option::Some(selection),
+            addition: false,
         }
     }
 }

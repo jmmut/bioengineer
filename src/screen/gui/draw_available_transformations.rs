@@ -17,8 +17,9 @@ pub fn show_available_transformations(
 ) -> GuiActions {
     let mut transformation_clicked = Option::None;
     let mut cell_selection = unhandled_input.input.cell_selection;
-    if drawing.highlighted_cells.len() > 0 {
-        let transformations = allowed_transformations(&drawing.highlighted_cells, &world.map);
+    let highlighted_cells = drawing.highlighted_cells();
+    if highlighted_cells.len() > 0 {
+        let transformations = allowed_transformations(&highlighted_cells, &world.map);
         let line_height = FONT_SIZE * 1.5;
         let panel_title = "Available actions";
         let mut max_button_width = drawer.measure_text(panel_title, FONT_SIZE).x;
@@ -43,7 +44,7 @@ pub fn show_available_transformations(
                     let text = to_action_str(transformation.new_tile_type);
                     if drawer.ui_button(text) {
                         let transformation_task = TransformationTask {
-                            to_transform: drawing.highlighted_cells.clone(),
+                            to_transform: highlighted_cells.clone(),
                             transformation: transformation.clone(),
                         };
                         transformation_clicked = Option::Some(transformation_task);

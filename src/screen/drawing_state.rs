@@ -5,6 +5,8 @@ pub mod move_horizontally;
 use crate::screen::gui::GuiActions;
 use crate::world::map::CellIndex;
 use crate::{IVec2, Vec2, Vec3};
+use std::collections::hash_map::RandomState;
+use std::collections::hash_set::Union;
 use std::collections::HashSet;
 
 pub type TilePosition = IVec2;
@@ -16,7 +18,8 @@ pub struct DrawingState {
     pub max_cell: CellIndex,
     pub subtile_offset: SubTilePosition,
     pub subcell_diff: SubCellIndex,
-    pub highlighted_cells: HashSet<CellIndex>,
+    highlighted_cells_in_progress: HashSet<CellIndex>,
+    highlighted_cells_consolidated: HashSet<CellIndex>,
     highlight_start_height: i32,
 }
 
@@ -27,9 +30,16 @@ impl DrawingState {
             max_cell: CellIndex::new(9, 1, 9),
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
-            highlighted_cells: HashSet::new(),
+            highlighted_cells_in_progress: HashSet::new(),
+            highlighted_cells_consolidated: HashSet::new(),
             highlight_start_height: 0,
         }
+    }
+
+    pub fn highlighted_cells(&self) -> HashSet<CellIndex> {
+        let mut cells = self.highlighted_cells_consolidated.clone();
+        cells.extend((&self.highlighted_cells_in_progress).iter());
+        cells
     }
 
     pub fn apply_input(&mut self, unhandled: &GuiActions, screen_width: f32) {
@@ -40,6 +50,6 @@ impl DrawingState {
             unhandled.go_to_robot,
             screen_width,
         );
-        self.maybe_select_cells(&input.cell_selection, screen_width);
+        self.maybe_select_cells_from_pixels(&input.cell_selection, screen_width);
     }
 }

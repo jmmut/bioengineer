@@ -41,7 +41,7 @@ fn draw_cell(
     // if drawing.highlighted_cells.len() > 0 {
     //     println!("selected something");
     // }
-    if drawing.highlighted_cells.contains(&cell_index) {
+    if drawing.highlighted_cells().contains(&cell_index) {
         drawer.draw_colored_texture(tile_type, pixel.x, pixel.y, SELECTION_COLOR);
     } else {
         let opacity = get_opacity(&cell_index, tile_type, world, drawing, min_cell, max_cell);
