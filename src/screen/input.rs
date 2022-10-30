@@ -1,6 +1,4 @@
-use crate::screen::input::CellSelectionType::{
-    NoSelection, SelectionFinished, SelectionInProgress, SelectionStarted,
-};
+use crate::screen::input::CellSelectionType::{Finished, InProgress, None, Started};
 
 pub type PixelPosition = crate::Vec2;
 
@@ -31,28 +29,28 @@ pub struct CellSelection {
 impl CellSelection {
     pub fn no_selection() -> Self {
         Self {
-            state: NoSelection,
+            state: None,
             selection: Option::None,
             addition: false,
         }
     }
     pub fn started(selection: PixelSelection) -> Self {
         Self {
-            state: SelectionStarted,
+            state: Started,
             selection: Option::Some(selection),
             addition: false,
         }
     }
     pub fn in_progress(selection: PixelSelection) -> Self {
         Self {
-            state: SelectionInProgress,
+            state: InProgress,
             selection: Option::Some(selection),
             addition: false,
         }
     }
     pub fn finished(selection: PixelSelection) -> Self {
         Self {
-            state: SelectionFinished,
+            state: Finished,
             selection: Option::Some(selection),
             addition: false,
         }
@@ -61,10 +59,10 @@ impl CellSelection {
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum CellSelectionType {
-    NoSelection,
-    SelectionStarted,
-    SelectionInProgress,
-    SelectionFinished,
+    None,
+    Started,
+    InProgress,
+    Finished,
 }
 
 #[derive(Default, Debug, Copy, Clone)]

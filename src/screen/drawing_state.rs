@@ -5,8 +5,6 @@ pub mod move_horizontally;
 use crate::screen::gui::GuiActions;
 use crate::world::map::CellIndex;
 use crate::{IVec2, Vec2, Vec3};
-use std::collections::hash_map::RandomState;
-use std::collections::hash_set::Union;
 use std::collections::HashSet;
 
 pub type TilePosition = IVec2;
@@ -20,7 +18,7 @@ pub struct DrawingState {
     pub subcell_diff: SubCellIndex,
     highlighted_cells_in_progress: HashSet<CellIndex>,
     highlighted_cells_consolidated: HashSet<CellIndex>,
-    highlight_start_height: i32,
+    highlight_start_height: Option<i32>,
 }
 
 impl DrawingState {
@@ -32,7 +30,7 @@ impl DrawingState {
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
             highlighted_cells_in_progress: HashSet::new(),
             highlighted_cells_consolidated: HashSet::new(),
-            highlight_start_height: 0,
+            highlight_start_height: None,
         }
     }
 
