@@ -7,6 +7,7 @@
   - [ ] top bar with "move, build, see networks, see production, see goals, help"
   - [x] game finished GUI
   - [ ] tooltip when hovering over build buttons, explaining cost and purpose
+  - [x] timer to grade game runs
 - [x] automated resource production
   - [x] show machine status (producing X units per time unit, consuming, etc.)
   - [x] show global production
@@ -26,7 +27,3 @@
 - [ ] minimal friction to explain that solar panels can not be build underground
 
 # Bugs
-
-- [ ] limited pathfinding
-  - [ ] need A* for tricky paths
-  - [ ] sometimes the robot enters a loop when trying to reach a tricky position/path
