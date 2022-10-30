@@ -2,7 +2,7 @@ use crate::world::map::Map;
 use crate::world::map::{is_walkable_horizontal, is_walkable_vertical, CellIndex, TileType};
 use crate::world::{Task, TransformationTask};
 use std::cmp::Ordering;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, VecDeque};
 use std::vec::IntoIter;
 
 #[derive(PartialEq, Copy, Clone)]
@@ -36,11 +36,17 @@ fn order_by_closest_target(
 ) -> IntoIter<CellIndex> {
     let mut cells: Vec<CellIndex> = task.to_transform.iter().cloned().collect();
     cells.sort_by(|task_pos_1, task_pos_2| -> Ordering {
-        let distance_1 = manhattan_distance(current_pos, *task_pos_1);
-        let distance_2 = manhattan_distance(current_pos, *task_pos_2);
+        let floor_cost_1 = different_floor_cost(&current_pos, task_pos_1);
+        let distance_1 = manhattan_distance(current_pos, *task_pos_1) + floor_cost_1;
+        let floor_cost_2 = different_floor_cost(&current_pos, task_pos_2);
+        let distance_2 = manhattan_distance(current_pos, *task_pos_2) + floor_cost_2;
         distance_1.cmp(&distance_2)
     });
     cells.into_iter()
+}
+
+fn different_floor_cost(pos_1: &CellIndex, pos_2: &CellIndex) -> i32 {
+    (pos_1.y - pos_2.y).abs() * 100
 }
 
 type SourceToOrigin = CellIndex;
@@ -84,14 +90,16 @@ impl AStart {
                 for diff in reachable_positions() {
                     let adjacent = current + diff;
                     if !self.already_visited.contains_key(&adjacent) {
-                        if adjacent == *target {
+                        let walkable = is_position_walkable(map, &current, &adjacent);
+                        let actionable = is_position_actionable(map, &current, &adjacent);
+                        if adjacent == *target && actionable {
                             self.already_visited.insert(adjacent, current);
-                            return if is_position_walkable(map, &current, &adjacent) {
+                            return if walkable {
                                 PathResult::Some(self.construct_path(adjacent))
                             } else {
                                 PathResult::Almost(self.construct_path(adjacent))
                             }
-                        } else {
+                        } else if walkable {
                             walkable_adjacent.push_front((adjacent, current));
                         }
                     }
@@ -125,27 +133,18 @@ pub fn move_robot_to_position(
     target_pos: &CellIndex,
     map: &Map,
 ) -> Option<CellIndexDiff> {
-    let diff = *target_pos - current_pos;
-    if manhattan_length(&diff) == 1 {
-        if is_position_walkable(&map, &current_pos, target_pos) {
-            Some(diff)
-        } else {
-            None
+    let mut a_start = AStart::new(current_pos);
+    let path = a_start.find_path_to(target_pos, &map);
+    match path {
+        PathResult::Almost(path) | PathResult::Some(path) => {
+            path.last().map(|first_step| *first_step - current_pos)
         }
-    } else {
-        let mut a_start = AStart::new(current_pos);
-        let path = a_start.find_path_to(target_pos, &map);
-        match path {
-            PathResult::Almost(path) | PathResult::Some(path) => {
-                path.last().map(|first_step| *first_step - current_pos)
-            }
-            PathResult::None => None,
-            PathResult::TooFar => None,
-        }
+        PathResult::None => None,
+        PathResult::TooFar => None,
     }
 }
 
-pub fn move_robot_to_position_old(
+pub fn _move_robot_to_position_old(
     current_pos: CellIndex,
     target_pos: &CellIndex,
     map: &Map,
@@ -168,12 +167,12 @@ pub fn move_robot_to_position_old(
         Ordering::Equal => {}
     }
 
-    let path = try_move(&dirs, current_pos, *target_pos, map);
+    let path = _try_move(&dirs, current_pos, *target_pos, map);
     let movement = path.and_then(|p| p.last().copied());
     movement
 }
 
-fn try_move(
+fn _try_move(
     directions: &[CellIndexDiff],
     current_pos: CellIndex,
     target_pos: CellIndex,
@@ -190,7 +189,7 @@ fn try_move(
                 let moving_to_dir_gets_us_closer =
                     manhattan_distance(target_pos, possible_new_pos) < diff;
                 if moving_to_dir_gets_us_closer {
-                    let path = try_move(directions, possible_new_pos, target_pos, map);
+                    let path = _try_move(directions, possible_new_pos, target_pos, map);
                     if let Option::Some(mut some_path) = path {
                         some_path.push(*dir);
                         return Option::Some(some_path);
@@ -243,6 +242,16 @@ pub fn reachable_positions() -> Vec<CellIndexDiff> {
 }
 
 pub fn is_position_actionable(
+    map: &Map,
+    origin_pos: &CellIndex,
+    target_pos: &CellIndex,
+) -> bool {
+    map.get_cell_optional(*origin_pos).map_or(false, |cell| {
+        is_tile_actionable(cell.tile_type, origin_pos, target_pos)
+    })
+}
+
+pub fn is_tile_actionable(
     origin: TileType,
     origin_pos: &CellIndex,
     target_pos: &CellIndex,
@@ -258,9 +267,17 @@ pub fn is_position_actionable(
     }
 }
 
+pub fn down() -> CellIndexDiff {
+    CellIndexDiff::new(0, -1, 0)
+}
+
+pub fn up() -> CellIndexDiff {
+    CellIndexDiff::new(0, 1, 0)
+}
+
 pub fn is_vertical_direction(origin_pos: &CellIndex, target_pos: &CellIndex) -> bool {
     let direction: CellIndexDiff = *target_pos - *origin_pos;
-    *direction == *CellIndexDiff::new(0, 1, 0) || *direction == *CellIndexDiff::new(0, -1, 0)
+    direction == up() || direction == down()
 }
 
 #[cfg(test)]
@@ -391,6 +408,20 @@ mod tests {
                 ],
             );
             let moved = move_robot_to_position(current_pos, &target_vertical, &map);
+            assert_eq!(moved, Option::None);
+        }
+
+        #[test]
+        fn test_robot_can_not_move_through_walls() {
+            let current_pos = CellIndex::new(5, 0, 0);
+            let target = CellIndex::new(10, 0, 0);
+            let map = Map::_new_from_tiles(
+                Cell::new(TileType::WallRock),
+                vec![
+                    (current_pos, TileType::FloorDirt),
+                ],
+            );
+            let moved = move_robot_to_position(current_pos, &target, &map);
             assert_eq!(moved, Option::None);
         }
     }
@@ -575,5 +606,56 @@ mod tests {
                 next_game_goal_state: None,
             }
         }
+
+        #[test]
+        fn c_path() {
+            let mut world = World::new();
+            let initial_pos = CellIndex::new(1, 1, 0);
+            let below_pos = CellIndex::new(0, 0, 0);
+            let transformation_task = TransformationTask {
+                to_transform: HashSet::from([below_pos]),
+                transformation: Transformation::to(TileType::MachineAssembler),
+            };
+            let stairs_pos = CellIndex::new(2, 1, 0);
+            world.map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![
+                    (stairs_pos, TileType::Stairs),
+                    (CellIndex::new(2, 0, 0), TileType::Stairs),
+                ],
+            );
+            world.robots.first_mut().unwrap().position = initial_pos;
+
+            let gui_actions = mock_gui_action(Some(transformation_task));
+            world.update_with_gui_actions(&gui_actions);
+
+            assert_eq!(world.robots.first_mut().unwrap().position, stairs_pos);
+        }
+
+        #[test]
+        fn fork_path() {
+            let mut world = World::new();
+            let initial_pos = CellIndex::new(1, 1, 0);
+            let stairs_pos = CellIndex::new(0, 1, 0);
+            let transformation_task = TransformationTask {
+                to_transform: HashSet::from([initial_pos + down(), initial_pos + up()]),
+                transformation: Transformation::to(TileType::MachineAssembler),
+            };
+            world.map = Map::_new_from_tiles(
+                Cell::new(TileType::FloorDirt),
+                vec![
+                    (stairs_pos + down(), TileType::Stairs),
+                    (stairs_pos, TileType::Stairs),
+                    (stairs_pos + up(), TileType::Stairs),
+                ],
+            );
+            world.robots.first_mut().unwrap().position = initial_pos;
+
+            let gui_actions = mock_gui_action(Some(transformation_task));
+            world.update_with_gui_actions(&gui_actions);
+
+            assert_eq!(world.robots.first_mut().unwrap().position, stairs_pos);
+        }
+
     }
 }
