@@ -67,12 +67,13 @@ fn highlight_cells(
     shown_cube: Envelope,
     addition: bool,
     highlighted_cells_in_progress: &mut HashSet<CellIndex>,
-    _highlighted_cells_consolidated: &mut HashSet<CellIndex>,
+    highlighted_cells_consolidated: &mut HashSet<CellIndex>,
 ) {
     let cell_cube = CellCubeIterator::new_from_mixed(start, end);
     if !addition {
-        highlighted_cells_in_progress.clear();
+        highlighted_cells_consolidated.clear();
     }
+    highlighted_cells_in_progress.clear();
     for cell in cell_cube {
         if is_horizontally_inside(&cell, &shown_cube) {
             highlighted_cells_in_progress.insert(cell);
@@ -105,53 +106,6 @@ mod tests {
         assert_eq!(highlighted.len(), 1);
     }
 
-    #[test]
-    fn test_reduce_selection() {
-        let start = CellIndex::new(0, 0, 0);
-        let big_end = CellIndex::new(1, 0, 2);
-        let small_end = CellIndex::new(1, 0, 1);
-        let mut highlighted = HashSet::new();
-        let mut highlighted_consolidated = HashSet::new();
-        highlight_cells(
-            start,
-            big_end,
-            Envelope {
-                min_cell: start,
-                max_cell: big_end,
-            },
-            false,
-            &mut highlighted,
-            &mut highlighted_consolidated,
-        );
-        assert_eq!(highlighted.len(), 6);
-
-        highlight_cells(
-            start,
-            big_end,
-            Envelope {
-                min_cell: start,
-                max_cell: small_end,
-            },
-            false,
-            &mut highlighted,
-            &mut highlighted_consolidated,
-        );
-        assert_eq!(highlighted.len(), 4);
-
-        highlight_cells(
-            start + up(),
-            small_end + up(),
-            Envelope {
-                min_cell: start,
-                max_cell: small_end + up(),
-            },
-            true,
-            &mut highlighted,
-            &mut highlighted_consolidated,
-        );
-        assert_eq!(highlighted.len(), 8);
-    }
-
     struct TestData {
         pub start: CellIndex,
         pub small_end: CellIndex,
@@ -175,6 +129,7 @@ mod tests {
         assert_eq!(drawing.highlighted_cells_in_progress.len(), 0);
         assert_eq!(drawing.highlighted_cells_consolidated.len(), 4);
     }
+
     #[test]
     fn quick_selection_progress() {
         let mut drawing = DrawingState::new();
@@ -182,6 +137,20 @@ mod tests {
 
         drawing.maybe_select_cells(t.start, t.small_end, InProgress, false);
         assert_eq!(drawing.highlighted_cells_in_progress.len(), 4);
+        assert_eq!(drawing.highlighted_cells_consolidated.len(), 0);
+    }
+
+    #[test]
+    fn new_selection() {
+        let mut drawing = DrawingState::new();
+        let t = setup();
+
+        drawing.maybe_select_cells(t.start, t.small_end, Finished, false);
+        assert_eq!(drawing.highlighted_cells_in_progress.len(), 0);
+        assert_eq!(drawing.highlighted_cells_consolidated.len(), 4);
+
+        drawing.maybe_select_cells(t.small_end, t.big_end, Started, false);
+        assert_eq!(drawing.highlighted_cells_in_progress.len(), 2);
         assert_eq!(drawing.highlighted_cells_consolidated.len(), 0);
     }
 
@@ -224,9 +193,26 @@ mod tests {
         assert_eq!(drawing.highlighted_cells_in_progress.len(), 4);
         assert_eq!(drawing.highlighted_cells_consolidated.len(), 4);
 
+        drawing.maybe_select_cells(t.small_end, t.big_end, Started, true);
+        assert_eq!(drawing.highlighted_cells_in_progress.len(), 2);
+        assert_eq!(drawing.highlighted_cells_consolidated.len(), 4);
+
         drawing.maybe_select_cells(t.small_end, t.big_end, Finished, true);
         assert_eq!(drawing.highlighted_cells_in_progress.len(), 0);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 7);
+        assert_eq!(drawing.highlighted_cells_consolidated.len(), 5);
+    }
 
+    #[test]
+    fn reduce_selection_with_addition() {
+        let mut drawing = DrawingState::new();
+        let t = setup();
+
+        drawing.maybe_select_cells(t.small_end, t.big_end + up(), Started, true);
+        assert_eq!(drawing.highlighted_cells_in_progress.len(), 4);
+        assert_eq!(drawing.highlighted_cells_consolidated.len(), 0);
+
+        drawing.maybe_select_cells(t.small_end, t.big_end, InProgress, true);
+        assert_eq!(drawing.highlighted_cells_in_progress.len(), 2);
+        assert_eq!(drawing.highlighted_cells_consolidated.len(), 0);
     }
 }

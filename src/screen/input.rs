@@ -34,25 +34,25 @@ impl CellSelection {
             addition: false,
         }
     }
-    pub fn started(selection: PixelSelection) -> Self {
+    pub fn started(selection: PixelSelection, addition: bool) -> Self {
         Self {
             state: Started,
             selection: Option::Some(selection),
-            addition: false,
+            addition,
         }
     }
-    pub fn in_progress(selection: PixelSelection) -> Self {
+    pub fn in_progress(selection: PixelSelection, addition: bool) -> Self {
         Self {
             state: InProgress,
             selection: Option::Some(selection),
-            addition: false,
+            addition,
         }
     }
-    pub fn finished(selection: PixelSelection) -> Self {
+    pub fn finished(selection: PixelSelection, addition: bool) -> Self {
         Self {
             state: Finished,
             selection: Option::Some(selection),
-            addition: false,
+            addition,
         }
     }
 }
