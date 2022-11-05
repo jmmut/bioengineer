@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy ${{ github.ref_name }}
 
 on:
   push:
@@ -109,7 +109,7 @@ jobs:
           cp -r assets/ bioengineer_mac/
           cp target/release/bioengineer bioengineer_mac/
           zip -FS -r bioengineer_mac.zip bioengineer_mac/*
-          sha512sum bioengineer_mac.zip
+          # sha512sum bioengineer_mac.zip # error: sha512sum doesn't exist in mac. TODO: Find alternative.
 
       - name: Deploy Mac to itch.io
         env:

@@ -1,7 +1,11 @@
 name: Build and test in Linux
 
 on:
+  # workflow_dispatch will enable manual triggers
   workflow_dispatch:
+
+  # I disabled automatic builds because I often just push when I tag, and every commit was
+  # being built twice
 #  push:
 #    branches: [ "master" ]
 #  pull_request:
