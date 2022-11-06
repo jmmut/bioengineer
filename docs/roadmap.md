@@ -25,5 +25,6 @@
 - [x] bigger robot icon for the queue
 - [ ] loading screen
 - [ ] minimal friction to explain that solar panels can not be build underground
+- [x] compile for linux, wasm, windows and mac
 
 # Bugs
