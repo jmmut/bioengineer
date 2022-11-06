@@ -14,6 +14,7 @@ use macroquad::miniquad::date::now;
 use macroquad::texture::{Image, Texture2D};
 use macroquad::window::next_frame;
 use macroquad::window::Conf;
+use clap::Parser;
 
 use external::assets_macroquad::load_tileset;
 use external::drawer_macroquad::DrawerMacroquad as DrawerImpl;
@@ -35,15 +36,24 @@ const DEFAULT_WINDOW_TITLE: &str = "Bioengineer";
 use git_version::git_version;
 const GIT_VERSION: &str = git_version!(args = ["--tags"]);
 
+#[derive(Parser, Debug)]
+#[clap(version = GIT_VERSION)]
+struct CliArgs {
+    #[clap(long, help = "Measure and print profiling information.")]
+    profile: bool,
+
+    #[clap(long, help = "Enable fluid simulation. Game will have worse performance.")]
+    fluids: bool,
+}
+
 #[macroquad::main(window_conf)]
 async fn main() {
-    println!("Running Bioengineer version {}", GIT_VERSION);
     let (mut screen, mut world) = factory().await;
 
     while frame(&mut screen, &mut world) {
         next_frame().await
     }
-    print_cache_stats();
+    print_cache_stats(world.game_state.profile);
 }
 
 fn window_conf() -> Conf {
@@ -56,10 +66,12 @@ fn window_conf() -> Conf {
 }
 
 async fn factory() -> (Screen<DrawerImpl, InputSource>, World) {
+    let args = CliArgs::parse();
+    println!("Running Bioengineer version {}", GIT_VERSION);
     let tileset = load_tileset("assets/image/tileset.png");
     let drawer = DrawerImpl::new(tileset.await);
     let input_source = InputSource::new();
-    let world = World::new();
+    let world = World::new_with_options(args.profile);
     (Screen::new(drawer, input_source), world)
 }
 

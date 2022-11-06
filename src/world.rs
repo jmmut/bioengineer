@@ -55,6 +55,7 @@ pub enum GameGoalState {
 }
 
 impl World {
+    #[allow(unused)]
     pub fn new() -> Self {
         Self::new_with_options(DEFAULT_PROFILE_ENABLED)
     }
