@@ -15,70 +15,68 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: echo "other deployments disabled"
+      - name: Install system dependencies
+        run: |
+          sudo apt-get install libx11-dev libxi-dev libgl1-mesa-dev gcc-mingw-w64 libasound2-dev
+          # -L follows redirects
+          # -O specifies output name
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          # GNU unzip tends to not set the executable bit even though it's set in the .zip
+          chmod +x butler
+          # just a sanity check run (and also helpful in case you're sharing CI logs)
+          ./butler -V
 
-#      - name: Install system dependencies
-#        run: |
-#          sudo apt-get install libx11-dev libxi-dev libgl1-mesa-dev gcc-mingw-w64 libasound2-dev
-#          # -L follows redirects
-#          # -O specifies output name
-#          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
-#          unzip butler.zip
-#          # GNU unzip tends to not set the executable bit even though it's set in the .zip
-#          chmod +x butler
-#          # just a sanity check run (and also helpful in case you're sharing CI logs)
-#          ./butler -V
-#
-#      - name: Build
-#        run: cargo build -r
-#
-#      - name: Run tests
-#        run: cargo test
-#
-#      - name: Package Linux
-#        run: |
-#          mkdir -p bioengineer_linux
-#          cp -r assets/ bioengineer_linux/
-#          cp target/release/bioengineer bioengineer_linux/
-#          zip -FS -r bioengineer_linux.zip bioengineer_linux/*
-#          sha512sum bioengineer_linux.zip
-#
-#      - name: Deploy Linux to itch.io
-#        env:
-#          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-#        run: ./butler push bioengineer_linux.zip jmmut/Bioengineer:linux
-#
-#      - name: Compile and package WebAssembly
-#        run: |
-#          rustup target add wasm32-unknown-unknown
-#          cargo build -r --target wasm32-unknown-unknown
-#          # the folder export_html contains the html wrapper so that the wasm can be used
-#          mkdir -p bioengineer_html
-#          cp -r export_html/* bioengineer_html/
-#          cp -r target/wasm32-unknown-unknown/release/*.wasm bioengineer_html/
-#          cp -r assets/ bioengineer_html/
-#          zip -FS -r wasm.zip bioengineer_html/*
-#          sha512sum wasm.zip
-#
-#      - name: Deploy WebAssembly to itch.io
-#        env:
-#          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-#        run: ./butler push wasm.zip jmmut/Bioengineer:html5
-#
-#      - name: Compile and package Windows
-#        run: |
-#          rustup target add x86_64-pc-windows-gnu
-#          cargo build -r --target x86_64-pc-windows-gnu
-#          mkdir -p bioengineer_windows
-#          cp -r assets/ bioengineer_windows/
-#          cp target/x86_64-pc-windows-gnu/release/bioengineer.exe bioengineer_windows/
-#          zip -FS -r bioengineer_windows.zip bioengineer_windows/*
-#          sha512sum bioengineer_windows.zip
-#
-#      - name: Deploy Windows to itch.io
-#        env:
-#          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-#        run: ./butler push bioengineer_windows.zip jmmut/Bioengineer:windows
+      - name: Build
+        run: cargo build -r
+
+      - name: Run tests
+        run: cargo test -r
+
+      - name: Package Linux
+        run: |
+          mkdir -p bioengineer_linux
+          cp -r assets/ bioengineer_linux/
+          cp target/release/bioengineer bioengineer_linux/
+          zip -FS -r bioengineer_linux.zip bioengineer_linux/*
+          sha512sum bioengineer_linux.zip
+
+      - name: Deploy Linux to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: ./butler push bioengineer_linux.zip jmmut/Bioengineer:linux
+
+      - name: Compile and package WebAssembly
+        run: |
+          rustup target add wasm32-unknown-unknown
+          cargo build -r --target wasm32-unknown-unknown
+          # the folder export_html contains the html wrapper so that the wasm can be used
+          mkdir -p bioengineer_html
+          cp -r export_html/* bioengineer_html/
+          cp -r target/wasm32-unknown-unknown/release/*.wasm bioengineer_html/
+          cp -r assets/ bioengineer_html/
+          zip -FS -r wasm.zip bioengineer_html/*
+          sha512sum wasm.zip
+
+      - name: Deploy WebAssembly to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: ./butler push wasm.zip jmmut/Bioengineer:html5
+
+      - name: Compile and package Windows
+        run: |
+          rustup target add x86_64-pc-windows-gnu
+          cargo build -r --target x86_64-pc-windows-gnu
+          mkdir -p bioengineer_windows
+          cp -r assets/ bioengineer_windows/
+          cp target/x86_64-pc-windows-gnu/release/bioengineer.exe bioengineer_windows/
+          zip -FS -r bioengineer_windows.zip bioengineer_windows/*
+          sha512sum bioengineer_windows.zip
+
+      - name: Deploy Windows to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: ./butler push bioengineer_windows.zip jmmut/Bioengineer:windows
 
   deploy-mac:
     runs-on: macos-latest
@@ -101,7 +99,7 @@ jobs:
         run: cargo build -r
 
       - name: Run tests
-        run: cargo test
+        run: cargo test -r
 
       - name: Package Mac
         run: |
