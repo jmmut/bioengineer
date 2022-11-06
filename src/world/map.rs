@@ -150,6 +150,7 @@ impl Map {
             .get_mut(&get_chunk_index(&index))
             .expect("Error: Making the map bigger dynamically is disabled.")
     }
+
     pub fn regenerate(&mut self) {
         #[allow(unused)]
         enum MapType {

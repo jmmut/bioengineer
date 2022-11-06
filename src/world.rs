@@ -20,6 +20,7 @@ use robots::{
 };
 
 use crate::screen::gui::gui_actions::GuiActions;
+use crate::world::game_state::DEFAULT_PROFILE_ENABLED;
 
 type AgeInMinutes = i64;
 
@@ -55,17 +56,20 @@ pub enum GameGoalState {
 
 impl World {
     pub fn new() -> Self {
+        Self::new_with_options(DEFAULT_PROFILE_ENABLED)
+    }
+
+    pub fn new_with_options(profile: bool) -> Self {
         let game_state = GameState::new();
         let mut map = Map::new();
         map.regenerate();
         let ship_position = map.get_ship_position();
-        let mut fluids = Fluids::new(FluidMode::InStages);
-        fluids.set_profile(game_state.profile);
+        let fluids = Fluids::new(FluidMode::InStages);
         let robots = match ship_position {
             Option::None => vec![],
             Option::Some(position) => vec![Robot { position }],
         };
-        World {
+        let mut world = World {
             map,
             fluids,
             robots,
@@ -74,7 +78,14 @@ impl World {
             game_state,
             goal_state: GameGoalState::Started,
             age_in_minutes: 0,
-        }
+        };
+        world.set_profile(profile);
+        world
+    }
+
+    pub fn set_profile(&mut self, profile: bool) {
+        self.game_state.profile = profile;
+        self.fluids.set_profile(profile);
     }
 
     /// returns if the game should do another iteration
@@ -85,6 +96,10 @@ impl World {
     }
 
     pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) {
+        if gui_actions.input.toggle_profiling {
+            self.set_profile(!self.game_state.profile);
+        }
+
         self.game_state.update_with_gui_actions(gui_actions);
 
         self.update_task_queue(gui_actions);

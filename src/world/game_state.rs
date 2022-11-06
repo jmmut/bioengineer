@@ -2,8 +2,8 @@ use crate::now;
 use crate::screen::gui::GuiActions;
 use crate::world::networks::network::format_unit;
 
-const DEFAULT_PROFILE_ENABLED: bool = false;
-const DEFAULT_ADVANCING_FLUIDS: bool = false;
+pub const DEFAULT_PROFILE_ENABLED: bool = false;
+const DEFAULT_ADVANCING_FLUIDS: bool = true;
 const DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES: i32 = 10;
 const DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES: i32 = 15;
 
@@ -11,11 +11,11 @@ pub struct GameState {
     pub frame_index: i32,
     pub previous_frame_ts: f64,
     pub current_frame_ts: f64,
-    pub advancing_fluids: bool,
-    pub advancing_fluids_single_step: bool,
-    pub advance_fluid_every_n_frames: i32,
-    pub advance_robots_every_n_frames: i32,
-    pub profile: bool, // TODO: move to DrawingState?
+    pub profile: bool,
+    advancing_fluids: bool,
+    advancing_fluids_single_step: bool,
+    advance_fluid_every_n_frames: i32,
+    advance_robots_every_n_frames: i32,
 }
 
 impl GameState {
@@ -33,9 +33,6 @@ impl GameState {
     }
 
     pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) {
-        if gui_actions.input.toggle_profiling {
-            self.profile = !self.profile;
-        }
         if gui_actions.input.toggle_fluids {
             self.advancing_fluids = !self.advancing_fluids;
         }
@@ -43,7 +40,7 @@ impl GameState {
         self.advancing_fluids_single_step = gui_actions.input.single_fluid;
     }
 
-    pub(crate) fn should_advance_robots_this_frame(&mut self) -> bool {
+    pub fn should_advance_robots_this_frame(&mut self) -> bool {
         let should_process_frame = self.frame_index % self.advance_robots_every_n_frames == 0;
         should_process_frame
     }

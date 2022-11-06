@@ -59,7 +59,8 @@ async fn factory() -> (Screen<DrawerImpl, InputSource>, World) {
     let tileset = load_tileset("assets/image/tileset.png");
     let drawer = DrawerImpl::new(tileset.await);
     let input_source = InputSource::new();
-    (Screen::new(drawer, input_source), World::new())
+    let world = World::new();
+    (Screen::new(drawer, input_source), world)
 }
 
 /// returns if should continue looping. In other words, if there should be another future frame.
