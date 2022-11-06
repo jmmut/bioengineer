@@ -1,5 +1,5 @@
 # Bioengineer
-[![build status badge](https://github.com/jmmut/bioengineer/actions/workflows/build.yml/badge.svg)](https://github.com/jmmut/bioengineer/actions)
+[![deployment status badge](https://github.com/jmmut/bioengineer/actions/workflows/release.yml/badge.svg)](https://github.com/jmmut/bioengineer/actions)
 
 ## Play the game
 
