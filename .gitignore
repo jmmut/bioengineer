@@ -7,3 +7,4 @@ bioengineer_linux*
 bioengineer_windows*
 loc.csv
 cachegrind*
+untracked/
