@@ -28,3 +28,6 @@
 - [x] compile for linux, wasm, windows and mac
 
 # Bugs
+
+- [ ] touchpad scroll is too sensitive
+- [ ] tile transparency also makes floor transparent

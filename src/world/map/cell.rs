@@ -94,7 +94,6 @@ pub fn is_walkable_vertical(target_tile: TileType, origin_tile: TileType) -> boo
 pub fn is_covering(tile: TileType) -> bool {
     [
         Stairs,
-        MachineShip,
         WallRock,
         WallDirt,
         DirtyWaterWall,
