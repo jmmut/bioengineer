@@ -32,8 +32,12 @@ const DEFAULT_WINDOW_WIDTH: i32 = 1600;
 const DEFAULT_WINDOW_HEIGHT: i32 = 900;
 const DEFAULT_WINDOW_TITLE: &str = "Bioengineer";
 
+use git_version::git_version;
+const GIT_VERSION: &str = git_version!(args = ["--tags"]);
+
 #[macroquad::main(window_conf)]
 async fn main() {
+    println!("Running Bioengineer version {}", GIT_VERSION);
     let (mut screen, mut world) = factory().await;
 
     while frame(&mut screen, &mut world) {
