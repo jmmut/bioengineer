@@ -1,6 +1,8 @@
 use std::cell::RefCell;
 use std::ops::Deref;
 
+/// we need this static variables because Chunks may get recreated due to the iterator fiasco.
+/// see [`Chunks::into_iter`].
 pub static mut CACHE_MISSES: i64 = 0;
 pub static mut CACHE_HOT_HITS: i64 = 0;
 pub static mut CACHE_COLD_HITS: i64 = 0;
