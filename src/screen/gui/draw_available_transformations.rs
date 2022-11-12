@@ -19,7 +19,10 @@ pub fn show_available_transformations(
     let mut cell_selection = unhandled_input.input.cell_selection;
     let highlighted_cells = drawing.highlighted_cells();
     if highlighted_cells.len() > 0 {
-        let transformations = allowed_transformations(&highlighted_cells, &world.map);
+        let mut transformations = allowed_transformations(&highlighted_cells, &world.map);
+        transformations.sort_by(|t_1, t_2| {
+            to_action_str(t_1.new_tile_type ).cmp(to_action_str(t_2.new_tile_type))
+        });
         let line_height = FONT_SIZE * 1.5;
         let panel_title = "Available actions";
         let mut max_button_width = drawer.measure_text(panel_title, FONT_SIZE).x;
