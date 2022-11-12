@@ -10,6 +10,7 @@ use macroquad::input::{
 pub struct InputMacroquad {
     previous_wheel_click_pos: (f32, f32),
     previous_left_click_pos: Option<PixelPosition>,
+    previous_right_click_pos: Option<PixelPosition>,
 }
 
 impl InputMacroquad {
@@ -17,6 +18,7 @@ impl InputMacroquad {
         InputMacroquad {
             previous_wheel_click_pos: (0.0, 0.0),
             previous_left_click_pos: Option::None,
+            previous_right_click_pos: Option::None,
         }
     }
 
@@ -44,10 +46,12 @@ impl InputMacroquad {
             Option::None
         }
     }
+
     pub fn get_right_click_position(&mut self) -> Option<PixelPosition> {
         if is_mouse_button_pressed(MouseButton::Right) {
             let (position_x, position_y) = mouse_position();
             let position = PixelPosition::new(position_x, position_y);
+            self.previous_right_click_pos = Option::Some(position);
             Option::Some(position)
         } else {
             Option::None
@@ -57,6 +61,19 @@ impl InputMacroquad {
         if is_mouse_button_released(MouseButton::Left) && self.previous_left_click_pos.is_some() {
             let start = self.previous_left_click_pos.unwrap();
             self.previous_left_click_pos = Option::None;
+            let (position_x, position_y) = mouse_position();
+            Option::Some(PixelSelection {
+                start,
+                end: PixelPosition::new(position_x, position_y),
+            })
+        } else {
+            Option::None
+        }
+    }
+    pub fn get_right_click_release(&mut self) -> Option<PixelSelection> {
+        if is_mouse_button_released(MouseButton::Right) && self.previous_right_click_pos.is_some() {
+            let start = self.previous_right_click_pos.unwrap();
+            self.previous_right_click_pos = Option::None;
             let (position_x, position_y) = mouse_position();
             Option::Some(PixelSelection {
                 start,
@@ -107,8 +124,13 @@ impl InputMacroquad {
                 || is_mouse_button_released(MouseButton::Left)
             {
                 CellSelectionType::Add
-            } else {
+            } else if is_mouse_button_pressed(MouseButton::Right)
+                || is_mouse_button_down(MouseButton::Right)
+                || is_mouse_button_released(MouseButton::Right)
+            {
                 CellSelectionType::Remove
+            } else {
+                CellSelectionType::Exclusive
             }
         } else {
             CellSelectionType::Exclusive
@@ -116,14 +138,14 @@ impl InputMacroquad {
     }
 
     fn get_cell_selection(&mut self) -> CellSelection {
-        let start_selection_this_frame = self.get_left_click_position();
-        let end_selection = self.get_left_click_release();
+        let start_selection_this_frame = self.get_left_click_position().or(self.get_right_click_position());
+        let end_selection = self.get_left_click_release().or(self.get_right_click_release());
         let (mouse_position_x, mouse_position_y) = mouse_position();
         let mouse_position = PixelPosition::new(mouse_position_x, mouse_position_y);
         let addition = Self::get_cell_selection_type();
         match end_selection {
             None => match start_selection_this_frame {
-                None => match self.previous_left_click_pos {
+                None => match self.previous_left_click_pos.or(self.previous_right_click_pos) {
                     None => CellSelection::no_selection(),
                     Some(start) => CellSelection::in_progress(
                         PixelSelection {

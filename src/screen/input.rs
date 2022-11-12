@@ -23,7 +23,7 @@ pub struct Input {
 pub struct CellSelection {
     pub state: CellSelectionState,
     pub selection: Option<PixelSelection>,
-    pub addition: CellSelectionType,
+    pub selection_type: CellSelectionType,
 }
 
 impl CellSelection {
@@ -31,33 +31,33 @@ impl CellSelection {
         Self {
             state: None,
             selection: Option::None,
-            addition: CellSelectionType::Exclusive,
+            selection_type: CellSelectionType::Exclusive,
         }
     }
     pub fn started(selection: PixelSelection, addition: CellSelectionType) -> Self {
         Self {
             state: Started,
             selection: Option::Some(selection),
-            addition,
+            selection_type: addition,
         }
     }
     pub fn in_progress(selection: PixelSelection, addition: CellSelectionType) -> Self {
         Self {
             state: InProgress,
             selection: Option::Some(selection),
-            addition,
+            selection_type: addition,
         }
     }
     pub fn finished(selection: PixelSelection, addition: CellSelectionType) -> Self {
         Self {
             state: Finished,
             selection: Option::Some(selection),
-            addition,
+            selection_type: addition,
         }
     }
 }
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub enum CellSelectionState {
     None,
     Started,
@@ -65,7 +65,7 @@ pub enum CellSelectionState {
     Finished,
 }
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub enum CellSelectionType {
     Exclusive,
     Add,

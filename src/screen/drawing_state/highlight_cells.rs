@@ -21,7 +21,7 @@ impl DrawingState {
                     start_cell,
                     end_cell,
                     cell_selection.state,
-                    cell_selection.addition,
+                    cell_selection.selection_type,
                 );
             }
         }
@@ -34,6 +34,7 @@ impl DrawingState {
         selection_state: CellSelectionState,
         selection_type: CellSelectionType,
     ) {
+        println!("highlighting cells. type: {selection_type:?}, state: {selection_state:?}");
         if self.highlighted_cells_in_progress_type != selection_type
             || selection_state == CellSelectionState::Started
         {
