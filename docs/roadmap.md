@@ -1,4 +1,5 @@
 
+See `git tag -n` for a list of the biggest features in each tag.
 
 # Gameplay
 
