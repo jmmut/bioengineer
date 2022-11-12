@@ -14,7 +14,7 @@ pub fn allowed_transformations(cells: &HashSet<CellIndex>, map: &Map) -> Vec<Tra
     for cell_index in cells {
         let cell = map.get_cell(*cell_index);
         distinct_tiles.insert(cell.tile_type as i32);
-        allowed.push(allowed_transformations_of_cell(cell, cell_index, &map));
+        allowed.push(allowed_transformations_of_cell(cell, cell_index, map));
     }
     let mut common = set_intersection(allowed);
     common = remove_identity_if_only_one_type(&distinct_tiles, common);

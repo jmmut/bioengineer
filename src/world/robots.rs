@@ -134,7 +134,7 @@ pub fn move_robot_to_position(
     map: &Map,
 ) -> Option<CellIndexDiff> {
     let mut a_start = AStart::new(current_pos);
-    let path = a_start.find_path_to(target_pos, &map);
+    let path = a_start.find_path_to(target_pos, map);
     match path {
         PathResult::Almost(path) | PathResult::Some(path) => {
             path.last().map(|first_step| *first_step - current_pos)

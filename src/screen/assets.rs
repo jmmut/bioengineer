@@ -65,7 +65,7 @@ fn get_components(
 }
 
 pub fn crop(
-    image: &Vec<u8>,
+    image: &[u8],
     image_width_in_pixels: usize,
     image_height_in_pixels: usize,
     crop_start_width_in_pixels: usize,
@@ -95,7 +95,7 @@ pub fn crop(
 }
 
 /// `factor`: each pixel will be repeated `factor` times, vertically and horizontally
-pub fn zoom(image: &Vec<u8>, image_width_in_pixels: usize, factor: usize) -> Vec<u8> {
+pub fn zoom(image: &[u8], image_width_in_pixels: usize, factor: usize) -> Vec<u8> {
     let mut result = Vec::<u8>::with_capacity(image.len() * factor * factor);
     let mut line = Vec::<u8>::with_capacity(image_width_in_pixels * factor * COMPONENTS_PER_PIXEL);
     for i_h in 0..image.len() / COMPONENTS_PER_PIXEL / image_width_in_pixels {
