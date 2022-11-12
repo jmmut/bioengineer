@@ -110,6 +110,7 @@ impl World {
             self.map.regenerate();
             self.networks.clear();
             self.robots = Self::reset_robots(self.map.get_ship_position());
+            self.task_queue.clear();
         }
         self.networks.update();
         self.update_goal_state(gui_actions);
