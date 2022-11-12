@@ -27,8 +27,9 @@ fn remove_identity_if_only_one_type(
 ) -> Vec<Transformation> {
     if distinct_tiles.len() == 1 {
         let only_tile_selected = distinct_tiles.iter().next().unwrap();
-        return common.iter()
-            .filter(|t| { t.new_tile_type as i32 != *only_tile_selected })
+        return common
+            .iter()
+            .filter(|t| t.new_tile_type as i32 != *only_tile_selected)
             .cloned()
             .collect();
     }
@@ -237,9 +238,7 @@ mod tests {
         for index in cell_indexes {
             fx.map.get_cell_mut(index).tile_type = TileType::WallRock;
         }
-        let transformations = allowed_transformations(
-            &HashSet::from(cell_indexes),
-            &fx.map);
+        let transformations = allowed_transformations(&HashSet::from(cell_indexes), &fx.map);
         let contains_wall = transformations.contains(&Transformation::to(TileType::WallRock));
         assert_eq!(contains_wall, false);
     }
@@ -250,10 +249,9 @@ mod tests {
         let cell_indexes = [CellIndex::new(0, 5, 0), CellIndex::new(0, 6, 0)];
         fx.map.get_cell_mut(cell_indexes[0]).tile_type = TileType::FloorRock;
         fx.map.get_cell_mut(cell_indexes[1]).tile_type = TileType::MachineAirCleaner;
-        let transformations = allowed_transformations(
-            &HashSet::from(cell_indexes),
-            &fx.map);
-        let contains_cleaner = transformations.contains(&Transformation::to(TileType::MachineAirCleaner));
+        let transformations = allowed_transformations(&HashSet::from(cell_indexes), &fx.map);
+        let contains_cleaner =
+            transformations.contains(&Transformation::to(TileType::MachineAirCleaner));
         assert_eq!(contains_cleaner, true);
         let contains_floor = transformations.contains(&Transformation::to(TileType::FloorRock));
         assert_eq!(contains_floor, true);
@@ -265,10 +263,9 @@ mod tests {
         let cell_indexes = [CellIndex::new(0, 5, 0), CellIndex::new(0, 6, 0)];
         fx.map.get_cell_mut(cell_indexes[0]).tile_type = TileType::FloorDirt;
         fx.map.get_cell_mut(cell_indexes[1]).tile_type = TileType::MachineAirCleaner;
-        let transformations = allowed_transformations(
-            &HashSet::from(cell_indexes),
-            &fx.map);
-        let contains_cleaner = transformations.contains(&Transformation::to(TileType::MachineAirCleaner));
+        let transformations = allowed_transformations(&HashSet::from(cell_indexes), &fx.map);
+        let contains_cleaner =
+            transformations.contains(&Transformation::to(TileType::MachineAirCleaner));
         assert_eq!(contains_cleaner, true);
         let contains_floor = transformations.contains(&Transformation::to(TileType::FloorRock));
         assert_eq!(contains_floor, true);

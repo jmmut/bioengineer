@@ -8,13 +8,13 @@ mod external {
     pub mod input_macroquad;
 }
 
+use clap::Parser;
 use macroquad::color::Color;
 use macroquad::math::{IVec2, IVec3, Rect, Vec2, Vec3};
 use macroquad::miniquad::date::now;
 use macroquad::texture::{Image, Texture2D};
 use macroquad::window::next_frame;
 use macroquad::window::Conf;
-use clap::Parser;
 
 use external::assets_macroquad::load_tileset;
 use external::drawer_macroquad::DrawerMacroquad as DrawerImpl;
@@ -42,7 +42,10 @@ struct CliArgs {
     #[clap(long, help = "Measure and print profiling information.")]
     profile: bool,
 
-    #[clap(long, help = "Enable fluid simulation. Game will have worse performance.")]
+    #[clap(
+        long,
+        help = "Enable fluid simulation. Game will have worse performance."
+    )]
     fluids: bool,
 }
 

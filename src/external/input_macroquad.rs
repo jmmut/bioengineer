@@ -1,6 +1,9 @@
 use crate::screen::input::{CellSelection, Input, InputSourceTrait, PixelPosition, PixelSelection};
 
-use macroquad::input::{is_key_pressed, is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released, mouse_position, mouse_wheel, KeyCode, MouseButton, is_key_down};
+use macroquad::input::{
+    is_key_down, is_key_pressed, is_mouse_button_down, is_mouse_button_pressed,
+    is_mouse_button_released, mouse_position, mouse_wheel, KeyCode, MouseButton,
+};
 
 pub struct InputMacroquad {
     previous_wheel_click_pos: (f32, f32),
@@ -99,21 +102,26 @@ impl InputMacroquad {
         let end_selection = self.get_left_click_release();
         let (mouse_position_x, mouse_position_y) = mouse_position();
         let mouse_position = PixelPosition::new(mouse_position_x, mouse_position_y);
-        let addition = is_key_down(KeyCode::LeftControl)
-            || is_key_down(KeyCode::RightControl);
+        let addition = is_key_down(KeyCode::LeftControl) || is_key_down(KeyCode::RightControl);
         match end_selection {
             None => match start_selection_this_frame {
                 None => match self.previous_left_click_pos {
                     None => CellSelection::no_selection(),
-                    Some(start) => CellSelection::in_progress(PixelSelection {
+                    Some(start) => CellSelection::in_progress(
+                        PixelSelection {
+                            start,
+                            end: mouse_position,
+                        },
+                        addition,
+                    ),
+                },
+                Some(start) => CellSelection::started(
+                    PixelSelection {
                         start,
                         end: mouse_position,
-                    }, addition),
-                },
-                Some(start) => CellSelection::started(PixelSelection {
-                    start,
-                    end: mouse_position,
-                }, addition),
+                    },
+                    addition,
+                ),
             },
             Some(end) => CellSelection::finished(end, addition),
         }

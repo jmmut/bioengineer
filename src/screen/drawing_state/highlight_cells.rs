@@ -84,8 +84,8 @@ fn highlight_cells(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::world::robots::up;
     use crate::screen::input::CellSelectionType::*;
+    use crate::world::robots::up;
 
     #[test]
     fn test_select_higher_cell() {
