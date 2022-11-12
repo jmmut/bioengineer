@@ -66,10 +66,7 @@ impl World {
         map.regenerate();
         let ship_position = map.get_ship_position();
         let fluids = Fluids::new(FluidMode::InStages);
-        let robots = match ship_position {
-            Option::None => vec![],
-            Option::Some(position) => vec![Robot { position }],
-        };
+        let robots = Self::reset_robots(ship_position);
         let mut world = World {
             map,
             fluids,
@@ -112,9 +109,17 @@ impl World {
         if gui_actions.input.regenerate_map {
             self.map.regenerate();
             self.networks.clear();
+            self.robots = Self::reset_robots(self.map.get_ship_position());
         }
         self.networks.update();
         self.update_goal_state(gui_actions);
+    }
+
+    fn reset_robots(ship_position: Option<CellIndex>) -> Vec<Robot> {
+        match ship_position {
+            Option::None => vec![],
+            Option::Some(position) => vec![Robot { position }],
+        }
     }
 
     fn update_task_queue(&mut self, gui_actions: &GuiActions) {
