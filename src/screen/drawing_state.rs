@@ -2,7 +2,9 @@ pub mod change_height;
 pub mod highlight_cells;
 pub mod move_horizontally;
 
+use crate::screen::drawing_state::highlight_cells::merge_consolidated_and_in_progress;
 use crate::screen::gui::GuiActions;
+use crate::screen::input::CellSelectionType;
 use crate::world::map::CellIndex;
 use crate::{IVec2, Vec2, Vec3};
 use std::collections::HashSet;
@@ -18,6 +20,7 @@ pub struct DrawingState {
     pub subcell_diff: SubCellIndex,
     highlighted_cells_in_progress: HashSet<CellIndex>,
     highlighted_cells_consolidated: HashSet<CellIndex>,
+    highlighted_cells_in_progress_type: CellSelectionType,
     highlight_start_height: Option<i32>,
 }
 
@@ -30,14 +33,17 @@ impl DrawingState {
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
             highlighted_cells_in_progress: HashSet::new(),
             highlighted_cells_consolidated: HashSet::new(),
+            highlighted_cells_in_progress_type: CellSelectionType::Exclusive,
             highlight_start_height: None,
         }
     }
 
     pub fn highlighted_cells(&self) -> HashSet<CellIndex> {
-        let mut cells = self.highlighted_cells_consolidated.clone();
-        cells.extend((&self.highlighted_cells_in_progress).iter());
-        cells
+        merge_consolidated_and_in_progress(
+            &self.highlighted_cells_consolidated,
+            &self.highlighted_cells_in_progress,
+            self.highlighted_cells_in_progress_type,
+        )
     }
 
     pub fn apply_input(&mut self, unhandled: &GuiActions, screen_width: f32) {

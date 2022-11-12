@@ -1,4 +1,6 @@
-use crate::screen::input::{CellSelection, Input, InputSourceTrait, PixelPosition, PixelSelection};
+use crate::screen::input::{
+    CellSelection, CellSelectionType, Input, InputSourceTrait, PixelPosition, PixelSelection,
+};
 
 use macroquad::input::{
     is_key_down, is_key_pressed, is_mouse_button_down, is_mouse_button_pressed,
@@ -97,12 +99,28 @@ impl InputMacroquad {
             + if is_key_pressed(KeyCode::Down) { -1 } else { 0 })
     }
 
+    fn get_cell_selection_type() -> CellSelectionType {
+        let modifier = is_key_down(KeyCode::LeftControl) || is_key_down(KeyCode::RightControl);
+        if modifier {
+            if is_mouse_button_pressed(MouseButton::Left)
+                || is_mouse_button_down(MouseButton::Left)
+                || is_mouse_button_released(MouseButton::Left)
+            {
+                CellSelectionType::Add
+            } else {
+                CellSelectionType::Remove
+            }
+        } else {
+            CellSelectionType::Exclusive
+        }
+    }
+
     fn get_cell_selection(&mut self) -> CellSelection {
         let start_selection_this_frame = self.get_left_click_position();
         let end_selection = self.get_left_click_release();
         let (mouse_position_x, mouse_position_y) = mouse_position();
         let mouse_position = PixelPosition::new(mouse_position_x, mouse_position_y);
-        let addition = is_key_down(KeyCode::LeftControl) || is_key_down(KeyCode::RightControl);
+        let addition = Self::get_cell_selection_type();
         match end_selection {
             None => match start_selection_this_frame {
                 None => match self.previous_left_click_pos {
@@ -128,8 +146,12 @@ impl InputMacroquad {
     }
 
     fn get_robot_movement(&mut self) -> Option<PixelPosition> {
-        let right_click_pos = self.get_right_click_position();
-        right_click_pos
+        if is_key_down(KeyCode::LeftControl) || is_key_down(KeyCode::RightControl) {
+            None
+        } else {
+            let right_click_pos = self.get_right_click_position();
+            right_click_pos
+        }
     }
 }
 

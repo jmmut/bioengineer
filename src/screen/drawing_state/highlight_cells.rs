@@ -1,6 +1,6 @@
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::coords::cell_pixel::clicked_cell;
-use crate::screen::input::{CellSelection, CellSelectionType};
+use crate::screen::input::{CellSelection, CellSelectionState, CellSelectionType};
 use crate::world::map::cell_envelope::{is_horizontally_inside, Envelope};
 use crate::world::map::{CellCubeIterator, CellIndex};
 use std::collections::HashSet;
@@ -31,14 +31,20 @@ impl DrawingState {
         &mut self,
         mut start: CellIndex,
         end: CellIndex,
+        selection_state: CellSelectionState,
         selection_type: CellSelectionType,
-        addition: bool,
     ) {
+        if self.highlighted_cells_in_progress_type != selection_type
+            || selection_state == CellSelectionState::Started
+        {
+            self.finish_selection();
+        }
         let shown_cube = Envelope {
             min_cell: self.min_cell,
             max_cell: self.max_cell,
         };
-        if selection_type == CellSelectionType::Started {
+        if selection_state == CellSelectionState::Started {
+            // self.highlighted_cells_consolidated.clear();
             self.highlight_start_height = Some(self.max_cell.y);
         }
         if let Some(start_height) = self.highlight_start_height {
@@ -50,14 +56,20 @@ impl DrawingState {
             start,
             end,
             shown_cube,
-            addition,
+            selection_type,
             &mut self.highlighted_cells_in_progress,
             &mut self.highlighted_cells_consolidated,
         );
-        if selection_type == CellSelectionType::Finished {
-            self.highlighted_cells_consolidated
-                .extend(self.highlighted_cells_in_progress.drain());
-        }
+        self.highlighted_cells_in_progress_type = selection_type;
+    }
+
+    fn finish_selection(&mut self) {
+        self.highlighted_cells_consolidated = merge_consolidated_and_in_progress(
+            &self.highlighted_cells_consolidated,
+            &self.highlighted_cells_in_progress,
+            self.highlighted_cells_in_progress_type,
+        );
+        self.highlighted_cells_in_progress.clear();
     }
 }
 
@@ -65,14 +77,11 @@ fn highlight_cells(
     start: CellIndex,
     end: CellIndex,
     shown_cube: Envelope,
-    addition: bool,
+    _selection_type: CellSelectionType,
     highlighted_cells_in_progress: &mut HashSet<CellIndex>,
-    highlighted_cells_consolidated: &mut HashSet<CellIndex>,
+    _highlighted_cells_consolidated: &mut HashSet<CellIndex>,
 ) {
     let cell_cube = CellCubeIterator::new_from_mixed(start, end);
-    if !addition {
-        highlighted_cells_consolidated.clear();
-    }
     highlighted_cells_in_progress.clear();
     for cell in cell_cube {
         if is_horizontally_inside(&cell, &shown_cube) {
@@ -81,9 +90,22 @@ fn highlight_cells(
     }
 }
 
+pub fn merge_consolidated_and_in_progress(
+    consolidated: &HashSet<CellIndex>,
+    in_progress: &HashSet<CellIndex>,
+    selection_type: CellSelectionType,
+) -> HashSet<CellIndex> {
+    match selection_type {
+        CellSelectionType::Exclusive => in_progress.clone(),
+        CellSelectionType::Add => consolidated.union(&in_progress).cloned().collect(),
+        CellSelectionType::Remove => consolidated.difference(&in_progress).cloned().collect(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::screen::input::CellSelectionState::*;
     use crate::screen::input::CellSelectionType::*;
     use crate::world::robots::up;
 
@@ -99,7 +121,7 @@ mod tests {
             CellIndex::new(0, 0, 0),
             CellIndex::new(0, 0, 0),
             envelope,
-            false,
+            Exclusive,
             &mut highlighted,
             &mut highlighted_consolidated,
         );
@@ -125,9 +147,8 @@ mod tests {
         let mut drawing = DrawingState::new();
         let t = setup();
 
-        drawing.maybe_select_cells(t.start, t.small_end, Finished, false);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 0);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 4);
+        drawing.maybe_select_cells(t.start, t.small_end, Finished, Exclusive);
+        assert_eq!(drawing.highlighted_cells().len(), 4);
     }
 
     #[test]
@@ -135,9 +156,8 @@ mod tests {
         let mut drawing = DrawingState::new();
         let t = setup();
 
-        drawing.maybe_select_cells(t.start, t.small_end, InProgress, false);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 4);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 0);
+        drawing.maybe_select_cells(t.start, t.small_end, InProgress, Exclusive);
+        assert_eq!(drawing.highlighted_cells().len(), 4);
     }
 
     #[test]
@@ -145,13 +165,14 @@ mod tests {
         let mut drawing = DrawingState::new();
         let t = setup();
 
-        drawing.maybe_select_cells(t.start, t.small_end, Finished, false);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 0);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 4);
+        drawing.maybe_select_cells(t.start, t.small_end, Finished, Exclusive);
+        assert_eq!(drawing.highlighted_cells().len(), 4);
 
-        drawing.maybe_select_cells(t.small_end, t.big_end, Started, false);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 2);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 0);
+        drawing.maybe_select_cells(t.small_end, t.big_end, Started, Exclusive);
+        assert_eq!(
+            drawing.highlighted_cells(),
+            HashSet::from([t.small_end, t.big_end])
+        );
     }
 
     #[test]
@@ -159,21 +180,17 @@ mod tests {
         let mut drawing = DrawingState::new();
         let t = setup();
 
-        drawing.maybe_select_cells(t.start, t.small_end, Started, false);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 4);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 0);
+        drawing.maybe_select_cells(t.start, t.small_end, Started, Exclusive);
+        assert_eq!(drawing.highlighted_cells().len(), 4);
 
-        drawing.maybe_select_cells(t.start, t.big_end, InProgress, false);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 6);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 0);
+        drawing.maybe_select_cells(t.start, t.big_end, InProgress, Exclusive);
+        assert_eq!(drawing.highlighted_cells().len(), 6);
 
-        drawing.maybe_select_cells(t.start, t.small_end, Started, false);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 4);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 0);
+        drawing.maybe_select_cells(t.start, t.small_end, Started, Exclusive);
+        assert_eq!(drawing.highlighted_cells().len(), 4);
 
-        drawing.maybe_select_cells(t.start, t.big_end, Finished, false);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 0);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 6);
+        drawing.maybe_select_cells(t.start, t.big_end, Finished, Exclusive);
+        assert_eq!(drawing.highlighted_cells().len(), 6);
     }
 
     #[test]
@@ -181,25 +198,20 @@ mod tests {
         let mut drawing = DrawingState::new();
         let t = setup();
 
-        drawing.maybe_select_cells(t.start, t.small_end, Finished, false);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 0);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 4);
+        drawing.maybe_select_cells(t.start, t.small_end, Finished, Exclusive);
+        assert_eq!(drawing.highlighted_cells().len(), 4);
 
-        drawing.maybe_select_cells(t.small_end, t.big_end, Started, true);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 2);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 4);
+        drawing.maybe_select_cells(t.small_end, t.big_end, Started, Add);
+        assert_eq!(drawing.highlighted_cells().len(), 5);
 
-        drawing.maybe_select_cells(t.small_end, t.big_end + up(), InProgress, true);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 4);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 4);
+        drawing.maybe_select_cells(t.small_end, t.big_end + up(), InProgress, Add);
+        assert_eq!(drawing.highlighted_cells().len(), 7);
 
-        drawing.maybe_select_cells(t.small_end, t.big_end, Started, true);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 2);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 4);
+        drawing.maybe_select_cells(t.small_end, t.big_end, InProgress, Add);
+        assert_eq!(drawing.highlighted_cells().len(), 5);
 
-        drawing.maybe_select_cells(t.small_end, t.big_end, Finished, true);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 0);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 5);
+        drawing.maybe_select_cells(t.small_end, t.big_end, Finished, Add);
+        assert_eq!(drawing.highlighted_cells().len(), 5);
     }
 
     #[test]
@@ -207,12 +219,25 @@ mod tests {
         let mut drawing = DrawingState::new();
         let t = setup();
 
-        drawing.maybe_select_cells(t.small_end, t.big_end + up(), Started, true);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 4);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 0);
+        drawing.maybe_select_cells(t.small_end, t.big_end + up(), Started, Add);
+        assert_eq!(drawing.highlighted_cells().len(), 4);
 
-        drawing.maybe_select_cells(t.small_end, t.big_end, InProgress, true);
-        assert_eq!(drawing.highlighted_cells_in_progress.len(), 2);
-        assert_eq!(drawing.highlighted_cells_consolidated.len(), 0);
+        drawing.maybe_select_cells(t.small_end, t.big_end, InProgress, Add);
+        assert_eq!(drawing.highlighted_cells().len(), 2);
+    }
+
+    #[test]
+    fn remove_selection() {
+        let mut drawing = DrawingState::new();
+        let t = setup();
+
+        drawing.maybe_select_cells(t.start, t.big_end + up(), Finished, Add);
+        assert_eq!(drawing.highlighted_cells().len(), 12);
+
+        drawing.maybe_select_cells(t.start, t.small_end, Started, Remove);
+        assert_eq!(drawing.highlighted_cells().len(), 8);
+
+        drawing.maybe_select_cells(t.start, t.small_end, Finished, Remove);
+        assert_eq!(drawing.highlighted_cells().len(), 8);
     }
 }

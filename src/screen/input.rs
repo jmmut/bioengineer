@@ -1,4 +1,4 @@
-use crate::screen::input::CellSelectionType::{Finished, InProgress, None, Started};
+use crate::screen::input::CellSelectionState::{Finished, InProgress, None, Started};
 
 pub type PixelPosition = crate::Vec2;
 
@@ -21,9 +21,9 @@ pub struct Input {
 
 #[derive(Copy, Clone)]
 pub struct CellSelection {
-    pub state: CellSelectionType,
+    pub state: CellSelectionState,
     pub selection: Option<PixelSelection>,
-    pub addition: bool,
+    pub addition: CellSelectionType,
 }
 
 impl CellSelection {
@@ -31,24 +31,24 @@ impl CellSelection {
         Self {
             state: None,
             selection: Option::None,
-            addition: false,
+            addition: CellSelectionType::Exclusive,
         }
     }
-    pub fn started(selection: PixelSelection, addition: bool) -> Self {
+    pub fn started(selection: PixelSelection, addition: CellSelectionType) -> Self {
         Self {
             state: Started,
             selection: Option::Some(selection),
             addition,
         }
     }
-    pub fn in_progress(selection: PixelSelection, addition: bool) -> Self {
+    pub fn in_progress(selection: PixelSelection, addition: CellSelectionType) -> Self {
         Self {
             state: InProgress,
             selection: Option::Some(selection),
             addition,
         }
     }
-    pub fn finished(selection: PixelSelection, addition: bool) -> Self {
+    pub fn finished(selection: PixelSelection, addition: CellSelectionType) -> Self {
         Self {
             state: Finished,
             selection: Option::Some(selection),
@@ -58,11 +58,18 @@ impl CellSelection {
 }
 
 #[derive(PartialEq, Copy, Clone)]
-pub enum CellSelectionType {
+pub enum CellSelectionState {
     None,
     Started,
     InProgress,
     Finished,
+}
+
+#[derive(PartialEq, Copy, Clone)]
+pub enum CellSelectionType {
+    Exclusive,
+    Add,
+    Remove,
 }
 
 #[derive(Default, Debug, Copy, Clone)]
