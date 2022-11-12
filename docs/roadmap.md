@@ -1,5 +1,6 @@
 
 See `git tag -n` for a list of the biggest features in each tag.
+Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 
 # Gameplay
 
