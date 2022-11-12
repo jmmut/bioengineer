@@ -34,7 +34,6 @@ impl DrawingState {
         selection_state: CellSelectionState,
         selection_type: CellSelectionType,
     ) {
-        println!("highlighting cells. type: {selection_type:?}, state: {selection_state:?}");
         if self.highlighted_cells_in_progress_type != selection_type
             || selection_state == CellSelectionState::Started
         {
@@ -45,7 +44,6 @@ impl DrawingState {
             max_cell: self.max_cell,
         };
         if selection_state == CellSelectionState::Started {
-            // self.highlighted_cells_consolidated.clear();
             self.highlight_start_height = Some(self.max_cell.y);
         }
         if let Some(start_height) = self.highlight_start_height {

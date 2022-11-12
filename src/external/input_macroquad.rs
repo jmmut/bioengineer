@@ -10,7 +10,7 @@ use macroquad::input::{
 pub struct InputMacroquad {
     previous_wheel_click_pos: (f32, f32),
     previous_left_click_pos: Option<PixelPosition>,
-    previous_right_click_pos: Option<PixelPosition>,
+    previous_right_click_pos_with_control: Option<PixelPosition>,
 }
 
 impl InputMacroquad {
@@ -18,7 +18,7 @@ impl InputMacroquad {
         InputMacroquad {
             previous_wheel_click_pos: (0.0, 0.0),
             previous_left_click_pos: Option::None,
-            previous_right_click_pos: Option::None,
+            previous_right_click_pos_with_control: Option::None,
         }
     }
 
@@ -47,11 +47,22 @@ impl InputMacroquad {
         }
     }
 
+    pub fn get_right_click_position_with_control(&mut self) -> Option<PixelPosition> {
+        if Self::is_control_down() {
+            let pos = self.get_right_click_position();
+            if self.previous_right_click_pos_with_control.is_none() {
+                self.previous_right_click_pos_with_control = pos;
+            }
+            pos
+        } else {
+            None
+        }
+    }
+
     pub fn get_right_click_position(&mut self) -> Option<PixelPosition> {
         if is_mouse_button_pressed(MouseButton::Right) {
             let (position_x, position_y) = mouse_position();
             let position = PixelPosition::new(position_x, position_y);
-            self.previous_right_click_pos = Option::Some(position);
             Option::Some(position)
         } else {
             Option::None
@@ -70,10 +81,23 @@ impl InputMacroquad {
             Option::None
         }
     }
+
+    pub fn get_right_click_release_with_control(&mut self) -> Option<PixelSelection> {
+        if Self::is_control_down() {
+            let selection = self.get_right_click_release();
+            if selection.is_some() {
+                self.previous_right_click_pos_with_control = None;
+            }
+            selection
+        } else {
+            None
+        }
+    }
     pub fn get_right_click_release(&mut self) -> Option<PixelSelection> {
-        if is_mouse_button_released(MouseButton::Right) && self.previous_right_click_pos.is_some() {
-            let start = self.previous_right_click_pos.unwrap();
-            self.previous_right_click_pos = Option::None;
+        if is_mouse_button_released(MouseButton::Right)
+            && self.previous_right_click_pos_with_control.is_some()
+        {
+            let start = self.previous_right_click_pos_with_control.unwrap();
             let (position_x, position_y) = mouse_position();
             Option::Some(PixelSelection {
                 start,
@@ -117,7 +141,7 @@ impl InputMacroquad {
     }
 
     fn get_cell_selection_type() -> CellSelectionType {
-        let modifier = is_key_down(KeyCode::LeftControl) || is_key_down(KeyCode::RightControl);
+        let modifier = Self::is_control_down();
         if modifier {
             if is_mouse_button_pressed(MouseButton::Left)
                 || is_mouse_button_down(MouseButton::Left)
@@ -137,15 +161,26 @@ impl InputMacroquad {
         }
     }
 
+    fn is_control_down() -> bool {
+        is_key_down(KeyCode::LeftControl) || is_key_down(KeyCode::RightControl)
+    }
+
     fn get_cell_selection(&mut self) -> CellSelection {
-        let start_selection_this_frame = self.get_left_click_position().or(self.get_right_click_position());
-        let end_selection = self.get_left_click_release().or(self.get_right_click_release());
+        let start_selection_this_frame = self
+            .get_left_click_position()
+            .or(self.get_right_click_position_with_control());
+        let end_selection = self
+            .get_left_click_release()
+            .or(self.get_right_click_release_with_control());
         let (mouse_position_x, mouse_position_y) = mouse_position();
         let mouse_position = PixelPosition::new(mouse_position_x, mouse_position_y);
         let addition = Self::get_cell_selection_type();
+        let click_start = self
+            .previous_left_click_pos
+            .or(self.previous_right_click_pos_with_control);
         match end_selection {
             None => match start_selection_this_frame {
-                None => match self.previous_left_click_pos.or(self.previous_right_click_pos) {
+                None => match click_start {
                     None => CellSelection::no_selection(),
                     Some(start) => CellSelection::in_progress(
                         PixelSelection {
