@@ -249,6 +249,7 @@ impl World {
         if gui_actions.input.reset_quantities {
             self.networks.reset_production();
             self.age_in_minutes = 0;
+            self.goal_state = GameGoalState::Started;
         }
         if self.goal_state == GameGoalState::Started {
             if self.networks.get_total_air_cleaned() > get_goal_air_cleaned() {
