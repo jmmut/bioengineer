@@ -10,12 +10,29 @@ pub struct Transformation {
 
 pub fn allowed_transformations(cells: &HashSet<CellIndex>, map: &Map) -> Vec<Transformation> {
     let mut allowed = Vec::new();
+    let mut distinct_tiles = HashSet::new();
     for cell_index in cells {
         let cell = map.get_cell(*cell_index);
+        distinct_tiles.insert(cell.tile_type as i32);
         allowed.push(allowed_transformations_of_cell(cell, cell_index, &map));
     }
-    let common = set_intersection(allowed);
+    let mut common = set_intersection(allowed);
+    common = remove_identity_if_only_one_type(&distinct_tiles, common);
     common
+}
+
+fn remove_identity_if_only_one_type(
+    distinct_tiles: &HashSet<i32>,
+    common: Vec<Transformation>,
+) -> Vec<Transformation> {
+    if distinct_tiles.len() == 1 {
+        let only_tile_selected = distinct_tiles.iter().next().unwrap();
+        return common.iter()
+            .filter(|t| { t.new_tile_type as i32 != *only_tile_selected })
+            .cloned()
+            .collect();
+    }
+    return common;
 }
 
 pub fn allowed_transformations_of_cell(
@@ -45,7 +62,7 @@ pub fn allowed_transformations_of_cell(
             machines
         }
         FloorDirt => {
-            machines.append(&mut vec![Stairs]);
+            machines.append(&mut vec![Stairs, FloorRock]);
             machines
         }
         Stairs => vec![FloorRock],
@@ -109,6 +126,7 @@ pub fn set_intersection<T: PartialEq + Copy>(transformations_per_cell: Vec<Vec<T
                 for transformations in transformations_per_cell.iter().skip(1) {
                     if !transformations.contains(should_be_present_in_all) {
                         present = false;
+                        break;
                     }
                 }
                 if present {
@@ -210,6 +228,50 @@ mod tests {
                 Transformation::to(TileType::FloorRock),
             ]
         );
+    }
+
+    #[test]
+    fn test_no_identity_on_homogeneous_set() {
+        let mut fx = CellTransformationFixture::new();
+        let cell_indexes = [CellIndex::new(0, 5, 0), CellIndex::new(0, 6, 0)];
+        for index in cell_indexes {
+            fx.map.get_cell_mut(index).tile_type = TileType::WallRock;
+        }
+        let transformations = allowed_transformations(
+            &HashSet::from(cell_indexes),
+            &fx.map);
+        let contains_wall = transformations.contains(&Transformation::to(TileType::WallRock));
+        assert_eq!(contains_wall, false);
+    }
+
+    #[test]
+    fn test_identity_on_hetergeneous_set() {
+        let mut fx = CellTransformationFixture::new();
+        let cell_indexes = [CellIndex::new(0, 5, 0), CellIndex::new(0, 6, 0)];
+        fx.map.get_cell_mut(cell_indexes[0]).tile_type = TileType::FloorRock;
+        fx.map.get_cell_mut(cell_indexes[1]).tile_type = TileType::MachineAirCleaner;
+        let transformations = allowed_transformations(
+            &HashSet::from(cell_indexes),
+            &fx.map);
+        let contains_cleaner = transformations.contains(&Transformation::to(TileType::MachineAirCleaner));
+        assert_eq!(contains_cleaner, true);
+        let contains_floor = transformations.contains(&Transformation::to(TileType::FloorRock));
+        assert_eq!(contains_floor, true);
+    }
+
+    #[test]
+    fn test_dirt_floor_and_machines_can_become_rock_floor() {
+        let mut fx = CellTransformationFixture::new();
+        let cell_indexes = [CellIndex::new(0, 5, 0), CellIndex::new(0, 6, 0)];
+        fx.map.get_cell_mut(cell_indexes[0]).tile_type = TileType::FloorDirt;
+        fx.map.get_cell_mut(cell_indexes[1]).tile_type = TileType::MachineAirCleaner;
+        let transformations = allowed_transformations(
+            &HashSet::from(cell_indexes),
+            &fx.map);
+        let contains_cleaner = transformations.contains(&Transformation::to(TileType::MachineAirCleaner));
+        assert_eq!(contains_cleaner, true);
+        let contains_floor = transformations.contains(&Transformation::to(TileType::FloorRock));
+        assert_eq!(contains_floor, true);
     }
 
     #[test]

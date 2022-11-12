@@ -28,6 +28,7 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 - [ ] loading screen
 - [ ] minimal friction to explain that solar panels can not be build underground
 - [x] compile for linux, wasm, windows and mac
+- [ ] remove from selection
 
 # Bugs
 
