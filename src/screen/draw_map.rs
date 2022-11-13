@@ -1,9 +1,9 @@
 use crate::screen::assets;
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::{DrawingState, SubCellIndex};
-use crate::screen::gui::coords::cast::Cast;
-use crate::screen::gui::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
-use crate::screen::gui::coords::truncate::assert_in_range_0_1;
+use crate::screen::coords::cast::Cast;
+use crate::screen::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
+use crate::screen::coords::truncate::assert_in_range_0_1;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::input::PixelPosition;
 use crate::world::map::{is_covering, Cell, CellIndex, TileType};

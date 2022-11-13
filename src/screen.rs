@@ -13,6 +13,7 @@ pub mod drawing_state;
 pub mod gui;
 pub mod hud;
 pub mod input;
+pub mod coords;
 
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
