@@ -1,5 +1,4 @@
 use crate::world::map::cell::TextureIndex;
-use crate::world::map::TileType;
 use crate::Color;
 use crate::Texture2D;
 use crate::Vec2;
@@ -21,9 +20,15 @@ pub trait DrawerTrait {
     fn screen_width(&self) -> f32;
     fn screen_height(&self) -> f32;
     fn clear_background(&self, color: Color);
-    fn draw_texture(&self, tile: TileType, x: f32, y: f32);
-    fn draw_transparent_texture(&self, tile: TileType, x: f32, y: f32, opacity_coef: f32);
-    fn draw_colored_texture(&self, tile: TileType, x: f32, y: f32, color_mask: Color);
+    fn draw_texture(&self, texture_index: impl TextureIndex, x: f32, y: f32);
+    fn draw_transparent_texture(
+        &self,
+        texture: impl TextureIndex,
+        x: f32,
+        y: f32,
+        opacity_coef: f32,
+    );
+    fn draw_colored_texture(&self, texture: impl TextureIndex, x: f32, y: f32, color_mask: Color);
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
 

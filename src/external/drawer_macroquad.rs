@@ -15,7 +15,6 @@ use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, MARGIN};
 use crate::world::map::cell::TextureIndex;
-use crate::world::map::TileType;
 
 pub struct DrawerMacroquad {
     pub drawing: DrawingState,
@@ -52,16 +51,22 @@ impl DrawerTrait for DrawerMacroquad {
     fn clear_background(&self, color: Color) {
         clear_background(color);
     }
-    fn draw_texture(&self, tile: TileType, x: f32, y: f32) {
-        self.draw_transparent_texture(tile, x, y, 1.0);
+    fn draw_texture(&self, texture_index: impl TextureIndex, x: f32, y: f32) {
+        self.draw_transparent_texture(texture_index, x, y, 1.0);
     }
 
-    fn draw_transparent_texture(&self, tile: TileType, x: f32, y: f32, opacity_coef: f32) {
+    fn draw_transparent_texture(
+        &self,
+        texture: impl TextureIndex,
+        x: f32,
+        y: f32,
+        opacity_coef: f32,
+    ) {
         let mask_color = Color::new(1.0, 1.0, 1.0, opacity_coef);
-        draw_texture(self.textures[tile as usize], x, y, mask_color);
+        draw_texture(self.textures[texture.get_index()], x, y, mask_color);
     }
-    fn draw_colored_texture(&self, tile: TileType, x: f32, y: f32, color_mask: Color) {
-        draw_texture(self.textures[tile as usize], x, y, color_mask);
+    fn draw_colored_texture(&self, texture: impl TextureIndex, x: f32, y: f32, color_mask: Color) {
+        draw_texture(self.textures[texture.get_index()], x, y, color_mask);
     }
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         draw_rectangle(x, y, w, h, color);

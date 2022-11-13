@@ -1,11 +1,12 @@
 use crate::screen::assets;
-use crate::screen::drawer_trait::DrawerTrait;
-use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::screen::coords::cast::Cast;
 use crate::screen::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
 use crate::screen::coords::truncate::assert_in_range_0_1;
+use crate::screen::drawer_trait::DrawerTrait;
+use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::input::PixelPosition;
+use crate::world::map::cell::ExtraTextures;
 use crate::world::map::{is_covering, Cell, CellIndex, TileType};
 use crate::world::robots::Robot;
 use crate::{Color, World};
@@ -53,7 +54,7 @@ fn draw_cell(
     if world.robots.contains(&Robot {
         position: cell_index,
     }) {
-        drawer.draw_transparent_texture(TileType::Robot, pixel.x, pixel.y, 1.0);
+        drawer.draw_transparent_texture(ExtraTextures::Robot, pixel.x, pixel.y, 1.0);
     }
 }
 

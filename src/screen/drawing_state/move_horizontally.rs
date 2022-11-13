@@ -1,7 +1,7 @@
-use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::screen::coords::cell_pixel::pixel_to_subcell_offset;
 use crate::screen::coords::cell_tile::subcell_to_subtile_offset;
 use crate::screen::coords::truncate::truncate_cell_offset;
+use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::screen::input::PixelPosition;
 use crate::world::map::{CellIndex, Map};
 

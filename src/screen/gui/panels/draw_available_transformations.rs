@@ -111,8 +111,6 @@ fn to_action_str(tile: TileType) -> &'static str {
         TileType::CleanWaterSurface => "Clean water surface",
         TileType::DirtyWaterWall => "Dirty water wall",
         TileType::CleanWaterWall => "Clean water wall",
-        TileType::Robot => "Build robot",
-        TileType::Movement => "Move robot",
     }
 }
 
@@ -141,7 +139,5 @@ fn to_tooltip_str(tile: TileType) -> Option<Vec<&'static str>> {
         TileType::CleanWaterSurface => None,
         TileType::DirtyWaterWall => None,
         TileType::CleanWaterWall => None,
-        TileType::Robot => None,
-        TileType::Movement => None,
     }
 }

@@ -1,9 +1,8 @@
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
-use crate::screen::gui::{FONT_SIZE, GuiActions, MARGIN};
+use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
 use crate::world::map::cell::ExtraTextures;
 use crate::world::{Task, World};
-use crate::world::map::TileType;
 
 pub fn draw_robot_queue(
     drawer: &impl DrawerTrait,
@@ -40,10 +39,6 @@ pub fn draw_robot_queue(
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
     for (task_index, task) in world.task_queue.iter().enumerate() {
-        let tile = match task {
-            Task::Transform(transform) => transform.transformation.new_tile_type,
-            Task::Movement(_) => TileType::Movement,
-        };
         let mut cancel_hovered = false;
         let mut do_now_hovered = false;
         drawer.ui_group(
@@ -63,7 +58,12 @@ pub fn draw_robot_queue(
                 if do_now.is_clicked() {
                     do_now_task = Option::Some(task_index);
                 }
-                drawer.ui_texture(tile);
+                match task {
+                    Task::Transform(transform) => {
+                        drawer.ui_texture(transform.transformation.new_tile_type)
+                    }
+                    Task::Movement(_) => drawer.ui_texture(ExtraTextures::Movement),
+                };
             },
         );
 

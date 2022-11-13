@@ -1,5 +1,5 @@
-use crate::screen::drawing_state::DrawingState;
 use crate::screen::coords::cell_pixel::clicked_cell;
+use crate::screen::drawing_state::DrawingState;
 use crate::screen::input::{CellSelection, CellSelectionState, CellSelectionType};
 use crate::world::map::cell_envelope::{is_horizontally_inside, Envelope};
 use crate::world::map::{CellCubeIterator, CellIndex};

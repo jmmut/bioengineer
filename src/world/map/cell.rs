@@ -34,17 +34,20 @@ pub enum TileType {
     CleanWaterSurface = 7,
     DirtyWaterWall = 14,
     CleanWaterWall = 15,
-    Robot = 4,
-    Movement = 22,
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
 pub enum ExtraTextures {
     ZoomedRobot = 32,
+    Robot = 4,
+    Movement = 22,
 }
 
 impl TextureIndex for TileType {
     fn get_index(&self) -> usize {
+        if *self == Unset {
+            panic!("tried to draw an Unset texture!");
+        }
         *self as usize
     }
 }
