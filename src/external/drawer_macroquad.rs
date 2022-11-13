@@ -11,7 +11,7 @@ use macroquad::window::{clear_background, screen_height, screen_width};
 
 use crate::screen::assets;
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use crate::screen::drawer_trait::DrawerTrait;
+use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, MARGIN};
 use crate::world::map::cell::TextureIndex;
@@ -92,29 +92,33 @@ impl DrawerTrait for DrawerMacroquad {
         token.end(&mut root_ui());
     }
 
-    fn ui_texture(&self, texture_index: impl TextureIndex) -> bool {
+    fn ui_texture(&self, texture_index: impl TextureIndex) -> Interaction {
         let texture_copy = *self.get_textures().get(texture_index.get_index()).unwrap();
-        root_ui().texture(
+        let clicked = root_ui().texture(
             texture_copy,
             PIXELS_PER_TILE_WIDTH as f32,
             PIXELS_PER_TILE_HEIGHT as f32,
-        )
+        );
+        interaction_from_clicked(clicked)
     }
 
-    fn ui_texture_with_pos(&self, texture_index: impl TextureIndex, x: f32, y: f32) -> bool {
+    fn ui_texture_with_pos(&self, texture_index: impl TextureIndex, x: f32, y: f32) -> Interaction {
         let texture_copy = *self.get_textures().get(texture_index.get_index()).unwrap();
-        Texture::new(texture_copy)
+        let clicked = Texture::new(texture_copy)
             .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
             .position(Some(Vec2::new(x, y)))
-            .ui(&mut root_ui())
+            .ui(&mut root_ui());
+        interaction_from_clicked(clicked)
     }
 
-    fn ui_button(&self, text: &str) -> bool {
-        root_ui().button(None, text)
+    fn ui_button(&self, text: &str) -> Interaction {
+        let clicked = root_ui().button(None, text);
+        interaction_from_clicked(clicked)
     }
 
-    fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> bool {
-        root_ui().button(Option::Some(Vec2::new(x, y)), text)
+    fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> Interaction {
+        let clicked = root_ui().button(Option::Some(Vec2::new(x, y)), text);
+        interaction_from_clicked(clicked)
     }
 
     fn ui_text(&self, text: &str) {
@@ -169,6 +173,11 @@ impl DrawerTrait for DrawerMacroquad {
             .color_clicked(background_color_clicked)
             .font_size(font_size as u16)
             .build();
+        let label_style = root_ui()
+            .style_builder()
+            .font_size(font_size as u16)
+            .margin(RectOffset::new(0.0, 0.0, 0.0, 0.0))
+            .build();
         let skin = Skin {
             // button_style: button_style.clone(),
             button_style,
@@ -177,6 +186,7 @@ impl DrawerTrait for DrawerMacroquad {
             // window_style: button_style.clone(),
             margin: MARGIN,
             title_height: FONT_SIZE * 2.0,
+            label_style,
             ..root_ui().default_skin()
         };
         root_ui().push_skin(&skin);
@@ -185,6 +195,16 @@ impl DrawerTrait for DrawerMacroquad {
     fn get_textures(&self) -> &Vec<Texture2D> {
         &self.textures
     }
+}
+
+pub fn interaction_from_clicked(clicked: bool) -> Interaction {
+    return if clicked {
+        Interaction::Clicked
+    } else if root_ui().last_item_hovered() {
+        Interaction::Hovered
+    } else {
+        Interaction::None
+    };
 }
 
 impl DrawerMacroquad {

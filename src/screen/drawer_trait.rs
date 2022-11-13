@@ -30,11 +30,11 @@ pub trait DrawerTrait {
     fn ui_group<F: FnOnce()>(&self, x: f32, y: f32, w: f32, h: f32, f: F);
     fn ui_named_group<F: FnOnce()>(&self, title: &str, x: f32, y: f32, w: f32, h: f32, f: F);
     /// both draws and returns if it was pressed. (Immediate mode UI)
-    fn ui_texture(&self, texture_index: impl TextureIndex) -> bool;
-    fn ui_texture_with_pos(&self, texture_index: impl TextureIndex, x: f32, y: f32) -> bool;
-    /// both draws and returns if it was pressed. (Immediate mode UI)
-    fn ui_button(&self, text: &str) -> bool;
-    fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> bool;
+    fn ui_texture(&self, texture_index: impl TextureIndex) -> Interaction;
+    fn ui_texture_with_pos(&self, texture_index: impl TextureIndex, x: f32, y: f32) -> Interaction;
+    /// both draws and returns if it was pressed or hovered over. (Immediate mode UI)
+    fn ui_button(&self, text: &str) -> Interaction;
+    fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> Interaction;
     fn ui_text(&self, text: &str);
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2;
 
@@ -49,4 +49,22 @@ pub trait DrawerTrait {
 
     // TODO: remove after refactoring GUI
     fn get_textures(&self) -> &Vec<Texture2D>;
+}
+
+#[derive(Eq, PartialEq)]
+pub enum Interaction {
+    Clicked,
+    Hovered,
+    None,
+}
+
+impl Interaction {
+    pub fn is_clicked(&self) -> bool {
+        *self == Interaction::Clicked
+    }
+
+    #[allow(unused)]
+    pub fn is_hovered(&self) -> bool {
+        *self == Interaction::Hovered
+    }
 }

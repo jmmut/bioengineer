@@ -99,20 +99,25 @@ pub fn draw_robot_queue(
     let group_height = icon_height + 2.0 * button_height;
     let robot_window_height = icon_height + 1.0 * button_height;
     let mut go_to_robot = Option::None;
+    let mut robot_hovered = false;
     drawer.ui_group(
         drawer.screen_width() - icon_width - margin,
         drawer.screen_height() - robot_window_height - margin,
         icon_width,
         robot_window_height,
         || {
-            let show_robot_clicked = drawer.ui_button("show");
-            let robot_texture_clicked =
+            let show_robot = drawer.ui_button("show");
+            let robot_texture =
                 drawer.ui_texture_with_pos(ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
-            if show_robot_clicked || robot_texture_clicked {
+            robot_hovered = show_robot.is_hovered() || robot_texture.is_hovered();
+            if show_robot.is_clicked() || robot_texture.is_clicked() {
                 go_to_robot = Option::Some(world.robots.first().unwrap().position);
             }
         },
     );
+
+    let tooltip = "Move the camera to the robot";
+    draw_task_queue_tooltip(drawer, group_height, margin, robot_hovered, tooltip);
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
@@ -121,22 +126,33 @@ pub fn draw_robot_queue(
             Task::Transform(transform) => transform.transformation.new_tile_type,
             Task::Movement(_) => TileType::Movement,
         };
+        let mut cancel_hovered = false;
+        let mut do_now_hovered = false;
         drawer.ui_group(
             drawer.screen_width() - icon_width * (2 + task_index) as f32 - margin,
             drawer.screen_height() - group_height - margin,
             icon_width,
             group_height,
             || {
-                if drawer.ui_button("cancel") {
+                let cancel = drawer.ui_button("cancel");
+                cancel_hovered = cancel.is_hovered();
+                if cancel.is_clicked() {
                     cancel_task = Option::Some(task_index);
                 }
 
-                if drawer.ui_button("do now") {
+                let do_now = drawer.ui_button("do now");
+                do_now_hovered = do_now.is_hovered();
+                if do_now.is_clicked() {
                     do_now_task = Option::Some(task_index);
                 }
                 drawer.ui_texture(tile);
             },
         );
+
+        let tooltip = "Stop doing this task";
+        draw_task_queue_tooltip(drawer, group_height, margin, cancel_hovered, tooltip);
+        let tooltip = "Pause other tasks and do this task now";
+        draw_task_queue_tooltip(drawer, group_height, margin, do_now_hovered, tooltip);
     }
 
     GuiActions {
@@ -144,6 +160,26 @@ pub fn draw_robot_queue(
         cancel_task,
         do_now_task,
         ..gui_actions
+    }
+}
+
+fn draw_task_queue_tooltip(
+    drawer: &impl DrawerTrait,
+    group_height: f32,
+    margin: f32,
+    hovered: bool,
+    tooltip: &str,
+) {
+    let tooltip_height = FONT_SIZE * 2.5;
+    let tooltip_width = drawer.measure_text(tooltip, FONT_SIZE).x + 4.0 * MARGIN;
+    if hovered {
+        drawer.ui_group(
+            drawer.screen_width() - margin - tooltip_width,
+            drawer.screen_height() - group_height - margin - tooltip_height - margin,
+            tooltip_width,
+            tooltip_height,
+            || drawer.ui_text(tooltip),
+        );
     }
 }
 
@@ -174,7 +210,7 @@ pub fn draw_game_finished(
         let mut new_state = None;
         drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, || {
             drawer.ui_text(&time_spent);
-            if drawer.ui_button("Continue") {
+            if drawer.ui_button("Continue").is_clicked() {
                 new_state = Some(PostFinished)
             }
         });

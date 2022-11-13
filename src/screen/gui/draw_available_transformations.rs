@@ -1,4 +1,4 @@
-use crate::screen::drawer_trait::DrawerTrait;
+use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::screen::gui::FONT_SIZE;
@@ -21,7 +21,7 @@ pub fn show_available_transformations(
     if highlighted_cells.len() > 0 {
         let mut transformations = allowed_transformations(&highlighted_cells, &world.map);
         transformations.sort_by(|t_1, t_2| {
-            to_action_str(t_1.new_tile_type ).cmp(to_action_str(t_2.new_tile_type))
+            to_action_str(t_1.new_tile_type).cmp(to_action_str(t_2.new_tile_type))
         });
         let line_height = FONT_SIZE * 1.5;
         let panel_title = "Available actions";
@@ -35,26 +35,42 @@ pub fn show_available_transformations(
             max_button_width = f32::max(max_button_width, drawer.measure_text(text, FONT_SIZE).x);
         }
 
-        let panel = Rect::new(panel_margin, panel_margin, panel_height, panel_height);
-        drawer.ui_named_group(
-            panel_title,
-            panel_margin,
-            panel_margin,
-            panel_width,
-            panel_height,
-            || {
-                for transformation in transformations {
-                    let text = to_action_str(transformation.new_tile_type);
-                    if drawer.ui_button(text) {
+        let panel = Rect::new(panel_margin, panel_margin, panel_width, panel_height);
+        let mut hovered_opt = None;
+        drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, || {
+            for transformation in transformations {
+                let text = to_action_str(transformation.new_tile_type);
+                match drawer.ui_button(text) {
+                    Interaction::Clicked => {
                         let transformation_task = TransformationTask {
                             to_transform: highlighted_cells.clone(),
                             transformation: transformation.clone(),
                         };
                         transformation_clicked = Option::Some(transformation_task);
                     }
+                    Interaction::Hovered => {
+                        hovered_opt = Some(transformation.new_tile_type);
+                    }
+                    Interaction::None => {}
                 }
-            },
-        );
+            }
+        });
+        if let Some(hovered) = hovered_opt {
+            if let Some(tooltip) = to_tooltip_str(hovered) {
+                drawer.ui_named_group(
+                    to_action_str(hovered),
+                    panel.x + panel.w + panel_margin,
+                    panel.y,
+                    panel.w,
+                    panel.h,
+                    || {
+                        for line in tooltip {
+                            drawer.ui_text(line);
+                        }
+                    },
+                );
+            }
+        }
         if let Option::Some(selection) = unhandled_input.input.cell_selection.selection {
             if panel.contains(selection.end) {
                 // TODO: if clicking a button near the bottom of the panel, it selects a cell out
@@ -97,5 +113,35 @@ fn to_action_str(tile: TileType) -> &'static str {
         TileType::CleanWaterWall => "Clean water wall",
         TileType::Robot => "Build robot",
         TileType::Movement => "Move robot",
+    }
+}
+
+fn to_tooltip_str(tile: TileType) -> Option<Vec<&'static str>> {
+    match tile {
+        TileType::Unset => {
+            panic!()
+        }
+        TileType::WallRock => None,
+        TileType::WallDirt => None,
+        TileType::FloorRock => Some(vec!["- Makes a rock floor", "- Disassembles machines"]),
+        TileType::FloorDirt => None,
+        TileType::Stairs => Some(vec!["- Gives access to", "  underground levels"]),
+        TileType::Air => None,
+        TileType::Wire => Some(vec!["- Connects machines"]),
+        TileType::MachineAssembler => None,
+        TileType::MachineAirCleaner => Some(vec!["- Consumes 1KW"]),
+        TileType::MachineDrill => None,
+        TileType::MachineSolarPanel => Some(vec![
+            "- Produces 1KW",
+            "- Can not be built",
+            "  underground",
+        ]),
+        TileType::MachineShip => None,
+        TileType::DirtyWaterSurface => None,
+        TileType::CleanWaterSurface => None,
+        TileType::DirtyWaterWall => None,
+        TileType::CleanWaterWall => None,
+        TileType::Robot => None,
+        TileType::Movement => None,
     }
 }
