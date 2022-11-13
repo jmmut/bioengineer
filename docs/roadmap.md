@@ -8,7 +8,7 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 - [/] UI
   - [ ] top bar with "move, build, see networks, see production, see goals, help"
   - [x] game finished GUI
-  - [ ] tooltip when hovering over build buttons, explaining cost and purpose
+  - [x] tooltip when hovering over build buttons, explaining cost and purpose
   - [x] timer to grade game runs
 - [x] automated resource production
   - [x] show machine status (producing X units per time unit, consuming, etc.)
