@@ -67,7 +67,7 @@ impl DrawerTrait for DrawerMacroquad {
         macroquad_draw_texture(self.textures[texture.into().get_index()], x, y, mask_color);
     }
     fn draw_colored_texture<T>(&self, texture: T, x: f32, y: f32, color_mask: Color)
-            where T: Into<TextureIndex> {
+        where T: Into<TextureIndex> {
         macroquad_draw_texture(self.textures[texture.into().get_index()], x, y, color_mask);
     }
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
@@ -91,7 +91,7 @@ impl DrawerTrait for DrawerMacroquad {
             return Interaction::Clicked;
         } else {
             let (mouse_x, mouse_y) = mouse_position();
-            let group_rect = Rect {x, y, w, h};
+            let group_rect = Rect { x, y, w, h };
             if group_rect.contains(Vec2::new(mouse_x, mouse_y)) {
                 return Interaction::Hovered;
             }
@@ -113,7 +113,7 @@ impl DrawerTrait for DrawerMacroquad {
             return Interaction::Clicked;
         } else {
             let (mouse_x, mouse_y) = mouse_position();
-            let group_rect = Rect {x, y, w, h};
+            let group_rect = Rect { x, y, w, h };
             if group_rect.contains(Vec2::new(mouse_x, mouse_y)) {
                 return Interaction::Hovered;
             }
@@ -122,9 +122,8 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     fn ui_texture(&self, texture_index: TextureIndex) -> bool {
-        let texture_copy = *self.get_textures().get(texture_index.get_index()).unwrap();
         let clicked = root_ui().texture(
-            texture_copy,
+            self.get_texture_copy(texture_index),
             PIXELS_PER_TILE_WIDTH as f32,
             PIXELS_PER_TILE_HEIGHT as f32,
         );
@@ -136,9 +135,8 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     fn ui_texture_with_pos<T>(&self, texture_index: T, x: f32, y: f32) -> bool
-            where T: Into<TextureIndex> {
-        let texture_copy = *self.get_textures().get(texture_index.into().get_index()).unwrap();
-        let clicked = Texture::new(texture_copy)
+        where T: Into<TextureIndex> {
+        let clicked = Texture::new(self.get_texture_copy(texture_index))
             .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
             .position(Some(Vec2::new(x, y)))
             .ui(&mut root_ui());
@@ -229,10 +227,6 @@ impl DrawerTrait for DrawerMacroquad {
         };
         root_ui().push_skin(&skin);
     }
-
-    fn get_textures(&self) -> &Vec<Texture2D> {
-        &self.textures
-    }
 }
 
 pub fn interaction_from_clicked(clicked: bool) -> Interaction {
@@ -246,6 +240,14 @@ pub fn interaction_from_clicked(clicked: bool) -> Interaction {
 }
 
 impl DrawerMacroquad {
+    fn get_textures(&self) -> &Vec<Texture2D> {
+        &self.textures
+    }
+
+    fn get_texture_copy<T: Into<TextureIndex>>(&self, texture_index :T) -> Texture2D {
+        *self.get_textures().get(texture_index.into().get_index()).unwrap()
+    }
+
     pub fn _debug_draw_all_textures(&self) {
         for i in 0..self.textures.len() {
             let tiles_per_line = screen_width() as usize / assets::PIXELS_PER_TILE_WIDTH as usize;
