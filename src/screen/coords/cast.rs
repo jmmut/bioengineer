@@ -2,6 +2,9 @@ use crate::screen::drawing_state::{SubCellIndex, SubTilePosition, TilePosition};
 use crate::world::map::CellIndex;
 
 /// Uses type inference to do an explicit cast, but without writing the target type.
+///
+/// This is actually very similar to Into, but Into (external trait)
+/// can not be implemented for IVec3/Vec3 (external types).
 pub trait Cast<T> {
     fn cast(&self) -> T;
 }
