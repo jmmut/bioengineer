@@ -10,7 +10,7 @@ use crate::screen::gui::panels::{
     draw_available_transformations::show_available_transformations,
     game_finished::draw_game_finished, task_queue::draw_robot_queue,
 };
-use crate::screen::input::Input;
+use crate::screen::input::{CellSelection, Input};
 use crate::{Color, World};
 
 pub const FONT_SIZE: f32 = 16.0;
@@ -42,12 +42,19 @@ impl Gui {
     ) -> GuiActions {
         let unhandled_input = GuiActions {
             input,
+            cell_selection: CellSelection::no_selection(),
             selected_cell_transformation: Option::None,
             robot_movement: Option::None,
             go_to_robot: Option::None,
             cancel_task: Option::None,
             do_now_task: Option::None,
             next_game_goal_state: Option::None,
+            regenerate_map: false,
+            toggle_profiling: false,
+            toggle_fluids: false,
+            single_fluid: false,
+            change_height_rel: 0,
+            move_map_horizontally_diff: Default::default()
         };
         let unhandled_input =
             show_available_transformations(drawer, world, unhandled_input, drawing);

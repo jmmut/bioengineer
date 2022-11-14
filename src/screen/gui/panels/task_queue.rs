@@ -10,6 +10,7 @@ pub fn draw_robot_queue(
     world: &World,
     gui_actions: GuiActions,
 ) -> GuiActions {
+    // let highlighted_cells = gui_actions.input.cell_selection
     let margin = MARGIN;
     let icon_width = PIXELS_PER_TILE_WIDTH as f32 * 1.5;
     let icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 1.5;

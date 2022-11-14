@@ -8,8 +8,7 @@ impl DrawingState {
         }
         if let Option::Some(robot_pos) = go_to_robot {
             let level_diff = robot_pos.y - self.max_cell.y;
-            self.max_cell.y += level_diff;
-            self.min_cell.y += level_diff;
+            self.change_height_rel(level_diff);
         }
     }
 

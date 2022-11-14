@@ -47,13 +47,12 @@ impl DrawingState {
     }
 
     pub fn apply_input(&mut self, unhandled: &GuiActions, screen_width: f32) {
-        let input = &unhandled.input;
-        self.maybe_change_height_rel(input.change_height_rel, unhandled.go_to_robot);
+        self.maybe_change_height_rel(unhandled.change_height_rel, unhandled.go_to_robot);
         self.maybe_move_map_horizontally(
-            input.move_map_horizontally,
+            unhandled.move_map_horizontally_diff,
             unhandled.go_to_robot,
             screen_width,
         );
-        self.maybe_select_cells_from_pixels(&input.cell_selection, screen_width);
+        self.maybe_select_cells_from_pixels(&unhandled.cell_selection, screen_width);
     }
 }

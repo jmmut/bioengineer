@@ -8,11 +8,11 @@ use crate::world::map::{CellIndex, Map};
 impl DrawingState {
     pub fn maybe_move_map_horizontally(
         &mut self,
-        diff: PixelPosition,
+        diff: SubCellIndex,
         go_to_robot: Option<CellIndex>,
         screen_width: f32,
     ) {
-        if diff != PixelPosition::new(0.0, 0.0) {
+        if diff != SubCellIndex::new(0.0, 0.0, 0.0) {
             self.move_map_horizontally(diff, screen_width);
         }
         if let Option::Some(robot_pos) = go_to_robot {
@@ -26,15 +26,7 @@ impl DrawingState {
         }
     }
 
-    fn move_map_horizontally(&mut self, diff: PixelPosition, _screen_width: f32) {
-        let subcell_diff_ = pixel_to_subcell_offset(diff);
-
-        // let new_cell_offset = pixel_to_cell_offset(diff);
-
-        // println!(
-        //     "pixel_diff: {}, subcell_diff: {}",
-        //     diff, subcell_diff_
-        // );
+    fn move_map_horizontally(&mut self, subcell_diff_: SubCellIndex, _screen_width: f32) {
         let (truncated_cell_diff, truncated_subcell_diff) =
             truncate_cell_offset(subcell_diff_ + self.subcell_diff);
 
