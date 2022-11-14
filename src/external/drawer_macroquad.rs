@@ -1,6 +1,7 @@
 use macroquad::color::Color;
 use macroquad::hash;
-use macroquad::math::{RectOffset, Vec2};
+use macroquad::input::{is_mouse_button_down, is_mouse_button_pressed, mouse_position, MouseButton};
+use macroquad::math::{Rect, RectOffset, Vec2};
 use macroquad::prelude::Texture2D;
 use macroquad::shapes::draw_rectangle;
 use macroquad::text::{draw_text, measure_text};
@@ -76,7 +77,7 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     /// This grouping function does not support nested groups
-    fn ui_group<F: FnOnce()>(&self, x: f32, y: f32, w: f32, h: f32, f: F) {
+    fn ui_group<F: FnOnce()>(&self, x: f32, y: f32, w: f32, h: f32, f: F) -> Interaction {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)
@@ -84,9 +85,20 @@ impl DrawerTrait for DrawerMacroquad {
         let token = window.begin(&mut root_ui());
         f();
         token.end(&mut root_ui());
+        let mouse_clicked = is_mouse_button_pressed(MouseButton::Left);
+        if mouse_clicked {
+            return Interaction::Clicked;
+        } else {
+            let (mouse_x, mouse_y) = mouse_position();
+            let group_rect = Rect {x, y, w, h};
+            if group_rect.contains(Vec2::new(mouse_x, mouse_y)) {
+                return Interaction::Hovered;
+            }
+        }
+        Interaction::None
     }
 
-    fn ui_named_group<F: FnOnce()>(&self, title: &str, x: f32, y: f32, w: f32, h: f32, f: F) {
+    fn ui_named_group<F: FnOnce()>(&self, title: &str, x: f32, y: f32, w: f32, h: f32, f: F) -> Interaction {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(true)
@@ -95,25 +107,44 @@ impl DrawerTrait for DrawerMacroquad {
         let token = window.begin(&mut root_ui());
         f();
         token.end(&mut root_ui());
+        let mouse_clicked = is_mouse_button_pressed(MouseButton::Left);
+        if mouse_clicked {
+            return Interaction::Clicked;
+        } else {
+            let (mouse_x, mouse_y) = mouse_position();
+            let group_rect = Rect {x, y, w, h};
+            if group_rect.contains(Vec2::new(mouse_x, mouse_y)) {
+                return Interaction::Hovered;
+            }
+        }
+        Interaction::None
     }
 
-    fn ui_texture(&self, texture_index: impl TextureIndex) -> Interaction {
+    fn ui_texture(&self, texture_index: impl TextureIndex) -> bool {
         let texture_copy = *self.get_textures().get(texture_index.get_index()).unwrap();
         let clicked = root_ui().texture(
             texture_copy,
             PIXELS_PER_TILE_WIDTH as f32,
             PIXELS_PER_TILE_HEIGHT as f32,
         );
-        interaction_from_clicked(clicked)
+        clicked
+        // I would like to do "interaction_from_clicked(clicked)", but
+        // for some reason macroquad doesn't register hovering over textures. We would need to put
+        // the texture inside a window or a button. For the window we would need pos and size, and
+        // the button I think only supports textures as a skin which is tedious.
     }
 
-    fn ui_texture_with_pos(&self, texture_index: impl TextureIndex, x: f32, y: f32) -> Interaction {
+    fn ui_texture_with_pos(&self, texture_index: impl TextureIndex, x: f32, y: f32) -> bool {
         let texture_copy = *self.get_textures().get(texture_index.get_index()).unwrap();
         let clicked = Texture::new(texture_copy)
             .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
             .position(Some(Vec2::new(x, y)))
             .ui(&mut root_ui());
-        interaction_from_clicked(clicked)
+        clicked
+        // I would like to do "interaction_from_clicked(clicked)", but
+        // for some reason macroquad doesn't register hovering over textures. We would need to put
+        // the texture inside a window or a button. For the window we would need pos and size, and
+        // the button I think only supports textures as a skin which is tedious.
     }
 
     fn ui_button(&self, text: &str) -> Interaction {

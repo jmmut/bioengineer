@@ -23,12 +23,12 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 
 # Nice to haves
 
-- [ ] highlight cells when clicking a queued task
+- [ ] highlight and count cells when clicking a queued task
 - [x] bigger robot icon for the queue
 - [ ] loading screen
-- [ ] minimal friction to explain that solar panels can not be build underground
+- [x] minimal friction to explain that solar panels can not be build underground
 - [x] compile for linux, wasm, windows and mac
-- [ ] remove from selection
+- [x] remove from selection
 
 # Bugs
 
