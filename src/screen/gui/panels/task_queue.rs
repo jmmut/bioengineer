@@ -1,7 +1,8 @@
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use crate::screen::drawer_trait::{DrawerTrait, Interaction};
+use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
-use crate::world::map::cell::ExtraTextures;
+use crate::screen::gui::panels::draw_available_transformations::to_action_str;
+use crate::world::map::cell::{ExtraTextures, TextureIndex};
 use crate::world::{Task, World};
 
 pub fn draw_robot_queue(
@@ -33,9 +34,9 @@ pub fn draw_robot_queue(
         },
     );
 
-    let draw_tooltip = |tooltip_enabled: bool, message: &str| {
+    let draw_tooltip = |tooltip_enabled: bool, tooltip: &str| {
         if tooltip_enabled {
-            draw_task_queue_tooltip(drawer, group_height, margin, message);
+            draw_task_queue_tooltip(drawer, group_height, margin, tooltip);
         }
     };
     let tooltip = "Move the camera to the robot";
@@ -46,6 +47,19 @@ pub fn draw_robot_queue(
     for (task_index, task) in world.task_queue.iter().enumerate() {
         let mut cancel_hovered = false;
         let mut do_now_hovered = false;
+        let (task_tile, task_description) =
+                match task {
+                    Task::Transform(transform) => {
+                        (TextureIndex::from(transform.transformation.new_tile_type),
+                         format!("Task: {} ({})",
+                                 to_action_str(transform.transformation.new_tile_type),
+                                 transform.to_transform.len()))
+                    }
+                    Task::Movement(_) => {
+                        (TextureIndex::from(ExtraTextures::Movement),
+                            "Task: Move".to_owned())
+                    },
+                };
         let group = drawer.ui_group(
             drawer.screen_width() - icon_width * (2 + task_index) as f32 - margin,
             drawer.screen_height() - group_height - margin,
@@ -63,19 +77,16 @@ pub fn draw_robot_queue(
                 if do_now.is_clicked() {
                     do_now_task = Option::Some(task_index);
                 }
-                match task {
-                    Task::Transform(transform) => {
-                        drawer.ui_texture(transform.transformation.new_tile_type)
-                    }
-                    Task::Movement(_) => drawer.ui_texture(ExtraTextures::Movement),
-                };
+                drawer.ui_texture(task_tile);
             },
         );
 
         draw_tooltip(cancel_hovered, "Stop doing this task");
         draw_tooltip(do_now_hovered, "Pause other tasks and do this task now");
-        draw_tooltip(group.is_hovered_or_clicked(), "Task hovered/clicked");
-        draw_tooltip(group.is_clicked(), "Task clicked----------------");
+        if !cancel_hovered && !do_now_hovered {
+            draw_tooltip(group.is_hovered_or_clicked(), &task_description);
+            // TODO: on group.is_clicked, highlight cells
+        }
     }
 
     GuiActions {

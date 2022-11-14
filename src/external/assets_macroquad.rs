@@ -25,7 +25,7 @@ fn compute_extra_textures(textures: Vec<Texture2D>) -> Vec<Texture2D> {
 }
 
 fn add_zoomed_robot(mut textures: Vec<Texture2D>) -> Vec<Texture2D> {
-    let robot = textures[ExtraTextures::Robot.get_index()];
+    let robot = textures[TextureIndex::from(ExtraTextures::Robot).get_index()];
     let image = robot.get_texture_data();
     let subimage_start_width = (PIXELS_PER_TILE_WIDTH / 4) as usize;
     let subimage_start_height = (PIXELS_PER_TILE_HEIGHT / 4) as usize;

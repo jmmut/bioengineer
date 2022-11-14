@@ -1,11 +1,11 @@
 use macroquad::color::Color;
 use macroquad::hash;
-use macroquad::input::{is_mouse_button_down, is_mouse_button_pressed, mouse_position, MouseButton};
+use macroquad::input::{is_mouse_button_pressed, mouse_position, MouseButton};
 use macroquad::math::{Rect, RectOffset, Vec2};
 use macroquad::prelude::Texture2D;
 use macroquad::shapes::draw_rectangle;
 use macroquad::text::{draw_text, measure_text};
-use macroquad::texture::draw_texture;
+use macroquad::texture::draw_texture as macroquad_draw_texture;
 use macroquad::ui::widgets::Texture;
 use macroquad::ui::{root_ui, widgets, Skin};
 use macroquad::window::{clear_background, screen_height, screen_width};
@@ -52,22 +52,23 @@ impl DrawerTrait for DrawerMacroquad {
     fn clear_background(&self, color: Color) {
         clear_background(color);
     }
-    fn draw_texture(&self, texture_index: impl TextureIndex, x: f32, y: f32) {
+    fn draw_texture<T>(&self, texture_index: T, x: f32, y: f32) where T: Into<TextureIndex> {
         self.draw_transparent_texture(texture_index, x, y, 1.0);
     }
 
-    fn draw_transparent_texture(
+    fn draw_transparent_texture<T>(
         &self,
-        texture: impl TextureIndex,
+        texture: T,
         x: f32,
         y: f32,
         opacity_coef: f32,
-    ) {
+    ) where T: Into<TextureIndex> {
         let mask_color = Color::new(1.0, 1.0, 1.0, opacity_coef);
-        draw_texture(self.textures[texture.get_index()], x, y, mask_color);
+        macroquad_draw_texture(self.textures[texture.into().get_index()], x, y, mask_color);
     }
-    fn draw_colored_texture(&self, texture: impl TextureIndex, x: f32, y: f32, color_mask: Color) {
-        draw_texture(self.textures[texture.get_index()], x, y, color_mask);
+    fn draw_colored_texture<T>(&self, texture: T, x: f32, y: f32, color_mask: Color)
+            where T: Into<TextureIndex> {
+        macroquad_draw_texture(self.textures[texture.into().get_index()], x, y, color_mask);
     }
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         draw_rectangle(x, y, w, h, color);
@@ -120,7 +121,7 @@ impl DrawerTrait for DrawerMacroquad {
         Interaction::None
     }
 
-    fn ui_texture(&self, texture_index: impl TextureIndex) -> bool {
+    fn ui_texture(&self, texture_index: TextureIndex) -> bool {
         let texture_copy = *self.get_textures().get(texture_index.get_index()).unwrap();
         let clicked = root_ui().texture(
             texture_copy,
@@ -134,8 +135,9 @@ impl DrawerTrait for DrawerMacroquad {
         // the button I think only supports textures as a skin which is tedious.
     }
 
-    fn ui_texture_with_pos(&self, texture_index: impl TextureIndex, x: f32, y: f32) -> bool {
-        let texture_copy = *self.get_textures().get(texture_index.get_index()).unwrap();
+    fn ui_texture_with_pos<T>(&self, texture_index: T, x: f32, y: f32) -> bool
+            where T: Into<TextureIndex> {
+        let texture_copy = *self.get_textures().get(texture_index.into().get_index()).unwrap();
         let clicked = Texture::new(texture_copy)
             .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
             .position(Some(Vec2::new(x, y)))
@@ -252,7 +254,7 @@ impl DrawerMacroquad {
                 let x = ((i % tiles_per_line) * assets::PIXELS_PER_TILE_WIDTH as usize) as f32;
                 let y = lines as f32 * assets::PIXELS_PER_TILE_HEIGHT as f32;
                 let mask_color = Color::new(1.0, 1.0, 1.0, 1.0);
-                draw_texture(self.textures[i], x, y, mask_color);
+                macroquad_draw_texture(self.textures[i], x, y, mask_color);
             }
         }
     }

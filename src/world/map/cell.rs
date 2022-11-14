@@ -9,10 +9,6 @@ pub struct Cell {
     pub can_flow_out: bool,
 }
 
-pub trait TextureIndex {
-    fn get_index(&self) -> usize;
-}
-
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
 #[allow(dead_code)]
 pub enum TileType {
@@ -43,17 +39,40 @@ pub enum ExtraTextures {
     Movement = 22,
 }
 
-impl TextureIndex for TileType {
-    fn get_index(&self) -> usize {
-        if *self == Unset {
-            panic!("tried to draw an Unset texture!");
-        }
-        *self as usize
+pub struct TextureIndex {
+    index: usize
+}
+
+impl TextureIndex {
+    pub fn get_index(&self) -> usize {
+        self.index
     }
 }
-impl TextureIndex for ExtraTextures {
-    fn get_index(&self) -> usize {
-        *self as usize
+
+impl From<TileType> for TextureIndex {
+    fn from(texture: TileType) -> Self {
+        if texture == Unset {
+            panic!("Tried to draw an Unset texture!");
+        }
+        Self {index: texture as usize}
+    }
+}
+
+impl From<ExtraTextures> for TextureIndex {
+    fn from(texture: ExtraTextures) -> Self {
+        Self {index: texture as usize}
+    }
+}
+
+impl TileType {
+    pub fn get_index(&self) -> usize {
+        TextureIndex::from(*self).get_index()
+    }
+}
+
+impl ExtraTextures {
+    pub fn get_index(&self) -> usize {
+        TextureIndex::from(*self).get_index()
     }
 }
 

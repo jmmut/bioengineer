@@ -20,23 +20,26 @@ pub trait DrawerTrait {
     fn screen_width(&self) -> f32;
     fn screen_height(&self) -> f32;
     fn clear_background(&self, color: Color);
-    fn draw_texture(&self, texture_index: impl TextureIndex, x: f32, y: f32);
-    fn draw_transparent_texture(
+    fn draw_texture<T>(&self, texture_index: T, x: f32, y: f32)
+        where T: Into<TextureIndex>;
+    fn draw_transparent_texture<T>(
         &self,
-        texture: impl TextureIndex,
+        texture: T,
         x: f32,
         y: f32,
         opacity_coef: f32,
-    );
-    fn draw_colored_texture(&self, texture: impl TextureIndex, x: f32, y: f32, color_mask: Color);
+    ) where T: Into<TextureIndex>;
+    fn draw_colored_texture<T>(&self, texture: T, x: f32, y: f32, color_mask: Color)
+        where T: Into<TextureIndex>;
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
 
     fn ui_group<F: FnOnce()>(&self, x: f32, y: f32, w: f32, h: f32, f: F) -> Interaction;
     fn ui_named_group<F: FnOnce()>(&self, title: &str, x: f32, y: f32, w: f32, h: f32, f: F) -> Interaction;
     /// both draws and returns if it was pressed. (Immediate mode UI)
-    fn ui_texture(&self, texture_index: impl TextureIndex) -> bool;
-    fn ui_texture_with_pos(&self, texture_index: impl TextureIndex, x: f32, y: f32) -> bool;
+    fn ui_texture(&self, texture_index: TextureIndex) -> bool;
+    fn ui_texture_with_pos<T>(&self, texture_index: T, x: f32, y: f32) -> bool
+        where T: Into<TextureIndex>;
     /// both draws and returns if it was pressed or hovered over. (Immediate mode UI)
     fn ui_button(&self, text: &str) -> Interaction;
     fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> Interaction;

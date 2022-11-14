@@ -90,7 +90,7 @@ pub fn show_available_transformations(
     }
 }
 
-fn to_action_str(tile: TileType) -> &'static str {
+pub fn to_action_str(tile: TileType) -> &'static str {
     match tile {
         TileType::Unset => {
             panic!()
