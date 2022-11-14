@@ -125,8 +125,11 @@ fn to_tooltip_str(tile: TileType) -> Option<Vec<&'static str>> {
         TileType::FloorDirt => None,
         TileType::Stairs => Some(vec!["- Gives access to", "  underground levels"]),
         TileType::Air => None,
-        TileType::Wire => Some(vec!["- Connects machines to", "  be part of the",
-                                    "  same network"]),
+        TileType::Wire => Some(vec![
+            "- Connects machines to",
+            "  be part of the",
+            "  same network",
+        ]),
         TileType::MachineAssembler => None,
         TileType::MachineAirCleaner => Some(vec!["- Consumes 1KW"]),
         TileType::MachineDrill => None,

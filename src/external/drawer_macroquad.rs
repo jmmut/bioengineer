@@ -52,22 +52,24 @@ impl DrawerTrait for DrawerMacroquad {
     fn clear_background(&self, color: Color) {
         clear_background(color);
     }
-    fn draw_texture<T>(&self, texture_index: T, x: f32, y: f32) where T: Into<TextureIndex> {
+    fn draw_texture<T>(&self, texture_index: T, x: f32, y: f32)
+    where
+        T: Into<TextureIndex>,
+    {
         self.draw_transparent_texture(texture_index, x, y, 1.0);
     }
 
-    fn draw_transparent_texture<T>(
-        &self,
-        texture: T,
-        x: f32,
-        y: f32,
-        opacity_coef: f32,
-    ) where T: Into<TextureIndex> {
+    fn draw_transparent_texture<T>(&self, texture: T, x: f32, y: f32, opacity_coef: f32)
+    where
+        T: Into<TextureIndex>,
+    {
         let mask_color = Color::new(1.0, 1.0, 1.0, opacity_coef);
         macroquad_draw_texture(self.textures[texture.into().get_index()], x, y, mask_color);
     }
     fn draw_colored_texture<T>(&self, texture: T, x: f32, y: f32, color_mask: Color)
-        where T: Into<TextureIndex> {
+    where
+        T: Into<TextureIndex>,
+    {
         macroquad_draw_texture(self.textures[texture.into().get_index()], x, y, color_mask);
     }
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
@@ -99,7 +101,15 @@ impl DrawerTrait for DrawerMacroquad {
         Interaction::None
     }
 
-    fn ui_named_group<F: FnOnce()>(&self, title: &str, x: f32, y: f32, w: f32, h: f32, f: F) -> Interaction {
+    fn ui_named_group<F: FnOnce()>(
+        &self,
+        title: &str,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+        f: F,
+    ) -> Interaction {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(true)
@@ -135,7 +145,9 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     fn ui_texture_with_pos<T>(&self, texture_index: T, x: f32, y: f32) -> bool
-        where T: Into<TextureIndex> {
+    where
+        T: Into<TextureIndex>,
+    {
         let clicked = Texture::new(self.get_texture_copy(texture_index))
             .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
             .position(Some(Vec2::new(x, y)))
@@ -244,8 +256,11 @@ impl DrawerMacroquad {
         &self.textures
     }
 
-    fn get_texture_copy<T: Into<TextureIndex>>(&self, texture_index :T) -> Texture2D {
-        *self.get_textures().get(texture_index.into().get_index()).unwrap()
+    fn get_texture_copy<T: Into<TextureIndex>>(&self, texture_index: T) -> Texture2D {
+        *self
+            .get_textures()
+            .get(texture_index.into().get_index())
+            .unwrap()
     }
 
     pub fn _debug_draw_all_textures(&self) {

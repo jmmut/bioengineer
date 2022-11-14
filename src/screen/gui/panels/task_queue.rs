@@ -1,7 +1,7 @@
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
-use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
 use crate::screen::gui::panels::draw_available_transformations::to_action_str;
+use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
 use crate::world::map::cell::{ExtraTextures, TextureIndex};
 use crate::world::{Task, World};
 
@@ -47,19 +47,20 @@ pub fn draw_robot_queue(
     for (task_index, task) in world.task_queue.iter().enumerate() {
         let mut cancel_hovered = false;
         let mut do_now_hovered = false;
-        let (task_tile, task_description) =
-                match task {
-                    Task::Transform(transform) => {
-                        (TextureIndex::from(transform.transformation.new_tile_type),
-                         format!("Task: {} ({})",
-                                 to_action_str(transform.transformation.new_tile_type),
-                                 transform.to_transform.len()))
-                    }
-                    Task::Movement(_) => {
-                        (TextureIndex::from(ExtraTextures::Movement),
-                            "Task: Move".to_owned())
-                    },
-                };
+        let (task_tile, task_description) = match task {
+            Task::Transform(transform) => (
+                TextureIndex::from(transform.transformation.new_tile_type),
+                format!(
+                    "Task: {} ({})",
+                    to_action_str(transform.transformation.new_tile_type),
+                    transform.to_transform.len()
+                ),
+            ),
+            Task::Movement(_) => (
+                TextureIndex::from(ExtraTextures::Movement),
+                "Task: Move".to_owned(),
+            ),
+        };
         let group = drawer.ui_group(
             drawer.screen_width() - icon_width * (2 + task_index) as f32 - margin,
             drawer.screen_height() - group_height - margin,
@@ -113,4 +114,3 @@ fn draw_task_queue_tooltip(
         || drawer.ui_text(tooltip),
     );
 }
-

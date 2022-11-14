@@ -1,7 +1,7 @@
 use crate::screen::assets::{
     crop, extract_images, zoom, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH,
 };
-use crate::world::map::cell::{ExtraTextures, TextureIndex};
+use crate::world::map::cell::ExtraTextures;
 use macroquad::texture::{FilterMode, Texture2D};
 
 pub async fn load_tileset(path: &str) -> Vec<Texture2D> {

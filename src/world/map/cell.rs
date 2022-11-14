@@ -40,7 +40,7 @@ pub enum ExtraTextures {
 }
 
 pub struct TextureIndex {
-    index: usize
+    index: usize,
 }
 
 impl TextureIndex {
@@ -54,13 +54,17 @@ impl From<TileType> for TextureIndex {
         if texture == Unset {
             panic!("Tried to draw an Unset texture!");
         }
-        Self {index: texture as usize}
+        Self {
+            index: texture as usize,
+        }
     }
 }
 
 impl From<ExtraTextures> for TextureIndex {
     fn from(texture: ExtraTextures) -> Self {
-        Self {index: texture as usize}
+        Self {
+            index: texture as usize,
+        }
     }
 }
 
