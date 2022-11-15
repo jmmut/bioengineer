@@ -10,10 +10,11 @@ pub fn draw_game_finished(
     world: &World,
     gui_actions: GuiActions,
 ) -> GuiActions {
-    let mut input = gui_actions.input;
+    let mut cell_selection = gui_actions.cell_selection;
+    let mut robot_movement = gui_actions.robot_movement;
     let next_game_goal_state = if let Finished(age) = world.goal_state {
-        input.cell_selection = CellSelection::no_selection();
-        input.robot_movement = None;
+        cell_selection = CellSelection::no_selection();
+        robot_movement = None;
         let panel_title = "You won!";
         let time_spent = format!("Time spent: {}", format_age(age));
         let text_size_title = drawer.measure_text(panel_title, FONT_SIZE);
@@ -43,8 +44,9 @@ pub fn draw_game_finished(
         None
     };
     GuiActions {
+        robot_movement,
+        cell_selection,
         next_game_goal_state,
-        input,
         ..gui_actions
     }
 }

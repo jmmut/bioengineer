@@ -1,5 +1,5 @@
 use crate::screen::input::{
-    CellSelection, CellSelectionType, Input, InputSourceTrait, PixelPosition, PixelSelection,
+    CellSelectionType, Input, InputSourceTrait, PixelCellSelection, PixelPosition, PixelSelection,
 };
 
 use macroquad::input::{
@@ -165,7 +165,7 @@ impl InputMacroquad {
         is_key_down(KeyCode::LeftControl) || is_key_down(KeyCode::RightControl)
     }
 
-    fn get_cell_selection(&mut self) -> CellSelection {
+    fn get_cell_selection(&mut self) -> PixelCellSelection {
         let start_selection_this_frame = self
             .get_left_click_position()
             .or(self.get_right_click_position_with_control());
@@ -181,8 +181,8 @@ impl InputMacroquad {
         match end_selection {
             None => match start_selection_this_frame {
                 None => match click_start {
-                    None => CellSelection::no_selection(),
-                    Some(start) => CellSelection::in_progress(
+                    None => PixelCellSelection::no_selection(),
+                    Some(start) => PixelCellSelection::in_progress(
                         PixelSelection {
                             start,
                             end: mouse_position,
@@ -190,7 +190,7 @@ impl InputMacroquad {
                         addition,
                     ),
                 },
-                Some(start) => CellSelection::started(
+                Some(start) => PixelCellSelection::started(
                     PixelSelection {
                         start,
                         end: mouse_position,
@@ -198,7 +198,7 @@ impl InputMacroquad {
                     addition,
                 ),
             },
-            Some(end) => CellSelection::finished(end, addition),
+            Some(end) => PixelCellSelection::finished(end, addition),
         }
     }
 

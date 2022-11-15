@@ -1,8 +1,6 @@
-use crate::screen::coords::cell_pixel::pixel_to_subcell_offset;
 use crate::screen::coords::cell_tile::subcell_to_subtile_offset;
 use crate::screen::coords::truncate::truncate_cell_offset;
 use crate::screen::drawing_state::{DrawingState, SubCellIndex};
-use crate::screen::input::PixelPosition;
 use crate::world::map::{CellIndex, Map};
 
 impl DrawingState {
@@ -10,10 +8,9 @@ impl DrawingState {
         &mut self,
         diff: SubCellIndex,
         go_to_robot: Option<CellIndex>,
-        screen_width: f32,
     ) {
         if diff != SubCellIndex::new(0.0, 0.0, 0.0) {
-            self.move_map_horizontally(diff, screen_width);
+            self.move_map_horizontally(diff);
         }
         if let Option::Some(robot_pos) = go_to_robot {
             let center = CellIndex::new(
@@ -26,9 +23,9 @@ impl DrawingState {
         }
     }
 
-    fn move_map_horizontally(&mut self, subcell_diff_: SubCellIndex, _screen_width: f32) {
+    fn move_map_horizontally(&mut self, extra_subcell_diff: SubCellIndex) {
         let (truncated_cell_diff, truncated_subcell_diff) =
-            truncate_cell_offset(subcell_diff_ + self.subcell_diff);
+            truncate_cell_offset(extra_subcell_diff + self.subcell_diff);
 
         self.move_map_horizontally_to(truncated_cell_diff, truncated_subcell_diff);
     }

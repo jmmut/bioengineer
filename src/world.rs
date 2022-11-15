@@ -94,7 +94,7 @@ impl World {
     }
 
     pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) {
-        if gui_actions.input.toggle_profiling {
+        if gui_actions.toggle_profiling {
             self.set_profile(!self.game_state.profile);
         }
 
@@ -106,7 +106,7 @@ impl World {
             self.fluids.advance(&mut self.map);
         }
 
-        if gui_actions.input.regenerate_map {
+        if gui_actions.regenerate_map {
             self.map.regenerate();
             self.networks.clear();
             self.robots = Self::reset_robots(self.map.get_ship_position());
@@ -246,7 +246,7 @@ impl World {
     }
 
     fn update_goal_state(&mut self, gui_actions: &GuiActions) {
-        if gui_actions.input.reset_quantities {
+        if gui_actions.reset_quantities {
             self.networks.reset_production();
             self.age_in_minutes = 0;
             self.goal_state = GameGoalState::Started;

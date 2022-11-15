@@ -2,7 +2,6 @@ use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::screen::gui::FONT_SIZE;
-use crate::screen::input::{CellSelection, Input};
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
 use crate::world::TransformationTask;
@@ -16,7 +15,7 @@ pub fn show_available_transformations(
     drawing: &DrawingState,
 ) -> GuiActions {
     let mut transformation_clicked = Option::None;
-    let mut cell_selection = unhandled_input.input.cell_selection;
+    let cell_selection = unhandled_input.cell_selection;
     let highlighted_cells = drawing.highlighted_cells();
     if highlighted_cells.len() > 0 {
         let mut transformations = allowed_transformations(&highlighted_cells, &world.map);
@@ -71,19 +70,16 @@ pub fn show_available_transformations(
                 );
             }
         }
-        if let Option::Some(selection) = unhandled_input.input.cell_selection.selection {
-            if panel.contains(selection.end) {
-                // TODO: if clicking a button near the bottom of the panel, it selects a cell out
-                //       of screen. maybe solved.
-                cell_selection = CellSelection::no_selection();
-            }
-        }
+        // if let Option::Some(selection) = unhandled_input.input.cell_selection.pixel_selection {
+        //     if panel.contains(selection.end) {
+        //         // TODO: if clicking a button near the bottom of the panel, it selects a cell out
+        //         //       of screen. maybe solved.
+        //         cell_selection = CellSelection::no_selection();
+        //     }
+        // }
     }
     GuiActions {
-        input: Input {
-            cell_selection,
-            ..unhandled_input.input
-        },
+        cell_selection,
         selected_cell_transformation: transformation_clicked,
         robot_movement: Option::None,
         ..unhandled_input

@@ -1,4 +1,3 @@
-use crate::screen::coords::cell_pixel::clicked_cell;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::input::{CellSelection, CellSelectionState, CellSelectionType};
 use crate::world::map::cell_envelope::{is_horizontally_inside, Envelope};
@@ -6,25 +5,15 @@ use crate::world::map::{CellCubeIterator, CellIndex};
 use std::collections::HashSet;
 
 impl DrawingState {
-    pub fn maybe_select_cells_from_pixels(
-        &mut self,
-        cell_selection: &CellSelection,
-        screen_width: f32,
-    ) {
-        match cell_selection.selection {
-            None => {}
-            Some(selection) => {
-                let start_cell = clicked_cell(selection.start, screen_width, self);
-                let end_cell = clicked_cell(selection.end, screen_width, self);
-
-                self.maybe_select_cells(
-                    start_cell,
-                    end_cell,
-                    cell_selection.state,
-                    cell_selection.selection_type,
-                );
-            }
-        }
+    pub fn maybe_select_cells_from_pixels(&mut self, cell_selection: &CellSelection) {
+        cell_selection.selection.map(|selection| {
+            self.maybe_select_cells(
+                selection.start,
+                selection.end,
+                cell_selection.state,
+                cell_selection.selection_type,
+            );
+        });
     }
 
     fn maybe_select_cells(

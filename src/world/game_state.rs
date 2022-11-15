@@ -33,11 +33,11 @@ impl GameState {
     }
 
     pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) {
-        if gui_actions.input.toggle_fluids {
+        if gui_actions.toggle_fluids {
             self.advancing_fluids = !self.advancing_fluids;
         }
 
-        self.advancing_fluids_single_step = gui_actions.input.single_fluid;
+        self.advancing_fluids_single_step = gui_actions.single_fluid;
     }
 
     pub fn should_advance_robots_this_frame(&mut self) -> bool {

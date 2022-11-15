@@ -10,9 +10,9 @@ use crate::screen::drawing_state::{DrawingState, SubCellIndex, SubTilePosition};
 use crate::screen::input::PixelPosition;
 use crate::world::map::CellIndex;
 
-pub fn clicked_cell(click: PixelPosition, screen_width: f32, drawing_: &DrawingState) -> CellIndex {
+pub fn clicked_cell(click: PixelPosition, screen_width: f32, drawing: &DrawingState) -> CellIndex {
     let moved_selected = click + hitbox_offset();
-    let subcell = pixel_to_subcell_center(moved_selected, drawing_, screen_width);
+    let subcell = pixel_to_subcell_center(moved_selected, drawing, screen_width);
     let (cell, _) = truncate_cell_offset(subcell);
     cell
 }

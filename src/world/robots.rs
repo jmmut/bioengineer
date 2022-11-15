@@ -424,7 +424,7 @@ mod tests {
     mod tasks {
         use super::*;
         use crate::screen::gui::GuiActions;
-        use crate::screen::input::{CellSelection, Input};
+        use crate::screen::input::CellSelection;
         use crate::World;
 
         #[test]
@@ -581,19 +581,15 @@ mod tests {
         fn mock_gui_action(task: Option<TransformationTask>) -> GuiActions {
             GuiActions {
                 selected_cell_transformation: task,
-
-                input: Input {
-                    quit: false,
-                    regenerate_map: false,
-                    toggle_profiling: false,
-                    toggle_fluids: false,
-                    single_fluid: false,
-                    change_height_rel: 0,
-                    move_map_horizontally: Default::default(),
-                    cell_selection: CellSelection::no_selection(),
-                    robot_movement: None,
-                    reset_quantities: false,
-                },
+                quit: false,
+                regenerate_map: false,
+                toggle_profiling: false,
+                toggle_fluids: false,
+                single_fluid: false,
+                change_height_rel: 0,
+                move_map_horizontally_diff: Default::default(),
+                cell_selection: CellSelection::no_selection(),
+                reset_quantities: false,
                 robot_movement: None,
                 go_to_robot: None,
                 cancel_task: None,
