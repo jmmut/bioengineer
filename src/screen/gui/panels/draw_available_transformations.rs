@@ -81,7 +81,6 @@ pub fn show_available_transformations(
     GuiActions {
         cell_selection,
         selected_cell_transformation: transformation_clicked,
-        robot_movement: Option::None,
         ..unhandled_input
     }
 }
