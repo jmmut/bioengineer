@@ -1,10 +1,10 @@
 pub mod network;
 
+use crate::screen::gui::units::format_unit;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::network::{Network, Node, Replacement};
 use std::slice::Iter;
-use crate::screen::gui::units::format_unit;
 
 pub struct Networks {
     networks: Vec<Network>,
@@ -251,5 +251,4 @@ mod tests {
         });
         assert_eq!(network.is_adjacent(adjacent), true);
     }
-
 }

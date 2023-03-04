@@ -228,7 +228,12 @@ impl DrawerTrait for DrawerMacroquad {
         let label_style = root_ui()
             .style_builder()
             .font_size(font_size as u16)
-            .margin(RectOffset::new(0.0, 0.0, -font_size/4.0, -font_size/4.0))
+            .margin(RectOffset::new(
+                0.0,
+                0.0,
+                -font_size / 4.0,
+                -font_size / 4.0,
+            ))
             .build();
         let skin = Skin {
             // button_style: button_style.clone(),

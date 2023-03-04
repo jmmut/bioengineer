@@ -7,6 +7,7 @@ pub use gui_actions::GuiActions;
 use crate::screen::coords::cell_pixel::{clicked_cell, pixel_to_subcell_offset};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
+use crate::screen::gui::panels::top_bar::draw_top_bar;
 use crate::screen::gui::panels::{
     draw_available_transformations::show_available_transformations,
     game_finished::draw_game_finished, task_queue::draw_robot_queue,
@@ -16,7 +17,6 @@ use crate::screen::input::{
 };
 use crate::world::map::CellIndex;
 use crate::{Color, World};
-use crate::screen::gui::panels::top_bar::draw_top_bar;
 
 pub const FONT_SIZE: f32 = 16.0;
 pub const MARGIN: f32 = 10.0;

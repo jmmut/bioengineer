@@ -1,4 +1,3 @@
-
 const KILO: f64 = 1.0e3;
 const MEGA: f64 = 1.0e6;
 const GIGA: f64 = 1.0e9;

@@ -1,9 +1,9 @@
+use crate::screen::gui::units::format_unit;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::Networks;
 use crate::world::robots::CellIndexDiff;
 use std::collections::{HashSet, VecDeque};
-use crate::screen::gui::units::format_unit;
 
 pub struct Network {
     pub nodes: Vec<Node>,
@@ -221,4 +221,3 @@ fn adjacent_positions() -> [CellIndexDiff; 6] {
         CellIndexDiff::new(0, 0, -1),
     ]
 }
-
