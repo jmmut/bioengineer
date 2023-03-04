@@ -110,7 +110,7 @@ impl DrawerTrait for DrawerMacroquad {
         h: f32,
         f: F,
     ) -> Interaction {
-        let id = hash!(x.abs() as i32, y.abs() as i32);
+        let id = hash!(title, x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(true)
             .label(title)
@@ -176,6 +176,10 @@ impl DrawerTrait for DrawerMacroquad {
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {
         let text_dimensions = measure_text(text, Option::None, font_size as u16, 1.0);
         Vec2::new(text_dimensions.width, text_dimensions.height)
+    }
+
+    fn ui_same_line(&self) {
+        root_ui().same_line(0.0)
     }
 
     fn set_button_style(

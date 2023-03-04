@@ -3,15 +3,7 @@ use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::Networks;
 use crate::world::robots::CellIndexDiff;
 use std::collections::{HashSet, VecDeque};
-
-const KILO: f64 = 1.0e3;
-const MEGA: f64 = 1.0e6;
-const GIGA: f64 = 1.0e9;
-const TERA: f64 = 1.0e12;
-const PETA: f64 = 1.0e15;
-const EXA: f64 = 1.0e18;
-const ZETTA: f64 = 1.0e21;
-const YOTTA: f64 = 1.0e24;
+use crate::screen::gui::units::format_unit;
 
 pub struct Network {
     pub nodes: Vec<Node>,
@@ -230,37 +222,3 @@ fn adjacent_positions() -> [CellIndexDiff; 6] {
     ]
 }
 
-#[rustfmt::skip]
-pub fn format_unit(quantity: f64, unit_name: &str) -> String {
-    let unsigned_quantity = quantity.abs().floor();
-    if unsigned_quantity < KILO {
-        format!("{} {}", round_with_some_decimals(quantity), unit_name)
-    } else if unsigned_quantity < MEGA {
-        format!("{} K{}", round_with_some_decimals(quantity / KILO), unit_name)
-    } else if unsigned_quantity < GIGA {
-        format!("{} M{}", round_with_some_decimals(quantity / MEGA), unit_name)
-    } else if unsigned_quantity < TERA {
-        format!("{} G{}", round_with_some_decimals(quantity / GIGA), unit_name)
-    } else if unsigned_quantity < PETA {
-        format!("{} T{}", round_with_some_decimals(quantity / TERA), unit_name)
-    } else if unsigned_quantity < EXA {
-        format!("{} P{}", round_with_some_decimals(quantity / PETA), unit_name)
-    } else if unsigned_quantity < ZETTA {
-        format!("{} E{}", round_with_some_decimals(quantity / EXA), unit_name)
-    } else if unsigned_quantity < YOTTA {
-        format!("{} Z{}", round_with_some_decimals(quantity / ZETTA), unit_name)
-    } else {
-        format!("{} Y{}", round_with_some_decimals(quantity / YOTTA), unit_name)
-    }
-}
-
-fn round_with_some_decimals(quantity: f64) -> f64 {
-    let unsigned_quantity = quantity.abs();
-    if unsigned_quantity >= 100.0 {
-        quantity.floor()
-    } else if unsigned_quantity >= 10.0 {
-        (quantity * 10.0).floor() / 10.0
-    } else {
-        (quantity * 100.0).floor() / 100.0
-    }
-}

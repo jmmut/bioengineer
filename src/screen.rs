@@ -40,7 +40,7 @@ impl<Drawer: DrawerTrait, InputSource: InputSourceTrait> Screen<Drawer, InputSou
         let input = self.input_source.get_input();
         let gui_actions = self
             .gui
-            .process_input(input, &self.drawer, world, &self.drawing_state);
+            .process_input(input, &self.drawer, world, &mut self.drawing_state);
         self.drawing_state.apply_input(&gui_actions);
         gui_actions
     }

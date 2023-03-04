@@ -1,5 +1,6 @@
 pub mod gui_actions;
 mod panels;
+pub mod units;
 
 pub use gui_actions::GuiActions;
 
@@ -42,7 +43,7 @@ impl Gui {
         input: Input,
         drawer: &impl DrawerTrait,
         world: &World,
-        drawing: &DrawingState,
+        drawing: &mut DrawingState,
     ) -> GuiActions {
         let unhandled_input = GuiActions {
             // input: input.clone(),
@@ -67,7 +68,7 @@ impl Gui {
             show_available_transformations(drawer, world, unhandled_input, drawing);
 
         let unhandled_input = draw_robot_queue(drawer, world, unhandled_input);
-        let unhandled_input = draw_top_bar(drawer, world, unhandled_input);
+        let unhandled_input = draw_top_bar(drawer, drawing, unhandled_input);
         unhandled_input
     }
     fn set_skin(drawer: &mut impl DrawerTrait) {

@@ -2,8 +2,9 @@ pub mod network;
 
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
-use crate::world::networks::network::{format_unit, Network, Node, Replacement};
+use crate::world::networks::network::{Network, Node, Replacement};
 use std::slice::Iter;
+use crate::screen::gui::units::format_unit;
 
 pub struct Networks {
     networks: Vec<Network>,
@@ -251,33 +252,4 @@ mod tests {
         assert_eq!(network.is_adjacent(adjacent), true);
     }
 
-    #[test]
-    fn test_format_units() {
-        assert_eq!(format_unit(1000.0, " paperclips"), "1 K paperclips");
-        assert_eq!(format_unit(0.0, "W"), "0 W");
-        assert_eq!(format_unit(0.5, "W"), "0.5 W");
-        assert_eq!(format_unit(-0.5, "W"), "-0.5 W");
-        assert_eq!(format_unit(10.0, "W"), "10 W");
-        assert_eq!(format_unit(999.0, "W"), "999 W");
-        assert_eq!(format_unit(1000.0, "W"), "1 KW");
-        assert_eq!(format_unit(1110.0, "W"), "1.11 KW");
-        assert_eq!(format_unit(10000.0, "W"), "10 KW");
-        assert_eq!(format_unit(10100.0, "W"), "10.1 KW");
-        assert_eq!(format_unit(100100.0, "W"), "100 KW");
-        assert_eq!(format_unit(999999.0, "W"), "999 KW");
-        assert_eq!(format_unit(1000000.0, "W"), "1 MW");
-        assert_eq!(format_unit(999999999.0, "W"), "999 MW");
-        assert_eq!(format_unit(1000000000.0, "W"), "1 GW");
-        assert_eq!(format_unit(999999999999.0, "W"), "999 GW");
-        assert_eq!(format_unit(1000000000000.0, "W"), "1 TW");
-        assert_eq!(format_unit(999999999999999.0, "W"), "999 TW");
-        assert_eq!(format_unit(1000000000000000.0, "W"), "1 PW");
-        assert_eq!(format_unit(999999999999999935.0, "W"), "999 PW");
-        assert_eq!(format_unit(1000000000000000000.0, "W"), "1 EW");
-        assert_eq!(format_unit(999999999999999934000.0, "W"), "999 EW");
-        assert_eq!(format_unit(1000000000000000000000.0, "W"), "1 ZW");
-        assert_eq!(format_unit(999999999999999916000000.0, "W"), "999 ZW");
-        assert_eq!(format_unit(1000000000000000000000000.0, "W"), "1 YW");
-        assert_eq!(format_unit(1000000000000000000000000000.0, "W"), "1000 YW");
-    }
 }

@@ -1,6 +1,6 @@
 use crate::now;
 use crate::screen::gui::GuiActions;
-use crate::world::networks::network::format_unit;
+use crate::screen::gui::units::format_unit;
 
 pub const DEFAULT_PROFILE_ENABLED: bool = false;
 const DEFAULT_ADVANCING_FLUIDS: bool = false;

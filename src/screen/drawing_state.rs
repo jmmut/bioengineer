@@ -18,10 +18,18 @@ pub struct DrawingState {
     pub max_cell: CellIndex,
     pub subtile_offset: SubTilePosition,
     pub subcell_diff: SubCellIndex,
+    pub top_bar_showing: TopBarShowing,
     highlighted_cells_in_progress: HashSet<CellIndex>,
     highlighted_cells_consolidated: HashSet<CellIndex>,
     highlighted_cells_in_progress_type: CellSelectionType,
     highlight_start_height: Option<i32>,
+}
+
+#[derive(PartialEq)]
+pub enum TopBarShowing {
+    Goals,
+    Help,
+    None,
 }
 
 impl DrawingState {
@@ -31,6 +39,7 @@ impl DrawingState {
             max_cell: CellIndex::new(9, 1, 9),
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
+            top_bar_showing: TopBarShowing::None,
             highlighted_cells_in_progress: HashSet::new(),
             highlighted_cells_consolidated: HashSet::new(),
             highlighted_cells_in_progress_type: CellSelectionType::Exclusive,
