@@ -29,8 +29,10 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 - [x] minimal friction to explain that solar panels can not be build underground
 - [x] compile for linux, wasm, windows and mac
 - [x] remove from selection
+- [ ] build dumpster that creates columns of stairs to dump dug rock
 
 # Bugs
 
 - [ ] touchpad scroll is too sensitive
 - [ ] tile transparency also makes floor transparent
+- [ ] dirt can be converted to rock. is this wrong?

@@ -116,7 +116,7 @@ fn to_tooltip_str(tile: TileType) -> Option<Vec<&'static str>> {
         }
         TileType::WallRock => None,
         TileType::WallDirt => None,
-        TileType::FloorRock => Some(vec!["- Makes a rock floor", "- Disassembles machines"]),
+        TileType::FloorRock => Some(vec!["- Makes a rock floor", "", "- Disassembles machines"]),
         TileType::FloorDirt => None,
         TileType::Stairs => Some(vec!["- Gives access to", "  underground levels"]),
         TileType::Air => None,
@@ -130,6 +130,7 @@ fn to_tooltip_str(tile: TileType) -> Option<Vec<&'static str>> {
         TileType::MachineDrill => None,
         TileType::MachineSolarPanel => Some(vec![
             "- Produces 1KW",
+            "",
             "- Can not be built",
             "  underground",
         ]),
