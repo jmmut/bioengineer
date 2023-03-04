@@ -31,10 +31,12 @@ fn maybe_draw_goals(drawer: &impl DrawerTrait, drawing: &mut DrawingState, goals
         drawing.top_bar_showing = TopBarShowing::Goals;
     }
     if drawing.top_bar_showing == TopBarShowing::Goals {
+        let center = Vec2::new(drawer.screen_width() / 2.0, drawer.screen_height() / 2.0);
+        let panel_size = Vec2::new(550.0, 300.0);
         drawer.ui_named_group(
             "Goals",
-            drawer.screen_width() / 3.0, drawer.screen_height() / 3.0,
-            drawer.screen_width() / 3.0, drawer.screen_height() / 3.0,
+            center.x - panel_size.x/2.0, center.y - panel_size.y/2.0,
+            panel_size.x, panel_size.y,
             || {
                 for line in goals_text_lines() {
                     drawer.ui_text(&line);
@@ -67,10 +69,12 @@ fn maybe_draw_help(drawer: &impl DrawerTrait, drawing: &mut DrawingState, help: 
         drawing.top_bar_showing = TopBarShowing::Help;
     }
     if drawing.top_bar_showing == TopBarShowing::Help {
+        let center = Vec2::new(drawer.screen_width() / 2.0, drawer.screen_height() / 2.0);
+        let panel_size = Vec2::new(550.0, 300.0);
         drawer.ui_named_group(
             "Help",
-            drawer.screen_width() / 3.0, drawer.screen_height() / 3.0,
-            drawer.screen_width() / 3.0, drawer.screen_height() / 3.0,
+            center.x - panel_size.x/2.0, center.y - panel_size.y/2.0,
+            panel_size.x, panel_size.y,
             || {
                 for line in help_text_lines() {
                     drawer.ui_text(&line);
