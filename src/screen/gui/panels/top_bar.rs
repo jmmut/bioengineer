@@ -1,11 +1,8 @@
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::{DrawingState, TopBarShowing};
-use crate::screen::gui::units::format_unit;
 use crate::screen::gui::{GuiActions, FONT_SIZE};
 use crate::world::game_state::{get_goal_air_cleaned, get_goal_air_cleaned_str};
-use crate::world::World;
-use crate::{Rect, Vec2};
-use macroquad::logging::info;
+use crate::Vec2;
 pub const TOP_BAR_HEIGHT: f32 = FONT_SIZE * 3.0;
 
 pub fn draw_top_bar(
@@ -16,7 +13,7 @@ pub fn draw_top_bar(
     let panel_height = TOP_BAR_HEIGHT;
     let mut goals = Interaction::None;
     let mut help = Interaction::None;
-    let panel = drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, || {
+    drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, || {
         goals = drawer.ui_button("Goals");
         drawer.ui_same_line();
         help = drawer.ui_button("Help");
@@ -28,7 +25,7 @@ pub fn draw_top_bar(
 
 fn maybe_draw_goals(drawer: &impl DrawerTrait, drawing: &mut DrawingState, goals: Interaction) {
     if goals.is_clicked() {
-        drawing.top_bar_showing = TopBarShowing::Goals;
+        toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Goals);
     }
     if drawing.top_bar_showing == TopBarShowing::Goals {
         let center = Vec2::new(drawer.screen_width() / 2.0, drawer.screen_height() / 2.0);
@@ -49,6 +46,14 @@ fn maybe_draw_goals(drawer: &impl DrawerTrait, drawing: &mut DrawingState, goals
             },
         );
     }
+}
+
+fn toggle_showing_or_none(top_bar_showing: &mut TopBarShowing, showing: TopBarShowing) {
+    *top_bar_showing = if *top_bar_showing == showing {
+        TopBarShowing::None
+    } else {
+        showing
+    };
 }
 
 fn goals_text_lines() -> Vec<String> {
@@ -73,7 +78,7 @@ fn goals_text_lines() -> Vec<String> {
 
 fn maybe_draw_help(drawer: &impl DrawerTrait, drawing: &mut DrawingState, help: Interaction) {
     if help.is_clicked() {
-        drawing.top_bar_showing = TopBarShowing::Help;
+        toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Goals);
     }
     if drawing.top_bar_showing == TopBarShowing::Help {
         let center = Vec2::new(drawer.screen_width() / 2.0, drawer.screen_height() / 2.0);
