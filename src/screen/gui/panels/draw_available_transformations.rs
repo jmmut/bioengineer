@@ -6,6 +6,7 @@ use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
 use crate::world::TransformationTask;
 use crate::Rect;
+use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::World;
 
 pub fn show_available_transformations(
@@ -34,7 +35,7 @@ pub fn show_available_transformations(
             max_button_width = f32::max(max_button_width, drawer.measure_text(text, FONT_SIZE).x);
         }
 
-        let panel = Rect::new(panel_margin, panel_margin, panel_width, panel_height);
+        let panel = Rect::new(panel_margin, panel_margin +TOP_BAR_HEIGHT, panel_width, panel_height);
         let mut hovered_opt = None;
         drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, || {
             for transformation in transformations {

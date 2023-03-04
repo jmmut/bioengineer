@@ -15,6 +15,7 @@ use crate::screen::input::{
 };
 use crate::world::map::CellIndex;
 use crate::{Color, World};
+use crate::screen::gui::panels::top_bar::draw_top_bar;
 
 pub const FONT_SIZE: f32 = 16.0;
 pub const MARGIN: f32 = 10.0;
@@ -61,10 +62,12 @@ impl Gui {
             change_height_rel: input.change_height_rel,
             move_map_horizontally_diff: pixel_to_subcell_offset(input.move_map_horizontally),
         };
+        let unhandled_input = draw_game_finished(drawer, world, unhandled_input);
         let unhandled_input =
             show_available_transformations(drawer, world, unhandled_input, drawing);
+
         let unhandled_input = draw_robot_queue(drawer, world, unhandled_input);
-        let unhandled_input = draw_game_finished(drawer, world, unhandled_input);
+        let unhandled_input = draw_top_bar(drawer, world, unhandled_input);
         unhandled_input
     }
     fn set_skin(drawer: &mut impl DrawerTrait) {
