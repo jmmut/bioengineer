@@ -24,29 +24,11 @@ pub fn draw_top_bar(
 }
 
 fn maybe_draw_goals(drawer: &impl DrawerTrait, drawing: &mut DrawingState, goals: Interaction) {
-    maybe_draw_pop_up(
-        drawer,
-        drawing,
-        "Goals",
-        goals,
-        TopBarShowing::Goals,
-        goals_text_lines(),
-    );
-}
-
-fn maybe_draw_pop_up(
-    drawer: &impl DrawerTrait,
-    drawing: &mut DrawingState,
-    pop_up_name: &str,
-    pop_up_click: Interaction,
-    showing: TopBarShowing,
-    text: Vec<String>,
-) {
-    if pop_up_click.is_clicked() {
-        toggle_showing_or_none(&mut drawing.top_bar_showing, showing.clone());
+    if goals.is_clicked() {
+        toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Goals.clone());
     }
-    if drawing.top_bar_showing == showing {
-        draw_pop_up(drawer, drawing, pop_up_name, &text);
+    if drawing.top_bar_showing == TopBarShowing::Goals {
+        draw_pop_up(drawer, drawing, "Goals", &goals_text_lines());
     }
 }
 
@@ -134,14 +116,12 @@ fn goals_text_lines() -> Vec<String> {
 }
 
 fn maybe_draw_help(drawer: &impl DrawerTrait, drawing: &mut DrawingState, help: Interaction) {
-    maybe_draw_pop_up(
-        drawer,
-        drawing,
-        "Help",
-        help,
-        TopBarShowing::Help,
-        help_text_lines(),
-    );
+    if help.is_clicked() {
+        toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Help.clone());
+    }
+    if drawing.top_bar_showing == TopBarShowing::Help {
+        draw_pop_up(drawer, drawing, "Help", &help_text_lines());
+    }
 }
 
 fn help_text_lines() -> Vec<String> {
