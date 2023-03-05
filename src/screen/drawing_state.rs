@@ -25,7 +25,7 @@ pub struct DrawingState {
     highlight_start_height: Option<i32>,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 pub enum TopBarShowing {
     Goals,
     Help,
