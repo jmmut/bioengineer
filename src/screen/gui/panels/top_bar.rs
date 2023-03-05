@@ -46,34 +46,69 @@ fn maybe_draw_pop_up(
         toggle_showing_or_none(&mut drawing.top_bar_showing, showing.clone());
     }
     if drawing.top_bar_showing == showing {
-        let center = Vec2::new(drawer.screen_width() / 2.0, drawer.screen_height() / 2.0);
-        let panel_size = Vec2::new(550.0, 300.0);
-        let button_text = "Continue".to_string();
-        let button_size = drawer.measure_text(&button_text, FONT_SIZE);
-        // let button_size = Vec2::new(button_size.x / button_text.len() as f32 * (button_text.len() + 6) as f32, button_size.y * 2.0);
-        let title_height = FONT_SIZE * 3.0;
-        let button_size = Vec2::new(button_size.x + MARGIN * 4.0, button_size.y + MARGIN);
-        drawer.ui_named_group(
-            pop_up_name,
-            center.x - panel_size.x / 2.0,
-            center.y - panel_size.y / 2.0,
-            panel_size.x,
-            panel_size.y,
-            || {
-                for line in text {
-                    drawer.ui_text(&line);
-                }
-                let button_pos_x = panel_size.x / 2.0 - button_size.x / 2.0;
-                let button_pos_y = panel_size.y - title_height - button_size.y * 2.0;
-                if drawer
-                    .ui_button_with_pos(&button_text, button_pos_x, button_pos_y)
-                    .is_clicked()
-                {
-                    drawing.top_bar_showing = TopBarShowing::None;
-                }
-            },
-        );
+        draw_pop_up(drawer, drawing, pop_up_name, &text);
     }
+}
+
+fn draw_pop_up(
+    drawer: &impl DrawerTrait,
+    drawing: &mut DrawingState,
+    pop_up_name: &str,
+    text: &Vec<String>,
+) {
+    let center = Vec2::new(drawer.screen_width() / 2.0, drawer.screen_height() / 2.0);
+    let title_height = FONT_SIZE * 2.0;
+    let button_text = "Continue";
+    let button_size = measure_button(drawer, button_text);
+    let text_size = measure_text(drawer, &text);
+    let panel_size = Vec2::new(
+        text_size.x + MARGIN * 4.0,
+        title_height + text_size.y + button_size.y + MARGIN * 5.0,
+    );
+    drawer.ui_named_group(
+        pop_up_name,
+        center.x - panel_size.x / 2.0,
+        center.y - panel_size.y / 2.0,
+        panel_size.x,
+        panel_size.y,
+        || {
+            for line in text {
+                drawer.ui_text(&line);
+            }
+            let button_pos_x = panel_size.x / 2.0 - button_size.x / 2.0;
+            let button_pos_y = title_height + text_size.y;
+            if drawer
+                .ui_button_with_pos(button_text, button_pos_x, button_pos_y)
+                .is_clicked()
+            {
+                drawing.top_bar_showing = TopBarShowing::None;
+            }
+        },
+    );
+}
+
+fn measure_text(drawer: &impl DrawerTrait, text: &Vec<String>) -> Vec2 {
+    let text_height = text.len() as f32 * FONT_SIZE * 1.2;
+    let text_width = measure_longest_width(drawer, &text);
+    Vec2::new(text_width, text_height)
+}
+
+fn measure_longest_width(drawer: &impl DrawerTrait, text: &Vec<String>) -> f32 {
+    let mut max_width = 0.0;
+    for line in text {
+        let line_width = drawer.measure_text(line, FONT_SIZE).x;
+        if line_width > max_width {
+            max_width = line_width;
+        }
+    }
+    max_width
+}
+
+fn measure_button(drawer: &impl DrawerTrait, button_text: &str) -> Vec2 {
+    let button_size = drawer.measure_text(&button_text, FONT_SIZE);
+    // let button_size = Vec2::new(button_size.x / button_text.len() as f32 * (button_text.len() + 6) as f32, button_size.y * 2.0);
+    let button_size = Vec2::new(button_size.x + MARGIN * 4.0, button_size.y + MARGIN);
+    button_size
 }
 
 fn toggle_showing_or_none(top_bar_showing: &mut TopBarShowing, showing: TopBarShowing) {
@@ -118,6 +153,7 @@ fn help_text_lines() -> Vec<String> {
 - arrow UP and DOWN, mouse wheel up and down: change height layer
 - mouse wheel click and drag: move the map horizontally
 - r: reset timer and accumulated production
-- m: reset map (delete all constructions)"#.to_string();
+- m: reset map (delete all constructions)"#
+        .to_string();
     text.split("\n").map(|s| s.to_string()).collect()
 }
