@@ -1,4 +1,4 @@
-use crate::screen::gui::units::format_unit;
+use crate::screen::gui::format_units::format_unit;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::Networks;

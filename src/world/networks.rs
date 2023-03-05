@@ -1,6 +1,6 @@
 pub mod network;
 
-use crate::screen::gui::units::format_unit;
+use crate::screen::gui::format_units::format_unit;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::network::{Network, Node, Replacement};
@@ -118,6 +118,11 @@ impl Networks {
 
     pub fn reset_production(&mut self) {
         self.air_cleaned = 0.0;
+    }
+
+    #[cfg(test)]
+    pub fn set_production(&mut self, air_cleaned: f64) {
+        self.air_cleaned = air_cleaned;
     }
 
     fn split_network(&mut self, network_index: usize) {

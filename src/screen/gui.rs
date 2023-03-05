@@ -1,6 +1,6 @@
+pub mod format_units;
 pub mod gui_actions;
 mod panels;
-pub mod units;
 
 pub use gui_actions::GuiActions;
 

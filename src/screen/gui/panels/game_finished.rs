@@ -1,8 +1,9 @@
 use crate::screen::drawer_trait::DrawerTrait;
+use crate::screen::gui::format_units::format_age;
 use crate::screen::gui::{GuiActions, FONT_SIZE};
 use crate::screen::input::CellSelection;
 use crate::world::GameGoalState::{Finished, PostFinished};
-use crate::world::{format_age, World};
+use crate::world::World;
 use crate::{Rect, Vec2};
 
 pub fn draw_game_finished(

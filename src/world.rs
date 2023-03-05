@@ -1,11 +1,13 @@
 pub mod fluids;
 pub mod game_state;
+mod gameplay_tests;
 pub mod map;
 mod networks;
 pub mod robots;
 
 use std::collections::{HashSet, VecDeque};
 
+use crate::screen::gui::format_units::format_age;
 use fluids::FluidMode;
 use fluids::Fluids;
 use game_state::get_goal_air_cleaned;
@@ -47,9 +49,10 @@ pub struct TransformationTask {
     pub transformation: Transformation,
 }
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum GameGoalState {
     Started,
+    ReachedProduction,
     Finished(AgeInMinutes),
     PostFinished,
 }
@@ -251,12 +254,11 @@ impl World {
             self.age_in_minutes = 0;
             self.goal_state = GameGoalState::Started;
         }
-        if self.goal_state == GameGoalState::Started {
-            if self.networks.get_total_air_cleaned() > get_goal_air_cleaned() {
-                self.goal_state = GameGoalState::Finished(self.age_in_minutes);
+        match self.goal_state {
+            GameGoalState::Finished(_) | GameGoalState::PostFinished => {
+                self.goal_state = gui_actions.next_game_goal_state.unwrap_or(self.goal_state);
             }
-        } else {
-            self.goal_state = gui_actions.next_game_goal_state.unwrap_or(self.goal_state);
+            _ => transition_goal_state(&mut self.goal_state, &self.networks, self.age_in_minutes),
         }
     }
 
@@ -272,76 +274,14 @@ impl World {
     }
 }
 
-pub fn format_age(age_in_minutes: i64) -> String {
-    const MINUTES_PER_HOUR: i64 = 60;
-    const HOURS_PER_DAY: i64 = 24;
-    const DAYS_PER_YEAR: i64 = 365;
-    const HOURS_PER_YEAR: i64 = HOURS_PER_DAY * DAYS_PER_YEAR;
-
-    if age_in_minutes < MINUTES_PER_HOUR {
-        format!("{}", format_time(age_in_minutes, "minute"))
-    } else if age_in_minutes < MINUTES_PER_HOUR * HOURS_PER_DAY {
-        format!(
-            "{}, {}",
-            format_time(age_in_minutes / MINUTES_PER_HOUR, "hour"),
-            format_time(age_in_minutes % MINUTES_PER_HOUR, "minute")
-        )
-    } else if age_in_minutes < MINUTES_PER_HOUR * HOURS_PER_DAY * DAYS_PER_YEAR {
-        format!(
-            "{}, {}, {}",
-            format_time(age_in_minutes / MINUTES_PER_HOUR / HOURS_PER_DAY, "day"),
-            format_time(age_in_minutes / MINUTES_PER_HOUR % HOURS_PER_DAY, "hour"),
-            format_time(age_in_minutes % MINUTES_PER_HOUR, "minute")
-        )
-    } else {
-        format!(
-            "{}, {}, {}, {}",
-            format_time(age_in_minutes / MINUTES_PER_HOUR / HOURS_PER_YEAR, "year"),
-            format_time(
-                age_in_minutes / MINUTES_PER_HOUR / HOURS_PER_DAY % DAYS_PER_YEAR,
-                "day"
-            ),
-            format_time(age_in_minutes / MINUTES_PER_HOUR % HOURS_PER_DAY, "hour"),
-            format_time(age_in_minutes % MINUTES_PER_HOUR, "minute")
-        )
-    }
-}
-
-fn format_time(value: i64, unit: &str) -> String {
-    format!("{} {}{}", value, unit, single_str(value))
-}
-
-fn single_str(number: i64) -> String {
-    if number == 1 {
-        "".to_string()
-    } else {
-        "s".to_string()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_format_age() {
-        assert_eq!(format_age(0), "0 minutes");
-        assert_eq!(format_age(1), "1 minute");
-        assert_eq!(format_age(10), "10 minutes");
-        assert_eq!(format_age((1) * 60 + 0), "1 hour, 0 minutes");
-        assert_eq!(format_age((17) * 60 + 0), "17 hours, 0 minutes");
-        assert_eq!(format_age((26) * 60 + 0), "1 day, 2 hours, 0 minutes");
-        assert_eq!(
-            format_age((24 * 3 + 17) * 60 + 0),
-            "3 days, 17 hours, 0 minutes"
-        );
-        assert_eq!(
-            format_age((365 * 24 + 3 * 24 + 1) * 60 + 0),
-            "1 year, 3 days, 1 hour, 0 minutes"
-        );
-        assert_eq!(
-            format_age((1000000 * 365 * 24 + 24 + 10) * 60 + 0),
-            "1000000 years, 1 day, 10 hours, 0 minutes"
-        );
+fn transition_goal_state(current: &mut GameGoalState, networks: &Networks, age: AgeInMinutes) {
+    if *current == GameGoalState::Started {
+        if networks.get_total_air_cleaned() >= get_goal_air_cleaned() {
+            *current = GameGoalState::ReachedProduction;
+        }
+    } else if *current == GameGoalState::ReachedProduction {
+        if networks.len() == 0 {
+            *current = GameGoalState::Finished(age);
+        }
     }
 }

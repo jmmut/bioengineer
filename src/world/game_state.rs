@@ -1,5 +1,5 @@
 use crate::now;
-use crate::screen::gui::units::format_unit;
+use crate::screen::gui::format_units::format_unit;
 use crate::screen::gui::GuiActions;
 
 pub const DEFAULT_PROFILE_ENABLED: bool = false;
