@@ -25,7 +25,7 @@ pub fn draw_robot_queue(
         icon_width,
         robot_window_height,
         || {
-            let show_robot = drawer.ui_button("show");
+            let show_robot = drawer.ui_button("Show");
             let robot_texture_clicked =
                 drawer.ui_texture_with_pos(ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
             robot_hovered = show_robot.is_hovered_or_clicked();
@@ -68,13 +68,13 @@ pub fn draw_robot_queue(
             icon_width,
             group_height,
             || {
-                let cancel = drawer.ui_button("cancel");
+                let cancel = drawer.ui_button("Cancel");
                 cancel_hovered = cancel.is_hovered();
                 if cancel.is_clicked() {
                     cancel_task = Option::Some(task_index);
                 }
 
-                let do_now = drawer.ui_button("do now");
+                let do_now = drawer.ui_button("Do now");
                 do_now_hovered = do_now.is_hovered();
                 if do_now.is_clicked() {
                     do_now_task = Option::Some(task_index);

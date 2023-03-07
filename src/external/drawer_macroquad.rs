@@ -14,7 +14,7 @@ use crate::screen::assets;
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::DrawingState;
-use crate::screen::gui::{BACKGROUND_UI_COLOR, FONT_SIZE, MARGIN};
+use crate::screen::gui::{FONT_SIZE, MARGIN};
 use crate::world::map::cell::TextureIndex;
 
 pub struct DrawerMacroquad {
@@ -95,6 +95,7 @@ impl DrawerTrait for DrawerMacroquad {
             let (mouse_x, mouse_y) = mouse_position();
             let group_rect = Rect { x, y, w, h };
             if group_rect.contains(Vec2::new(mouse_x, mouse_y)) {
+                root_ui().focus_window(id);
                 return Interaction::Hovered;
             }
         }
@@ -125,6 +126,7 @@ impl DrawerTrait for DrawerMacroquad {
             let (mouse_x, mouse_y) = mouse_position();
             let group_rect = Rect { x, y, w, h };
             if group_rect.contains(Vec2::new(mouse_x, mouse_y)) {
+                root_ui().focus_window(id);
                 return Interaction::Hovered;
             }
         }
@@ -182,13 +184,15 @@ impl DrawerTrait for DrawerMacroquad {
         root_ui().same_line(0.0)
     }
 
-    fn set_button_style(
+    fn set_style(
         &mut self,
         font_size: f32,
         text_color: Color,
+        button_text_color: Color,
         background_color: Color,
-        background_color_hovered: Color,
-        background_color_clicked: Color,
+        background_color_button: Color,
+        background_color_button_hovered: Color,
+        background_color_button_clicked: Color,
     ) {
         // let label_style = root_ui()
         //     .style_builder()
@@ -200,29 +204,50 @@ impl DrawerTrait for DrawerMacroquad {
             .style_builder()
             .background_margin(RectOffset::new(0.0, 0.0, 0.0, 0.0))
             .margin(margin.clone())
-            .text_color(text_color)
-            .color(background_color)
-            .color_hovered(background_color_hovered)
-            .color_clicked(background_color_clicked)
-            .font_size(font_size as u16)
+            .text_color(button_text_color)
+            .color(background_color_button)
+            .color_hovered(background_color_button_hovered)
+            .color_clicked(background_color_button_clicked)
+            .color_selected(background_color_button)
+            .color_selected_hovered(background_color_button)
+            .color_inactive(background_color_button)
+            // .font_size(font_size as u16)
             .build();
         let window_style = root_ui()
             .style_builder()
             // .background_margin(margin.clone())
             .margin(margin.clone())
             .text_color(text_color)
-            .color(BACKGROUND_UI_COLOR)
-            .color_hovered(BACKGROUND_UI_COLOR)
-            .color_clicked(BACKGROUND_UI_COLOR)
-            .color_inactive(BACKGROUND_UI_COLOR)
+            .color(background_color)
+            .color_hovered(background_color)
+            .color_clicked(background_color)
+            .color_inactive(background_color)
+            .color_selected(background_color)
+            .color_selected_hovered(background_color)
+            .font_size(font_size as u16)
+            .build();
+        let group_style = root_ui()
+            .style_builder()
+            // .background_margin(margin.clone())
+            .margin(margin.clone())
+            .text_color(text_color)
+            .color(background_color)
+            .color_hovered(background_color)
+            .color_clicked(background_color)
+            .color_inactive(background_color)
+            .color_selected(background_color)
+            .color_selected_hovered(background_color)
             .font_size(font_size as u16)
             .build();
         let window_titlebar_style = root_ui()
             .style_builder()
             .text_color(text_color)
-            .color(background_color_clicked)
-            .color_hovered(background_color_hovered)
-            .color_clicked(background_color_clicked)
+            .color(background_color)
+            .color_hovered(background_color)
+            .color_clicked(background_color)
+            .color_inactive(background_color)
+            .color_selected(background_color)
+            .color_selected_hovered(background_color)
             .font_size(font_size as u16)
             .build();
         let label_style = root_ui()
@@ -239,6 +264,7 @@ impl DrawerTrait for DrawerMacroquad {
             // button_style: button_style.clone(),
             button_style,
             window_style,
+            group_style,
             window_titlebar_style,
             // window_style: button_style.clone(),
             margin: MARGIN,

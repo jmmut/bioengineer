@@ -54,13 +54,15 @@ pub trait DrawerTrait {
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2;
     fn ui_same_line(&self);
 
-    fn set_button_style(
+    fn set_style(
         &mut self,
         font_size: f32,
         text_color: Color,
+        button_text_color: Color,
         background_color: Color,
-        background_color_hovered: Color,
-        background_color_clicked: Color,
+        background_color_button: Color,
+        background_color_button_hovered: Color,
+        background_color_button_clicked: Color,
     );
 }
 

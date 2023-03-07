@@ -22,11 +22,12 @@ pub const FONT_SIZE: f32 = 16.0;
 pub const MARGIN: f32 = 10.0;
 pub const BLACK: Color = Color::new(0.0, 0.0, 0.0, 1.0);
 pub const TEXT_COLOR: Color = BLACK;
+pub const BUTTON_TEXT_COLOR: Color = Color::new(0.7, 0.7, 0.9, 1.0);
 pub const TEXT_COLOR_ALARM: Color = Color::new(0.40, 0.0, 0.0, 1.00);
-pub const BACKGROUND_UI_COLOR: Color = Color::new(0.3, 0.3, 0.4, 1.0);
-pub const BACKGROUND_UI_COLOR_BUTTON: Color = Color::new(0.32, 0.32, 0.42, 1.0);
-pub const BACKGROUND_UI_COLOR_HOVERED: Color = Color::new(0.35, 0.35, 0.45, 1.0);
-pub const BACKGROUND_UI_COLOR_CLICKED: Color = Color::new(0.25, 0.25, 0.35, 1.0);
+pub const BACKGROUND_UI_COLOR: Color = BUTTON_TEXT_COLOR;
+pub const BACKGROUND_UI_COLOR_BUTTON: Color = Color::new(0.25, 0.25, 0.45, 1.0);
+pub const BACKGROUND_UI_COLOR_BUTTON_HOVERED: Color = Color::new(0.2, 0.2, 0.4, 1.0);
+pub const BACKGROUND_UI_COLOR_BUTTON_CLICKED: Color = Color::new(0.15, 0.15, 0.3, 1.0);
 
 pub struct Gui;
 
@@ -72,12 +73,14 @@ impl Gui {
         unhandled_input
     }
     fn set_skin(drawer: &mut impl DrawerTrait) {
-        drawer.set_button_style(
+        drawer.set_style(
             FONT_SIZE,
             TEXT_COLOR,
+            BUTTON_TEXT_COLOR,
+            BACKGROUND_UI_COLOR,
             BACKGROUND_UI_COLOR_BUTTON,
-            BACKGROUND_UI_COLOR_HOVERED,
-            BACKGROUND_UI_COLOR_CLICKED,
+            BACKGROUND_UI_COLOR_BUTTON_HOVERED,
+            BACKGROUND_UI_COLOR_BUTTON_CLICKED,
         );
     }
 }
