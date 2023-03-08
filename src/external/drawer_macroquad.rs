@@ -95,7 +95,7 @@ impl DrawerTrait for DrawerMacroquad {
             let (mouse_x, mouse_y) = mouse_position();
             let group_rect = Rect { x, y, w, h };
             if group_rect.contains(Vec2::new(mouse_x, mouse_y)) {
-                root_ui().focus_window(id);
+                // root_ui().focus_window(id);
                 return Interaction::Hovered;
             }
         }
@@ -126,7 +126,7 @@ impl DrawerTrait for DrawerMacroquad {
             let (mouse_x, mouse_y) = mouse_position();
             let group_rect = Rect { x, y, w, h };
             if group_rect.contains(Vec2::new(mouse_x, mouse_y)) {
-                root_ui().focus_window(id);
+                // root_ui().focus_window(id);
                 return Interaction::Hovered;
             }
         }
