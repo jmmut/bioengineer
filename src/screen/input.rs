@@ -18,6 +18,14 @@ pub struct Input {
     pub cell_selection: PixelCellSelection,
     pub robot_movement: Option<PixelPosition>,
     pub reset_quantities: bool,
+    pub zoom_change: ZoomChange,
+}
+
+#[derive(Copy, Clone)]
+pub enum ZoomChange {
+    ZoomIn,
+    ZoomOut,
+    None,
 }
 
 #[derive(Copy, Clone)]

@@ -4,7 +4,7 @@ pub mod move_horizontally;
 
 use crate::screen::drawing_state::highlight_cells::merge_consolidated_and_in_progress;
 use crate::screen::gui::GuiActions;
-use crate::screen::input::CellSelectionType;
+use crate::screen::input::{CellSelectionType, ZoomChange};
 use crate::world::map::CellIndex;
 use crate::{IVec2, Vec2, Vec3};
 use std::collections::HashSet;
@@ -19,6 +19,7 @@ pub struct DrawingState {
     pub subtile_offset: SubTilePosition,
     pub subcell_diff: SubCellIndex,
     pub top_bar_showing: TopBarShowing,
+    pub zoom: f32,
     highlighted_cells_in_progress: HashSet<CellIndex>,
     highlighted_cells_consolidated: HashSet<CellIndex>,
     highlighted_cells_in_progress_type: CellSelectionType,
@@ -39,6 +40,7 @@ impl DrawingState {
             max_cell: CellIndex::new(9, 1, 9),
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
+            zoom: 1.0,
             top_bar_showing: TopBarShowing::None,
             highlighted_cells_in_progress: HashSet::new(),
             highlighted_cells_consolidated: HashSet::new(),
@@ -62,5 +64,26 @@ impl DrawingState {
             gui_actions.go_to_robot,
         );
         self.maybe_select_cells_from_pixels(&gui_actions.cell_selection);
+        self.update_zoom(gui_actions.zoom_change);
+    }
+
+    fn update_zoom(&mut self, zoom_change: ZoomChange) {
+        match zoom_change {
+            ZoomChange::ZoomIn => {
+                if self.zoom >= 1.0 {
+                    self.zoom += 0.25;
+                } else {
+                    self.zoom *= 2.0;
+                }
+            }
+            ZoomChange::ZoomOut => {
+                if self.zoom <= 1.0 {
+                    self.zoom *= 0.5;
+                } else {
+                    self.zoom -= 0.25;
+                }
+            }
+            ZoomChange::None => {}
+        }
     }
 }

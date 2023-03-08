@@ -20,6 +20,10 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 - [/] water simulation capable of flooding your base
   - [x] communicating vessels
   - [ ] floodable floor
+- [ ] putting life
+  - [ ] put plants
+  - [ ] put animals
+  - [ ] put other life ??
 
 # Nice to haves
 

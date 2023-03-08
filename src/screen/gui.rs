@@ -12,9 +12,7 @@ use crate::screen::gui::panels::{
     draw_available_transformations::show_available_transformations,
     game_finished::draw_game_finished, task_queue::draw_robot_queue,
 };
-use crate::screen::input::{
-    CellIndexSelection, CellSelection, Input, PixelCellSelection, PixelPosition,
-};
+use crate::screen::input::{CellIndexSelection, CellSelection, Input, PixelCellSelection, PixelPosition, ZoomChange};
 use crate::world::map::CellIndex;
 use crate::{Color, World};
 
@@ -44,7 +42,7 @@ impl Gui {
         input: Input,
         drawer: &impl DrawerTrait,
         world: &World,
-        drawing: &mut DrawingState,
+        drawing: &mut DrawingState, // TODO: make const by add top_bar_showing to GuiActions
     ) -> GuiActions {
         let unhandled_input = GuiActions {
             // input: input.clone(),
@@ -62,7 +60,11 @@ impl Gui {
             reset_quantities: input.reset_quantities,
             quit: input.quit,
             change_height_rel: input.change_height_rel,
-            move_map_horizontally_diff: pixel_to_subcell_offset(input.move_map_horizontally),
+            move_map_horizontally_diff: pixel_to_subcell_offset(
+                input.move_map_horizontally,
+                drawing.zoom,
+            ),
+            zoom_change: input.zoom_change,
         };
         let unhandled_input = draw_game_finished(drawer, world, unhandled_input);
         let unhandled_input =

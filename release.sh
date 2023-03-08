@@ -26,6 +26,8 @@ fi
 sed -i "s/version = \"[0-9]\+.[0-9]\+.[0-9]\+\"/version = \"$NEW_VERSION\"/" Cargo.toml
 
 cargo build
+cargo test
+
 git add Cargo.toml Cargo.lock
 git commit -m "update Cargo version to $NEW_VERSION"
 git tag -a "$NEW_VERSION"

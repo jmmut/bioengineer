@@ -1,5 +1,6 @@
 use crate::screen::input::{
     CellSelectionType, Input, InputSourceTrait, PixelCellSelection, PixelPosition, PixelSelection,
+    ZoomChange,
 };
 
 use macroquad::input::{
@@ -109,7 +110,7 @@ impl InputMacroquad {
     }
 
     fn get_changed_height(&mut self) -> i32 {
-        let total_diff = self.get_mouse_wheel_height_diff() + self.get_vertical_arrow_pressed();
+        let total_diff = self.get_changed_height_with_wheel() + self.get_vertical_arrow_pressed();
         if total_diff > 0 {
             1
         } else if total_diff < 0 {
@@ -119,10 +120,19 @@ impl InputMacroquad {
         }
     }
 
+    fn get_changed_height_with_wheel(&mut self) -> i32 {
+        return if is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift) {
+            // this is zoom, not height change
+            0
+        } else {
+            self.get_mouse_wheel_height_diff()
+        }
+    }
+
     fn get_mouse_wheel_height_diff(&mut self) -> i32 {
         let (mouse_x, mouse_y) = mouse_wheel();
         if mouse_x != 0.0 || mouse_y != 0.0 {
-            // TODO how can I log in the js console_log?
+            // TODO how can I log in the js console_log? try info!()
             // eprintln!("mouse wheel: {}, {}", mouse_x, mouse_y);
         }
         let change_height_rel = if mouse_y > 0.0 {
@@ -210,6 +220,24 @@ impl InputMacroquad {
             right_click_pos
         }
     }
+
+    fn get_zoom(&mut self) -> ZoomChange {
+        if is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift) {
+            let wheel_diff = self.get_mouse_wheel_height_diff();
+            let change = match wheel_diff {
+                1 => ZoomChange::ZoomIn,
+                -1 => ZoomChange::ZoomOut,
+                0 => ZoomChange::None,
+                _ => panic!(
+                    "expected get_mouse_wheel_height_diff to return 0, 1 or -1, returned {}",
+                    wheel_diff
+                ),
+            };
+            change
+        } else {
+            ZoomChange::None
+        }
+    }
 }
 
 impl InputSourceTrait for InputMacroquad {
@@ -225,6 +253,7 @@ impl InputSourceTrait for InputMacroquad {
             cell_selection: self.get_cell_selection(),
             robot_movement: self.get_robot_movement(),
             reset_quantities: is_key_pressed(KeyCode::R),
+            zoom_change: self.get_zoom(),
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::screen::drawing_state::SubCellIndex;
-use crate::screen::input::CellSelection;
+use crate::screen::input::{CellSelection, ZoomChange};
 use crate::world::map::CellIndex;
 use crate::world::{GameGoalState, TransformationTask};
 
@@ -20,6 +20,7 @@ pub struct GuiActions {
     pub quit: bool,
     pub change_height_rel: i32,
     pub move_map_horizontally_diff: SubCellIndex,
+    pub zoom_change: ZoomChange,
 }
 
 impl GuiActions {
