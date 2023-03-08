@@ -126,7 +126,7 @@ impl InputMacroquad {
             0
         } else {
             self.get_mouse_wheel_height_diff()
-        }
+        };
     }
 
     fn get_mouse_wheel_height_diff(&mut self) -> i32 {

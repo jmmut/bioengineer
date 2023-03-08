@@ -12,7 +12,9 @@ use crate::screen::gui::panels::{
     draw_available_transformations::show_available_transformations,
     game_finished::draw_game_finished, task_queue::draw_robot_queue,
 };
-use crate::screen::input::{CellIndexSelection, CellSelection, Input, PixelCellSelection, PixelPosition, ZoomChange};
+use crate::screen::input::{
+    CellIndexSelection, CellSelection, Input, PixelCellSelection, PixelPosition,
+};
 use crate::world::map::CellIndex;
 use crate::{Color, World};
 

@@ -43,18 +43,18 @@ fn draw_cell(
     //     println!("selected something");
     // }
     if drawing.highlighted_cells().contains(&cell_index) {
-        drawer.draw_colored_texture(tile_type, pixel.x, pixel.y, SELECTION_COLOR);
+        drawer.draw_colored_texture(tile_type, pixel.x, pixel.y, drawing.zoom, SELECTION_COLOR);
     } else {
         let opacity = get_opacity(&cell_index, tile_type, world, drawing, min_cell, max_cell);
         // let opacity = 1.0; // for debugging
-        drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, opacity);
+        drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, drawing.zoom, opacity);
     }
     // draw_pressure_number(drawer, cell_index, screen_width, drawing, max_cell, cell)
     // draw_cell_hit_box(drawer, game_state, cell_index);
     if world.robots.contains(&Robot {
         position: cell_index,
     }) {
-        drawer.draw_transparent_texture(ExtraTextures::Robot, pixel.x, pixel.y, 1.0);
+        drawer.draw_transparent_texture(ExtraTextures::Robot, pixel.x, pixel.y, drawing.zoom, 1.0);
     }
 }
 

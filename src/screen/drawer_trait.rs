@@ -23,10 +23,10 @@ pub trait DrawerTrait {
     fn draw_texture<T>(&self, texture_index: T, x: f32, y: f32)
     where
         T: Into<TextureIndex>;
-    fn draw_transparent_texture<T>(&self, texture: T, x: f32, y: f32, opacity_coef: f32)
+    fn draw_transparent_texture<T>(&self, texture: T, x: f32, y: f32, zoom: f32, opacity_coef: f32)
     where
         T: Into<TextureIndex>;
-    fn draw_colored_texture<T>(&self, texture: T, x: f32, y: f32, color_mask: Color)
+    fn draw_colored_texture<T>(&self, texture: T, x: f32, y: f32, zoom: f32, color_mask: Color)
     where
         T: Into<TextureIndex>;
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);

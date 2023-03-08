@@ -5,7 +5,10 @@ use macroquad::math::{Rect, RectOffset, Vec2};
 use macroquad::prelude::Texture2D;
 use macroquad::shapes::draw_rectangle;
 use macroquad::text::{draw_text, measure_text};
-use macroquad::texture::draw_texture as macroquad_draw_texture;
+use macroquad::texture::{
+    draw_texture as macroquad_draw_texture, draw_texture_ex as macroquad_draw_texture_ex,
+    DrawTextureParams,
+};
 use macroquad::ui::widgets::Texture;
 use macroquad::ui::{root_ui, widgets, Skin};
 use macroquad::window::{clear_background, screen_height, screen_width};
@@ -56,22 +59,25 @@ impl DrawerTrait for DrawerMacroquad {
     where
         T: Into<TextureIndex>,
     {
-        self.draw_transparent_texture(texture_index, x, y, 1.0);
+        self.draw_transparent_texture(texture_index, x, y, 1.0, 1.0);
     }
 
-    fn draw_transparent_texture<T>(&self, texture: T, x: f32, y: f32, opacity_coef: f32)
+    fn draw_transparent_texture<T>(&self, texture: T, x: f32, y: f32, zoom: f32, opacity_coef: f32)
     where
         T: Into<TextureIndex>,
     {
-        let mask_color = Color::new(1.0, 1.0, 1.0, opacity_coef);
-        macroquad_draw_texture(self.textures[texture.into().get_index()], x, y, mask_color);
+        let color_mask = Color::new(1.0, 1.0, 1.0, opacity_coef);
+        let texture = self.textures[texture.into().get_index()];
+        macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
-    fn draw_colored_texture<T>(&self, texture: T, x: f32, y: f32, color_mask: Color)
+    fn draw_colored_texture<T>(&self, texture: T, x: f32, y: f32, zoom: f32, color_mask: Color)
     where
         T: Into<TextureIndex>,
     {
-        macroquad_draw_texture(self.textures[texture.into().get_index()], x, y, color_mask);
+        let texture = self.textures[texture.into().get_index()];
+        macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
+
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         draw_rectangle(x, y, w, h, color);
     }
@@ -309,5 +315,16 @@ impl DrawerMacroquad {
                 macroquad_draw_texture(self.textures[i], x, y, mask_color);
             }
         }
+    }
+}
+
+fn params_from_zoom(zoom: f32, texture: Texture2D) -> DrawTextureParams {
+    DrawTextureParams {
+        dest_size: Some(Vec2::new(texture.height() * zoom, texture.width() * zoom)),
+        source: None,
+        rotation: 0.0,
+        flip_x: false,
+        flip_y: false,
+        pivot: None,
     }
 }
