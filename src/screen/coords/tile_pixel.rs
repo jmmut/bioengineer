@@ -1,5 +1,5 @@
 use crate::screen::assets;
-use crate::screen::assets::PIXELS_PER_TILE_WIDTH;
+use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::coords::cast::Cast;
 use crate::screen::drawing_state::{DrawingState, SubTilePosition, TilePosition};
 use crate::screen::input::PixelPosition;
@@ -44,10 +44,21 @@ pub fn pixel_to_subtile(
 }
 
 pub fn pixel_offset(drawing: &DrawingState, screen_width: f32) -> PixelPosition {
-    let center_tile = PIXELS_PER_TILE_WIDTH as f32 * 0.5;
-    let screen_center = screen_width / 2.0;
+    let tile_center_x = PIXELS_PER_TILE_WIDTH as f32 * 0.5;
+    let screen_center_x = screen_width / 2.0;
     let pixels_subtile_offset = subtile_to_pixel_offset(drawing.subtile_offset, drawing.zoom);
-    PixelPosition::new(screen_center - center_tile, 0.0) + pixels_subtile_offset
+    let zoom_offset = zoom_offset(drawing, tile_center_x);
+    PixelPosition::new(screen_center_x - tile_center_x, 0.0) + pixels_subtile_offset + zoom_offset
+}
+
+fn zoom_offset(drawing: &DrawingState, tile_center_x: f32) -> PixelPosition {
+    let diagonal_map_in_cells =
+        (drawing.max_cell.x - drawing.min_cell.x) + (drawing.max_cell.z - drawing.min_cell.z);
+    let diagonal_map_in_tiles = diagonal_map_in_cells as f32 * 0.125;
+    let zoom_offset_y = (-diagonal_map_in_tiles * drawing.zoom + diagonal_map_in_tiles)
+        * PIXELS_PER_TILE_HEIGHT as f32;
+    let zoom_offset_x = -tile_center_x * drawing.zoom + tile_center_x;
+    PixelPosition::new(zoom_offset_x, zoom_offset_y)
 }
 
 pub fn subtile_to_pixel_offset(subtile: SubTilePosition, zoom: f32) -> PixelPosition {
