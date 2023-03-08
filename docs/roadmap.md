@@ -6,7 +6,7 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 
 - [x] basic mechanism to build machines
 - [/] UI
-  - [ ] top bar with "move, build, see networks, see production, see goals, help"
+  - [/] top bar with "move, build, see networks, see production, see goals, help"
   - [x] game finished GUI
   - [x] tooltip when hovering over build buttons, explaining cost and purpose
   - [x] timer to grade game runs
@@ -36,3 +36,4 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 - [ ] touchpad scroll is too sensitive
 - [ ] tile transparency also makes floor transparent
 - [ ] dirt can be converted to rock. is this wrong?
+- [ ] macroquad forces all windows except 1 to be inactive and darker
