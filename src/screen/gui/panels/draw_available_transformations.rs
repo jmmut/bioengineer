@@ -118,6 +118,8 @@ pub fn to_action_str(tile: TileType) -> &'static str {
         TileType::DirtyWaterWall => "Dirty water wall",
         TileType::CleanWaterWall => "Clean water wall",
         TileType::TreeHealthy => "Plant tree",
+        TileType::TreeSparse => "Plant sparse tree",
+        TileType::TreeDying => "Plant dying tree",
         TileType::TreeDead => "Kill tree",
     }
 }
@@ -129,7 +131,13 @@ fn to_tooltip_str(tile: TileType) -> Option<Vec<&'static str>> {
         }
         TileType::WallRock => None,
         TileType::WallDirt => None,
-        TileType::FloorRock => Some(vec!["- Makes a rock floor", "", "- Disassembles machines"]),
+        TileType::FloorRock => Some(vec![
+            "- Makes a rock floor",
+            "",
+            "- Disassembles machines",
+            "",
+            "- Uproots plants",
+        ]),
         TileType::FloorDirt => None,
         TileType::Stairs => Some(vec!["- Gives access to", "  underground levels"]),
         TileType::Air => None,
@@ -152,7 +160,15 @@ fn to_tooltip_str(tile: TileType) -> Option<Vec<&'static str>> {
         TileType::CleanWaterSurface => None,
         TileType::DirtyWaterWall => None,
         TileType::CleanWaterWall => None,
-        TileType::TreeHealthy => Some(vec!["- Toxic air will", "  kill the tree."]),
+        TileType::TreeHealthy => Some(vec![
+            "- Toxic air will kill",
+            "  the tree.",
+            "",
+            "- Darkness will kill",
+            "  the tree",
+        ]),
+        TileType::TreeSparse => None,
+        TileType::TreeDying => None,
         TileType::TreeDead => None,
     }
 }

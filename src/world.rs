@@ -23,6 +23,7 @@ use robots::{
 
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::DEFAULT_PROFILE_ENABLED;
+use crate::world::map::cell::{ages, transition_aging_tile};
 
 type AgeInMinutes = i64;
 
@@ -32,6 +33,7 @@ pub struct World {
     pub robots: Vec<Robot>,
     pub task_queue: VecDeque<Task>,
     pub networks: Networks,
+    pub aging_tiles: HashSet<CellIndex>,
     pub game_state: GameState,
     pub goal_state: GameGoalState,
     pub age_in_minutes: AgeInMinutes,
@@ -76,6 +78,7 @@ impl World {
             robots,
             task_queue: VecDeque::new(),
             networks: Networks::new(),
+            aging_tiles: HashSet::new(),
             game_state,
             goal_state: GameGoalState::Started,
             age_in_minutes: 0,
@@ -116,6 +119,9 @@ impl World {
             self.task_queue.clear();
         }
         self.networks.update();
+        if self.game_state.should_age_this_frame() {
+            self.age_tiles();
+        }
         self.update_goal_state(gui_actions);
     }
 
@@ -207,6 +213,11 @@ impl World {
                     let cell = self.map.get_cell_mut(reachable_position);
                     transform.transformation.apply(cell);
                     self.networks.add(reachable_position, cell.tile_type);
+                    if ages(cell.tile_type) {
+                        self.aging_tiles.insert(reachable_position);
+                    } else {
+                        self.aging_tiles.remove(&reachable_position);
+                    }
                     if transform.to_transform.len() == 0 {
                         // no need to reinsert this
                         return Option::None;
@@ -246,6 +257,16 @@ impl World {
             }
         }
         return Option::Some(*movement_target);
+    }
+
+    fn age_tiles(&mut self) {
+        for cell_index in &self.aging_tiles {
+            let cell = self.map.get_cell_mut(cell_index.clone());
+            cell.health -= 1;
+            if cell.health <= 0 {
+                transition_aging_tile(cell);
+            }
+        }
     }
 
     fn update_goal_state(&mut self, gui_actions: &GuiActions) {

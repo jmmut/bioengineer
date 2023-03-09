@@ -1,3 +1,4 @@
+use crate::world::map::cell::DEFAULT_HEALTH;
 use crate::world::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
 use std::collections::HashSet;
 
@@ -53,8 +54,8 @@ pub fn allowed_transformations_of_cell(
         machines.push(MachineSolarPanel);
     }
     let machines_plus = |mut tiles: Vec<TileType>| -> Vec<TileType> {
-            machines.append(&mut tiles);
-            machines
+        machines.append(&mut tiles);
+        machines
     };
     let mut new_tiles = match cell.tile_type {
         Unset => {
@@ -83,6 +84,8 @@ pub fn allowed_transformations_of_cell(
         ],
         CleanWaterWall => vec![],
         TreeHealthy => machines_plus(vec![FloorRock, Stairs]),
+        TreeSparse => machines_plus(vec![FloorRock, Stairs]),
+        TreeDying => machines_plus(vec![FloorRock, Stairs]),
         TreeDead => machines_plus(vec![FloorRock, Stairs]),
     };
     new_tiles.push(cell.tile_type);
@@ -153,6 +156,8 @@ impl Transformation {
             if self.new_tile_type == TileType::Air {
                 cell.pressure = 0;
             }
+        } else if self.new_tile_type == TileType::TreeHealthy {
+            cell.health = DEFAULT_HEALTH;
         }
         cell.tile_type = self.new_tile_type;
     }

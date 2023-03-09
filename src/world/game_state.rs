@@ -6,6 +6,13 @@ pub const DEFAULT_PROFILE_ENABLED: bool = false;
 const DEFAULT_ADVANCING_FLUIDS: bool = false;
 const DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES: i32 = 10;
 const DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES: i32 = 15;
+const DEFAULT_AGING_EVERY_N_FRAMES: i32 = 15;
+
+enum Phase {
+    Robots = 0,
+    Fluids = 1,
+    Aging = 2,
+}
 
 pub struct GameState {
     pub frame_index: i32,
@@ -16,6 +23,7 @@ pub struct GameState {
     advancing_fluids_single_step: bool,
     advance_fluid_every_n_frames: i32,
     advance_robots_every_n_frames: i32,
+    age_every_n_frames: i32,
 }
 
 impl GameState {
@@ -29,6 +37,7 @@ impl GameState {
             advance_fluid_every_n_frames: DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES,
             advance_robots_every_n_frames: DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES,
             profile: DEFAULT_PROFILE_ENABLED,
+            age_every_n_frames: DEFAULT_AGING_EVERY_N_FRAMES,
         }
     }
 
@@ -41,7 +50,8 @@ impl GameState {
     }
 
     pub fn should_advance_robots_this_frame(&mut self) -> bool {
-        let should_process_frame = self.frame_index % self.advance_robots_every_n_frames == 0;
+        let should_process_frame =
+            self.frame_index % self.advance_robots_every_n_frames == Phase::Robots as i32;
         should_process_frame
     }
 
@@ -51,11 +61,16 @@ impl GameState {
         } else {
             if self.advancing_fluids {
                 let should_process_frame =
-                    self.frame_index % self.advance_fluid_every_n_frames == 0;
+                    self.frame_index % self.advance_fluid_every_n_frames == Phase::Fluids as i32;
                 return should_process_frame;
             }
         }
         return false;
+    }
+
+    pub fn should_age_this_frame(&mut self) -> bool {
+        let should_age = self.frame_index % self.age_every_n_frames == Phase::Aging as i32;
+        return should_age;
     }
 
     pub fn advance_frame(&mut self) {

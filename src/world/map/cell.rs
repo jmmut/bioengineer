@@ -1,12 +1,34 @@
+pub use i16 as Health;
 pub use i32 as Pressure;
 use TileType::*;
+
+pub const DEFAULT_HEALTH: Health = 5;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Cell {
     pub tile_type: TileType,
     pub pressure: Pressure,
     pub next_pressure: Pressure,
+    pub health: Health,
     pub can_flow_out: bool,
+}
+
+impl Cell {
+    pub fn new(tile_type: TileType) -> Self {
+        Cell {
+            tile_type,
+            pressure: 0,
+            next_pressure: 0,
+            can_flow_out: false,
+            health: 0,
+        }
+    }
+}
+
+impl Default for Cell {
+    fn default() -> Self {
+        Self::new(TileType::Unset)
+    }
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
@@ -31,6 +53,8 @@ pub enum TileType {
     DirtyWaterWall = 14,
     CleanWaterWall = 15,
     TreeHealthy = 8,
+    TreeSparse = 9,
+    TreeDying = 10,
     TreeDead = 11,
 }
 
@@ -148,19 +172,19 @@ pub fn is_networkable(tile: TileType) -> bool {
     .contains(&tile)
 }
 
-impl Cell {
-    pub fn new(tile_type: TileType) -> Self {
-        Cell {
-            tile_type,
-            pressure: 0,
-            next_pressure: 0,
-            can_flow_out: false,
-        }
-    }
+pub fn ages(tile: TileType) -> bool {
+    [TreeHealthy, TreeSparse, TreeDying].contains(&tile)
 }
 
-impl Default for Cell {
-    fn default() -> Self {
-        Self::new(TileType::Unset)
+pub fn transition_aging_tile(cell: &mut Cell) {
+    if cell.tile_type == TreeHealthy {
+        cell.tile_type = TreeSparse;
+        cell.health = DEFAULT_HEALTH;
+    } else if cell.tile_type == TreeSparse {
+        cell.tile_type = TreeDying;
+        cell.health = DEFAULT_HEALTH;
+    } else if cell.tile_type == TreeDying {
+        cell.tile_type = TreeDead;
+        cell.health = 0;
     }
 }
