@@ -94,18 +94,7 @@ impl DrawerTrait for DrawerMacroquad {
         let token = window.begin(&mut root_ui());
         f();
         token.end(&mut root_ui());
-        let mouse_clicked = is_mouse_button_pressed(MouseButton::Left);
-        if mouse_clicked {
-            return Interaction::Clicked;
-        } else {
-            let (mouse_x, mouse_y) = mouse_position();
-            let group_rect = Rect { x, y, w, h };
-            if group_rect.contains(Vec2::new(mouse_x, mouse_y)) {
-                // root_ui().focus_window(id);
-                return Interaction::Hovered;
-            }
-        }
-        Interaction::None
+        get_interaction(x, y, w, h)
     }
 
     fn ui_named_group<F: FnOnce()>(
@@ -125,18 +114,7 @@ impl DrawerTrait for DrawerMacroquad {
         let token = window.begin(&mut root_ui());
         f();
         token.end(&mut root_ui());
-        let mouse_clicked = is_mouse_button_pressed(MouseButton::Left);
-        if mouse_clicked {
-            return Interaction::Clicked;
-        } else {
-            let (mouse_x, mouse_y) = mouse_position();
-            let group_rect = Rect { x, y, w, h };
-            if group_rect.contains(Vec2::new(mouse_x, mouse_y)) {
-                // root_ui().focus_window(id);
-                return Interaction::Hovered;
-            }
-        }
-        Interaction::None
+        get_interaction(x, y, w, h)
     }
 
     fn ui_texture(&self, texture_index: TextureIndex) -> bool {
@@ -316,6 +294,21 @@ impl DrawerMacroquad {
             }
         }
     }
+}
+
+fn get_interaction(x: f32, y: f32, w: f32, h: f32) -> Interaction {
+    let (mouse_x, mouse_y) = mouse_position();
+    let group_rect = Rect { x, y, w, h };
+    return if group_rect.contains(Vec2::new(mouse_x, mouse_y)) {
+        if is_mouse_button_pressed(MouseButton::Left) {
+            Interaction::Clicked
+        } else {
+            // root_ui().focus_window(id);
+            Interaction::Hovered
+        }
+    } else {
+        Interaction::None
+    };
 }
 
 fn params_from_zoom(zoom: f32, texture: Texture2D) -> DrawTextureParams {

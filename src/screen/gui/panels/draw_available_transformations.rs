@@ -3,6 +3,7 @@ use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::screen::gui::FONT_SIZE;
+use crate::screen::input::{CellSelection, CellSelectionState};
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
 use crate::world::TransformationTask;
@@ -16,7 +17,7 @@ pub fn show_available_transformations(
     drawing: &DrawingState,
 ) -> GuiActions {
     let mut transformation_clicked = Option::None;
-    let cell_selection = unhandled_input.cell_selection;
+    let mut cell_selection = unhandled_input.cell_selection;
     let highlighted_cells = drawing.highlighted_cells();
     if highlighted_cells.len() > 0 {
         let mut transformations = allowed_transformations(&highlighted_cells, &world.map);
@@ -42,24 +43,25 @@ pub fn show_available_transformations(
             panel_height,
         );
         let mut hovered_opt = None;
-        drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, || {
-            for transformation in transformations {
-                let text = to_action_str(transformation.new_tile_type);
-                match drawer.ui_button(text) {
-                    Interaction::Clicked => {
-                        let transformation_task = TransformationTask {
-                            to_transform: highlighted_cells.clone(),
-                            transformation: transformation.clone(),
-                        };
-                        transformation_clicked = Option::Some(transformation_task);
+        let transformations_panel =
+            drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, || {
+                for transformation in transformations {
+                    let text = to_action_str(transformation.new_tile_type);
+                    match drawer.ui_button(text) {
+                        Interaction::Clicked => {
+                            let transformation_task = TransformationTask {
+                                to_transform: highlighted_cells.clone(),
+                                transformation: transformation.clone(),
+                            };
+                            transformation_clicked = Option::Some(transformation_task);
+                        }
+                        Interaction::Hovered => {
+                            hovered_opt = Some(transformation.new_tile_type);
+                        }
+                        Interaction::None => {}
                     }
-                    Interaction::Hovered => {
-                        hovered_opt = Some(transformation.new_tile_type);
-                    }
-                    Interaction::None => {}
                 }
-            }
-        });
+            });
         if let Some(hovered) = hovered_opt {
             if let Some(tooltip) = to_tooltip_str(hovered) {
                 drawer.ui_named_group(
@@ -75,6 +77,9 @@ pub fn show_available_transformations(
                     },
                 );
             }
+        }
+        if transformations_panel.is_hovered_or_clicked() {
+            cell_selection = CellSelection::no_selection();
         }
         // if let Option::Some(selection) = unhandled_input.input.cell_selection.pixel_selection {
         //     if panel.contains(selection.end) {

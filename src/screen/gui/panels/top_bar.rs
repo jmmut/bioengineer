@@ -133,6 +133,7 @@ fn help_text_lines() -> Vec<String> {
 - right click: move the robot
 - arrow UP and DOWN, mouse wheel up and down: change height layer
 - mouse wheel click and drag: move the map horizontally
+- SHIFT + wheel: zoom in or out
 - r: reset timer and accumulated production
 - m: reset map (delete all constructions)"#
         .to_string();

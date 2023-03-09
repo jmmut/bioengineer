@@ -4,7 +4,6 @@ use crate::world::map::CellIndex;
 use crate::world::{GameGoalState, TransformationTask};
 
 pub struct GuiActions {
-    // pub input: Input,
     pub cell_selection: CellSelection,
     pub selected_cell_transformation: Option<TransformationTask>,
     pub robot_movement: Option<CellIndex>,

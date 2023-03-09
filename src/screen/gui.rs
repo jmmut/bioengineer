@@ -33,7 +33,7 @@ pub struct Gui;
 
 impl Gui {
     pub fn new(drawer: &mut impl DrawerTrait) -> Self {
-        Self::set_skin(drawer);
+        set_skin(drawer);
         Gui {}
     }
 }
@@ -46,28 +46,7 @@ impl Gui {
         world: &World,
         drawing: &mut DrawingState, // TODO: make const by add top_bar_showing to GuiActions
     ) -> GuiActions {
-        let unhandled_input = GuiActions {
-            // input: input.clone(),
-            cell_selection: pixel_to_cell_selection(input.cell_selection, drawer, drawing),
-            selected_cell_transformation: Option::None,
-            robot_movement: robot_movement_pixel_to_cell(input.robot_movement, drawer, drawing),
-            go_to_robot: Option::None,
-            cancel_task: Option::None,
-            do_now_task: Option::None,
-            next_game_goal_state: Option::None,
-            regenerate_map: input.regenerate_map,
-            toggle_profiling: input.toggle_profiling,
-            toggle_fluids: input.toggle_fluids,
-            single_fluid: input.single_fluid,
-            reset_quantities: input.reset_quantities,
-            quit: input.quit,
-            change_height_rel: input.change_height_rel,
-            move_map_horizontally_diff: pixel_to_subcell_offset(
-                input.move_map_horizontally,
-                drawing.zoom,
-            ),
-            zoom_change: input.zoom_change,
-        };
+        let unhandled_input = new_gui_from_input(input, drawer, drawing);
         let unhandled_input = draw_game_finished(drawer, world, unhandled_input);
         let unhandled_input =
             show_available_transformations(drawer, world, unhandled_input, drawing);
@@ -76,17 +55,48 @@ impl Gui {
         let unhandled_input = draw_top_bar(drawer, drawing, unhandled_input);
         unhandled_input
     }
-    fn set_skin(drawer: &mut impl DrawerTrait) {
-        drawer.set_style(
-            FONT_SIZE,
-            TEXT_COLOR,
-            BUTTON_TEXT_COLOR,
-            BACKGROUND_UI_COLOR,
-            BACKGROUND_UI_COLOR_BUTTON,
-            BACKGROUND_UI_COLOR_BUTTON_HOVERED,
-            BACKGROUND_UI_COLOR_BUTTON_CLICKED,
-        );
-    }
+}
+
+fn set_skin(drawer: &mut impl DrawerTrait) {
+    drawer.set_style(
+        FONT_SIZE,
+        TEXT_COLOR,
+        BUTTON_TEXT_COLOR,
+        BACKGROUND_UI_COLOR,
+        BACKGROUND_UI_COLOR_BUTTON,
+        BACKGROUND_UI_COLOR_BUTTON_HOVERED,
+        BACKGROUND_UI_COLOR_BUTTON_CLICKED,
+    );
+}
+
+fn new_gui_from_input(
+    input: Input,
+    drawer: &impl DrawerTrait,
+    drawing: &mut DrawingState,
+) -> GuiActions {
+    let unhandled_input = GuiActions {
+        // input: input.clone(),
+        cell_selection: pixel_to_cell_selection(input.cell_selection, drawer, drawing),
+        selected_cell_transformation: Option::None,
+        robot_movement: robot_movement_pixel_to_cell(input.robot_movement, drawer, drawing),
+        go_to_robot: Option::None,
+        cancel_task: Option::None,
+        do_now_task: Option::None,
+        next_game_goal_state: Option::None,
+        regenerate_map: input.regenerate_map,
+        toggle_profiling: input.toggle_profiling,
+        toggle_fluids: input.toggle_fluids,
+        single_fluid: input.single_fluid,
+        reset_quantities: input.reset_quantities,
+        quit: input.quit,
+        change_height_rel: input.change_height_rel,
+        move_map_horizontally_diff: pixel_to_subcell_offset(
+            input.move_map_horizontally,
+            drawing.zoom,
+        ),
+        zoom_change: input.zoom_change,
+    };
+    unhandled_input
 }
 
 fn pixel_to_cell_selection(
