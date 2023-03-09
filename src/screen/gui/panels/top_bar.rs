@@ -1,6 +1,7 @@
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::{DrawingState, TopBarShowing};
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
+use crate::screen::input::CellSelection;
 use crate::world::game_state::{get_goal_air_cleaned, get_goal_air_cleaned_str};
 use crate::Vec2;
 pub const TOP_BAR_HEIGHT: f32 = FONT_SIZE * 3.0;
@@ -13,22 +14,36 @@ pub fn draw_top_bar(
     let panel_height = TOP_BAR_HEIGHT;
     let mut goals = Interaction::None;
     let mut help = Interaction::None;
-    drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, || {
+    let mut cell_selection = gui_actions.cell_selection;
+    let mut maybe_ignore_cell_selection = |interaction: Interaction| {
+        if interaction.is_hovered_or_clicked() {
+            cell_selection = CellSelection::no_selection();
+        }
+    };
+
+    let panel_interaction = drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, || {
         goals = drawer.ui_button("Goals");
         drawer.ui_same_line();
         help = drawer.ui_button("Help");
     });
-    maybe_draw_goals(drawer, drawing, goals);
-    maybe_draw_help(drawer, drawing, help);
-    gui_actions
+    maybe_ignore_cell_selection(panel_interaction);
+    maybe_ignore_cell_selection(maybe_draw_goals(drawer, drawing, goals));
+    maybe_ignore_cell_selection(maybe_draw_help(drawer, drawing, help));
+    GuiActions {
+        cell_selection,
+        ..gui_actions
+    }
 }
 
-fn maybe_draw_goals(drawer: &impl DrawerTrait, drawing: &mut DrawingState, goals: Interaction) {
+
+fn maybe_draw_goals(drawer: &impl DrawerTrait, drawing: &mut DrawingState, goals: Interaction) -> Interaction {
     if goals.is_clicked() {
         toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Goals.clone());
     }
-    if drawing.top_bar_showing == TopBarShowing::Goals {
-        draw_pop_up(drawer, drawing, "Goals", &goals_text_lines());
+    return if drawing.top_bar_showing == TopBarShowing::Goals {
+        draw_pop_up(drawer, drawing, "Goals", &goals_text_lines())
+    } else {
+        Interaction::None
     }
 }
 
@@ -37,7 +52,7 @@ fn draw_pop_up(
     drawing: &mut DrawingState,
     pop_up_name: &str,
     text: &Vec<String>,
-) {
+) -> Interaction {
     let center = Vec2::new(drawer.screen_width() / 2.0, drawer.screen_height() / 2.0);
     let title_height = FONT_SIZE * 2.0;
     let button_text = "Continue";
@@ -66,7 +81,7 @@ fn draw_pop_up(
                 drawing.top_bar_showing = TopBarShowing::None;
             }
         },
-    );
+    )
 }
 
 fn measure_text(drawer: &impl DrawerTrait, text: &Vec<String>) -> Vec2 {
@@ -116,12 +131,14 @@ fn goals_text_lines() -> Vec<String> {
     ]
 }
 
-fn maybe_draw_help(drawer: &impl DrawerTrait, drawing: &mut DrawingState, help: Interaction) {
+fn maybe_draw_help(drawer: &impl DrawerTrait, drawing: &mut DrawingState, help: Interaction) ->Interaction {
     if help.is_clicked() {
         toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Help.clone());
     }
-    if drawing.top_bar_showing == TopBarShowing::Help {
-        draw_pop_up(drawer, drawing, "Help", &help_text_lines());
+    return if drawing.top_bar_showing == TopBarShowing::Help {
+        draw_pop_up(drawer, drawing, "Help", &help_text_lines())
+    } else {
+        Interaction::None
     }
 }
 

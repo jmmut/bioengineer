@@ -2,6 +2,7 @@ use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::panels::draw_available_transformations::to_action_str;
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
+use crate::screen::input::CellSelection;
 use crate::world::map::cell::{ExtraTextures, TextureIndex};
 use crate::world::{Task, World};
 
@@ -10,7 +11,7 @@ pub fn draw_robot_queue(
     world: &World,
     gui_actions: GuiActions,
 ) -> GuiActions {
-    // let highlighted_cells = gui_actions.input.cell_selection
+    let mut cell_selection = gui_actions.cell_selection;
     let margin = MARGIN;
     let icon_width = PIXELS_PER_TILE_WIDTH as f32 * 1.5;
     let icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 1.5;
@@ -34,6 +35,9 @@ pub fn draw_robot_queue(
             }
         },
     );
+    if group_robot.is_hovered_or_clicked() {
+        cell_selection = CellSelection::no_selection();
+    }
 
     let draw_tooltip = |tooltip_enabled: bool, tooltip: &str| {
         if tooltip_enabled {
@@ -82,6 +86,9 @@ pub fn draw_robot_queue(
                 drawer.ui_texture(task_tile);
             },
         );
+        if group.is_hovered_or_clicked() {
+            cell_selection = CellSelection::no_selection();
+        }
 
         draw_tooltip(cancel_hovered, "Stop doing this task");
         draw_tooltip(do_now_hovered, "Pause other tasks and do this task now");
@@ -95,6 +102,7 @@ pub fn draw_robot_queue(
         go_to_robot,
         cancel_task,
         do_now_task,
+        cell_selection,
         ..gui_actions
     }
 }
