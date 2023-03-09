@@ -424,7 +424,7 @@ mod tests {
     mod tasks {
         use super::*;
         use crate::screen::gui::GuiActions;
-        use crate::screen::input::CellSelection;
+        use crate::screen::input::{CellSelection, ZoomChange};
         use crate::World;
 
         #[test]
@@ -595,6 +595,7 @@ mod tests {
                 cancel_task: None,
                 do_now_task: None,
                 next_game_goal_state: None,
+                zoom_change: ZoomChange::None,
             }
         }
 
