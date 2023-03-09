@@ -36,7 +36,7 @@ git add Cargo.toml Cargo.lock
 
 if is_git_dirty
 then
-  # may not be dirty if the Cargo.toml already had the new version commited
+  # may not be dirty if the Cargo.toml already had the new version committed
   git commit -m "update Cargo version to $NEW_VERSION"
 fi
 
