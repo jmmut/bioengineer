@@ -40,7 +40,7 @@ impl DrawingState {
             max_cell: CellIndex::new(9, 1, 9),
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
-            zoom: 1.0,
+            zoom: 2.0,
             top_bar_showing: TopBarShowing::None,
             highlighted_cells_in_progress: HashSet::new(),
             highlighted_cells_consolidated: HashSet::new(),
