@@ -16,7 +16,11 @@ fi
 NEW_VERSION=$1
 echo tagging version "$NEW_VERSION"
 
-if [[ $(git status --porcelain 2> /dev/null | grep -v "??" -c)  != "0" ]]
+function is_git_dirty() {
+  [[ $(git status --porcelain 2> /dev/null | grep -v "??" -c)  != "0" ]]
+}
+
+if is_git_dirty
 then
   echo -e "Your workspace is dirty, you pig! refusing to tag a version\n------\n"
   git status
@@ -29,11 +33,13 @@ cargo build
 cargo test
 
 git add Cargo.toml Cargo.lock
-git commit -m "update Cargo version to $NEW_VERSION"
+
+if is_git_dirty
+then
+  # may not be dirty if the Cargo.toml already had the new version commited
+  git commit -m "update Cargo version to $NEW_VERSION"
+fi
+
 git tag -a "$NEW_VERSION"
 
 echo -e "\n------\nnow you can push with:\ngit push origin $NEW_VERSION"
-
-
-
-
