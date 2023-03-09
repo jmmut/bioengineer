@@ -29,8 +29,8 @@ use screen::Screen;
 use world::game_state::GameState;
 use world::World;
 
-const DEFAULT_WINDOW_WIDTH: i32 = 1600;
-const DEFAULT_WINDOW_HEIGHT: i32 = 900;
+const DEFAULT_WINDOW_WIDTH: i32 = 1365;
+const DEFAULT_WINDOW_HEIGHT: i32 = 768;
 const DEFAULT_WINDOW_TITLE: &str = "Bioengineer";
 
 use git_version::git_version;
