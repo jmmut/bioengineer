@@ -30,6 +30,8 @@ pub enum TileType {
     CleanWaterSurface = 7,
     DirtyWaterWall = 14,
     CleanWaterWall = 15,
+    TreeHealthy = 8,
+    TreeDead = 11,
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
@@ -106,6 +108,8 @@ pub fn is_walkable_horizontal(tile: TileType) -> bool {
         MachineDrill,
         MachineSolarPanel,
         MachineShip,
+        TreeHealthy,
+        TreeDead,
     ]
     .contains(&tile)
 }

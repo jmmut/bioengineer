@@ -52,20 +52,18 @@ pub fn allowed_transformations_of_cell(
     if solar_allowed(cell_index, map) {
         machines.push(MachineSolarPanel);
     }
+    let machines_plus = |mut tiles: Vec<TileType>| -> Vec<TileType> {
+            machines.append(&mut tiles);
+            machines
+    };
     let mut new_tiles = match cell.tile_type {
         Unset => {
             panic!("can not transform an UNSET cell!")
         }
-        WallRock => vec![FloorRock, Stairs],
-        WallDirt => vec![FloorDirt, Stairs],
-        FloorRock => {
-            machines.append(&mut vec![Stairs]);
-            machines
-        }
-        FloorDirt => {
-            machines.append(&mut vec![Stairs, FloorRock]);
-            machines
-        }
+        WallRock => machines_plus(vec![FloorRock, Stairs]),
+        WallDirt => machines_plus(vec![FloorDirt, Stairs]),
+        FloorRock => machines_plus(vec![Stairs, TreeHealthy]),
+        FloorDirt => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
         Stairs => vec![FloorRock],
         Air => vec![
         // DirtyWaterSurface, DirtyWaterWall, WallRock
@@ -84,6 +82,8 @@ pub fn allowed_transformations_of_cell(
             // Air
         ],
         CleanWaterWall => vec![],
+        TreeHealthy => machines_plus(vec![FloorRock, Stairs]),
+        TreeDead => machines_plus(vec![FloorRock, Stairs]),
     };
     new_tiles.push(cell.tile_type);
     new_tiles
@@ -204,6 +204,7 @@ mod tests {
                 Transformation::to(TileType::Wire),
                 Transformation::to(TileType::MachineSolarPanel),
                 Transformation::to(TileType::Stairs),
+                Transformation::to(TileType::TreeHealthy),
                 Transformation::to(TileType::FloorRock),
             ]
         );
@@ -224,6 +225,7 @@ mod tests {
                 // Transformation::to(TileType::MachineDrill),
                 Transformation::to(TileType::Wire),
                 Transformation::to(TileType::Stairs),
+                Transformation::to(TileType::TreeHealthy),
                 Transformation::to(TileType::FloorRock),
             ]
         );

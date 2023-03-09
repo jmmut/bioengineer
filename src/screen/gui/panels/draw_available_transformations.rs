@@ -117,6 +117,8 @@ pub fn to_action_str(tile: TileType) -> &'static str {
         TileType::CleanWaterSurface => "Clean water surface",
         TileType::DirtyWaterWall => "Dirty water wall",
         TileType::CleanWaterWall => "Clean water wall",
+        TileType::TreeHealthy => "Plant tree",
+        TileType::TreeDead => "Kill tree",
     }
 }
 
@@ -150,5 +152,7 @@ fn to_tooltip_str(tile: TileType) -> Option<Vec<&'static str>> {
         TileType::CleanWaterSurface => None,
         TileType::DirtyWaterWall => None,
         TileType::CleanWaterWall => None,
+        TileType::TreeHealthy => Some(vec!["- Toxic air will", "  kill the tree."]),
+        TileType::TreeDead => None,
     }
 }
