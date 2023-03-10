@@ -130,7 +130,8 @@ fn goals_text_lines() -> Vec<String> {
             get_goal_air_cleaned_str(),
             get_goal_air_cleaned()
         ),
-        "- Remove your infrastructure".to_string(),
+        "- Remove all machines".to_string(),
+        "- Keep 50 trees alive".to_string(),
     ]
 }
 

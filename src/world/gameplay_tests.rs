@@ -1,17 +1,17 @@
 #[cfg(test)]
 mod game_goal_state_transition_tests {
     use crate::world::game_state::get_goal_air_cleaned;
+    use crate::world::map::cell::DEFAULT_HEALTH;
     use crate::world::map::{Cell, CellIndex, TileType};
     use crate::world::networks::Networks;
-    use crate::world::{transition_goal_state, GameGoalState, age_tile};
-    use crate::world::map::cell::DEFAULT_HEALTH;
+    use crate::world::{age_tile, transition_goal_state, GameGoalState};
 
     #[test]
     fn test_starting() {
         let networks = Networks::new();
         let mut current_goal = GameGoalState::Started;
 
-        transition_goal_state(&mut current_goal, &networks, 100);
+        transition_goal_state(&mut current_goal, &networks, 0, 100);
 
         assert_eq!(current_goal, GameGoalState::Started);
     }
@@ -22,7 +22,7 @@ mod game_goal_state_transition_tests {
         networks.set_production(get_goal_air_cleaned() / 2.0);
         let mut current_goal = GameGoalState::Started;
 
-        transition_goal_state(&mut current_goal, &networks, 100);
+        transition_goal_state(&mut current_goal, &networks, 0, 100);
 
         assert_eq!(current_goal, GameGoalState::Started);
     }
@@ -33,7 +33,7 @@ mod game_goal_state_transition_tests {
         networks.set_production(get_goal_air_cleaned());
         let mut current_goal = GameGoalState::Started;
 
-        transition_goal_state(&mut current_goal, &networks, 100);
+        transition_goal_state(&mut current_goal, &networks, 0, 100);
 
         assert_eq!(current_goal, GameGoalState::ReachedProduction);
     }
@@ -45,7 +45,7 @@ mod game_goal_state_transition_tests {
         networks.set_production(get_goal_air_cleaned());
         let mut current_goal = GameGoalState::ReachedProduction;
 
-        transition_goal_state(&mut current_goal, &networks, 100);
+        transition_goal_state(&mut current_goal, &networks, 0, 100);
 
         assert_eq!(current_goal, GameGoalState::ReachedProduction);
     }
@@ -56,7 +56,7 @@ mod game_goal_state_transition_tests {
         networks.set_production(get_goal_air_cleaned());
         let mut current_goal = GameGoalState::ReachedProduction;
 
-        transition_goal_state(&mut current_goal, &networks, 100);
+        transition_goal_state(&mut current_goal, &networks, 50, 100);
 
         assert_eq!(current_goal, GameGoalState::Finished(100));
     }

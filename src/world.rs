@@ -23,10 +23,12 @@ use robots::{
 
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::DEFAULT_PROFILE_ENABLED;
-use crate::world::map::Cell;
 use crate::world::map::cell::{ages, transition_aging_tile};
+use crate::world::map::{Cell, TileType};
 
 type AgeInMinutes = i64;
+
+const LIFE_COUNT_REQUIRED_FOR_WINNING: usize = 50;
 
 pub struct World {
     pub map: Map,
@@ -35,6 +37,7 @@ pub struct World {
     pub task_queue: VecDeque<Task>,
     pub networks: Networks,
     pub aging_tiles: HashSet<CellIndex>,
+    pub life: HashSet<CellIndex>,
     pub game_state: GameState,
     pub goal_state: GameGoalState,
     pub age_in_minutes: AgeInMinutes,
@@ -80,6 +83,7 @@ impl World {
             task_queue: VecDeque::new(),
             networks: Networks::new(),
             aging_tiles: HashSet::new(),
+            life: HashSet::new(),
             game_state,
             goal_state: GameGoalState::Started,
             age_in_minutes: 0,
@@ -216,8 +220,10 @@ impl World {
                     self.networks.add(reachable_position, cell.tile_type);
                     if ages(cell.tile_type) {
                         self.aging_tiles.insert(reachable_position);
+                        self.life.insert(reachable_position);
                     } else {
                         self.aging_tiles.remove(&reachable_position);
+                        self.life.remove(&reachable_position);
                     }
                     if transform.to_transform.len() == 0 {
                         // no need to reinsert this
@@ -263,7 +269,10 @@ impl World {
     fn age_tiles(&mut self) {
         for cell_index in &self.aging_tiles {
             let cell = self.map.get_cell_mut(cell_index.clone());
-            age_tile(cell, self.goal_state);
+            let died = age_tile(cell, self.goal_state);
+            if died {
+                self.life.remove(cell_index);
+            }
         }
     }
 
@@ -277,7 +286,12 @@ impl World {
             GameGoalState::Finished(_) | GameGoalState::PostFinished => {
                 self.goal_state = gui_actions.next_game_goal_state.unwrap_or(self.goal_state);
             }
-            _ => transition_goal_state(&mut self.goal_state, &self.networks, self.age_in_minutes),
+            _ => transition_goal_state(
+                &mut self.goal_state,
+                &self.networks,
+                self.life.len(),
+                self.age_in_minutes,
+            ),
         }
     }
 
@@ -293,19 +307,25 @@ impl World {
     }
 }
 
-fn transition_goal_state(current: &mut GameGoalState, networks: &Networks, age: AgeInMinutes) {
+fn transition_goal_state(
+    current: &mut GameGoalState,
+    networks: &Networks,
+    life_count: usize,
+    age: AgeInMinutes,
+) {
     if *current == GameGoalState::Started {
         if networks.get_total_air_cleaned() >= get_goal_air_cleaned() {
             *current = GameGoalState::ReachedProduction;
         }
     } else if *current == GameGoalState::ReachedProduction {
-        if networks.len() == 0 {
+        if networks.len() == 0 && life_count >= LIFE_COUNT_REQUIRED_FOR_WINNING {
             *current = GameGoalState::Finished(age);
         }
     }
 }
 
-fn age_tile(cell :&mut Cell, goal_state: GameGoalState) {
+/// Returns true if the cell died
+fn age_tile(cell: &mut Cell, goal_state: GameGoalState) -> bool {
     match goal_state {
         GameGoalState::Started => {
             cell.health -= 1;
@@ -315,4 +335,5 @@ fn age_tile(cell :&mut Cell, goal_state: GameGoalState) {
         }
         _ => (),
     }
+    return cell.tile_type == TileType::TreeDead;
 }

@@ -96,3 +96,17 @@ pub fn draw_age(drawer: &impl DrawerTrait, world: &World) {
         TEXT_COLOR,
     );
 }
+
+pub fn draw_life(drawer: &impl DrawerTrait, world: &World) {
+    let life_count = world.life.len();
+    let text = format!("Living trees: {}", life_count);
+    let network_count = world.networks.len();
+
+    drawer.draw_text(
+        text.as_str(),
+        20.0,
+        drawer.screen_height() - FONT_SIZE * (6.0 + network_count as f32),
+        FONT_SIZE,
+        TEXT_COLOR,
+    );
+}
