@@ -23,6 +23,7 @@ use robots::{
 
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::DEFAULT_PROFILE_ENABLED;
+use crate::world::map::Cell;
 use crate::world::map::cell::{ages, transition_aging_tile};
 
 type AgeInMinutes = i64;
@@ -262,10 +263,7 @@ impl World {
     fn age_tiles(&mut self) {
         for cell_index in &self.aging_tiles {
             let cell = self.map.get_cell_mut(cell_index.clone());
-            cell.health -= 1;
-            if cell.health <= 0 {
-                transition_aging_tile(cell);
-            }
+            age_tile(cell, self.goal_state);
         }
     }
 
@@ -304,5 +302,17 @@ fn transition_goal_state(current: &mut GameGoalState, networks: &Networks, age: 
         if networks.len() == 0 {
             *current = GameGoalState::Finished(age);
         }
+    }
+}
+
+fn age_tile(cell :&mut Cell, goal_state: GameGoalState) {
+    match goal_state {
+        GameGoalState::Started => {
+            cell.health -= 1;
+            if cell.health <= 0 {
+                transition_aging_tile(cell);
+            }
+        }
+        _ => (),
     }
 }
