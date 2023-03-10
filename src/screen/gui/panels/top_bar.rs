@@ -120,19 +120,20 @@ fn toggle_showing_or_none(top_bar_showing: &mut TopBarShowing, showing: TopBarSh
 }
 
 fn goals_text_lines() -> Vec<String> {
-    vec![
-        "You are an Artificial Intelligence sent to this barren planet".to_string(),
-        "to put life on it.".to_string(),
-        "".to_string(),
-        "You have to:".to_string(),
-        format!(
-            "- Clean {} of air ({} liters)",
-            get_goal_air_cleaned_str(),
-            get_goal_air_cleaned()
-        ),
-        "- Remove all machines".to_string(),
-        "- Keep 50 trees alive".to_string(),
-    ]
+    format!(
+        r#"You are an Artificial Intelligence sent to this barren planet
+to put life on it.
+
+You have to:
+- Clean {} of air ({} liters)
+- Remove all machines
+- Keep 50 trees alive"#,
+        get_goal_air_cleaned_str(),
+        get_goal_air_cleaned()
+    )
+    .split("\n")
+    .map(|s| s.to_string())
+    .collect()
 }
 
 fn maybe_draw_help(
