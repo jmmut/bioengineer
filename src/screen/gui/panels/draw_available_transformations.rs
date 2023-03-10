@@ -163,9 +163,9 @@ fn to_tooltip_str(tile: TileType) -> Option<Vec<&'static str>> {
         TileType::TreeHealthy => Some(vec![
             "- Toxic air will kill",
             "  the tree.",
-            "",
-            "- Darkness will kill",
-            "  the tree",
+            // "",
+            // "- Darkness will kill",
+            // "  the tree",
         ]),
         TileType::TreeSparse => None,
         TileType::TreeDying => None,
