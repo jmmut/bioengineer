@@ -1,4 +1,4 @@
-use crate::world::map::cell::TextureIndex;
+use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 use crate::Color;
 use crate::Texture2D;
 use crate::Vec2;
@@ -20,33 +20,25 @@ pub trait DrawerTrait {
     fn screen_width(&self) -> f32;
     fn screen_height(&self) -> f32;
     fn clear_background(&self, color: Color);
-    fn draw_texture<T>(&self, texture_index: T, x: f32, y: f32)
-    where
-        T: Into<TextureIndex>;
-    fn draw_transparent_texture<T>(&self, texture: T, x: f32, y: f32, zoom: f32, opacity_coef: f32)
-    where
-        T: Into<TextureIndex>;
-    fn draw_colored_texture<T>(&self, texture: T, x: f32, y: f32, zoom: f32, color_mask: Color)
-    where
-        T: Into<TextureIndex>;
+    fn draw_texture(&self, texture_index: Box<dyn TextureIndexTrait>, x: f32, y: f32);
+    fn draw_transparent_texture(&self, texture: Box<dyn TextureIndexTrait>, x: f32, y: f32, zoom: f32, opacity_coef: f32);
+    fn draw_colored_texture(&self, texture: Box<dyn TextureIndexTrait>, x: f32, y: f32, zoom: f32, color_mask: Color);
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
 
-    fn ui_group<F: FnOnce()>(&self, x: f32, y: f32, w: f32, h: f32, f: F) -> Interaction;
-    fn ui_named_group<F: FnOnce()>(
+    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce() -> () >) -> Interaction;
+    fn ui_named_group(
         &self,
         title: &str,
         x: f32,
         y: f32,
         w: f32,
         h: f32,
-        f: F,
+        f: Box<dyn FnOnce() -> ()>,
     ) -> Interaction;
     /// both draws and returns if it was pressed. (Immediate mode UI)
     fn ui_texture(&self, texture_index: TextureIndex) -> bool;
-    fn ui_texture_with_pos<T>(&self, texture_index: T, x: f32, y: f32) -> bool
-    where
-        T: Into<TextureIndex>;
+    fn ui_texture_with_pos(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool;
     /// both draws and returns if it was pressed or hovered over. (Immediate mode UI)
     fn ui_button(&self, text: &str) -> Interaction;
     fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> Interaction;

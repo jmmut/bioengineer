@@ -32,7 +32,7 @@ pub const BACKGROUND_UI_COLOR_BUTTON_CLICKED: Color = Color::new(0.8, 0.8, 0.9, 
 pub struct Gui;
 
 impl Gui {
-    pub fn new(drawer: &mut impl DrawerTrait) -> Self {
+    pub fn new(mut drawer: &dyn DrawerTrait) -> Self {
         set_skin(drawer);
         Gui {}
     }
@@ -42,7 +42,7 @@ impl Gui {
     pub fn process_input(
         &self,
         input: Input,
-        drawer: &impl DrawerTrait,
+        drawer: &dyn DrawerTrait,
         world: &World,
         drawing: &mut DrawingState, // TODO: make const by add top_bar_showing to GuiActions
     ) -> GuiActions {
@@ -57,7 +57,7 @@ impl Gui {
     }
 }
 
-fn set_skin(drawer: &mut impl DrawerTrait) {
+fn set_skin(mut drawer: &dyn DrawerTrait) {
     drawer.set_style(
         FONT_SIZE,
         TEXT_COLOR,
@@ -71,7 +71,7 @@ fn set_skin(drawer: &mut impl DrawerTrait) {
 
 fn new_gui_from_input(
     input: Input,
-    drawer: &impl DrawerTrait,
+    drawer: &dyn DrawerTrait,
     drawing: &mut DrawingState,
 ) -> GuiActions {
     let unhandled_input = GuiActions {
@@ -101,7 +101,7 @@ fn new_gui_from_input(
 
 fn pixel_to_cell_selection(
     pixel_selection: PixelCellSelection,
-    drawer: &impl DrawerTrait,
+    drawer: &dyn DrawerTrait,
     drawing: &DrawingState,
 ) -> CellSelection {
     CellSelection {
@@ -118,7 +118,7 @@ fn pixel_to_cell_selection(
 
 fn robot_movement_pixel_to_cell(
     robot_movement: Option<PixelPosition>,
-    drawer: &impl DrawerTrait,
+    drawer: &dyn DrawerTrait,
     drawing: &DrawingState,
 ) -> Option<CellIndex> {
     robot_movement.map(|click| clicked_cell(click, drawer.screen_width(), drawing))

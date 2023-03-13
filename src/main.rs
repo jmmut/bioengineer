@@ -20,7 +20,6 @@ use external::assets_macroquad::load_tileset;
 use external::drawer_macroquad::DrawerMacroquad as DrawerImpl;
 use external::input_macroquad::InputMacroquad as InputSource;
 
-use common::profiling::ScopedProfiler;
 use screen::drawer_trait::DrawerTrait;
 // use screen::gui::Gui;
 use crate::world::map::chunk::chunks::cache::print_cache_stats;
@@ -34,6 +33,8 @@ const DEFAULT_WINDOW_HEIGHT: i32 = 768;
 const DEFAULT_WINDOW_TITLE: &str = "Bioengineer";
 
 use git_version::git_version;
+use bioengineer::frame;
+
 const GIT_VERSION: &str = git_version!(args = ["--tags"]);
 
 #[derive(Parser, Debug)]
@@ -68,24 +69,12 @@ fn window_conf() -> Conf {
     }
 }
 
-async fn factory() -> (Screen<DrawerImpl, InputSource>, World) {
+async fn factory() -> (Screen, World) {
     let args = CliArgs::parse();
     println!("Running Bioengineer version {}", GIT_VERSION);
     let tileset = load_tileset("assets/image/tileset.png");
-    let drawer = DrawerImpl::new(tileset.await);
-    let input_source = InputSource::new();
+    let drawer = Box::new(DrawerImpl::new(tileset.await));
+    let input_source = Box::new(InputSource::new());
     let world = World::new_with_options(args.profile);
     (Screen::new(drawer, input_source), world)
-}
-
-/// returns if should continue looping. In other words, if there should be another future frame.
-fn frame<D: DrawerTrait, I: InputSourceTrait>(
-    screen: &mut Screen<D, I>,
-    world: &mut World,
-) -> bool {
-    let _profiler = ScopedProfiler::new_named(world.game_state.profile, "whole toplevel frame");
-    let gui_actions = screen.get_gui_actions(world);
-    let should_continue = world.update(gui_actions);
-    screen.draw(world);
-    should_continue
 }

@@ -7,7 +7,7 @@ use crate::Vec2;
 pub const TOP_BAR_HEIGHT: f32 = FONT_SIZE * 3.0;
 
 pub fn draw_top_bar(
-    drawer: &impl DrawerTrait,
+    drawer: &dyn DrawerTrait,
     drawing: &mut DrawingState,
     gui_actions: GuiActions,
 ) -> GuiActions {
@@ -21,11 +21,11 @@ pub fn draw_top_bar(
         }
     };
 
-    let panel_interaction = drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, || {
+    let panel_interaction = drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, Box::new(|| {
         goals = drawer.ui_button("Goals");
         drawer.ui_same_line();
         help = drawer.ui_button("Help");
-    });
+    }));
     maybe_ignore_cell_selection(panel_interaction);
     maybe_ignore_cell_selection(maybe_draw_goals(drawer, drawing, goals));
     maybe_ignore_cell_selection(maybe_draw_help(drawer, drawing, help));
@@ -36,7 +36,7 @@ pub fn draw_top_bar(
 }
 
 fn maybe_draw_goals(
-    drawer: &impl DrawerTrait,
+    drawer: &dyn DrawerTrait,
     drawing: &mut DrawingState,
     goals: Interaction,
 ) -> Interaction {
@@ -51,7 +51,7 @@ fn maybe_draw_goals(
 }
 
 fn draw_pop_up(
-    drawer: &impl DrawerTrait,
+    drawer: &dyn DrawerTrait,
     drawing: &mut DrawingState,
     pop_up_name: &str,
     text: &Vec<String>,
@@ -71,7 +71,7 @@ fn draw_pop_up(
         center.y - panel_size.y / 2.0,
         panel_size.x,
         panel_size.y,
-        || {
+        Box::new(|| {
             for line in text {
                 drawer.ui_text(&line);
             }
@@ -83,17 +83,17 @@ fn draw_pop_up(
             {
                 drawing.top_bar_showing = TopBarShowing::None;
             }
-        },
+        }),
     )
 }
 
-fn measure_text(drawer: &impl DrawerTrait, text: &Vec<String>) -> Vec2 {
+fn measure_text(drawer: &dyn DrawerTrait, text: &Vec<String>) -> Vec2 {
     let text_height = text.len() as f32 * FONT_SIZE * 1.2;
     let text_width = measure_longest_width(drawer, &text);
     Vec2::new(text_width, text_height)
 }
 
-fn measure_longest_width(drawer: &impl DrawerTrait, text: &Vec<String>) -> f32 {
+fn measure_longest_width(drawer: &dyn DrawerTrait, text: &Vec<String>) -> f32 {
     let mut max_width = 0.0;
     for line in text {
         let line_width = drawer.measure_text(line, FONT_SIZE).x;
@@ -104,7 +104,7 @@ fn measure_longest_width(drawer: &impl DrawerTrait, text: &Vec<String>) -> f32 {
     max_width
 }
 
-fn measure_button(drawer: &impl DrawerTrait, button_text: &str) -> Vec2 {
+fn measure_button(drawer: &dyn DrawerTrait, button_text: &str) -> Vec2 {
     let button_size = drawer.measure_text(&button_text, FONT_SIZE);
     // let button_size = Vec2::new(button_size.x / button_text.len() as f32 * (button_text.len() + 6) as f32, button_size.y * 2.0);
     let button_size = Vec2::new(button_size.x + MARGIN * 4.0, button_size.y + MARGIN);
@@ -137,7 +137,7 @@ You have to:
 }
 
 fn maybe_draw_help(
-    drawer: &impl DrawerTrait,
+    drawer: &dyn DrawerTrait,
     drawing: &mut DrawingState,
     help: Interaction,
 ) -> Interaction {

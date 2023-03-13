@@ -14,7 +14,7 @@ use crate::{Color, World};
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);
 
-pub fn draw_map(drawer: &impl DrawerTrait, world: &World, drawing: &DrawingState) {
+pub fn draw_map(drawer: &dyn DrawerTrait, world: &World, drawing: &DrawingState) {
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
     for i_y in min_cell.y..=max_cell.y {
@@ -27,7 +27,7 @@ pub fn draw_map(drawer: &impl DrawerTrait, world: &World, drawing: &DrawingState
 }
 
 fn draw_cell(
-    drawer: &impl DrawerTrait,
+    drawer: &dyn DrawerTrait,
     world: &World,
     cell_index: CellIndex,
     drawing: &DrawingState,
@@ -43,18 +43,18 @@ fn draw_cell(
     //     println!("selected something");
     // }
     if drawing.highlighted_cells().contains(&cell_index) {
-        drawer.draw_colored_texture(tile_type, pixel.x, pixel.y, drawing.zoom, SELECTION_COLOR);
+        drawer.draw_colored_texture(Box::new(tile_type), pixel.x, pixel.y, drawing.zoom, SELECTION_COLOR);
     } else {
         let opacity = get_opacity(&cell_index, tile_type, world, drawing, min_cell, max_cell);
         // let opacity = 1.0; // for debugging
-        drawer.draw_transparent_texture(tile_type, pixel.x, pixel.y, drawing.zoom, opacity);
+        drawer.draw_transparent_texture(Box::new(tile_type), pixel.x, pixel.y, drawing.zoom, opacity);
     }
     // draw_pressure_number(drawer, cell_index, screen_width, drawing, max_cell, cell)
     // draw_cell_hit_box(drawer, game_state, cell_index);
     if world.robots.contains(&Robot {
         position: cell_index,
     }) {
-        drawer.draw_transparent_texture(ExtraTextures::Robot, pixel.x, pixel.y, drawing.zoom, 1.0);
+        drawer.draw_transparent_texture(Box::new(ExtraTextures::Robot), pixel.x, pixel.y, drawing.zoom, 1.0);
     }
 }
 
@@ -74,7 +74,7 @@ fn get_opacity(
 
 #[allow(unused)]
 fn draw_pressure_number(
-    drawer: &impl DrawerTrait,
+    drawer: &dyn DrawerTrait,
     cell_index: CellIndex,
     screen_width: f32,
     drawing: &DrawingState,
@@ -144,7 +144,7 @@ fn get_opacity_to_see_robot(cell_index: &CellIndex, tile_type: TileType, robots:
 }
 
 #[allow(dead_code)]
-fn draw_cell_hit_box(drawer: &impl DrawerTrait, cell_index: CellIndex, drawing: &DrawingState) {
+fn draw_cell_hit_box(drawer: &dyn DrawerTrait, cell_index: CellIndex, drawing: &DrawingState) {
     let mut subcell: SubCellIndex = cell_index.cast();
     let size = 2.0;
     let color = Color::new(1.0, 1.0, 1.0, 1.0);

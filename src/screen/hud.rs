@@ -6,7 +6,7 @@ use crate::screen::gui::{FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
 use crate::world::game_state::get_goal_air_cleaned_str;
 use crate::{GameState, World};
 
-pub fn draw_fps(drawer: &impl DrawerTrait, game_state: &GameState) {
+pub fn draw_fps(drawer: &dyn DrawerTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);
     if game_state.profile {
         println!(
@@ -28,7 +28,7 @@ pub fn draw_fps(drawer: &impl DrawerTrait, game_state: &GameState) {
     );
 }
 
-pub fn draw_level(drawer: &impl DrawerTrait, min_y: i32, max_y: i32) {
+pub fn draw_level(drawer: &dyn DrawerTrait, min_y: i32, max_y: i32) {
     let text = format!("height: [{}, {}]", min_y, max_y);
     drawer.draw_text(
         text.as_str(),
@@ -39,7 +39,7 @@ pub fn draw_level(drawer: &impl DrawerTrait, min_y: i32, max_y: i32) {
     );
 }
 
-pub fn draw_networks(drawer: &impl DrawerTrait, world: &World) {
+pub fn draw_networks(drawer: &dyn DrawerTrait, world: &World) {
     let network_count = world.networks.len();
     let text = format!(
         "Production: Air cleaned: {}, goal: {}",
@@ -84,7 +84,7 @@ pub fn draw_networks(drawer: &impl DrawerTrait, world: &World) {
     }
 }
 
-pub fn draw_age(drawer: &impl DrawerTrait, world: &World) {
+pub fn draw_age(drawer: &dyn DrawerTrait, world: &World) {
     let network_count = world.networks.len();
     let text = format!("Time spent: {}", world.get_age_str());
 
@@ -97,7 +97,7 @@ pub fn draw_age(drawer: &impl DrawerTrait, world: &World) {
     );
 }
 
-pub fn draw_life(drawer: &impl DrawerTrait, world: &World) {
+pub fn draw_life(drawer: &dyn DrawerTrait, world: &World) {
     let life_count = world.life.len();
     let text = format!("Living trees: {}", life_count);
     let network_count = world.networks.len();

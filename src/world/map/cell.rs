@@ -75,6 +75,16 @@ impl TextureIndex {
     }
 }
 
+pub trait TextureIndexTrait {
+     fn get_index(&self) -> usize;
+}
+
+impl From<&dyn TextureIndexTrait> for TextureIndex {
+    fn from(t: &dyn TextureIndexTrait) -> Self {
+        Self { index: t.get_index() }
+    }
+}
+
 impl From<TileType> for TextureIndex {
     fn from(texture: TileType) -> Self {
         if texture == Unset {
@@ -94,14 +104,14 @@ impl From<ExtraTextures> for TextureIndex {
     }
 }
 
-impl TileType {
-    pub fn get_index(&self) -> usize {
+impl TextureIndexTrait for TileType {
+    fn get_index(&self) -> usize {
         TextureIndex::from(*self).get_index()
     }
 }
 
-impl ExtraTextures {
-    pub fn get_index(&self) -> usize {
+impl TextureIndexTrait for ExtraTextures {
+    fn get_index(&self) -> usize {
         TextureIndex::from(*self).get_index()
     }
 }

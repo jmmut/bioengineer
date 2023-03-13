@@ -18,7 +18,7 @@ use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::{FONT_SIZE, MARGIN};
-use crate::world::map::cell::TextureIndex;
+use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 
 pub struct DrawerMacroquad {
     pub drawing: DrawingState,
@@ -55,26 +55,17 @@ impl DrawerTrait for DrawerMacroquad {
     fn clear_background(&self, color: Color) {
         clear_background(color);
     }
-    fn draw_texture<T>(&self, texture_index: T, x: f32, y: f32)
-    where
-        T: Into<TextureIndex>,
-    {
+    fn draw_texture(&self, texture_index: Box<dyn TextureIndexTrait>, x: f32, y: f32) {
         self.draw_transparent_texture(texture_index, x, y, 1.0, 1.0);
     }
 
-    fn draw_transparent_texture<T>(&self, texture: T, x: f32, y: f32, zoom: f32, opacity_coef: f32)
-    where
-        T: Into<TextureIndex>,
-    {
+    fn draw_transparent_texture(&self, texture: Box<dyn TextureIndexTrait>, x: f32, y: f32, zoom: f32, opacity_coef: f32) {
         let color_mask = Color::new(1.0, 1.0, 1.0, opacity_coef);
-        let texture = self.textures[texture.into().get_index()];
+        let texture = self.textures[texture.get_index()];
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
-    fn draw_colored_texture<T>(&self, texture: T, x: f32, y: f32, zoom: f32, color_mask: Color)
-    where
-        T: Into<TextureIndex>,
-    {
-        let texture = self.textures[texture.into().get_index()];
+    fn draw_colored_texture(&self, texture: Box<dyn TextureIndexTrait>, x: f32, y: f32, zoom: f32, color_mask: Color) {
+        let texture = self.textures[texture.get_index()];
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
 
@@ -86,7 +77,7 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     /// This grouping function does not support nested groups
-    fn ui_group<F: FnOnce()>(&self, x: f32, y: f32, w: f32, h: f32, f: F) -> Interaction {
+    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce()->()>) -> Interaction {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)
@@ -97,14 +88,14 @@ impl DrawerTrait for DrawerMacroquad {
         get_interaction(x, y, w, h)
     }
 
-    fn ui_named_group<F: FnOnce()>(
+    fn ui_named_group(
         &self,
         title: &str,
         x: f32,
         y: f32,
         w: f32,
         h: f32,
-        f: F,
+        f: Box<dyn FnOnce()->()>,
     ) -> Interaction {
         let id = hash!(title, x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
@@ -130,10 +121,7 @@ impl DrawerTrait for DrawerMacroquad {
         // the button I think only supports textures as a skin which is tedious.
     }
 
-    fn ui_texture_with_pos<T>(&self, texture_index: T, x: f32, y: f32) -> bool
-    where
-        T: Into<TextureIndex>,
-    {
+    fn ui_texture_with_pos(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool {
         let clicked = Texture::new(self.get_texture_copy(texture_index))
             .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
             .position(Some(Vec2::new(x, y)))

@@ -3,6 +3,7 @@ use crate::screen::assets::{
 };
 use crate::world::map::cell::ExtraTextures;
 use macroquad::texture::{FilterMode, Texture2D};
+use crate::world::map::cell::TextureIndexTrait;
 
 pub async fn load_tileset(path: &str) -> Vec<Texture2D> {
     let image_future = macroquad::texture::load_image(path);

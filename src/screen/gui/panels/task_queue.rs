@@ -7,7 +7,7 @@ use crate::world::map::cell::{ExtraTextures, TextureIndex};
 use crate::world::{Task, World};
 
 pub fn draw_robot_queue(
-    drawer: &impl DrawerTrait,
+    drawer: &dyn DrawerTrait,
     world: &World,
     gui_actions: GuiActions,
 ) -> GuiActions {
@@ -25,15 +25,16 @@ pub fn draw_robot_queue(
         drawer.screen_height() - robot_window_height - margin,
         icon_width,
         robot_window_height,
-        || {
+        Box::new(|| {
             let show_robot = drawer.ui_button("Show");
             let robot_texture_clicked =
-                drawer.ui_texture_with_pos(ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
+                drawer.ui_texture_with_pos(&
+                    ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
             robot_hovered = show_robot.is_hovered_or_clicked();
             if show_robot.is_clicked() || robot_texture_clicked {
                 go_to_robot = Option::Some(world.robots.first().unwrap().position);
             }
-        },
+        }),
     );
     if group_robot.is_hovered_or_clicked() {
         cell_selection = CellSelection::no_selection();
@@ -71,7 +72,7 @@ pub fn draw_robot_queue(
             drawer.screen_height() - group_height - margin,
             icon_width,
             group_height,
-            || {
+            Box::new(|| {
                 let cancel = drawer.ui_button("Cancel");
                 cancel_hovered = cancel.is_hovered();
                 if cancel.is_clicked() {
@@ -84,7 +85,7 @@ pub fn draw_robot_queue(
                     do_now_task = Option::Some(task_index);
                 }
                 drawer.ui_texture(task_tile);
-            },
+            }),
         );
         if group.is_hovered_or_clicked() {
             cell_selection = CellSelection::no_selection();
@@ -108,7 +109,7 @@ pub fn draw_robot_queue(
 }
 
 fn draw_task_queue_tooltip(
-    drawer: &impl DrawerTrait,
+    drawer: &dyn DrawerTrait,
     group_height: f32,
     margin: f32,
     tooltip: &str,
@@ -120,6 +121,6 @@ fn draw_task_queue_tooltip(
         drawer.screen_height() - group_height - margin - tooltip_height - margin,
         tooltip_width,
         tooltip_height,
-        || drawer.ui_text(tooltip),
+        Box::new(|| drawer.ui_text(tooltip)),
     );
 }
