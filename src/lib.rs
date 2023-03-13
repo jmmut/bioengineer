@@ -32,3 +32,12 @@ pub fn frame(
     screen.draw(world);
     should_continue
 }
+
+
+#[no_mangle]
+pub extern "C" fn hot_reload_draw_frame(
+    screen: &mut Screen,
+    world: &mut World,
+) -> bool  {
+    frame(screen, world)
+}

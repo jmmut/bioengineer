@@ -10,7 +10,6 @@ use macroquad::window::next_frame;
 use bioengineer::external::drawer_macroquad::DrawerMacroquad as DrawerImpl;
 use bioengineer::external::input_macroquad::InputMacroquad as InputSource;
 use bioengineer::external::assets_macroquad::load_tileset;
-use bioengineer::frame;
 use bioengineer::screen::drawer_trait::DrawerTrait;
 use bioengineer::screen::Screen;
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
@@ -59,8 +58,7 @@ async fn main() -> Result<(), AnyError> {
     let (mut screen, mut world) = factory().await;
 
     let (mut draw_frame, mut lib_handle) = load()?;
-    while frame(&mut screen, &mut world) {
-
+    while draw_frame(&mut screen, &mut world) {
         if should_reload() {
             (draw_frame, lib_handle) = reload(lib_handle)?;
         }
@@ -91,7 +89,7 @@ async fn factory() -> (Screen, World) {
 }
 
 fn load() -> Result<(DrawFrameFunction, *const c_void), AnyError> {
-    let function_name = "frame";
+    let function_name = "hot_reload_draw_frame";
     let lib_name= "target/debug/libbioengineer.so";
 
     let lib_name = CString::new(lib_name).unwrap();
@@ -120,10 +118,10 @@ fn load() -> Result<(DrawFrameFunction, *const c_void), AnyError> {
 }
 
 fn should_reload() -> bool {
-    if is_key_down(KeyCode::R) {
+    if is_key_down(KeyCode::F5) {
         draw_text("About to reload when you release", 20.0, 20.0, 30.0, BLACK);
     }
-    is_key_released(KeyCode::R)
+    is_key_released(KeyCode::F5)
 }
 
 fn reload(lib: *const c_void) -> Result<(DrawFrameFunction, *const c_void), AnyError> {
