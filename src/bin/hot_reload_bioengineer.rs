@@ -1,9 +1,10 @@
+//! Most of these ideas came from https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
+
 use std::ffi::{c_char, c_int, c_void, CString};
+use std::path::PathBuf;
+use std::sync::mpsc::Receiver;
 use clap::Parser;
 use git_version::git_version;
-use macroquad::color::BLACK;
-use macroquad::input::{is_key_down, is_key_released, KeyCode};
-use macroquad::prelude::draw_text;
 use macroquad::window::Conf;
 use macroquad::window::next_frame;
 
@@ -14,6 +15,8 @@ use bioengineer::screen::drawer_trait::DrawerTrait;
 use bioengineer::screen::Screen;
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
 use bioengineer::world::World;
+
+use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;
@@ -55,11 +58,11 @@ struct CliArgs {
 
 #[macroquad::main(window_conf)]
 async fn main() -> Result<(), AnyError> {
-    let (mut screen, mut world) = factory().await;
-
+    let (mut screen, mut world) = factory().await; // TODO: reload screen too (textures)
+    let (_watcher, rx) = watch()?;
     let (mut draw_frame, mut lib_handle) = load()?;
     while draw_frame(&mut screen, &mut world) {
-        if should_reload() {
+        if should_reload(&rx) {
             (draw_frame, lib_handle) = reload(lib_handle)?;
         }
         next_frame().await
@@ -117,11 +120,16 @@ fn load() -> Result<(DrawFrameFunction, *const c_void), AnyError> {
     Ok((transmuted_function, lib))
 }
 
-fn should_reload() -> bool {
-    if is_key_down(KeyCode::F5) {
-        draw_text("About to reload when you release", 20.0, 20.0, 30.0, BLACK);
-    }
-    is_key_released(KeyCode::F5)
+fn should_reload(rx: &Receiver<()>) -> bool {
+    rx.try_recv().is_ok()
+
+    // use macroquad::prelude::draw_text;
+    // use macroquad::color::BLACK;
+    // use macroquad::input::{is_key_down, is_key_released, KeyCode};
+    // if is_key_down(KeyCode::F5) {
+    //     draw_text("About to reload when you release", 20.0, 20.0, 30.0, BLACK);
+    // }
+    // is_key_released(KeyCode::F5)
 }
 
 fn reload(lib: *const c_void) -> Result<(DrawFrameFunction, *const c_void), AnyError> {
@@ -135,4 +143,33 @@ fn unload(lib: *const c_void) {
             dlclose(lib);
         }
     }
+}
+
+fn watch() -> Result<(RecommendedWatcher, Receiver<()>), AnyError>{
+    let base = PathBuf::from(".").canonicalize().unwrap();
+    let libname = "libbioengineer.so";
+    let relative_path = PathBuf::from("target").join("debug").join(libname);
+    // let absolute_path = base.join(&relative_path);
+
+    // here's our watcher to communicate between the watcher thread
+    // (using `tx`, the "transmitter") and the main thread (using
+    // `rx`, the "receiver").
+    let (tx, rx) = std::sync::mpsc::channel::<()>();
+
+    let mut watcher = notify::recommended_watcher(move |res :Result<Event, notify::Error>| {
+        match res {
+           Ok(event) => {
+                if let notify::EventKind::Create(_) = event.kind {
+                    if event.paths.iter().any(|x| x.ends_with(&relative_path)) {
+                        // signal that we need to reload
+                        tx.send(()).unwrap();
+                    }
+                }
+           },
+           Err(e) => println!("watch error: {:?}", e),
+        }
+    })?;
+
+    watcher.watch(&base, RecursiveMode::Recursive).unwrap();
+    Ok((watcher, rx))
 }
