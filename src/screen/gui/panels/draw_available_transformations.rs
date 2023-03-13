@@ -6,9 +6,8 @@ use crate::screen::gui::FONT_SIZE;
 use crate::screen::input::CellSelection;
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
-use crate::world::TransformationTask;
+use crate::world::{TransformationTask, World};
 use crate::Rect;
-use crate::World;
 
 pub fn show_available_transformations(
     drawer: &dyn DrawerTrait,
@@ -44,8 +43,8 @@ pub fn show_available_transformations(
         );
         let mut hovered_opt = None;
         let transformations_panel =
-            drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, Box::new(|| {
-                for transformation in transformations {
+            drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, &mut || {
+                for transformation in &transformations {
                     let text = to_action_str(transformation.new_tile_type);
                     match drawer.ui_button(text) {
                         Interaction::Clicked => {
@@ -61,7 +60,7 @@ pub fn show_available_transformations(
                         Interaction::None => {}
                     }
                 }
-            }));
+            });
         if let Some(hovered) = hovered_opt {
             if let Some(tooltip) = to_tooltip_str(hovered) {
                 drawer.ui_named_group(
@@ -70,12 +69,12 @@ pub fn show_available_transformations(
                     panel.y,
                     panel.w,
                     panel.h,
-                    Box::new(|| {
-                        for line in tooltip {
+                    &mut || {
+                        for line in &tooltip {
                             drawer.ui_text(line);
                         }
                     },
-                ));
+                );
             }
         }
         if transformations_panel.is_hovered_or_clicked() {

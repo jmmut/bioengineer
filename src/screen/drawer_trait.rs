@@ -20,13 +20,13 @@ pub trait DrawerTrait {
     fn screen_width(&self) -> f32;
     fn screen_height(&self) -> f32;
     fn clear_background(&self, color: Color);
-    fn draw_texture(&self, texture_index: Box<dyn TextureIndexTrait>, x: f32, y: f32);
-    fn draw_transparent_texture(&self, texture: Box<dyn TextureIndexTrait>, x: f32, y: f32, zoom: f32, opacity_coef: f32);
-    fn draw_colored_texture(&self, texture: Box<dyn TextureIndexTrait>, x: f32, y: f32, zoom: f32, color_mask: Color);
+    fn draw_texture(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32);
+    fn draw_transparent_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, opacity_coef: f32);
+    fn draw_colored_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, color_mask: Color);
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
 
-    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce() -> () >) -> Interaction;
+    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut() -> ()) -> Interaction;
     fn ui_named_group(
         &self,
         title: &str,
@@ -34,7 +34,7 @@ pub trait DrawerTrait {
         y: f32,
         w: f32,
         h: f32,
-        f: Box<dyn FnOnce() -> ()>,
+        f: &mut dyn FnMut() -> (),
     ) -> Interaction;
     /// both draws and returns if it was pressed. (Immediate mode UI)
     fn ui_texture(&self, texture_index: TextureIndex) -> bool;

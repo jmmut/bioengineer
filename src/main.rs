@@ -1,39 +1,21 @@
-mod common;
-mod screen;
-mod world;
-
-mod external {
-    pub mod assets_macroquad;
-    pub mod drawer_macroquad;
-    pub mod input_macroquad;
-}
 
 use clap::Parser;
-use macroquad::color::Color;
-use macroquad::math::{IVec2, IVec3, Rect, Vec2, Vec3};
-use macroquad::miniquad::date::now;
-use macroquad::texture::{Image, Texture2D};
-use macroquad::window::next_frame;
+use git_version::git_version;
 use macroquad::window::Conf;
+use macroquad::window::next_frame;
 
-use external::assets_macroquad::load_tileset;
-use external::drawer_macroquad::DrawerMacroquad as DrawerImpl;
-use external::input_macroquad::InputMacroquad as InputSource;
-
-use screen::drawer_trait::DrawerTrait;
-// use screen::gui::Gui;
-use crate::world::map::chunk::chunks::cache::print_cache_stats;
-use screen::input::InputSourceTrait;
-use screen::Screen;
-use world::game_state::GameState;
-use world::World;
+use bioengineer::external::drawer_macroquad::DrawerMacroquad as DrawerImpl;
+use bioengineer::external::input_macroquad::InputMacroquad as InputSource;
+use bioengineer::external::assets_macroquad::load_tileset;
+use bioengineer::frame;
+use bioengineer::screen::drawer_trait::DrawerTrait;
+use bioengineer::screen::Screen;
+use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
+use bioengineer::world::World;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;
 const DEFAULT_WINDOW_TITLE: &str = "Bioengineer";
-
-use git_version::git_version;
-use bioengineer::frame;
 
 const GIT_VERSION: &str = git_version!(args = ["--tags"]);
 

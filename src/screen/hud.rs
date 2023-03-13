@@ -3,8 +3,8 @@
 
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR, TEXT_COLOR_ALARM};
-use crate::world::game_state::get_goal_air_cleaned_str;
-use crate::{GameState, World};
+use crate::world::game_state::{GameState, get_goal_air_cleaned_str};
+use crate::world::World;
 
 pub fn draw_fps(drawer: &dyn DrawerTrait, game_state: &GameState) {
     let fps = 1.0 / (game_state.current_frame_ts - game_state.previous_frame_ts);

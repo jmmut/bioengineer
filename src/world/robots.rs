@@ -425,7 +425,7 @@ mod tests {
         use super::*;
         use crate::screen::gui::GuiActions;
         use crate::screen::input::{CellSelection, ZoomChange};
-        use crate::World;
+        use crate::world::World;
 
         #[test]
         fn test_move_robot_basic_task() {

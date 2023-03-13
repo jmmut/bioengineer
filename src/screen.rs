@@ -1,11 +1,10 @@
-use std::borrow::BorrowMut;
 use crate::world::World;
 use crate::Color;
-use crate::InputSourceTrait;
 use drawer_trait::DrawerTrait;
 use drawing_state::DrawingState;
 use gui::gui_actions::GuiActions;
 use gui::Gui;
+use crate::screen::input::InputSourceTrait;
 
 pub mod assets;
 pub mod coords;
@@ -27,7 +26,7 @@ pub struct Screen{
 
 impl Screen {
     pub fn new(mut drawer: Box<dyn DrawerTrait>, input_source: Box<dyn InputSourceTrait>) -> Self {
-        let gui = Gui::new(drawer.as_ref());
+        let gui = Gui::new(drawer.as_mut());
         let drawing_state = DrawingState::new();
         Screen {
             drawer,

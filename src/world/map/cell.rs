@@ -65,6 +65,8 @@ pub enum ExtraTextures {
     Movement = 22,
 }
 
+
+#[derive(Clone, Copy)]
 pub struct TextureIndex {
     index: usize,
 }

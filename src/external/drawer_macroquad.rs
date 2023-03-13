@@ -55,16 +55,16 @@ impl DrawerTrait for DrawerMacroquad {
     fn clear_background(&self, color: Color) {
         clear_background(color);
     }
-    fn draw_texture(&self, texture_index: Box<dyn TextureIndexTrait>, x: f32, y: f32) {
+    fn draw_texture(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) {
         self.draw_transparent_texture(texture_index, x, y, 1.0, 1.0);
     }
 
-    fn draw_transparent_texture(&self, texture: Box<dyn TextureIndexTrait>, x: f32, y: f32, zoom: f32, opacity_coef: f32) {
+    fn draw_transparent_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, opacity_coef: f32) {
         let color_mask = Color::new(1.0, 1.0, 1.0, opacity_coef);
         let texture = self.textures[texture.get_index()];
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
-    fn draw_colored_texture(&self, texture: Box<dyn TextureIndexTrait>, x: f32, y: f32, zoom: f32, color_mask: Color) {
+    fn draw_colored_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, color_mask: Color) {
         let texture = self.textures[texture.get_index()];
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
@@ -77,7 +77,7 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     /// This grouping function does not support nested groups
-    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: Box<dyn FnOnce()->()>) -> Interaction {
+    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut() -> ()) -> Interaction {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)
@@ -95,7 +95,7 @@ impl DrawerTrait for DrawerMacroquad {
         y: f32,
         w: f32,
         h: f32,
-        f: Box<dyn FnOnce()->()>,
+        f: &mut dyn FnMut(),
     ) -> Interaction {
         let id = hash!(title, x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))

@@ -21,11 +21,11 @@ pub fn draw_top_bar(
         }
     };
 
-    let panel_interaction = drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, Box::new(|| {
+    let panel_interaction = drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, &mut || {
         goals = drawer.ui_button("Goals");
         drawer.ui_same_line();
         help = drawer.ui_button("Help");
-    }));
+    });
     maybe_ignore_cell_selection(panel_interaction);
     maybe_ignore_cell_selection(maybe_draw_goals(drawer, drawing, goals));
     maybe_ignore_cell_selection(maybe_draw_help(drawer, drawing, help));
@@ -71,7 +71,7 @@ fn draw_pop_up(
         center.y - panel_size.y / 2.0,
         panel_size.x,
         panel_size.y,
-        Box::new(|| {
+        &mut || {
             for line in text {
                 drawer.ui_text(&line);
             }
@@ -83,7 +83,7 @@ fn draw_pop_up(
             {
                 drawing.top_bar_showing = TopBarShowing::None;
             }
-        }),
+        },
     )
 }
 

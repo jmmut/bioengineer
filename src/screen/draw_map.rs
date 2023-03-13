@@ -9,7 +9,8 @@ use crate::screen::input::PixelPosition;
 use crate::world::map::cell::ExtraTextures;
 use crate::world::map::{is_covering, Cell, CellIndex, TileType};
 use crate::world::robots::Robot;
-use crate::{Color, World};
+use crate::{Color};
+use crate::world::World;
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);
@@ -43,18 +44,18 @@ fn draw_cell(
     //     println!("selected something");
     // }
     if drawing.highlighted_cells().contains(&cell_index) {
-        drawer.draw_colored_texture(Box::new(tile_type), pixel.x, pixel.y, drawing.zoom, SELECTION_COLOR);
+        drawer.draw_colored_texture(&tile_type, pixel.x, pixel.y, drawing.zoom, SELECTION_COLOR);
     } else {
         let opacity = get_opacity(&cell_index, tile_type, world, drawing, min_cell, max_cell);
         // let opacity = 1.0; // for debugging
-        drawer.draw_transparent_texture(Box::new(tile_type), pixel.x, pixel.y, drawing.zoom, opacity);
+        drawer.draw_transparent_texture(&tile_type, pixel.x, pixel.y, drawing.zoom, opacity);
     }
     // draw_pressure_number(drawer, cell_index, screen_width, drawing, max_cell, cell)
     // draw_cell_hit_box(drawer, game_state, cell_index);
     if world.robots.contains(&Robot {
         position: cell_index,
     }) {
-        drawer.draw_transparent_texture(Box::new(ExtraTextures::Robot), pixel.x, pixel.y, drawing.zoom, 1.0);
+        drawer.draw_transparent_texture(&ExtraTextures::Robot, pixel.x, pixel.y, drawing.zoom, 1.0);
     }
 }
 

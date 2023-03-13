@@ -16,7 +16,8 @@ use crate::screen::input::{
     CellIndexSelection, CellSelection, Input, PixelCellSelection, PixelPosition,
 };
 use crate::world::map::CellIndex;
-use crate::{Color, World};
+use crate::Color;
+use crate::world::World;
 
 pub const FONT_SIZE: f32 = 16.0;
 pub const MARGIN: f32 = 10.0;
@@ -32,7 +33,7 @@ pub const BACKGROUND_UI_COLOR_BUTTON_CLICKED: Color = Color::new(0.8, 0.8, 0.9, 
 pub struct Gui;
 
 impl Gui {
-    pub fn new(mut drawer: &dyn DrawerTrait) -> Self {
+    pub fn new(drawer: &mut dyn DrawerTrait) -> Self {
         set_skin(drawer);
         Gui {}
     }
@@ -57,7 +58,7 @@ impl Gui {
     }
 }
 
-fn set_skin(mut drawer: &dyn DrawerTrait) {
+fn set_skin(drawer: &mut dyn DrawerTrait) {
     drawer.set_style(
         FONT_SIZE,
         TEXT_COLOR,

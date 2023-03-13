@@ -32,12 +32,12 @@ pub fn draw_game_finished(
             height_per_line * 7.0,
         );
         let mut new_state = None;
-        drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, Box::new(|| {
+        drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, &mut || {
             drawer.ui_text(&time_spent);
             if drawer.ui_button("Continue").is_clicked() {
                 new_state = Some(PostFinished)
             }
-        }));
+        });
         new_state
 
         // TODO: add restarted state

@@ -25,7 +25,7 @@ pub fn draw_robot_queue(
         drawer.screen_height() - robot_window_height - margin,
         icon_width,
         robot_window_height,
-        Box::new(|| {
+        &mut || {
             let show_robot = drawer.ui_button("Show");
             let robot_texture_clicked =
                 drawer.ui_texture_with_pos(&
@@ -34,7 +34,7 @@ pub fn draw_robot_queue(
             if show_robot.is_clicked() || robot_texture_clicked {
                 go_to_robot = Option::Some(world.robots.first().unwrap().position);
             }
-        }),
+        },
     );
     if group_robot.is_hovered_or_clicked() {
         cell_selection = CellSelection::no_selection();
@@ -72,7 +72,7 @@ pub fn draw_robot_queue(
             drawer.screen_height() - group_height - margin,
             icon_width,
             group_height,
-            Box::new(|| {
+            &mut || {
                 let cancel = drawer.ui_button("Cancel");
                 cancel_hovered = cancel.is_hovered();
                 if cancel.is_clicked() {
@@ -85,7 +85,7 @@ pub fn draw_robot_queue(
                     do_now_task = Option::Some(task_index);
                 }
                 drawer.ui_texture(task_tile);
-            }),
+            },
         );
         if group.is_hovered_or_clicked() {
             cell_selection = CellSelection::no_selection();
@@ -121,6 +121,6 @@ fn draw_task_queue_tooltip(
         drawer.screen_height() - group_height - margin - tooltip_height - margin,
         tooltip_width,
         tooltip_height,
-        Box::new(|| drawer.ui_text(tooltip)),
+        &mut || drawer.ui_text(tooltip),
     );
 }
