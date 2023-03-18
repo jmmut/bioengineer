@@ -1,6 +1,6 @@
 /// This is a trait like Iterator but works for mutating the elements being iterated.
 /// Of course, this trait can't be used with `for` loops, but can be used like this:
-/// ```
+/// ```ignore
 ///     // iter is something that implements RefMutIterator
 ///     while let Option::Some(your_elem) = iter.next() {
 ///         // mutate your_elem
