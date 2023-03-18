@@ -61,20 +61,20 @@ pub fn allowed_transformations_of_cell(
         Unset => {
             panic!("can not transform an UNSET cell!")
         }
-        WallRock => machines_plus(vec![FloorRock, Stairs]),
-        WallDirt => machines_plus(vec![FloorDirt, Stairs]),
+        WallRock => machines_plus(vec![FloorRock, Stairs, TreeHealthy]),
+        WallDirt => machines_plus(vec![FloorDirt, Stairs, TreeHealthy]),
         FloorRock => machines_plus(vec![Stairs, TreeHealthy]),
         FloorDirt => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
-        Stairs => vec![FloorRock],
+        Stairs => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
         Air => vec![
         // DirtyWaterSurface, DirtyWaterWall, WallRock
         ],
-        Wire => vec![FloorRock],
-        MachineAssembler => vec![FloorRock],
-        MachineAirCleaner => vec![FloorRock],
-        MachineDrill => vec![FloorRock],
-        MachineSolarPanel => vec![FloorRock],
-        MachineShip => vec![FloorRock],
+        Wire => machines_plus(vec![Stairs, FloorRock,  TreeHealthy]),
+        MachineAssembler => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
+        MachineAirCleaner => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
+        MachineDrill => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
+        MachineSolarPanel => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
+        MachineShip => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
         DirtyWaterSurface => vec![
             // Air
         ],
