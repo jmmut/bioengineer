@@ -8,6 +8,7 @@ pub mod world;
 pub mod external {
     pub mod assets_macroquad;
     pub mod drawer_macroquad;
+    pub mod drawer_equi_macroquad;
     pub mod input_macroquad;
 }
 
