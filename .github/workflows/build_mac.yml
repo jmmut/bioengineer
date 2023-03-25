@@ -21,6 +21,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          # force downloading all tags so that git_version! works
+          fetch-depth: 0
 
       - name: Build
         run: cargo build --verbose --bin bioengineer
