@@ -21,11 +21,28 @@ pub trait DrawerTrait {
     fn screen_height(&self) -> f32;
     fn clear_background(&self, color: Color);
     fn draw_texture(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32);
-    fn draw_transparent_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, opacity_coef: f32);
-    fn draw_colored_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, color_mask: Color);
+    fn draw_transparent_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        opacity_coef: f32,
+    );
+    fn draw_colored_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        color_mask: Color,
+    );
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
 
+    /// all ui_* methods need to run inside ui_run. This is a restriction of using egui_miniquad :(
+    fn ui_run(&mut self, f: &mut dyn FnMut() -> ());
+    fn ui_draw(&mut self);
     fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut() -> ()) -> Interaction;
     fn ui_named_group(
         &self,

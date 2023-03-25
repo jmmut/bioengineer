@@ -59,12 +59,26 @@ impl DrawerTrait for DrawerMacroquad {
         self.draw_transparent_texture(texture_index, x, y, 1.0, 1.0);
     }
 
-    fn draw_transparent_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, opacity_coef: f32) {
+    fn draw_transparent_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        opacity_coef: f32,
+    ) {
         let color_mask = Color::new(1.0, 1.0, 1.0, opacity_coef);
         let texture = self.textures[texture.get_index()];
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
-    fn draw_colored_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, color_mask: Color) {
+    fn draw_colored_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        color_mask: Color,
+    ) {
         let texture = self.textures[texture.get_index()];
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
@@ -74,6 +88,14 @@ impl DrawerTrait for DrawerMacroquad {
     }
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         draw_text(text, x, y, font_size, color);
+    }
+
+    fn ui_run(&mut self, f: &mut dyn FnMut() -> ()) {
+        f();
+    }
+
+    fn ui_draw(&mut self) {
+        // macroquad automatically draws ui at the end of the frame
     }
 
     /// This grouping function does not support nested groups

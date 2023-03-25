@@ -1,16 +1,16 @@
 //! Most of these ideas came from https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
 
+use clap::Parser;
+use git_version::git_version;
+use macroquad::window::next_frame;
+use macroquad::window::Conf;
 use std::ffi::{c_char, c_int, c_void, CString};
 use std::path::PathBuf;
 use std::sync::mpsc::Receiver;
-use clap::Parser;
-use git_version::git_version;
-use macroquad::window::Conf;
-use macroquad::window::next_frame;
 
+use bioengineer::external::assets_macroquad::load_tileset;
 use bioengineer::external::drawer_macroquad::DrawerMacroquad as DrawerImpl;
 use bioengineer::external::input_macroquad::InputMacroquad as InputSource;
-use bioengineer::external::assets_macroquad::load_tileset;
 use bioengineer::screen::drawer_trait::DrawerTrait;
 use bioengineer::screen::Screen;
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
@@ -30,10 +30,7 @@ pub const RTLD_LAZY: c_int = 0x00001;
 
 type AnyError = Box<dyn std::error::Error>;
 
-pub type DrawFrameFunction = extern "C" fn(
-    screen: &mut Screen,
-    world: &mut World,
-) -> bool;
+pub type DrawFrameFunction = extern "C" fn(screen: &mut Screen, world: &mut World) -> bool;
 
 #[link(name = "dl")]
 extern "C" {
@@ -41,7 +38,6 @@ extern "C" {
     fn dlsym(handle: *const c_void, name: *const c_char) -> *const c_void;
     fn dlclose(handle: *const c_void);
 }
-
 
 #[derive(Parser, Debug)]
 #[clap(version = GIT_VERSION)]
@@ -93,7 +89,7 @@ async fn factory() -> (Screen, World) {
 
 fn load() -> Result<(DrawFrameFunction, *const c_void), AnyError> {
     let function_name = "hot_reload_draw_frame";
-    let lib_name= "target/debug/libbioengineer.so";
+    let lib_name = "target/debug/libbioengineer.so";
 
     let lib_name = CString::new(lib_name).unwrap();
     let lib = unsafe { dlopen(lib_name.as_ptr(), RTLD_LAZY) };
@@ -103,7 +99,7 @@ fn load() -> Result<(DrawFrameFunction, *const c_void), AnyError> {
             lib_name.to_str().unwrap(),
             std::env::current_dir()?.to_str().unwrap()
         )
-            .into());
+        .into());
     }
 
     let function_name = CString::new(function_name).unwrap();
@@ -113,7 +109,7 @@ fn load() -> Result<(DrawFrameFunction, *const c_void), AnyError> {
             "could not load function {}",
             function_name.to_str().unwrap()
         )
-            .into());
+        .into());
     }
     use std::mem::transmute;
     let transmuted_function: DrawFrameFunction = unsafe { transmute(function) };
@@ -145,7 +141,7 @@ fn unload(lib: *const c_void) {
     }
 }
 
-fn watch() -> Result<(RecommendedWatcher, Receiver<()>), AnyError>{
+fn watch() -> Result<(RecommendedWatcher, Receiver<()>), AnyError> {
     let base = PathBuf::from(".").canonicalize().unwrap();
     let libname = "libbioengineer.so";
     let relative_path = PathBuf::from("target").join("debug").join(libname);
@@ -156,17 +152,17 @@ fn watch() -> Result<(RecommendedWatcher, Receiver<()>), AnyError>{
     // `rx`, the "receiver").
     let (tx, rx) = std::sync::mpsc::channel::<()>();
 
-    let mut watcher = notify::recommended_watcher(move |res :Result<Event, notify::Error>| {
+    let mut watcher = notify::recommended_watcher(move |res: Result<Event, notify::Error>| {
         match res {
-           Ok(event) => {
+            Ok(event) => {
                 if let notify::EventKind::Create(_) = event.kind {
                     if event.paths.iter().any(|x| x.ends_with(&relative_path)) {
                         // signal that we need to reload
                         tx.send(()).unwrap();
                     }
                 }
-           },
-           Err(e) => println!("watch error: {:?}", e),
+            }
+            Err(e) => println!("watch error: {:?}", e),
         }
     })?;
 

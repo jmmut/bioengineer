@@ -9,8 +9,8 @@ use crate::screen::input::PixelPosition;
 use crate::world::map::cell::ExtraTextures;
 use crate::world::map::{is_covering, Cell, CellIndex, TileType};
 use crate::world::robots::Robot;
-use crate::{Color};
 use crate::world::World;
+use crate::Color;
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);

@@ -13,20 +13,20 @@ use macroquad::ui::widgets::Texture;
 use macroquad::ui::{root_ui, widgets, Skin};
 use macroquad::window::{clear_background, screen_height, screen_width};
 
-use crate::screen::assets;
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::DrawingState;
-use crate::screen::gui::{FONT_SIZE, MARGIN};
+use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
+use crate::screen::{assets, Screen};
 use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 
-pub struct DrawerMacroquad {
+pub struct DrawerEguiMiniquad {
     pub drawing: DrawingState,
     pub textures: Vec<Texture2D>,
 }
 
-impl DrawerTrait for DrawerMacroquad {
-    fn new(textures: Vec<Texture2D>) -> DrawerMacroquad {
+impl DrawerTrait for DrawerEguiMiniquad {
+    fn new(textures: Vec<Texture2D>) -> Self {
         // let textures = load_tileset(tileset_path);
         println!(
             "Loaded {} textures. The first one is {} by {} pixels",
@@ -34,7 +34,7 @@ impl DrawerTrait for DrawerMacroquad {
             textures[0].width(),
             textures[0].height()
         );
-        let d = DrawerMacroquad {
+        let d = Self {
             drawing: DrawingState::new(),
             textures,
         };
@@ -59,12 +59,26 @@ impl DrawerTrait for DrawerMacroquad {
         self.draw_transparent_texture(texture_index, x, y, 1.0, 1.0);
     }
 
-    fn draw_transparent_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, opacity_coef: f32) {
+    fn draw_transparent_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        opacity_coef: f32,
+    ) {
         let color_mask = Color::new(1.0, 1.0, 1.0, opacity_coef);
         let texture = self.textures[texture.get_index()];
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
-    fn draw_colored_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, color_mask: Color) {
+    fn draw_colored_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        color_mask: Color,
+    ) {
         let texture = self.textures[texture.get_index()];
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
@@ -74,6 +88,14 @@ impl DrawerTrait for DrawerMacroquad {
     }
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         draw_text(text, x, y, font_size, color);
+    }
+
+    fn ui_run(&mut self, f: &mut dyn FnMut() -> ()) {
+        f()
+    }
+
+    fn ui_draw(&mut self) {
+        //TODO: call egui.draw()
     }
 
     /// This grouping function does not support nested groups
@@ -272,7 +294,7 @@ pub fn interaction_from_clicked(clicked: bool) -> Interaction {
     };
 }
 
-impl DrawerMacroquad {
+impl DrawerEguiMiniquad {
     fn get_textures(&self) -> &Vec<Texture2D> {
         &self.textures
     }
@@ -321,5 +343,161 @@ fn params_from_zoom(zoom: f32, texture: Texture2D) -> DrawTextureParams {
         flip_x: false,
         flip_y: false,
         pivot: None,
+    }
+}
+
+use crate::frame;
+use crate::world::World;
+use macroquad::miniquad;
+
+pub struct Stage {
+    egui_mq: egui_miniquad::EguiMq,
+    show_egui_demo_windows: bool,
+    egui_demo_windows: egui_demo_lib::DemoWindows,
+    color_test: egui_demo_lib::ColorTest,
+    pixels_per_point: f32,
+    screen: Screen,
+    world: World,
+}
+
+impl Stage {
+    pub fn new(ctx: &mut miniquad::Context, screen: Screen, world: World) -> Self {
+        Self {
+            egui_mq: egui_miniquad::EguiMq::new(ctx),
+            show_egui_demo_windows: true,
+            egui_demo_windows: Default::default(),
+            color_test: Default::default(),
+            pixels_per_point: ctx.dpi_scale(),
+            screen,
+            world,
+        }
+    }
+}
+
+impl miniquad::EventHandler for Stage {
+    fn update(&mut self, _ctx: &mut miniquad::Context) {}
+
+    fn draw(&mut self, mq_ctx: &mut miniquad::Context) {
+        mq_ctx.clear(Some((1., 1., 1., 1.)), None, None);
+        mq_ctx.begin_default_pass(miniquad::PassAction::clear_color(0.0, 0.0, 0.0, 1.0));
+        mq_ctx.end_render_pass();
+
+        let dpi_scale = mq_ctx.dpi_scale();
+
+        let gui_actions = Option::None;
+        // Run the UI code:
+        self.egui_mq.run(mq_ctx, |_mq_ctx, egui_ctx| {
+            if self.show_egui_demo_windows {
+                self.egui_demo_windows.ui(egui_ctx);
+            }
+
+            egui::Window::new("egui ❤ miniquad").show(egui_ctx, |ui| {
+                egui::widgets::global_dark_light_mode_buttons(ui);
+                ui.checkbox(&mut self.show_egui_demo_windows, "Show egui demo windows");
+
+                ui.group(|ui| {
+                    ui.label("Physical pixels per each logical 'point':");
+                    ui.label(format!("native: {:.2}", dpi_scale));
+                    ui.label(format!("egui:   {:.2}", ui.ctx().pixels_per_point()));
+                    ui.add(
+                        egui::Slider::new(&mut self.pixels_per_point, 0.75..=3.0).logarithmic(true),
+                    )
+                    .on_hover_text("Physical pixels per logical point");
+                    if ui.button("Reset").clicked() {
+                        self.pixels_per_point = dpi_scale;
+                    }
+                });
+
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    if ui.button("Quit").clicked() {
+                        std::process::exit(0);
+                    }
+                }
+            });
+
+            // Don't change scale while dragging the slider
+            if !egui_ctx.is_using_pointer() {
+                egui_ctx.set_pixels_per_point(self.pixels_per_point);
+            }
+
+            egui::Window::new("Color Test").show(egui_ctx, |ui| {
+                egui::ScrollArea::both()
+                    .auto_shrink([false; 2])
+                    .show(ui, |ui| {
+                        self.color_test.ui(ui);
+                    });
+            });
+            let gui_actions = Some(self.screen.get_gui_actions(&self.world));
+        });
+
+        // Draw things behind egui here
+        let should_continue = self.world.update(gui_actions.unwrap());
+        // TODO: how to stop the program?
+        self.screen.draw(&self.world);
+
+        // Draw egui
+        self.egui_mq.draw(mq_ctx);
+
+        // Draw things in front of egui here
+
+        mq_ctx.commit_frame();
+    }
+
+    fn mouse_motion_event(&mut self, _: &mut miniquad::Context, x: f32, y: f32) {
+        self.egui_mq.mouse_motion_event(x, y);
+    }
+
+    fn mouse_wheel_event(&mut self, _: &mut miniquad::Context, dx: f32, dy: f32) {
+        self.egui_mq.mouse_wheel_event(dx, dy);
+    }
+
+    fn mouse_button_down_event(
+        &mut self,
+        ctx: &mut miniquad::Context,
+        mb: miniquad::MouseButton,
+        x: f32,
+        y: f32,
+    ) {
+        self.egui_mq.mouse_button_down_event(ctx, mb, x, y);
+    }
+
+    fn mouse_button_up_event(
+        &mut self,
+        ctx: &mut miniquad::Context,
+        mb: miniquad::MouseButton,
+        x: f32,
+        y: f32,
+    ) {
+        self.egui_mq.mouse_button_up_event(ctx, mb, x, y);
+    }
+
+    fn char_event(
+        &mut self,
+        _ctx: &mut miniquad::Context,
+        character: char,
+        _keymods: miniquad::KeyMods,
+        _repeat: bool,
+    ) {
+        self.egui_mq.char_event(character);
+    }
+
+    fn key_down_event(
+        &mut self,
+        ctx: &mut miniquad::Context,
+        keycode: miniquad::KeyCode,
+        keymods: miniquad::KeyMods,
+        _repeat: bool,
+    ) {
+        self.egui_mq.key_down_event(ctx, keycode, keymods);
+    }
+
+    fn key_up_event(
+        &mut self,
+        _ctx: &mut miniquad::Context,
+        keycode: miniquad::KeyCode,
+        keymods: miniquad::KeyMods,
+    ) {
+        self.egui_mq.key_up_event(keycode, keymods);
     }
 }

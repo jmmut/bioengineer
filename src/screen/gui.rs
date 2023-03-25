@@ -16,8 +16,8 @@ use crate::screen::input::{
     CellIndexSelection, CellSelection, Input, PixelCellSelection, PixelPosition,
 };
 use crate::world::map::CellIndex;
-use crate::Color;
 use crate::world::World;
+use crate::Color;
 
 pub const FONT_SIZE: f32 = 16.0;
 pub const MARGIN: f32 = 10.0;

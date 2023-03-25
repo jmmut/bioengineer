@@ -1,10 +1,10 @@
+use crate::screen::input::InputSourceTrait;
 use crate::world::World;
 use crate::Color;
 use drawer_trait::DrawerTrait;
 use drawing_state::DrawingState;
 use gui::gui_actions::GuiActions;
 use gui::Gui;
-use crate::screen::input::InputSourceTrait;
 
 pub mod assets;
 pub mod coords;
@@ -17,7 +17,7 @@ pub mod input;
 
 const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
-pub struct Screen{
+pub struct Screen {
     drawer: Box<dyn DrawerTrait>,
     input_source: Box<dyn InputSourceTrait>,
     gui: Gui,

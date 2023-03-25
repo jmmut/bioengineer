@@ -28,8 +28,7 @@ pub fn draw_robot_queue(
         &mut || {
             let show_robot = drawer.ui_button("Show");
             let robot_texture_clicked =
-                drawer.ui_texture_with_pos(&
-                    ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
+                drawer.ui_texture_with_pos(&ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
             robot_hovered = show_robot.is_hovered_or_clicked();
             if show_robot.is_clicked() || robot_texture_clicked {
                 go_to_robot = Option::Some(world.robots.first().unwrap().position);
