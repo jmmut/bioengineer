@@ -43,7 +43,7 @@ pub fn show_available_transformations(
         );
         let mut hovered_opt = None;
         let transformations_panel =
-            drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, &mut || {
+            drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, &mut |drawer| {
                 for transformation in &transformations {
                     let text = to_action_str(transformation.new_tile_type);
                     match drawer.ui_button(text) {
@@ -69,7 +69,7 @@ pub fn show_available_transformations(
                     panel.y,
                     panel.w,
                     panel.h,
-                    &mut || {
+                    &mut |drawer| {
                         for line in &tooltip {
                             drawer.ui_text(line);
                         }

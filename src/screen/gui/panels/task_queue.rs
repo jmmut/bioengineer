@@ -25,7 +25,7 @@ pub fn draw_robot_queue(
         drawer.screen_height() - robot_window_height - margin,
         icon_width,
         robot_window_height,
-        &mut || {
+        &mut |drawer| {
             let show_robot = drawer.ui_button("Show");
             let robot_texture_clicked =
                 drawer.ui_texture_with_pos(&ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
@@ -71,7 +71,7 @@ pub fn draw_robot_queue(
             drawer.screen_height() - group_height - margin,
             icon_width,
             group_height,
-            &mut || {
+            &mut |drawer| {
                 let cancel = drawer.ui_button("Cancel");
                 cancel_hovered = cancel.is_hovered();
                 if cancel.is_clicked() {
@@ -120,6 +120,6 @@ fn draw_task_queue_tooltip(
         drawer.screen_height() - group_height - margin - tooltip_height - margin,
         tooltip_width,
         tooltip_height,
-        &mut || drawer.ui_text(tooltip),
+        &mut |drawer| drawer.ui_text(tooltip),
     );
 }

@@ -22,7 +22,7 @@ pub fn draw_top_bar(
     };
 
     let panel_interaction =
-        drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, &mut || {
+        drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, &mut |drawer| {
             goals = drawer.ui_button("Goals");
             drawer.ui_same_line();
             help = drawer.ui_button("Help");
@@ -72,7 +72,7 @@ fn draw_pop_up(
         center.y - panel_size.y / 2.0,
         panel_size.x,
         panel_size.y,
-        &mut || {
+        &mut |drawer| {
             for line in text {
                 drawer.ui_text(&line);
             }

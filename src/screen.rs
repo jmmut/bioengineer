@@ -40,19 +40,20 @@ impl Screen {
         let input = self.input_source.get_input();
         let gui_actions =
             self.gui
-                .process_input(input, self.drawer.as_ref(), world, &mut self.drawing_state);
+                .process_input(input, self.drawer.as_mut(), world, &mut self.drawing_state);
         self.drawing_state.apply_input(&gui_actions);
         gui_actions
     }
 
-    pub fn draw(&self, world: &World) {
-        draw(self.drawer.as_ref(), world, &self.drawing_state);
+    pub fn draw(&mut self, world: &World) {
+        draw(self.drawer.as_mut(), world, &self.drawing_state);
     }
 }
 
-pub fn draw(drawer: &dyn DrawerTrait, world: &World, drawing: &DrawingState) {
+pub fn draw(drawer: &mut dyn DrawerTrait, world: &World, drawing: &DrawingState) {
     drawer.clear_background(GREY);
     draw_map::draw_map(drawer, world, drawing);
+    drawer.ui_draw();
     hud::draw_fps(drawer, &world.game_state);
     hud::draw_level(drawer, drawing.min_cell.y, drawing.max_cell.y);
     hud::draw_networks(drawer, world);

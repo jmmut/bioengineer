@@ -90,8 +90,8 @@ impl DrawerTrait for DrawerEguiMiniquad {
         draw_text(text, x, y, font_size, color);
     }
 
-    fn ui_run(&mut self, f: &mut dyn FnMut() -> ()) {
-        f()
+    fn ui_run(&mut self, f: &mut dyn FnMut(&dyn DrawerTrait) -> ()) {
+        f(self)
     }
 
     fn ui_draw(&mut self) {
@@ -99,13 +99,13 @@ impl DrawerTrait for DrawerEguiMiniquad {
     }
 
     /// This grouping function does not support nested groups
-    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut() -> ()) -> Interaction {
+    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut(&dyn DrawerTrait) -> ()) -> Interaction {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)
             .movable(false);
         let token = window.begin(&mut root_ui());
-        f();
+        f(self);
         token.end(&mut root_ui());
         get_interaction(x, y, w, h)
     }
@@ -117,7 +117,7 @@ impl DrawerTrait for DrawerEguiMiniquad {
         y: f32,
         w: f32,
         h: f32,
-        f: &mut dyn FnMut(),
+        f: &mut dyn FnMut(&dyn DrawerTrait) -> (),
     ) -> Interaction {
         let id = hash!(title, x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
@@ -125,7 +125,7 @@ impl DrawerTrait for DrawerEguiMiniquad {
             .label(title)
             .movable(false);
         let token = window.begin(&mut root_ui());
-        f();
+        f(self);
         token.end(&mut root_ui());
         get_interaction(x, y, w, h)
     }

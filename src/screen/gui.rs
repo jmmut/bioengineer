@@ -2,6 +2,7 @@ pub mod format_units;
 pub mod gui_actions;
 mod panels;
 
+use std::cell::RefCell;
 pub use gui_actions::GuiActions;
 
 use crate::screen::coords::cell_pixel::{clicked_cell, pixel_to_subcell_offset};
@@ -43,18 +44,23 @@ impl Gui {
     pub fn process_input(
         &self,
         input: Input,
-        drawer: &dyn DrawerTrait,
+        drawer: &mut dyn DrawerTrait,
         world: &World,
         drawing: &mut DrawingState, // TODO: make const by add top_bar_showing to GuiActions
     ) -> GuiActions {
-        let unhandled_input = new_gui_from_input(input, drawer, drawing);
-        let unhandled_input = draw_game_finished(drawer, world, unhandled_input);
-        let unhandled_input =
-            show_available_transformations(drawer, world, unhandled_input, drawing);
+        let mut gui_actions = GuiActions::default();
 
-        let unhandled_input = draw_robot_queue(drawer, world, unhandled_input);
-        let unhandled_input = draw_top_bar(drawer, drawing, unhandled_input);
-        unhandled_input
+        drawer.ui_run(&mut |drawer| {
+            let unhandled_input = new_gui_from_input(input, drawer, drawing);
+            let unhandled_input = draw_game_finished(drawer, world, unhandled_input);
+            let unhandled_input =
+                show_available_transformations(drawer, world, unhandled_input, drawing);
+
+            let unhandled_input = draw_robot_queue(drawer, world, unhandled_input);
+            let unhandled_input = draw_top_bar(drawer, drawing, unhandled_input);
+            gui_actions = unhandled_input
+        });
+        gui_actions
     }
 }
 

@@ -27,3 +27,26 @@ impl GuiActions {
         !self.quit
     }
 }
+
+impl Default for GuiActions {
+    fn default() -> Self {
+        Self {
+            cell_selection: CellSelection::no_selection(),
+            selected_cell_transformation: None,
+            robot_movement: None,
+            go_to_robot: None,
+            cancel_task: None,
+            do_now_task: None,
+            next_game_goal_state: None,
+            regenerate_map: false,
+            toggle_profiling: false,
+            toggle_fluids: false,
+            single_fluid: false,
+            reset_quantities: false,
+            quit: false,
+            change_height_rel: 0,
+            move_map_horizontally_diff: Default::default(),
+            zoom_change: ZoomChange::ZoomIn,
+        }
+    }
+}

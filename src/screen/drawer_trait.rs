@@ -41,9 +41,9 @@ pub trait DrawerTrait {
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
 
     /// all ui_* methods need to run inside ui_run. This is a restriction of using egui_miniquad :(
-    fn ui_run(&mut self, f: &mut dyn FnMut() -> ());
+    fn ui_run(&mut self, f: &mut dyn FnMut(&dyn DrawerTrait) -> ());
     fn ui_draw(&mut self);
-    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut() -> ()) -> Interaction;
+    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut(&dyn DrawerTrait) -> ()) -> Interaction;
     fn ui_named_group(
         &self,
         title: &str,
@@ -51,7 +51,7 @@ pub trait DrawerTrait {
         y: f32,
         w: f32,
         h: f32,
-        f: &mut dyn FnMut() -> (),
+        f: &mut dyn FnMut(&dyn DrawerTrait) -> (),
     ) -> Interaction;
     /// both draws and returns if it was pressed. (Immediate mode UI)
     fn ui_texture(&self, texture_index: TextureIndex) -> bool;
