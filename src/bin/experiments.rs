@@ -46,9 +46,9 @@ fn frame(drawer: &mut Box<DrawerImpl>, input_source: &mut Box<InputSource>) -> b
     drawer.clear_background(LIGHTGRAY);
     drawer.draw_transparent_texture(&ExtraTextures::Robot, 0.0, 0.0, 5.0, 1.0);
 
-    // drawer.ui_run(&mut |drawer: &dyn DrawerTrait| {
-    //     drawer.ui_button("click me");
-    // });
-    // drawer.ui_draw();
+    drawer.ui_run(&mut |drawer: &dyn DrawerTrait| {
+        drawer.ui_button("click me");
+    });
+    drawer.ui_draw();
     !input.quit
 }

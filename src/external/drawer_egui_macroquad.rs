@@ -10,7 +10,7 @@ use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::DrawingState;
 use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 pub use egui;
-use egui::{emath, InnerResponse, Pos2, Response, Widget};
+use egui::{Color32, emath, Frame, InnerResponse, Pos2, Response, Widget};
 pub use macroquad;
 use macroquad::miniquad::GraphicsContext;
 
@@ -93,6 +93,7 @@ impl DrawerTrait for DrawerEguiMacroquad {
                 // let d_1 = ref_mut.deref_mut();
                 // let d = &mut *d_1;
                 ref_mut.egui_context = Some(egui_context.clone());
+
                 f(ref_mut.deref_mut().deref_mut());
             },
         );
@@ -143,7 +144,10 @@ impl DrawerTrait for DrawerEguiMacroquad {
     }
 
     fn ui_button(&self, text: &str) -> Interaction {
-        let response = egui::CentralPanel::default()
+        let response = egui::CentralPanel::default().frame(Frame {
+            fill: Color32::TRANSPARENT,
+            ..Default::default()
+        })
             .show(self.egui_context.as_ref().unwrap(), |ui| {
                 egui::Button::new(text).ui(ui)
             });
