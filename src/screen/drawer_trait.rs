@@ -21,6 +21,9 @@ pub trait DrawerTrait {
     fn screen_height(&self) -> f32;
     fn clear_background(&self, color: Color);
     fn draw_texture(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32);
+
+    /// Takes texture by &dyn because of the hot-reloading machinery. You can't pass a struct
+    /// with generic methods through the dynamic library boundary. See lib::hot_reload_draw_frame
     fn draw_transparent_texture(
         &self,
         texture: &dyn TextureIndexTrait,

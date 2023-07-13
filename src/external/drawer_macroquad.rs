@@ -28,12 +28,12 @@ pub struct DrawerMacroquad {
 impl DrawerTrait for DrawerMacroquad {
     fn new(textures: Vec<Texture2D>) -> DrawerMacroquad {
         // let textures = load_tileset(tileset_path);
-        println!(
-            "Loaded {} textures. The first one is {} by {} pixels",
-            textures.len(),
-            textures[0].width(),
-            textures[0].height()
-        );
+        // println!(
+        //     "Loaded {} textures. The first one is {} by {} pixels",
+        //     textures.len(),
+        //     textures[0].width(),
+        //     textures[0].height()
+        // );
         let d = DrawerMacroquad {
             drawing: DrawingState::new(),
             textures,
