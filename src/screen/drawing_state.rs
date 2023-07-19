@@ -13,6 +13,7 @@ pub type TilePosition = IVec2;
 pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
 
+#[derive(Clone)]
 pub struct DrawingState {
     pub min_cell: CellIndex,
     pub max_cell: CellIndex,

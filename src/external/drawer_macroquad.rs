@@ -20,6 +20,7 @@ use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::{FONT_SIZE, MARGIN};
 use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 
+#[derive(Clone)]
 pub struct DrawerMacroquad {
     pub drawing: DrawingState,
     pub textures: Vec<Texture2D>,
@@ -90,7 +91,7 @@ impl DrawerTrait for DrawerMacroquad {
         draw_text(text, x, y, font_size, color);
     }
 
-    fn ui_run(&mut self, f: &mut dyn FnMut(&dyn DrawerTrait) -> ()) {
+    fn ui_run(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) {
         f(self);
     }
 
@@ -99,7 +100,7 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     /// This grouping function does not support nested groups
-    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut(&dyn DrawerTrait) -> ()) -> Interaction {
+    fn ui_group(&mut self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) -> Interaction {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)
@@ -111,13 +112,13 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     fn ui_named_group(
-        &self,
+        &mut self,
         title: &str,
         x: f32,
         y: f32,
         w: f32,
         h: f32,
-        f: &mut dyn FnMut(&dyn DrawerTrait) -> (),
+        f: &mut dyn FnMut(&mut dyn DrawerTrait) -> (),
     ) -> Interaction {
         let id = hash!(title, x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
@@ -155,12 +156,12 @@ impl DrawerTrait for DrawerMacroquad {
         // the button I think only supports textures as a skin which is tedious.
     }
 
-    fn ui_button(&self, text: &str) -> Interaction {
+    fn ui_button(&mut self, text: &str) -> Interaction {
         let clicked = root_ui().button(None, text);
         interaction_from_clicked(clicked)
     }
 
-    fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> Interaction {
+    fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction {
         let clicked = root_ui().button(Option::Some(Vec2::new(x, y)), text);
         interaction_from_clicked(clicked)
     }

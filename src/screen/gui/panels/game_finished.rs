@@ -7,7 +7,7 @@ use crate::world::World;
 use crate::{Rect, Vec2};
 
 pub fn draw_game_finished(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     world: &World,
     gui_actions: GuiActions,
 ) -> GuiActions {

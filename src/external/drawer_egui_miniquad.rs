@@ -16,7 +16,7 @@ use macroquad::window::{clear_background, screen_height, screen_width};
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::DrawingState;
-use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
+use crate::screen::gui::{FONT_SIZE, MARGIN};
 use crate::screen::{assets, Screen};
 use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 
@@ -24,8 +24,10 @@ pub struct DrawerEguiMiniquad {
     pub drawing: DrawingState,
     pub textures: Vec<Texture2D>,
 }
-
-impl DrawerTrait for DrawerEguiMiniquad {
+/*
+// commenting, as I think I will remove this backend
+impl //DrawerTrait for
+        DrawerEguiMiniquad {
     fn new(textures: Vec<Texture2D>) -> Self {
         // let textures = load_tileset(tileset_path);
         println!(
@@ -99,7 +101,7 @@ impl DrawerTrait for DrawerEguiMiniquad {
     }
 
     /// This grouping function does not support nested groups
-    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut(&dyn DrawerTrait) -> ()) -> Interaction {
+    fn ui_group(&mut self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut(&dyn DrawerTrait) -> ()) -> Interaction {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)
@@ -111,7 +113,7 @@ impl DrawerTrait for DrawerEguiMiniquad {
     }
 
     fn ui_named_group(
-        &self,
+        &mut self,
         title: &str,
         x: f32,
         y: f32,
@@ -155,12 +157,12 @@ impl DrawerTrait for DrawerEguiMiniquad {
         // the button I think only supports textures as a skin which is tedious.
     }
 
-    fn ui_button(&self, text: &str) -> Interaction {
+    fn ui_button(&mut self, text: &str) -> Interaction {
         let clicked = root_ui().button(None, text);
         interaction_from_clicked(clicked)
     }
 
-    fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> Interaction {
+    fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction {
         //
         // egui::CentralPanel::default().show(ctx, |ui| {
         //     ui.heading("My egui Application");
@@ -501,3 +503,5 @@ impl miniquad::EventHandler for Stage {
         self.egui_mq.key_up_event(keycode, keymods);
     }
 }
+
+ */

@@ -6,7 +6,7 @@ use macroquad::window::next_frame;
 use macroquad::window::Conf;
 
 use bioengineer::external::assets_macroquad::load_tileset;
-use bioengineer::external::drawer_macroquad::DrawerMacroquad as DrawerImpl;
+use bioengineer::external::drawer_egui_macroquad::DrawerEguiMacroquad as DrawerImpl;
 use bioengineer::external::drawer_egui_miniquad::Stage;
 use bioengineer::external::input_macroquad::InputMacroquad as InputSource;
 use bioengineer::frame;

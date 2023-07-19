@@ -2,7 +2,6 @@ pub mod format_units;
 pub mod gui_actions;
 mod panels;
 
-use std::cell::RefCell;
 pub use gui_actions::GuiActions;
 
 use crate::screen::coords::cell_pixel::{clicked_cell, pixel_to_subcell_offset};
@@ -79,7 +78,7 @@ fn set_skin(drawer: &mut dyn DrawerTrait) {
 fn new_gui_from_input(
     input: Input,
     drawer: &dyn DrawerTrait,
-    drawing: &mut DrawingState,
+    drawing: &DrawingState,
 ) -> GuiActions {
     let unhandled_input = GuiActions {
         // input: input.clone(),

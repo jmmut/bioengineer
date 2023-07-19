@@ -7,7 +7,7 @@ use crate::Vec2;
 pub const TOP_BAR_HEIGHT: f32 = FONT_SIZE * 3.0;
 
 pub fn draw_top_bar(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     drawing: &mut DrawingState,
     gui_actions: GuiActions,
 ) -> GuiActions {
@@ -37,7 +37,7 @@ pub fn draw_top_bar(
 }
 
 fn maybe_draw_goals(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     drawing: &mut DrawingState,
     goals: Interaction,
 ) -> Interaction {
@@ -52,7 +52,7 @@ fn maybe_draw_goals(
 }
 
 fn draw_pop_up(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     drawing: &mut DrawingState,
     pop_up_name: &str,
     text: &Vec<String>,
@@ -138,7 +138,7 @@ You have to:
 }
 
 fn maybe_draw_help(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     drawing: &mut DrawingState,
     help: Interaction,
 ) -> Interaction {

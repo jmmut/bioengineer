@@ -10,7 +10,7 @@ use crate::world::{TransformationTask, World};
 use crate::Rect;
 
 pub fn show_available_transformations(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     world: &World,
     unhandled_input: GuiActions,
     drawing: &DrawingState,
