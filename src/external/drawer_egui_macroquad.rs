@@ -1,4 +1,4 @@
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::mem;
 use std::mem::swap;
 use std::ops::DerefMut;
@@ -20,7 +20,7 @@ pub struct DrawerEguiMacroquad<'a> {
     egui_context: Option<egui::Context>,
     egui_ui: Option<&'a mut egui::Ui>,
     input_processor_id: usize,
-    inner: DrawerMacroquad,
+    inner: Option<DrawerMacroquad>,
 }
 
 
@@ -31,24 +31,29 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             egui_context: None,
             egui_ui: None,
             input_processor_id: macroquad::input::utils::register_input_subscriber(),
-            inner: DrawerMacroquad::new(textures),
+            // inner: RefCell::new(DrawerMacroquad::new(textures)),
+            inner: Some(DrawerMacroquad::new(textures)),
         }
     }
 
     fn screen_width(&self) -> f32 {
-        self.inner.screen_width()
+        // self.inner.borrow().screen_width()
+        self.inner.as_ref().unwrap().screen_width()
     }
 
     fn screen_height(&self) -> f32 {
-        self.inner.screen_height()
+        // self.inner.borrow().screen_height()
+        self.inner.as_ref().unwrap().screen_height()
     }
 
     fn clear_background(&self, color: Color) {
-        self.inner.clear_background(color)
+        // self.inner.borrow().clear_background(color)
+        self.inner.as_ref().unwrap().clear_background(color)
     }
 
     fn draw_texture(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) {
-        self.inner.draw_texture(texture_index, x, y)
+        // self.inner.borrow().draw_texture(texture_index, x, y)
+        self.inner.as_ref().unwrap().draw_texture(texture_index, x, y)
     }
 
     fn draw_transparent_texture(
@@ -59,7 +64,8 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         zoom: f32,
         opacity_coef: f32,
     ) {
-        self.inner
+        // self.inner.borrow()
+        self.inner.as_ref().unwrap()
             .draw_transparent_texture(texture, x, y, zoom, opacity_coef)
     }
 
@@ -71,16 +77,19 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         zoom: f32,
         color_mask: Color,
     ) {
-        self.inner
+        // self.inner.borrow()
+        self.inner.as_ref().unwrap()
             .draw_colored_texture(texture, x, y, zoom, color_mask)
     }
 
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
-        self.inner.draw_rectangle(x, y, w, h, color)
+        // self.inner.borrow().draw_rectangle(x, y, w, h, color)
+        self.inner.as_ref().unwrap().draw_rectangle(x, y, w, h, color)
     }
 
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
-        self.inner.draw_text(text, x, y, font_size, color)
+        // self.inner.borrow().draw_text(text, x, y, font_size, color)
+        self.inner.as_ref().unwrap().draw_text(text, x, y, font_size, color)
     }
 
     fn ui_run(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) {
@@ -103,10 +112,12 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
                             egui_context: Some(egui_context.clone()),
                             egui_ui: Some(ui),
                             input_processor_id: 0,
-                            inner: ref_mut.inner.clone(),
+                            inner: ref_mut.inner.take(),
                         };
 
                         f(&mut drawer);
+
+                        ref_mut.inner = drawer.inner.take();
                     });
             },
         );
@@ -130,10 +141,16 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .title_bar(false)
             .default_rect(emath::Rect::from_min_size(Pos2::new(x, y), emath::Vec2::new(w, h)))
             .show(egui_context.as_ref().unwrap(), |ui| {
-                let mut stacked_ui = Some(ui);
-                swap(stacked_ui.as_mut().unwrap(), self.egui_ui.as_mut().unwrap());
-                f(self);
-                swap(stacked_ui.as_mut().unwrap(), self.egui_ui.as_mut().unwrap());
+                let mut drawer = DrawerEguiMacroquad {
+                    egui_mq: self.egui_mq.take(),
+                    egui_context: egui_context.clone(),
+                    egui_ui: Some(ui),
+                    input_processor_id: self.input_processor_id,
+                    inner: self.inner.take(),
+                };
+                f(&mut drawer);
+
+                self.inner = drawer.inner.take();
             });
 
         swap(&mut egui_context, &mut self.egui_context);
@@ -157,10 +174,16 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .title_bar(false)
             .default_rect(emath::Rect::from_min_size(Pos2::new(x, y), emath::Vec2::new(w, h)))
             .show(egui_context.as_ref().unwrap(), |ui| {
-                let mut egui_ui = None;
-                swap(&mut egui_ui, &mut self.egui_ui);
-                f(self);
-                swap(&mut egui_ui, &mut self.egui_ui);
+                let mut drawer = DrawerEguiMacroquad {
+                    egui_mq: self.egui_mq.take(),
+                    egui_context: egui_context.clone(),
+                    egui_ui: Some(ui),
+                    input_processor_id: self.input_processor_id,
+                    inner: self.inner.take(),
+                };
+                f(&mut drawer);
+
+                self.inner = drawer.inner.take();
             });
 
         swap(&mut egui_context, &mut self.egui_context);
@@ -193,7 +216,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
     }
 
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {
-        self.inner.measure_text(text, font_size)
+        self.inner.as_ref().unwrap().measure_text(text, font_size)
     }
 
     fn ui_same_line(&self) {
@@ -210,7 +233,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         background_color_button_hovered: Color,
         background_color_button_clicked: Color,
     ) {
-        self.inner.set_style(
+        self.inner.as_mut().unwrap().set_style(
             font_size,
             text_color,
             button_text_color,
