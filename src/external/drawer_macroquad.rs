@@ -166,7 +166,7 @@ impl DrawerTrait for DrawerMacroquad {
         interaction_from_clicked(clicked)
     }
 
-    fn ui_text(&self, text: &str) {
+    fn ui_text(&mut self, text: &str) {
         root_ui().label(None, text);
     }
 

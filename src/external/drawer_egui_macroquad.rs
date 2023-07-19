@@ -171,7 +171,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         swap(&mut egui_context, &mut self.egui_context);
         let response = egui::Window::new(title)
             .id(id)
-            .title_bar(false)
+            .title_bar(true)
             .default_rect(emath::Rect::from_min_size(Pos2::new(x, y), emath::Vec2::new(w, h)))
             .show(egui_context.as_ref().unwrap(), |ui| {
                 let mut drawer = DrawerEguiMacroquad {
@@ -206,13 +206,11 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
     }
 
     fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction {
-        self.ui_button(text)
+        self.ui_button(text) //TODO: use position
     }
 
-    fn ui_text(&self, text: &str) {
-        egui::CentralPanel::default().show(self.egui_context.as_ref().unwrap(), |ui|{
-            ui.label(text)
-        });
+    fn ui_text(&mut self, text: &str) {
+        self.egui_ui.as_mut().unwrap().label(text);
     }
 
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {

@@ -58,6 +58,8 @@ fn frame(drawer: &mut Box<dyn DrawerTrait>, input_source: &mut Box<InputSource>)
         drawer.ui_button("click me");
         drawer.ui_named_group("named group", 300.0, 400.0, 100.0, 200.0, &mut |drawer: &mut dyn DrawerTrait| {
             drawer.ui_button("click button inside group");
+            drawer.ui_text("this is some text after the button");
+
         });
     });
     drawer.ui_draw();
