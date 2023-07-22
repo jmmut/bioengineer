@@ -11,10 +11,7 @@ use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 pub use egui;
 use egui::epaint::Shadow;
 use egui::style::{WidgetVisuals, Widgets};
-use egui::{
-    emath, Color32, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Visuals,
-    Widget,
-};
+use egui::{emath, Color32, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Visuals, Widget, Align2};
 pub use macroquad;
 use macroquad::miniquad::GraphicsContext;
 
@@ -155,32 +152,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         h: f32,
         f: &mut dyn FnMut(&mut dyn DrawerTrait) -> (),
     ) -> Interaction {
-        let id = Id::new(x.abs() as i32).with(y.abs() as i32);
-        let mut egui_context = None;
-        swap(&mut egui_context, &mut self.egui_context);
-        let response = egui::Window::new("")
-            .id(id)
-            .title_bar(false)
-            .default_rect(emath::Rect::from_min_size(
-                Pos2::new(x, y),
-                emath::Vec2::new(w, h),
-            ))
-            .resizable(false)
-            .show(egui_context.as_ref().unwrap(), |ui| {
-                let mut drawer = DrawerEguiMacroquad {
-                    egui_mq: self.egui_mq.take(),
-                    egui_context: egui_context.clone(),
-                    egui_ui: Some(ui),
-                    input_processor_id: self.input_processor_id,
-                    inner: self.inner.take(),
-                };
-                f(&mut drawer);
-
-                self.inner = drawer.inner.take();
-            });
-
-        swap(&mut egui_context, &mut self.egui_context);
-        Self::response_to_interaction(response.map(|inner| inner.response))
+        self.ui_group_common(None, x, y, w, h, f)
     }
 
     fn ui_named_group(
@@ -192,32 +164,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         h: f32,
         f: &mut dyn FnMut(&mut dyn DrawerTrait) -> (),
     ) -> Interaction {
-        let id = Id::new(title).with(x.abs() as i32).with(y.abs() as i32);
-        let mut egui_context = None;
-        swap(&mut egui_context, &mut self.egui_context);
-        let response = egui::Window::new(title)
-            .id(id)
-            .title_bar(true)
-            .default_rect(emath::Rect::from_min_size(
-                Pos2::new(x, y),
-                emath::Vec2::new(w, h),
-            ))
-            .resizable(false)
-            .show(egui_context.as_ref().unwrap(), |ui| {
-                let mut drawer = DrawerEguiMacroquad {
-                    egui_mq: self.egui_mq.take(),
-                    egui_context: egui_context.clone(),
-                    egui_ui: Some(ui),
-                    input_processor_id: self.input_processor_id,
-                    inner: self.inner.take(),
-                };
-                f(&mut drawer);
-
-                self.inner = drawer.inner.take();
-            });
-
-        swap(&mut egui_context, &mut self.egui_context);
-        Self::response_to_interaction(response.map(|inner| inner.response))
+        self.ui_group_common(Some(title.to_string()), x, y, w, h, f)
     }
 
     fn ui_texture(&mut self, texture_index: TextureIndex) -> bool {
@@ -383,6 +330,53 @@ impl<'a> DrawerEguiMacroquad<'a> {
             }
         }
         Interaction::None
+    }
+
+    fn ui_group_common(&mut self,
+        title: Option<String>,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+        f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()
+    ) -> Interaction {
+        let id = if let Some(title) = &title {
+            Id::new(title).with(x.abs() as i32).with(y.abs() as i32)
+        } else {
+            Id::new(x.abs() as i32).with(y.abs() as i32)
+        };
+        let mut egui_context = None;
+        swap(&mut egui_context, &mut self.egui_context);
+        let should_have_title_bar = title.is_some();
+        let rect = emath::Rect::from_min_size(
+            Pos2::new(x, y),
+            emath::Vec2::new(w, h),
+        );
+        let response = egui::Window::new(title.unwrap_or("".to_string()))
+            .id(id)
+            .title_bar(should_have_title_bar)
+            .default_rect(rect)
+            // .anchor(Align2::anchor_rect(rect), egui::Vec2::new(0.0, 0.0))
+            .collapsible(false)
+            .resizable(false)
+            .fixed_rect(rect)
+            .show(egui_context.as_ref().unwrap(), |ui| {
+                ui.set_width(ui.available_width());
+                ui.set_height(ui.available_height());
+                let mut drawer = DrawerEguiMacroquad {
+                    egui_mq: self.egui_mq.take(),
+                    egui_context: egui_context.clone(),
+                    egui_ui: Some(ui),
+                    input_processor_id: self.input_processor_id,
+                    inner: self.inner.take(),
+                };
+                f(&mut drawer);
+
+                self.inner = drawer.inner.take();
+            });
+
+        swap(&mut egui_context, &mut self.egui_context);
+        Self::response_to_interaction(response.map(|inner| inner.response))
     }
 }
 
