@@ -2,6 +2,7 @@ use egui_miniquad::EguiMq;
 use macroquad::prelude::*;
 use miniquad as mq;
 use std::cell::{RefCell};
+use std::collections::BTreeMap;
 use std::mem::swap;
 
 use crate::external::drawer_macroquad::DrawerMacroquad;
@@ -10,10 +11,12 @@ use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 pub use egui;
 use egui::epaint::Shadow;
-use egui::style::{WidgetVisuals, Widgets};
-use egui::{emath, Color32, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Visuals, Widget, Align2};
+use egui::style::{WidgetVisuals, Widgets, Spacing};
+use egui::{emath, Color32, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Visuals, Widget, Align2, FontId, Margin};
+use egui::FontFamily::Proportional;
 pub use macroquad;
 use macroquad::miniquad::GraphicsContext;
+use crate::screen::gui::FONT_SIZE;
 
 pub struct DrawerEguiMacroquad<'a> {
     egui_mq: Option<EguiMq>,
@@ -272,7 +275,6 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         let background_color_button = to_egui_color(background_color_button);
         let background_color_button_hovered = to_egui_color(background_color_button_hovered);
         let background_color_button_clicked = to_egui_color(background_color_button_clicked);
-        let mut style = Style::default();
         let widget_visuals_inactive = WidgetVisuals {
             bg_fill: background_color_button,
             weak_bg_fill: background_color_button,
@@ -303,7 +305,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             active: widget_visuals_clicked,
             ..Default::default()
         };
-        style.visuals = Visuals {
+        let visuals = Visuals {
             dark_mode: false,
             override_text_color: Some(text_color),
             // faint_bg_color: background_color,
@@ -314,6 +316,48 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             window_fill: background_color,
             widgets: widget_visuals,
             // button_frame: true,
+            ..Default::default()
+        };
+        use egui::TextStyle::*;
+
+        let font = FontId::new(FONT_SIZE * 0.875, Proportional);
+        let text_styles :BTreeMap<egui::TextStyle, FontId> = [
+            (Heading, FontId::new(FONT_SIZE, Proportional)),
+            // (Name("Heading2".into()), font.clone()),
+            // (Name("Context".into()), font.clone()),
+            (Body, font.clone()),
+            (Monospace, font.clone()),
+            (Button, font.clone()),
+            (Small, font.clone()),
+        ].into();
+
+        let spacing = Spacing {
+            item_spacing: egui::vec2(18.0, 10.0),
+            window_margin: Margin::symmetric(20.0,10.0),
+            // menu_margin: Margin::same(6.0),
+            button_padding: egui::vec2(8.0, 3.0),
+            // indent: 18.0, // match checkbox/radio-button with `button_padding.x + icon_width + icon_spacing`
+            // interact_size: egui::vec2(40.0, 18.0),
+            // slider_width: 100.0,
+            // combo_width: 100.0,
+            // text_edit_width: 280.0,
+            // icon_width: 14.0,
+            // icon_width_inner: 8.0,
+            // icon_spacing: 14.0,
+            // tooltip_width: 600.0,
+            // combo_height: 200.0,
+            // scroll_bar_width: 8.0,
+            // scroll_handle_min_length: 12.0,
+            // scroll_bar_inner_margin: 4.0,
+            // scroll_bar_outer_margin: 0.0,
+            // indent_ends_with_horizontal_line: false,
+            ..Default::default()
+        };
+
+        let style = Style {
+            visuals,
+            text_styles,
+            spacing,
             ..Default::default()
         };
         self.egui_mq.as_mut().unwrap().egui_ctx().set_style(style)
@@ -362,7 +406,7 @@ impl<'a> DrawerEguiMacroquad<'a> {
             .fixed_rect(rect)
             .show(egui_context.as_ref().unwrap(), |ui| {
                 ui.set_width(ui.available_width());
-                ui.set_height(ui.available_height());
+                // ui.set_height(ui.available_height());
                 let mut drawer = DrawerEguiMacroquad {
                     egui_mq: self.egui_mq.take(),
                     egui_context: egui_context.clone(),
