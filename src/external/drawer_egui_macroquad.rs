@@ -143,6 +143,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .id(id)
             .title_bar(false)
             .default_rect(emath::Rect::from_min_size(Pos2::new(x, y), emath::Vec2::new(w, h)))
+            .resizable(false)
             .show(egui_context.as_ref().unwrap(), |ui| {
                 let mut drawer = DrawerEguiMacroquad {
                     egui_mq: self.egui_mq.take(),
@@ -176,6 +177,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .id(id)
             .title_bar(true)
             .default_rect(emath::Rect::from_min_size(Pos2::new(x, y), emath::Vec2::new(w, h)))
+            .resizable(false)
             .show(egui_context.as_ref().unwrap(), |ui| {
                 let mut drawer = DrawerEguiMacroquad {
                     egui_mq: self.egui_mq.take(),
@@ -274,13 +276,14 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             bg_stroke: Default::default(),
             rounding: Rounding::same(0.0),
             // fg_stroke: Default::default(),
-            fg_stroke: Stroke::new(1.0, button_text_color),
+            fg_stroke: Stroke::new(1.0, background_color_button),
             expansion: 0.0,
         };
         let widget_visuals_hovered = WidgetVisuals{
             bg_fill: background_color_button_hovered,
             weak_bg_fill: background_color_button_hovered,
             bg_stroke: Stroke::new(1.0, background_color_button),
+            fg_stroke: Stroke::new(1.0, background_color_button_hovered),
             ..widget_visuals_inactive
         };
 
@@ -288,6 +291,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             bg_fill: background_color_button_clicked,
             weak_bg_fill: background_color_button_clicked,
             bg_stroke: Stroke::new(2.0, background_color_button_hovered),
+            fg_stroke: Stroke::new(1.0, background_color_button_clicked),
             ..widget_visuals_inactive
         };
 
