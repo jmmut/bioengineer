@@ -58,13 +58,13 @@ pub trait DrawerTrait {
     ) -> Interaction;
     /// both draws and returns if it was pressed. (Immediate mode UI)
     fn ui_texture(&mut self, texture_index: TextureIndex) -> bool;
-    fn ui_texture_with_pos(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool;
+    fn ui_texture_with_pos(&mut self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool;
     /// both draws and returns if it was pressed or hovered over. (Immediate mode UI)
     fn ui_button(&mut self, text: &str) -> Interaction;
     fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction;
     fn ui_text(&mut self, text: &str);
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2;
-    fn ui_same_line(&self);
+    fn ui_same_line(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ());
 
     fn set_style(
         &mut self,

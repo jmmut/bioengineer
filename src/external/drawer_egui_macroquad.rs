@@ -202,20 +202,23 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             PIXELS_PER_TILE_HEIGHT as f32 * 2.0,
         );
         
-        let image = egui::ImageButton::new(TextureId::User(gl_texture_index as u64), size)
-            // .bg_fill(Color32::TRANSPARENT)
-            ;
-        // let image = image.tint(Color32::LIGHT_BLUE);
+        let image = egui::ImageButton::new(TextureId::User(gl_texture_index as u64), size);
         let ui = self.egui_ui.as_mut().unwrap();
-        let egui_ctx = self.egui_context.as_mut().unwrap();
         let response = image.ui(ui);
-        // let response = self.egui_ui.as_mut().unwrap().image(TextureId::User(gl_texture_index as u64), size);
         Self::response_to_interaction(Some(response)).is_clicked()
     }
 
-    fn ui_texture_with_pos(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool {
-        // TODO
-        false
+    fn ui_texture_with_pos(&mut self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool {
+        let gl_texture_index = self.inner.as_ref().unwrap().get_texture_copy(texture_index).raw_miniquad_texture_handle().gl_internal_id();
+        let size = egui::Vec2::new(
+            PIXELS_PER_TILE_WIDTH as f32 * 2.0,
+            PIXELS_PER_TILE_HEIGHT as f32 * 2.0,
+        );
+
+        let image = egui::ImageButton::new(TextureId::User(gl_texture_index as u64), size);
+        let ui = self.egui_ui.as_mut().unwrap();
+        let response = image.ui(ui);
+        Self::response_to_interaction(Some(response)).is_clicked()
     }
 
     fn ui_button(&mut self, text: &str) -> Interaction {
@@ -235,8 +238,19 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         self.inner.as_ref().unwrap().measure_text(text, font_size)
     }
 
-    fn ui_same_line(&self) {
-        //TODO
+    fn ui_same_line(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) {
+        let egui_context = self.egui_context.clone();
+        self.egui_ui.as_mut().unwrap().horizontal_top(|ui|{
+            let mut drawer = DrawerEguiMacroquad {
+                egui_mq: self.egui_mq.take(),
+                egui_context,
+                egui_ui: Some(ui),
+                input_processor_id: self.input_processor_id,
+                inner: self.inner.take(),
+            };
+            f(&mut drawer);
+            self.inner = drawer.inner.take();
+        });
     }
 
     fn set_style(
@@ -264,7 +278,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         };
 
         let text_color = to_egui_color(text_color);
-        let button_text_color = to_egui_color(button_text_color);
+        // let button_text_color = to_egui_color(button_text_color);
         let background_color = to_egui_color(background_color);
         let background_color_button = to_egui_color(background_color_button);
         let background_color_button_hovered = to_egui_color(background_color_button_hovered);
@@ -275,7 +289,6 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             weak_bg_fill: background_color_button,
             bg_stroke: Default::default(),
             rounding: Rounding::same(0.0),
-            // fg_stroke: Default::default(),
             fg_stroke: Stroke::new(1.0, background_color_button),
             expansion: 0.0,
         };

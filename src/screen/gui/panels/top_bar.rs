@@ -23,9 +23,10 @@ pub fn draw_top_bar(
 
     let panel_interaction =
         drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, &mut |drawer| {
-            goals = drawer.ui_button("Goals");
-            drawer.ui_same_line();
-            help = drawer.ui_button("Help");
+            drawer.ui_same_line(&mut |drawer: &mut dyn DrawerTrait| {
+                goals = drawer.ui_button("Goals");
+                help = drawer.ui_button("Help");
+            });
         });
     maybe_ignore_cell_selection(panel_interaction);
     maybe_ignore_cell_selection(maybe_draw_goals(drawer, drawing, goals));

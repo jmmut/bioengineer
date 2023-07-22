@@ -144,7 +144,7 @@ impl DrawerTrait for DrawerMacroquad {
         // the button I think only supports textures as a skin which is tedious.
     }
 
-    fn ui_texture_with_pos(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool {
+    fn ui_texture_with_pos(&mut self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool {
         let clicked = Texture::new(self.get_texture_copy(texture_index))
             .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
             .position(Some(Vec2::new(x, y)))
@@ -175,8 +175,9 @@ impl DrawerTrait for DrawerMacroquad {
         Vec2::new(text_dimensions.width, text_dimensions.height)
     }
 
-    fn ui_same_line(&self) {
-        root_ui().same_line(0.0)
+    fn ui_same_line(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) {
+        root_ui().same_line(0.0);
+        f(self)
     }
 
     fn set_style(
