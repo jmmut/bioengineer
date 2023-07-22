@@ -1,16 +1,16 @@
-use std::str::FromStr;
-use macroquad::color::colors::LIGHTGRAY;
-use macroquad::texture::Texture2D;
-use macroquad::window::{Conf, next_frame};
 use bioengineer::external::assets_macroquad::load_tileset;
-use bioengineer::external::drawer_macroquad::DrawerMacroquad;
 use bioengineer::external::drawer_egui_macroquad::DrawerEguiMacroquad;
+use bioengineer::external::drawer_macroquad::DrawerMacroquad;
 use bioengineer::external::input_macroquad::InputMacroquad as InputSource;
 use bioengineer::external::ui_backend::{drawer_factory, UiBackend};
 use bioengineer::screen::drawer_trait::DrawerTrait;
 use bioengineer::screen::gui::set_skin;
 use bioengineer::screen::input::InputSourceTrait;
 use bioengineer::world::map::cell::ExtraTextures;
+use macroquad::color::colors::LIGHTGRAY;
+use macroquad::texture::Texture2D;
+use macroquad::window::{next_frame, Conf};
+use std::str::FromStr;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;
@@ -23,7 +23,6 @@ async fn main() {
     while frame(&mut drawer, &mut input_source) {
         next_frame().await
     }
-
 }
 
 fn window_conf() -> Conf {
@@ -45,7 +44,10 @@ async fn factory() -> (Box<dyn DrawerTrait>, Box<InputSource>) {
     (drawer, input_source)
 }
 
-fn drawer_factory_from_name(drawer_type_name: Option<String>, textures: Vec<Texture2D>) -> Box<dyn DrawerTrait> {
+fn drawer_factory_from_name(
+    drawer_type_name: Option<String>,
+    textures: Vec<Texture2D>,
+) -> Box<dyn DrawerTrait> {
     let drawer_type_res = UiBackend::from_str(&drawer_type_name.unwrap_or("egui".to_string()));
     let drawer_type = match drawer_type_res {
         Ok(t) => t,
@@ -54,7 +56,6 @@ fn drawer_factory_from_name(drawer_type_name: Option<String>, textures: Vec<Text
     drawer_factory(drawer_type, textures)
 }
 
-
 fn frame(drawer: &mut Box<dyn DrawerTrait>, input_source: &mut Box<InputSource>) -> bool {
     let input = input_source.get_input();
     drawer.clear_background(LIGHTGRAY);
@@ -62,11 +63,18 @@ fn frame(drawer: &mut Box<dyn DrawerTrait>, input_source: &mut Box<InputSource>)
 
     drawer.ui_run(&mut |drawer: &mut dyn DrawerTrait| {
         drawer.ui_button("click me");
-        drawer.ui_named_group("named group", 300.0, 400.0, 100.0, 200.0, &mut |drawer: &mut dyn DrawerTrait| {
-            drawer.ui_button("click button inside group");
-            drawer.ui_text("this is some text after the button");
-            drawer.ui_texture(ExtraTextures::ZoomedRobot.into());
-        });
+        drawer.ui_named_group(
+            "named group",
+            300.0,
+            400.0,
+            100.0,
+            200.0,
+            &mut |drawer: &mut dyn DrawerTrait| {
+                drawer.ui_button("click button inside group");
+                drawer.ui_text("this is some text after the button");
+                drawer.ui_texture(ExtraTextures::ZoomedRobot.into());
+            },
+        );
     });
     drawer.ui_draw();
     !input.quit

@@ -42,8 +42,13 @@ pub fn show_available_transformations(
             panel_height,
         );
         let mut hovered_opt = None;
-        let transformations_panel =
-            drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, &mut |drawer| {
+        let transformations_panel = drawer.ui_named_group(
+            panel_title,
+            panel.x,
+            panel.y,
+            panel.w,
+            panel.h,
+            &mut |drawer| {
                 for transformation in &transformations {
                     let text = to_action_str(transformation.new_tile_type);
                     match drawer.ui_button(text) {
@@ -60,7 +65,8 @@ pub fn show_available_transformations(
                         Interaction::None => {}
                     }
                 }
-            });
+            },
+        );
         if let Some(hovered) = hovered_opt {
             if let Some(tooltip) = to_tooltip_str(hovered) {
                 drawer.ui_named_group(

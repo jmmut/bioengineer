@@ -100,7 +100,14 @@ impl DrawerTrait for DrawerMacroquad {
     }
 
     /// This grouping function does not support nested groups
-    fn ui_group(&mut self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) -> Interaction {
+    fn ui_group(
+        &mut self,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+        f: &mut dyn FnMut(&mut dyn DrawerTrait) -> (),
+    ) -> Interaction {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)
@@ -144,7 +151,12 @@ impl DrawerTrait for DrawerMacroquad {
         // the button I think only supports textures as a skin which is tedious.
     }
 
-    fn ui_texture_with_pos(&mut self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool {
+    fn ui_texture_with_pos(
+        &mut self,
+        texture_index: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+    ) -> bool {
         let clicked = Texture::new(self.get_texture_copy(texture_index))
             .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
             .position(Some(Vec2::new(x, y)))

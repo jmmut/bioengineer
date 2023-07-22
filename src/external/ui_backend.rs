@@ -1,8 +1,8 @@
-use std::str::FromStr;
-use macroquad::texture::Texture2D;
 use crate::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use crate::external::drawer_macroquad::DrawerMacroquad;
 use crate::screen::drawer_trait::DrawerTrait;
+use macroquad::texture::Texture2D;
+use std::str::FromStr;
 
 #[derive(Debug)]
 pub enum UiBackend {
@@ -23,7 +23,6 @@ impl FromStr for UiBackend {
         }
     }
 }
-
 
 pub fn drawer_factory(drawer_type: UiBackend, textures: Vec<Texture2D>) -> Box<dyn DrawerTrait> {
     match drawer_type {

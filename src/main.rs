@@ -8,8 +8,8 @@ use macroquad::window::Conf;
 use bioengineer::external::assets_macroquad::load_tileset;
 use bioengineer::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use bioengineer::external::drawer_macroquad::DrawerMacroquad;
-use bioengineer::external::ui_backend::{drawer_factory, UiBackend};
 use bioengineer::external::input_macroquad::InputMacroquad as InputSource;
+use bioengineer::external::ui_backend::{drawer_factory, UiBackend};
 use bioengineer::frame;
 use bioengineer::screen::drawer_trait::DrawerTrait;
 use bioengineer::screen::Screen;
@@ -34,7 +34,11 @@ struct CliArgs {
     )]
     fluids: bool,
 
-    #[clap(long, help = "Choose UI backend, egui or macroquad.", default_value = "egui")]
+    #[clap(
+        long,
+        help = "Choose UI backend, egui or macroquad.",
+        default_value = "egui"
+    )]
     ui: UiBackend,
 }
 

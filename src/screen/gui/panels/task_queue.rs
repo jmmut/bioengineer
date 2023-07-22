@@ -94,7 +94,12 @@ pub fn draw_robot_queue(
             draw_task_queue_tooltip(drawer, group_height, margin, "Stop doing this task");
         }
         if do_now_hovered {
-            draw_task_queue_tooltip(drawer, group_height, margin, "Pause other tasks and do this task now");
+            draw_task_queue_tooltip(
+                drawer,
+                group_height,
+                margin,
+                "Pause other tasks and do this task now",
+            );
         }
         if !cancel_hovered && !do_now_hovered {
             if group.is_hovered_or_clicked() {

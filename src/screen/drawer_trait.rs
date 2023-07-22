@@ -46,7 +46,14 @@ pub trait DrawerTrait {
     /// all ui_* methods need to run inside ui_run. This is a restriction of using egui_miniquad :(
     fn ui_run(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ());
     fn ui_draw(&mut self);
-    fn ui_group(&mut self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) -> Interaction;
+    fn ui_group(
+        &mut self,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+        f: &mut dyn FnMut(&mut dyn DrawerTrait) -> (),
+    ) -> Interaction;
     fn ui_named_group(
         &mut self,
         title: &str,
@@ -58,7 +65,12 @@ pub trait DrawerTrait {
     ) -> Interaction;
     /// both draws and returns if it was pressed. (Immediate mode UI)
     fn ui_texture(&mut self, texture_index: TextureIndex) -> bool;
-    fn ui_texture_with_pos(&mut self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool;
+    fn ui_texture_with_pos(
+        &mut self,
+        texture_index: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+    ) -> bool;
     /// both draws and returns if it was pressed or hovered over. (Immediate mode UI)
     fn ui_button(&mut self, text: &str) -> Interaction;
     fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction;
