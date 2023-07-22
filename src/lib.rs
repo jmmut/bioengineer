@@ -8,7 +8,6 @@ pub mod world;
 pub mod external {
     pub mod assets_macroquad;
     pub mod drawer_egui_macroquad;
-    pub mod drawer_egui_miniquad;
     pub mod drawer_macroquad;
     pub mod input_macroquad;
     pub mod ui_backend;
