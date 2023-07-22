@@ -1,10 +1,8 @@
 use egui_miniquad::EguiMq;
 use macroquad::prelude::*;
 use miniquad as mq;
-use std::cell::{Cell, RefCell};
-use std::mem;
+use std::cell::{RefCell};
 use std::mem::swap;
-use std::ops::DerefMut;
 
 use crate::external::drawer_macroquad::DrawerMacroquad;
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
@@ -14,11 +12,10 @@ pub use egui;
 use egui::epaint::Shadow;
 use egui::style::{WidgetVisuals, Widgets};
 use egui::{
-    emath, Color32, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Ui, Visuals,
+    emath, Color32, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Visuals,
     Widget,
 };
 pub use macroquad;
-use macroquad::hash;
 use macroquad::miniquad::GraphicsContext;
 
 pub struct DrawerEguiMacroquad<'a> {
