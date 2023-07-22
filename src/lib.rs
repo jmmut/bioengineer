@@ -11,6 +11,7 @@ pub mod external {
     pub mod drawer_egui_miniquad;
     pub mod drawer_macroquad;
     pub mod input_macroquad;
+    pub mod ui_backend;
 }
 
 use macroquad::color::Color;
