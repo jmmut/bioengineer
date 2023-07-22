@@ -6,6 +6,7 @@ use bioengineer::external::drawer_macroquad::DrawerMacroquad;
 use bioengineer::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use bioengineer::external::input_macroquad::InputMacroquad as InputSource;
 use bioengineer::screen::drawer_trait::DrawerTrait;
+use bioengineer::screen::gui::set_skin;
 use bioengineer::screen::input::InputSourceTrait;
 use bioengineer::world::map::cell::ExtraTextures;
 
@@ -36,7 +37,8 @@ fn window_conf() -> Conf {
 async fn factory() -> (Box<dyn DrawerTrait>, Box<InputSource>) {
     let tileset = load_tileset("assets/image/tileset.png");
     let drawer_name = std::env::args().last();
-    let drawer = drawer_factory(drawer_name, tileset.await);
+    let mut drawer = drawer_factory(drawer_name, tileset.await);
+    set_skin(drawer.as_mut());
     let input_source = Box::new(InputSource::new());
     (drawer, input_source)
 }
@@ -52,14 +54,14 @@ fn drawer_factory(drawer_type_name: Option<String>, textures: Vec<Texture2D>) ->
 fn frame(drawer: &mut Box<dyn DrawerTrait>, input_source: &mut Box<InputSource>) -> bool {
     let input = input_source.get_input();
     drawer.clear_background(LIGHTGRAY);
-    drawer.draw_transparent_texture(&ExtraTextures::Robot, 0.0, 0.0, 5.0, 1.0);
+    drawer.draw_transparent_texture(&ExtraTextures::ZoomedRobot, 0.0, 0.0, 5.0, 1.0);
 
     drawer.ui_run(&mut |drawer: &mut dyn DrawerTrait| {
         drawer.ui_button("click me");
         drawer.ui_named_group("named group", 300.0, 400.0, 100.0, 200.0, &mut |drawer: &mut dyn DrawerTrait| {
             drawer.ui_button("click button inside group");
             drawer.ui_text("this is some text after the button");
-
+            drawer.ui_texture(ExtraTextures::ZoomedRobot.into());
         });
     });
     drawer.ui_draw();

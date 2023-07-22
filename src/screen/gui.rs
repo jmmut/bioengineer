@@ -63,7 +63,7 @@ impl Gui {
     }
 }
 
-fn set_skin(drawer: &mut dyn DrawerTrait) {
+pub fn set_skin(drawer: &mut dyn DrawerTrait) {
     drawer.set_style(
         FONT_SIZE,
         TEXT_COLOR,

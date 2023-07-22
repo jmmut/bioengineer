@@ -131,7 +131,7 @@ impl DrawerTrait for DrawerMacroquad {
         get_interaction(x, y, w, h)
     }
 
-    fn ui_texture(&self, texture_index: TextureIndex) -> bool {
+    fn ui_texture(&mut self, texture_index: TextureIndex) -> bool {
         let clicked = root_ui().texture(
             self.get_texture_copy(texture_index),
             PIXELS_PER_TILE_WIDTH as f32,
@@ -286,7 +286,7 @@ impl DrawerMacroquad {
         &self.textures
     }
 
-    fn get_texture_copy<T: Into<TextureIndex>>(&self, texture_index: T) -> Texture2D {
+    pub fn get_texture_copy<T: Into<TextureIndex>>(&self, texture_index: T) -> Texture2D {
         *self
             .get_textures()
             .get(texture_index.into().get_index())

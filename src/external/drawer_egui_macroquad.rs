@@ -10,10 +10,13 @@ use crate::external::drawer_macroquad::DrawerMacroquad;
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 pub use egui;
-use egui::{Color32, emath, Frame, Id, Pos2, Response, Ui, Widget};
+use egui::{Color32, emath, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Ui, Visuals, Widget};
+use egui::epaint::Shadow;
+use egui::style::{Widgets, WidgetVisuals};
 pub use macroquad;
 use macroquad::hash;
 use macroquad::miniquad::GraphicsContext;
+use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 
 pub struct DrawerEguiMacroquad<'a> {
     egui_mq: Option<EguiMq>,
@@ -190,9 +193,22 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         Self::response_to_interaction(response.map(|inner| {inner.response}))
     }
 
-    fn ui_texture(&self, texture_index: TextureIndex) -> bool {
-        // TODO
-        false
+    fn ui_texture(&mut self, texture_index: TextureIndex) -> bool {
+        let gl_texture_index = self.inner.as_ref().unwrap().get_texture_copy(texture_index).raw_miniquad_texture_handle().gl_internal_id();
+        let size = egui::Vec2::new(
+            PIXELS_PER_TILE_WIDTH as f32 * 2.0,
+            PIXELS_PER_TILE_HEIGHT as f32 * 2.0,
+        );
+        
+        let image = egui::ImageButton::new(TextureId::User(gl_texture_index as u64), size)
+            // .bg_fill(Color32::TRANSPARENT)
+            ;
+        // let image = image.tint(Color32::LIGHT_BLUE);
+        let ui = self.egui_ui.as_mut().unwrap();
+        let egui_ctx = self.egui_context.as_mut().unwrap();
+        let response = image.ui(ui);
+        // let response = self.egui_ui.as_mut().unwrap().image(TextureId::User(gl_texture_index as u64), size);
+        Self::response_to_interaction(Some(response)).is_clicked()
     }
 
     fn ui_texture_with_pos(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool {
@@ -239,7 +255,62 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             background_color_button,
             background_color_button_hovered,
             background_color_button_clicked,
-        )
+        );
+        let to_egui_color = |c: Color| -> Color32 {
+            let array: [u8; 4] = c.into();
+            Color32::from_rgba_premultiplied(array[0], array[1], array[2], array[3])
+        };
+
+        let text_color = to_egui_color(text_color);
+        let button_text_color = to_egui_color(button_text_color);
+        let background_color = to_egui_color(background_color);
+        let background_color_button = to_egui_color(background_color_button);
+        let background_color_button_hovered = to_egui_color(background_color_button_hovered);
+        let background_color_button_clicked = to_egui_color(background_color_button_clicked);
+        let mut style = Style::default();
+        let widget_visuals_inactive = WidgetVisuals {
+            bg_fill: background_color_button,
+            weak_bg_fill: background_color_button,
+            bg_stroke: Default::default(),
+            rounding: Rounding::same(0.0),
+            // fg_stroke: Default::default(),
+            fg_stroke: Stroke::new(1.0, button_text_color),
+            expansion: 0.0,
+        };
+        let widget_visuals_hovered = WidgetVisuals{
+            bg_fill: background_color_button_hovered,
+            weak_bg_fill: background_color_button_hovered,
+            bg_stroke: Stroke::new(1.0, background_color_button),
+            ..widget_visuals_inactive
+        };
+
+        let widget_visuals_clicked = WidgetVisuals{
+            bg_fill: background_color_button_clicked,
+            weak_bg_fill: background_color_button_clicked,
+            bg_stroke: Stroke::new(2.0, background_color_button_hovered),
+            ..widget_visuals_inactive
+        };
+
+        let widget_visuals = Widgets {
+            inactive: widget_visuals_inactive,
+            hovered: widget_visuals_hovered,
+            active: widget_visuals_clicked,
+            ..Default::default()
+        };
+        style.visuals = Visuals {
+            dark_mode: false,
+            override_text_color: Some(text_color),
+            // faint_bg_color: background_color,
+            extreme_bg_color: background_color,
+            code_bg_color: background_color,
+            window_rounding: Rounding::same(0.0),
+            window_shadow: Shadow::NONE,
+            window_fill: background_color,
+            widgets: widget_visuals,
+            // button_frame: true,
+            ..Default::default()
+        };
+        self.egui_mq.as_mut().unwrap().egui_ctx().set_style(style)
     }
 }
 
