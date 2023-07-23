@@ -12,7 +12,7 @@ use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 pub use egui;
 use egui::epaint::Shadow;
 use egui::style::{WidgetVisuals, Widgets, Spacing};
-use egui::{emath, Color32, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Visuals, Widget, FontId, Margin, FontFamily};
+use egui::{emath, Color32, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Visuals, Widget, FontId, Margin, FontFamily, Sense};
 pub use macroquad;
 use macroquad::miniquad::GraphicsContext;
 use crate::screen::gui::FONT_SIZE;
@@ -170,49 +170,17 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
     }
 
     fn ui_texture(&mut self, texture_index: TextureIndex) -> bool {
-        let gl_texture_index = self
-            .inner
-            .as_ref()
-            .unwrap()
-            .get_texture_copy(texture_index)
-            .raw_miniquad_texture_handle()
-            .gl_internal_id();
-        let size = egui::Vec2::new(
-            PIXELS_PER_TILE_WIDTH as f32,
-            PIXELS_PER_TILE_HEIGHT as f32,
-        );
-
-        let image = egui::ImageButton::new(TextureId::User(gl_texture_index as u64), size);
-        let ui = self.egui_ui.as_mut().unwrap();
-        let response = image.ui(ui);
-        Self::response_to_interaction(Some(response)).is_clicked()
+        self.ui_texture_common(texture_index)
     }
 
+    // TODO: make positions work
     fn ui_texture_with_pos(
         &mut self,
         texture_index: &dyn TextureIndexTrait,
-        x: f32,
-        y: f32,
+        _x: f32,
+        _y: f32,
     ) -> bool {
-        let gl_texture_index = self
-            .inner
-            .as_ref()
-            .unwrap()
-            .get_texture_copy(texture_index)
-            .raw_miniquad_texture_handle()
-            .gl_internal_id();
-        let size = egui::Vec2::new(
-            PIXELS_PER_TILE_WIDTH as f32,
-            PIXELS_PER_TILE_HEIGHT as f32,
-        );
-
-        let image = egui::Image::new(TextureId::User(gl_texture_index as u64), size);
-        // image.
-        let ui = self.egui_ui.as_mut().unwrap();
-        let space = y - ui.min_rect().size().y;
-        // ui.add_space(space);
-        let response = image.ui(ui);
-        Self::response_to_interaction(Some(response)).is_clicked()
+        self.ui_texture_common(texture_index.into())
     }
 
     fn ui_button(&mut self, text: &str) -> Interaction {
@@ -339,7 +307,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
 
         let spacing = Spacing {
             item_spacing: egui::vec2(10.0, 10.0),
-            window_margin: Margin::symmetric(20.0, 10.0),
+            window_margin: Margin::symmetric(20.0, 15.0),
             // menu_margin: Margin::same(6.0),
             button_padding: egui::vec2(8.0, 3.0),
             // indent: 18.0, // match checkbox/radio-button with `button_padding.x + icon_width + icon_spacing`
@@ -437,6 +405,38 @@ impl<'a> DrawerEguiMacroquad<'a> {
         swap(&mut egui_context, &mut self.egui_context);
         Self::response_to_interaction(response.map(|inner| inner.response))
     }
+
+    // TODO: make positions work
+    fn ui_texture_common(
+        &mut self,
+        texture_index: TextureIndex,
+    ) -> bool {
+        let gl_texture_index = self
+            .inner
+            .as_ref()
+            .unwrap()
+            .get_texture_copy(texture_index)
+            .raw_miniquad_texture_handle()
+            .gl_internal_id();
+        let size = egui::Vec2::new(
+            PIXELS_PER_TILE_WIDTH as f32,
+            PIXELS_PER_TILE_HEIGHT as f32,
+        );
+
+        let image = egui::Image::new(TextureId::User(gl_texture_index as u64), size);
+        let image = image.sense(Sense {
+            click: true,
+            drag: false,
+            focusable: false,
+        });
+        let ui = self.egui_ui.as_mut().unwrap();
+        // let extra_margin = ui.style().spacing.window_margin;
+        // let space = y - ui.min_rect().size().y - extra_margin.top;
+        // ui.add_space(space);
+        let response = image.ui(ui);
+        Self::response_to_interaction(Some(response)).is_clicked()
+    }
+
 }
 
 impl<'a> mq::EventHandler for DrawerEguiMacroquad<'a> {

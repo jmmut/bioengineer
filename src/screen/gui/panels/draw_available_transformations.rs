@@ -65,6 +65,9 @@ pub fn show_available_transformations(
                         Interaction::None => {}
                     }
                 }
+                if transformations.len() == 0 {
+                    drawer.ui_text("No available actions");
+                }
             },
         );
         if let Some(hovered) = hovered_opt {
