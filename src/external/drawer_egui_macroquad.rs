@@ -216,7 +216,9 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
     }
 
     fn ui_button(&mut self, text: &str) -> Interaction {
-        let response = egui::Button::new(text).ui(self.egui_ui.as_mut().unwrap());
+        let response = egui::Button::new(text)
+            .wrap(false)
+            .ui(self.egui_ui.as_mut().unwrap());
         Self::response_to_interaction(Some(response))
     }
 
