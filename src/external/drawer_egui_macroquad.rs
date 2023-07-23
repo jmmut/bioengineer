@@ -206,9 +206,11 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             PIXELS_PER_TILE_HEIGHT as f32,
         );
 
-        let image = egui::ImageButton::new(TextureId::User(gl_texture_index as u64), size);
-
+        let image = egui::Image::new(TextureId::User(gl_texture_index as u64), size);
+        // image.
         let ui = self.egui_ui.as_mut().unwrap();
+        let space = y - ui.min_rect().size().y;
+        // ui.add_space(space);
         let response = image.ui(ui);
         Self::response_to_interaction(Some(response)).is_clicked()
     }
@@ -278,26 +280,26 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         let background_color_button_hovered = to_egui_color(background_color_button_hovered);
         let background_color_button_clicked = to_egui_color(background_color_button_clicked);
         let widget_visuals_inactive = WidgetVisuals {
-            bg_fill: background_color_button,
+            bg_fill: text_color,
             weak_bg_fill: background_color_button,
-            bg_stroke: Default::default(),
             rounding: Rounding::same(0.0),
-            fg_stroke: Stroke::new(1.0, background_color_button),
+            bg_stroke: Default::default(),
+            fg_stroke: Stroke::new(2.0, background_color_button_clicked),
             expansion: 0.0,
         };
         let widget_visuals_hovered = WidgetVisuals {
-            bg_fill: background_color_button_hovered,
+            bg_fill: text_color,
             weak_bg_fill: background_color_button_hovered,
             bg_stroke: Stroke::new(1.0, background_color_button),
-            fg_stroke: Stroke::new(1.0, background_color_button_hovered),
+            fg_stroke: Stroke::new(3.0, background_color_button_hovered),
             ..widget_visuals_inactive
         };
 
         let widget_visuals_clicked = WidgetVisuals {
-            bg_fill: background_color_button_clicked,
+            bg_fill: text_color,
             weak_bg_fill: background_color_button_clicked,
             bg_stroke: Stroke::new(2.0, background_color_button_hovered),
-            fg_stroke: Stroke::new(1.0, background_color_button_clicked),
+            fg_stroke: Stroke::new(1.0, background_color_button_hovered),
             ..widget_visuals_inactive
         };
 
@@ -343,9 +345,9 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             // slider_width: 100.0,
             // combo_width: 100.0,
             // text_edit_width: 280.0,
-            // icon_width: 14.0,
-            // icon_width_inner: 8.0,
-            // icon_spacing: 14.0,
+            icon_width: 15.0,
+            icon_width_inner: 10.0,
+            icon_spacing: 6.0,
             // tooltip_width: 600.0,
             // combo_height: 200.0,
             // scroll_bar_width: 8.0,
