@@ -69,7 +69,7 @@ pub fn allowed_transformations_of_cell(
         Air => vec![
         // DirtyWaterSurface, DirtyWaterWall, WallRock
         ],
-        Wire => machines_plus(vec![Stairs, FloorRock,  TreeHealthy]),
+        Wire => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
         MachineAssembler => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
         MachineAirCleaner => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
         MachineDrill => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),

@@ -1,18 +1,18 @@
 //! Most of these ideas came from https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
 
+use bioengineer::common::cli::CliArgs;
+use clap::Parser;
 use macroquad::window::next_frame;
 use macroquad::window::Conf;
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::ffi::{c_char, c_int, c_void, CString};
 use std::path::PathBuf;
 use std::sync::mpsc::Receiver;
-use clap::Parser;
-use bioengineer::common::cli::CliArgs;
 
+use bioengineer::external::backends::factory;
 use bioengineer::screen::Screen;
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
 use bioengineer::world::World;
-use bioengineer::external::backends::factory;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;

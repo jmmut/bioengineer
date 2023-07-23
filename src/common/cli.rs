@@ -1,6 +1,6 @@
+use crate::external::backends::UiBackend;
 use clap::Parser;
 use git_version::git_version;
-use crate::external::backends::UiBackend;
 
 pub const GIT_VERSION: &str = git_version!(args = ["--tags"]);
 

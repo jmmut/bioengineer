@@ -1,13 +1,13 @@
+use crate::common::cli::{CliArgs, GIT_VERSION};
+use crate::external::assets_macroquad::load_tileset;
 use crate::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use crate::external::drawer_macroquad::DrawerMacroquad;
 use crate::external::input_macroquad::InputMacroquad as InputSource;
 use crate::screen::drawer_trait::DrawerTrait;
-use macroquad::texture::Texture2D;
-use std::str::FromStr;
-use crate::common::cli::{CliArgs, GIT_VERSION};
-use crate::external::assets_macroquad::load_tileset;
 use crate::screen::Screen;
 use crate::world::World;
+use macroquad::texture::Texture2D;
+use std::str::FromStr;
 
 #[derive(Debug, Copy, Clone)]
 pub enum UiBackend {
@@ -25,7 +25,7 @@ impl FromStr for UiBackend {
             Ok(UiBackend::Egui)
         } else {
             Err(format!("error: unknown UiBackend {s}"))
-        }
+        };
     }
 }
 
@@ -44,4 +44,3 @@ pub fn drawer_factory(drawer_type: UiBackend, textures: Vec<Texture2D>) -> Box<d
         UiBackend::Egui => Box::new(DrawerEguiMacroquad::new(textures)),
     }
 }
-

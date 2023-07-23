@@ -8,10 +8,10 @@ pub mod world;
 
 pub mod external {
     pub mod assets_macroquad;
+    pub mod backends;
     pub mod drawer_egui_macroquad;
     pub mod drawer_macroquad;
     pub mod input_macroquad;
-    pub mod backends;
 }
 
 use macroquad::color::Color;

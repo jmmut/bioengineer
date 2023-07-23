@@ -2,8 +2,8 @@ use clap::Parser;
 use macroquad::window::next_frame;
 use macroquad::window::Conf;
 
-use bioengineer::external::backends::{factory};
 use bioengineer::common::cli::CliArgs;
+use bioengineer::external::backends::factory;
 use bioengineer::frame;
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
 
@@ -31,4 +31,3 @@ fn window_conf() -> Conf {
         ..Default::default()
     }
 }
-

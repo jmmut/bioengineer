@@ -1,21 +1,24 @@
 use egui_miniquad::EguiMq;
 use macroquad::prelude::*;
 use miniquad as mq;
-use std::cell::{RefCell};
+use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::mem::swap;
 
 use crate::external::drawer_macroquad::DrawerMacroquad;
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
+use crate::screen::gui::FONT_SIZE;
 use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 pub use egui;
 use egui::epaint::Shadow;
-use egui::style::{WidgetVisuals, Widgets, Spacing};
-use egui::{emath, Color32, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Visuals, Widget, FontId, Margin, FontFamily, Sense};
+use egui::style::{Spacing, WidgetVisuals, Widgets};
+use egui::{
+    emath, Color32, FontFamily, FontId, Frame, Id, Margin, Pos2, Response, Rounding, Sense, Stroke,
+    Style, TextureId, Visuals, Widget,
+};
 pub use macroquad;
 use macroquad::miniquad::GraphicsContext;
-use crate::screen::gui::FONT_SIZE;
 
 pub struct DrawerEguiMacroquad<'a> {
     egui_mq: Option<EguiMq>,
@@ -23,7 +26,7 @@ pub struct DrawerEguiMacroquad<'a> {
     egui_ui: Option<&'a mut egui::Ui>,
     input_processor_id: usize,
     inner: Option<DrawerMacroquad>,
-    something_clicked: bool
+    something_clicked: bool,
 }
 
 impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
@@ -131,7 +134,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
                             egui_ui: Some(ui),
                             input_processor_id: 0,
                             inner: ref_mut.inner.take(),
-                            something_clicked
+                            something_clicked,
                         };
 
                         f(&mut drawer);
@@ -150,8 +153,9 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         gl.flush();
         self.egui_mq.as_mut().unwrap().draw(&mut gl.quad_context);
         if is_mouse_button_released(MouseButton::Left)
-                || is_mouse_button_released(MouseButton::Right)
-                || is_mouse_button_released(MouseButton::Middle) {
+            || is_mouse_button_released(MouseButton::Right)
+            || is_mouse_button_released(MouseButton::Middle)
+        {
             self.something_clicked = false;
         }
     }
@@ -318,7 +322,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         use egui::TextStyle::*;
 
         let font = FontId::new(FONT_SIZE - 4.0, FontFamily::Monospace);
-        let text_styles :BTreeMap<egui::TextStyle, FontId> = [
+        let text_styles: BTreeMap<egui::TextStyle, FontId> = [
             (Heading, FontId::new(FONT_SIZE - 3.0, FontFamily::Monospace)),
             // (Name("Heading2".into()), font.clone()),
             // (Name("Context".into()), font.clone()),
@@ -326,7 +330,8 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             (Monospace, font.clone()),
             (Button, font.clone()),
             (Small, font.clone()),
-        ].into();
+        ]
+        .into();
 
         let spacing = Spacing {
             item_spacing: egui::vec2(10.0, 10.0),
@@ -376,7 +381,7 @@ impl<'a> DrawerEguiMacroquad<'a> {
                 } else {
                     self.something_clicked = true;
                     Interaction::Clicked
-                }
+                };
             } else if response.hovered() {
                 return Interaction::Hovered;
             }
@@ -384,13 +389,14 @@ impl<'a> DrawerEguiMacroquad<'a> {
         Interaction::None
     }
 
-    fn ui_group_common(&mut self,
+    fn ui_group_common(
+        &mut self,
         title: Option<String>,
         x: f32,
         y: f32,
         w: f32,
         h: f32,
-        f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()
+        f: &mut dyn FnMut(&mut dyn DrawerTrait) -> (),
     ) -> Interaction {
         let id = if let Some(title) = &title {
             Id::new(title).with(x.abs() as i32).with(y.abs() as i32)
@@ -400,10 +406,7 @@ impl<'a> DrawerEguiMacroquad<'a> {
         let mut egui_context = None;
         swap(&mut egui_context, &mut self.egui_context);
         let should_have_title_bar = title.is_some();
-        let rect = emath::Rect::from_min_size(
-            Pos2::new(x, y),
-            emath::Vec2::new(w, h),
-        );
+        let rect = emath::Rect::from_min_size(Pos2::new(x, y), emath::Vec2::new(w, h));
         // self.egui_ui.as_mut().unwrap().
         let response = egui::Window::new(title.unwrap_or("".to_string()))
             .id(id)
@@ -437,10 +440,7 @@ impl<'a> DrawerEguiMacroquad<'a> {
     }
 
     // TODO: make positions work
-    fn ui_texture_common(
-        &mut self,
-        texture_index: TextureIndex,
-    ) -> bool {
+    fn ui_texture_common(&mut self, texture_index: TextureIndex) -> bool {
         let gl_texture_index = self
             .inner
             .as_ref()
@@ -448,10 +448,7 @@ impl<'a> DrawerEguiMacroquad<'a> {
             .get_texture_copy(texture_index)
             .raw_miniquad_texture_handle()
             .gl_internal_id();
-        let size = egui::Vec2::new(
-            PIXELS_PER_TILE_WIDTH as f32,
-            PIXELS_PER_TILE_HEIGHT as f32,
-        );
+        let size = egui::Vec2::new(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32);
 
         let image = egui::Image::new(TextureId::User(gl_texture_index as u64), size);
         let image = image.sense(Sense {
@@ -466,7 +463,6 @@ impl<'a> DrawerEguiMacroquad<'a> {
         let response = image.ui(ui);
         self.response_to_interaction(Some(response)).is_clicked()
     }
-
 }
 
 impl<'a> mq::EventHandler for DrawerEguiMacroquad<'a> {

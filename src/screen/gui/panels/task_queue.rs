@@ -45,7 +45,11 @@ pub fn draw_robot_queue(
         }
     };
     let tooltip = "Move the camera to the robot";
-    draw_tooltip(robot_hovered || group_robot.is_hovered_or_clicked(), tooltip, drawer);
+    draw_tooltip(
+        robot_hovered || group_robot.is_hovered_or_clicked(),
+        tooltip,
+        drawer,
+    );
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
