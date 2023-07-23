@@ -20,23 +20,26 @@ use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::{FONT_SIZE, MARGIN};
 use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 
+#[derive(Clone)]
 pub struct DrawerMacroquad {
     pub drawing: DrawingState,
     pub textures: Vec<Texture2D>,
+    pub same_line: bool,
 }
 
 impl DrawerTrait for DrawerMacroquad {
     fn new(textures: Vec<Texture2D>) -> DrawerMacroquad {
         // let textures = load_tileset(tileset_path);
-        println!(
-            "Loaded {} textures. The first one is {} by {} pixels",
-            textures.len(),
-            textures[0].width(),
-            textures[0].height()
-        );
+        // println!(
+        //     "Loaded {} textures. The first one is {} by {} pixels",
+        //     textures.len(),
+        //     textures[0].width(),
+        //     textures[0].height()
+        // );
         let d = DrawerMacroquad {
             drawing: DrawingState::new(),
             textures,
+            same_line: false,
         };
         d._debug_draw_all_textures();
         d
@@ -59,12 +62,26 @@ impl DrawerTrait for DrawerMacroquad {
         self.draw_transparent_texture(texture_index, x, y, 1.0, 1.0);
     }
 
-    fn draw_transparent_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, opacity_coef: f32) {
+    fn draw_transparent_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        opacity_coef: f32,
+    ) {
         let color_mask = Color::new(1.0, 1.0, 1.0, opacity_coef);
         let texture = self.textures[texture.get_index()];
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
-    fn draw_colored_texture(&self, texture: &dyn TextureIndexTrait, x: f32, y: f32, zoom: f32, color_mask: Color) {
+    fn draw_colored_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        color_mask: Color,
+    ) {
         let texture = self.textures[texture.get_index()];
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
@@ -76,39 +93,60 @@ impl DrawerTrait for DrawerMacroquad {
         draw_text(text, x, y, font_size, color);
     }
 
+    fn ui_run(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) {
+        f(self);
+    }
+
+    fn ui_draw(&mut self) {
+        // macroquad automatically draws ui at the end of the frame
+    }
+
     /// This grouping function does not support nested groups
-    fn ui_group(&self, x: f32, y: f32, w: f32, h: f32, f: &mut dyn FnMut() -> ()) -> Interaction {
+    fn ui_group(
+        &mut self,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+        f: &mut dyn FnMut(&mut dyn DrawerTrait) -> (),
+    ) -> Interaction {
+        self.maybe_apply_same_line();
         let id = hash!(x.abs() as i32, y.abs() as i32);
+
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(false)
             .movable(false);
+
+        root_ui().same_line(0.0);
         let token = window.begin(&mut root_ui());
-        f();
+        f(self);
         token.end(&mut root_ui());
         get_interaction(x, y, w, h)
     }
 
     fn ui_named_group(
-        &self,
+        &mut self,
         title: &str,
         x: f32,
         y: f32,
         w: f32,
         h: f32,
-        f: &mut dyn FnMut(),
+        f: &mut dyn FnMut(&mut dyn DrawerTrait) -> (),
     ) -> Interaction {
+        self.maybe_apply_same_line();
         let id = hash!(title, x.abs() as i32, y.abs() as i32);
         let window = widgets::Window::new(id, Vec2::new(x, y), Vec2::new(w, h))
             .titlebar(true)
             .label(title)
             .movable(false);
         let token = window.begin(&mut root_ui());
-        f();
+        f(self);
         token.end(&mut root_ui());
         get_interaction(x, y, w, h)
     }
 
-    fn ui_texture(&self, texture_index: TextureIndex) -> bool {
+    fn ui_texture(&mut self, texture_index: TextureIndex) -> bool {
+        self.maybe_apply_same_line();
         let clicked = root_ui().texture(
             self.get_texture_copy(texture_index),
             PIXELS_PER_TILE_WIDTH as f32,
@@ -121,7 +159,13 @@ impl DrawerTrait for DrawerMacroquad {
         // the button I think only supports textures as a skin which is tedious.
     }
 
-    fn ui_texture_with_pos(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) -> bool {
+    fn ui_texture_with_pos(
+        &mut self,
+        texture_index: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+    ) -> bool {
+        self.maybe_apply_same_line();
         let clicked = Texture::new(self.get_texture_copy(texture_index))
             .size(PIXELS_PER_TILE_WIDTH as f32, PIXELS_PER_TILE_HEIGHT as f32)
             .position(Some(Vec2::new(x, y)))
@@ -133,17 +177,20 @@ impl DrawerTrait for DrawerMacroquad {
         // the button I think only supports textures as a skin which is tedious.
     }
 
-    fn ui_button(&self, text: &str) -> Interaction {
+    fn ui_button(&mut self, text: &str) -> Interaction {
+        self.maybe_apply_same_line();
         let clicked = root_ui().button(None, text);
         interaction_from_clicked(clicked)
     }
 
-    fn ui_button_with_pos(&self, text: &str, x: f32, y: f32) -> Interaction {
+    fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction {
+        self.maybe_apply_same_line();
         let clicked = root_ui().button(Option::Some(Vec2::new(x, y)), text);
         interaction_from_clicked(clicked)
     }
 
-    fn ui_text(&self, text: &str) {
+    fn ui_text(&mut self, text: &str) {
+        self.maybe_apply_same_line();
         root_ui().label(None, text);
     }
 
@@ -152,8 +199,11 @@ impl DrawerTrait for DrawerMacroquad {
         Vec2::new(text_dimensions.width, text_dimensions.height)
     }
 
-    fn ui_same_line(&self) {
-        root_ui().same_line(0.0)
+    fn ui_same_line(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) {
+        let previous_same_line = self.same_line;
+        self.same_line = true;
+        f(self);
+        self.same_line = previous_same_line;
     }
 
     fn set_style(
@@ -246,6 +296,10 @@ impl DrawerTrait for DrawerMacroquad {
         };
         root_ui().push_skin(&skin);
     }
+
+    fn debug_ui(&mut self) {
+        todo!()
+    }
 }
 
 pub fn interaction_from_clicked(clicked: bool) -> Interaction {
@@ -263,7 +317,7 @@ impl DrawerMacroquad {
         &self.textures
     }
 
-    fn get_texture_copy<T: Into<TextureIndex>>(&self, texture_index: T) -> Texture2D {
+    pub fn get_texture_copy<T: Into<TextureIndex>>(&self, texture_index: T) -> Texture2D {
         *self
             .get_textures()
             .get(texture_index.into().get_index())
@@ -280,6 +334,12 @@ impl DrawerMacroquad {
                 let mask_color = Color::new(1.0, 1.0, 1.0, 1.0);
                 macroquad_draw_texture(self.textures[i], x, y, mask_color);
             }
+        }
+    }
+
+    pub fn maybe_apply_same_line(&self) {
+        if self.same_line {
+            root_ui().same_line(0.0);
         }
     }
 }

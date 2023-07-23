@@ -10,7 +10,7 @@ use crate::world::{TransformationTask, World};
 use crate::Rect;
 
 pub fn show_available_transformations(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     world: &World,
     unhandled_input: GuiActions,
     drawing: &DrawingState,
@@ -42,8 +42,13 @@ pub fn show_available_transformations(
             panel_height,
         );
         let mut hovered_opt = None;
-        let transformations_panel =
-            drawer.ui_named_group(panel_title, panel.x, panel.y, panel.w, panel.h, &mut || {
+        let transformations_panel = drawer.ui_named_group(
+            panel_title,
+            panel.x,
+            panel.y,
+            panel.w,
+            panel.h,
+            &mut |drawer| {
                 for transformation in &transformations {
                     let text = to_action_str(transformation.new_tile_type);
                     match drawer.ui_button(text) {
@@ -60,7 +65,11 @@ pub fn show_available_transformations(
                         Interaction::None => {}
                     }
                 }
-            });
+                if transformations.len() == 0 {
+                    drawer.ui_text("No available actions");
+                }
+            },
+        );
         if let Some(hovered) = hovered_opt {
             if let Some(tooltip) = to_tooltip_str(hovered) {
                 drawer.ui_named_group(
@@ -69,7 +78,7 @@ pub fn show_available_transformations(
                     panel.y,
                     panel.w,
                     panel.h,
-                    &mut || {
+                    &mut |drawer| {
                         for line in &tooltip {
                             drawer.ui_text(line);
                         }
@@ -77,7 +86,7 @@ pub fn show_available_transformations(
                 );
             }
         }
-        if transformations_panel.is_hovered_or_clicked() {
+        if transformations_panel.is_hovered_or_clicked() || transformation_clicked.is_some() {
             cell_selection = CellSelection::no_selection();
         }
         // if let Option::Some(selection) = unhandled_input.input.cell_selection.pixel_selection {

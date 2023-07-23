@@ -7,7 +7,7 @@ use crate::world::map::cell::{ExtraTextures, TextureIndex};
 use crate::world::{Task, World};
 
 pub fn draw_robot_queue(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     world: &World,
     gui_actions: GuiActions,
 ) -> GuiActions {
@@ -25,11 +25,10 @@ pub fn draw_robot_queue(
         drawer.screen_height() - robot_window_height - margin,
         icon_width,
         robot_window_height,
-        &mut || {
+        &mut |drawer| {
             let show_robot = drawer.ui_button("Show");
             let robot_texture_clicked =
-                drawer.ui_texture_with_pos(&
-                    ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
+                drawer.ui_texture_with_pos(&ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
             robot_hovered = show_robot.is_hovered_or_clicked();
             if show_robot.is_clicked() || robot_texture_clicked {
                 go_to_robot = Option::Some(world.robots.first().unwrap().position);
@@ -40,13 +39,13 @@ pub fn draw_robot_queue(
         cell_selection = CellSelection::no_selection();
     }
 
-    let draw_tooltip = |tooltip_enabled: bool, tooltip: &str| {
+    let draw_tooltip = |tooltip_enabled: bool, tooltip: &str, drawer| {
         if tooltip_enabled {
             draw_task_queue_tooltip(drawer, group_height, margin, tooltip);
         }
     };
     let tooltip = "Move the camera to the robot";
-    draw_tooltip(group_robot.is_hovered_or_clicked(), tooltip);
+    draw_tooltip(robot_hovered || group_robot.is_hovered_or_clicked(), tooltip, drawer);
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
@@ -72,7 +71,7 @@ pub fn draw_robot_queue(
             drawer.screen_height() - group_height - margin,
             icon_width,
             group_height,
-            &mut || {
+            &mut |drawer| {
                 let cancel = drawer.ui_button("Cancel");
                 cancel_hovered = cancel.is_hovered();
                 if cancel.is_clicked() {
@@ -91,10 +90,21 @@ pub fn draw_robot_queue(
             cell_selection = CellSelection::no_selection();
         }
 
-        draw_tooltip(cancel_hovered, "Stop doing this task");
-        draw_tooltip(do_now_hovered, "Pause other tasks and do this task now");
+        if cancel_hovered {
+            draw_task_queue_tooltip(drawer, group_height, margin, "Stop doing this task");
+        }
+        if do_now_hovered {
+            draw_task_queue_tooltip(
+                drawer,
+                group_height,
+                margin,
+                "Pause other tasks and do this task now",
+            );
+        }
         if !cancel_hovered && !do_now_hovered {
-            draw_tooltip(group.is_hovered_or_clicked(), &task_description);
+            if group.is_hovered_or_clicked() {
+                draw_task_queue_tooltip(drawer, group_height, margin, &task_description);
+            }
             // TODO: on group.is_clicked, highlight cells
         }
     }
@@ -109,7 +119,7 @@ pub fn draw_robot_queue(
 }
 
 fn draw_task_queue_tooltip(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     group_height: f32,
     margin: f32,
     tooltip: &str,
@@ -121,6 +131,6 @@ fn draw_task_queue_tooltip(
         drawer.screen_height() - group_height - margin - tooltip_height - margin,
         tooltip_width,
         tooltip_height,
-        &mut || drawer.ui_text(tooltip),
+        &mut |drawer| drawer.ui_text(tooltip),
     );
 }

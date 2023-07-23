@@ -1,4 +1,5 @@
-mod common{
+pub mod common {
+    pub mod cli;
     pub mod profiling;
     pub mod trunc;
 }
@@ -7,8 +8,10 @@ pub mod world;
 
 pub mod external {
     pub mod assets_macroquad;
+    pub mod drawer_egui_macroquad;
     pub mod drawer_macroquad;
     pub mod input_macroquad;
+    pub mod backends;
 }
 
 use macroquad::color::Color;
@@ -20,12 +23,8 @@ use common::profiling::ScopedProfiler;
 use screen::Screen;
 use world::World;
 
-
 /// returns if should continue looping. In other words, if there should be another future frame.
-pub fn frame(
-    screen: &mut Screen,
-    world: &mut World,
-) -> bool {
+pub fn frame(screen: &mut Screen, world: &mut World) -> bool {
     let _profiler = ScopedProfiler::new_named(world.game_state.profile, "whole toplevel frame");
     let gui_actions = screen.get_gui_actions(world);
     let should_continue = world.update(gui_actions);
@@ -33,11 +32,7 @@ pub fn frame(
     should_continue
 }
 
-
 #[no_mangle]
-pub extern "C" fn hot_reload_draw_frame(
-    screen: &mut Screen,
-    world: &mut World,
-) -> bool  {
+pub extern "C" fn hot_reload_draw_frame(screen: &mut Screen, world: &mut World) -> bool {
     frame(screen, world)
 }

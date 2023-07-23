@@ -65,7 +65,6 @@ pub enum ExtraTextures {
     Movement = 22,
 }
 
-
 #[derive(Clone, Copy)]
 pub struct TextureIndex {
     index: usize,
@@ -78,12 +77,14 @@ impl TextureIndex {
 }
 
 pub trait TextureIndexTrait {
-     fn get_index(&self) -> usize;
+    fn get_index(&self) -> usize;
 }
 
 impl From<&dyn TextureIndexTrait> for TextureIndex {
     fn from(t: &dyn TextureIndexTrait) -> Self {
-        Self { index: t.get_index() }
+        Self {
+            index: t.get_index(),
+        }
     }
 }
 

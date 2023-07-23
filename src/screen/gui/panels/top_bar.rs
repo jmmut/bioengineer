@@ -7,7 +7,7 @@ use crate::Vec2;
 pub const TOP_BAR_HEIGHT: f32 = FONT_SIZE * 3.0;
 
 pub fn draw_top_bar(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     drawing: &mut DrawingState,
     gui_actions: GuiActions,
 ) -> GuiActions {
@@ -21,11 +21,18 @@ pub fn draw_top_bar(
         }
     };
 
-    let panel_interaction = drawer.ui_group(0.0, 0.0, drawer.screen_width(), panel_height, &mut || {
-        goals = drawer.ui_button("Goals");
-        drawer.ui_same_line();
-        help = drawer.ui_button("Help");
-    });
+    let panel_interaction = drawer.ui_group(
+        0.0,
+        0.0,
+        drawer.screen_width(),
+        panel_height,
+        &mut |drawer| {
+            drawer.ui_same_line(&mut |drawer: &mut dyn DrawerTrait| {
+                goals = drawer.ui_button("Goals");
+                help = drawer.ui_button("Help");
+            });
+        },
+    );
     maybe_ignore_cell_selection(panel_interaction);
     maybe_ignore_cell_selection(maybe_draw_goals(drawer, drawing, goals));
     maybe_ignore_cell_selection(maybe_draw_help(drawer, drawing, help));
@@ -36,7 +43,7 @@ pub fn draw_top_bar(
 }
 
 fn maybe_draw_goals(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     drawing: &mut DrawingState,
     goals: Interaction,
 ) -> Interaction {
@@ -51,7 +58,7 @@ fn maybe_draw_goals(
 }
 
 fn draw_pop_up(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     drawing: &mut DrawingState,
     pop_up_name: &str,
     text: &Vec<String>,
@@ -71,7 +78,7 @@ fn draw_pop_up(
         center.y - panel_size.y / 2.0,
         panel_size.x,
         panel_size.y,
-        &mut || {
+        &mut |drawer| {
             for line in text {
                 drawer.ui_text(&line);
             }
@@ -137,7 +144,7 @@ You have to:
 }
 
 fn maybe_draw_help(
-    drawer: &dyn DrawerTrait,
+    drawer: &mut dyn DrawerTrait,
     drawing: &mut DrawingState,
     help: Interaction,
 ) -> Interaction {

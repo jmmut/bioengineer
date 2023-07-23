@@ -2,8 +2,8 @@ use crate::screen::assets::{
     crop, extract_images, zoom, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH,
 };
 use crate::world::map::cell::ExtraTextures;
-use macroquad::texture::{FilterMode, Texture2D};
 use crate::world::map::cell::TextureIndexTrait;
+use macroquad::texture::{FilterMode, Texture2D};
 
 pub async fn load_tileset(path: &str) -> Vec<Texture2D> {
     let image_future = macroquad::texture::load_image(path);
@@ -43,6 +43,7 @@ fn add_zoomed_robot(mut textures: Vec<Texture2D>) -> Vec<Texture2D> {
     );
     let zoomed = zoom(&cropped, subimage_end_width - subimage_start_width, 2);
     let texture = Texture2D::from_rgba8(PIXELS_PER_TILE_WIDTH, PIXELS_PER_TILE_HEIGHT, &zoomed);
+    texture.set_filter(FilterMode::Nearest);
     textures.push(texture);
     textures
 }

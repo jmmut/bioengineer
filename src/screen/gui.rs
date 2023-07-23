@@ -16,8 +16,8 @@ use crate::screen::input::{
     CellIndexSelection, CellSelection, Input, PixelCellSelection, PixelPosition,
 };
 use crate::world::map::CellIndex;
-use crate::Color;
 use crate::world::World;
+use crate::Color;
 
 pub const FONT_SIZE: f32 = 16.0;
 pub const MARGIN: f32 = 10.0;
@@ -43,22 +43,27 @@ impl Gui {
     pub fn process_input(
         &self,
         input: Input,
-        drawer: &dyn DrawerTrait,
+        drawer: &mut dyn DrawerTrait,
         world: &World,
         drawing: &mut DrawingState, // TODO: make const by add top_bar_showing to GuiActions
     ) -> GuiActions {
-        let unhandled_input = new_gui_from_input(input, drawer, drawing);
-        let unhandled_input = draw_game_finished(drawer, world, unhandled_input);
-        let unhandled_input =
-            show_available_transformations(drawer, world, unhandled_input, drawing);
+        let mut gui_actions = GuiActions::default();
 
-        let unhandled_input = draw_robot_queue(drawer, world, unhandled_input);
-        let unhandled_input = draw_top_bar(drawer, drawing, unhandled_input);
-        unhandled_input
+        drawer.ui_run(&mut |drawer| {
+            let unhandled_input = new_gui_from_input(input, drawer, drawing);
+            let unhandled_input = draw_game_finished(drawer, world, unhandled_input);
+            let unhandled_input =
+                show_available_transformations(drawer, world, unhandled_input, drawing);
+
+            let unhandled_input = draw_robot_queue(drawer, world, unhandled_input);
+            let unhandled_input = draw_top_bar(drawer, drawing, unhandled_input);
+            gui_actions = unhandled_input
+        });
+        gui_actions
     }
 }
 
-fn set_skin(drawer: &mut dyn DrawerTrait) {
+pub fn set_skin(drawer: &mut dyn DrawerTrait) {
     drawer.set_style(
         FONT_SIZE,
         TEXT_COLOR,
@@ -73,7 +78,7 @@ fn set_skin(drawer: &mut dyn DrawerTrait) {
 fn new_gui_from_input(
     input: Input,
     drawer: &dyn DrawerTrait,
-    drawing: &mut DrawingState,
+    drawing: &DrawingState,
 ) -> GuiActions {
     let unhandled_input = GuiActions {
         // input: input.clone(),

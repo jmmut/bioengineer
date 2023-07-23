@@ -210,7 +210,7 @@ fn is_position_walkable(map: &Map, origin: &CellIndex, possible_new_pos: &CellIn
         .map(|cell| cell.tile_type)
         .unwrap_or(TileType::Unset);
     let direction: CellIndexDiff = *possible_new_pos - *origin;
-    if *direction == *CellIndexDiff::new(0, 1, 0) || *direction == *CellIndexDiff::new(0, -1, 0) {
+    if direction == CellIndexDiff::new(0, 1, 0) || direction == CellIndexDiff::new(0, -1, 0) {
         let origin_tile = map
             .get_cell_optional(*origin)
             .map(|cell| cell.tile_type)

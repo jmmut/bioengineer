@@ -14,6 +14,24 @@ pub struct InputMacroquad {
     previous_right_click_pos_with_control: Option<PixelPosition>,
 }
 
+impl InputSourceTrait for InputMacroquad {
+    fn get_input(&mut self) -> Input {
+        Input {
+            quit: is_key_pressed(KeyCode::Escape),
+            regenerate_map: is_key_pressed(KeyCode::M),
+            toggle_profiling: is_key_pressed(KeyCode::P),
+            toggle_fluids: is_key_pressed(KeyCode::Space),
+            single_fluid: is_key_pressed(KeyCode::N),
+            change_height_rel: self.get_changed_height(),
+            move_map_horizontally: self.get_horizontal_move(),
+            cell_selection: self.get_cell_selection(),
+            robot_movement: self.get_robot_movement(),
+            reset_quantities: is_key_pressed(KeyCode::R),
+            zoom_change: self.get_zoom(),
+        }
+    }
+}
+
 impl InputMacroquad {
     pub fn new() -> Self {
         InputMacroquad {
@@ -236,24 +254,6 @@ impl InputMacroquad {
             change
         } else {
             ZoomChange::None
-        }
-    }
-}
-
-impl InputSourceTrait for InputMacroquad {
-    fn get_input(&mut self) -> Input {
-        Input {
-            quit: is_key_pressed(KeyCode::Escape),
-            regenerate_map: is_key_pressed(KeyCode::M),
-            toggle_profiling: is_key_pressed(KeyCode::P),
-            toggle_fluids: is_key_pressed(KeyCode::Space),
-            single_fluid: is_key_pressed(KeyCode::N),
-            change_height_rel: self.get_changed_height(),
-            move_map_horizontally: self.get_horizontal_move(),
-            cell_selection: self.get_cell_selection(),
-            robot_movement: self.get_robot_movement(),
-            reset_quantities: is_key_pressed(KeyCode::R),
-            zoom_change: self.get_zoom(),
         }
     }
 }
