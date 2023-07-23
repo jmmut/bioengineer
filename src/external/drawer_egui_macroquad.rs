@@ -12,8 +12,8 @@ use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 pub use egui;
 use egui::epaint::Shadow;
 use egui::style::{WidgetVisuals, Widgets, Spacing};
-use egui::{emath, Color32, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Visuals, Widget, Align2, FontId, Margin};
-use egui::FontFamily::Proportional;
+use egui::{emath, Color32, Frame, Id, Pos2, Response, Rounding, Stroke, Style, TextureId, Visuals, Widget, Align2, FontId, Margin, FontFamily};
+use egui::FontFamily::{Proportional, Monospace};
 pub use macroquad;
 use macroquad::miniquad::GraphicsContext;
 use crate::screen::gui::FONT_SIZE;
@@ -179,8 +179,8 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .raw_miniquad_texture_handle()
             .gl_internal_id();
         let size = egui::Vec2::new(
-            PIXELS_PER_TILE_WIDTH as f32 * 2.0,
-            PIXELS_PER_TILE_HEIGHT as f32 * 2.0,
+            PIXELS_PER_TILE_WIDTH as f32,
+            PIXELS_PER_TILE_HEIGHT as f32,
         );
 
         let image = egui::ImageButton::new(TextureId::User(gl_texture_index as u64), size);
@@ -203,11 +203,12 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .raw_miniquad_texture_handle()
             .gl_internal_id();
         let size = egui::Vec2::new(
-            PIXELS_PER_TILE_WIDTH as f32 * 2.0,
-            PIXELS_PER_TILE_HEIGHT as f32 * 2.0,
+            PIXELS_PER_TILE_WIDTH as f32,
+            PIXELS_PER_TILE_HEIGHT as f32,
         );
 
         let image = egui::ImageButton::new(TextureId::User(gl_texture_index as u64), size);
+
         let ui = self.egui_ui.as_mut().unwrap();
         let response = image.ui(ui);
         Self::response_to_interaction(Some(response)).is_clicked()
@@ -223,7 +224,9 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
     }
 
     fn ui_text(&mut self, text: &str) {
-        self.egui_ui.as_mut().unwrap().label(text);
+        egui::Label::new(text)
+            .wrap(false)
+            .ui(self.egui_ui.as_mut().unwrap());
     }
 
     fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {
@@ -320,9 +323,9 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         };
         use egui::TextStyle::*;
 
-        let font = FontId::new(FONT_SIZE * 0.875, Proportional);
+        let font = FontId::new(FONT_SIZE - 4.0, FontFamily::Monospace);
         let text_styles :BTreeMap<egui::TextStyle, FontId> = [
-            (Heading, FontId::new(FONT_SIZE, Proportional)),
+            (Heading, FontId::new(FONT_SIZE - 3.0, FontFamily::Monospace)),
             // (Name("Heading2".into()), font.clone()),
             // (Name("Context".into()), font.clone()),
             (Body, font.clone()),
@@ -332,8 +335,8 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         ].into();
 
         let spacing = Spacing {
-            item_spacing: egui::vec2(18.0, 10.0),
-            window_margin: Margin::symmetric(20.0,10.0),
+            item_spacing: egui::vec2(10.0, 10.0),
+            window_margin: Margin::symmetric(20.0, 10.0),
             // menu_margin: Margin::same(6.0),
             button_padding: egui::vec2(8.0, 3.0),
             // indent: 18.0, // match checkbox/radio-button with `button_padding.x + icon_width + icon_spacing`
@@ -361,6 +364,12 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             ..Default::default()
         };
         self.egui_mq.as_mut().unwrap().egui_ctx().set_style(style)
+    }
+
+    fn debug_ui(&mut self) {
+        let mut style = self.egui_context.as_mut().unwrap().style().as_ref().clone();
+        style.ui(self.egui_ui.as_mut().unwrap());
+        self.egui_context.as_mut().unwrap().set_style(style);
     }
 }
 
@@ -396,16 +405,19 @@ impl<'a> DrawerEguiMacroquad<'a> {
             Pos2::new(x, y),
             emath::Vec2::new(w, h),
         );
+        // self.egui_ui.as_mut().unwrap().
         let response = egui::Window::new(title.unwrap_or("".to_string()))
             .id(id)
             .title_bar(should_have_title_bar)
-            .default_rect(rect)
+            // .default_rect(rect)
             // .anchor(Align2::anchor_rect(rect), egui::Vec2::new(0.0, 0.0))
+            // .frame(Frame::inner_margin())
             .collapsible(false)
             .resizable(false)
             .fixed_rect(rect)
             .show(egui_context.as_ref().unwrap(), |ui| {
-                ui.set_width(ui.available_width());
+                let extra_margin = ui.style().spacing.window_margin;
+                ui.set_width(rect.width() - extra_margin.left - extra_margin.right);
                 // ui.set_height(ui.available_height());
                 let mut drawer = DrawerEguiMacroquad {
                     egui_mq: self.egui_mq.take(),

@@ -11,6 +11,8 @@ use macroquad::color::colors::LIGHTGRAY;
 use macroquad::texture::Texture2D;
 use macroquad::window::{next_frame, Conf};
 use std::str::FromStr;
+use macroquad::color;
+use macroquad::color::{Color, ORANGE};
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;
@@ -56,25 +58,63 @@ fn drawer_factory_from_name(
     drawer_factory(drawer_type, textures)
 }
 
+static mut width :f32 = 300.0;
 fn frame(drawer: &mut Box<dyn DrawerTrait>, input_source: &mut Box<InputSource>) -> bool {
     let input = input_source.get_input();
     drawer.clear_background(LIGHTGRAY);
-    drawer.draw_transparent_texture(&ExtraTextures::ZoomedRobot, 0.0, 0.0, 5.0, 1.0);
-
+    // drawer.draw_transparent_texture(&ExtraTextures::ZoomedRobot, 0.0, 0.0, 5.0, 1.0);
+    drawer.draw_rectangle(
+        600.0,
+        100.0,
+        unsafe {width},
+        200.0,
+        color::ORANGE);
     drawer.ui_run(&mut |drawer: &mut dyn DrawerTrait| {
-        drawer.ui_button("click me");
+
         drawer.ui_named_group(
-            "named group",
-            300.0,
-            400.0,
-            100.0,
+            "test buttons",
+            800.0,
+            50.0,
+            unsafe {width},
             200.0,
             &mut |drawer: &mut dyn DrawerTrait| {
-                drawer.ui_button("click button inside group");
-                drawer.ui_text("this is some text after the button");
-                drawer.ui_texture(ExtraTextures::ZoomedRobot.into());
+                drawer.ui_button("click me");
+                if drawer.ui_button("increase width +10").is_clicked() {
+                    unsafe {width += 10.0;}
+                }
+                if drawer.ui_button("decrease width -10").is_clicked() {
+                    unsafe {width -= 10.0;}
+                }
+                drawer.ui_text(&format!("current width: {}", unsafe { width }));
+
             },
         );
+        // drawer.ui_named_group(
+        //     "named group",
+        //     300.0,
+        //     400.0,
+        //     100.0,
+        //     200.0,
+        //     &mut |drawer: &mut dyn DrawerTrait| {
+        //         drawer.ui_button("click button inside group");
+        //         drawer.ui_text("this is some text after the button");
+        //         drawer.ui_texture(ExtraTextures::ZoomedRobot.into());
+        //     },
+        // );
+
+        drawer.ui_named_group(
+            "window",
+            600.0,
+            400.0,
+            unsafe {width},
+            200.0,
+            &mut |drawer: &mut dyn DrawerTrait| {
+                drawer.ui_text("size:");
+                drawer.ui_text("w=300");
+                drawer.ui_text("h=200");
+            },
+        );
+        drawer.debug_ui();
     });
     drawer.ui_draw();
     !input.quit

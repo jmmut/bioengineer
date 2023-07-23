@@ -88,6 +88,7 @@ pub trait DrawerTrait {
         background_color_button_hovered: Color,
         background_color_button_clicked: Color,
     );
+    fn debug_ui(&mut self);
 }
 
 #[derive(Eq, PartialEq)]

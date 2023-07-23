@@ -282,6 +282,10 @@ impl DrawerTrait for DrawerMacroquad {
         };
         root_ui().push_skin(&skin);
     }
+
+    fn debug_ui(&mut self) {
+        todo!()
+    }
 }
 
 pub fn interaction_from_clicked(clicked: bool) -> Interaction {
