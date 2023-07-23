@@ -1,4 +1,5 @@
-mod common {
+pub mod common {
+    pub mod cli;
     pub mod profiling;
     pub mod trunc;
 }
@@ -10,7 +11,7 @@ pub mod external {
     pub mod drawer_egui_macroquad;
     pub mod drawer_macroquad;
     pub mod input_macroquad;
-    pub mod ui_backend;
+    pub mod backends;
 }
 
 use macroquad::color::Color;
