@@ -86,7 +86,7 @@ pub fn show_available_transformations(
                 );
             }
         }
-        if transformations_panel.is_hovered_or_clicked() {
+        if transformations_panel.is_hovered_or_clicked() || transformation_clicked.is_some() {
             cell_selection = CellSelection::no_selection();
         }
         // if let Option::Some(selection) = unhandled_input.input.cell_selection.pixel_selection {

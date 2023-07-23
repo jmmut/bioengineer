@@ -187,7 +187,18 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         let response = egui::Button::new(text)
             .wrap(false)
             .ui(self.egui_ui.as_mut().unwrap());
-        Self::response_to_interaction(Some(response))
+        let inter = Self::response_to_interaction(Some(response));
+        match inter {
+            Interaction::Clicked => {
+                return Interaction::Clicked;
+            }
+            Interaction::Hovered => {
+                return Interaction::Hovered;
+            }
+            Interaction::None => {
+                return Interaction::None;
+            }
+        }
     }
 
     fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction {
