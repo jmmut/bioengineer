@@ -43,3 +43,8 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 - [ ] tile transparency also makes floor transparent
 - [ ] dirt can be converted to rock. is this wrong?
 - [ ] macroquad forces all windows except 1 to be inactive and darker
+- [ ] egui draws textures with the wrong alpha. I suspect egui can use the textures loaded
+      by macroquad but interprets the alpha channel wrong. Like, assuming it is premultiplied
+      when it's not. I might be very wrong on this.
+- [ ] after clicking some transformation, the map gets a cell selected, while
+      in the macroquad UI the cell that got the transformation keeps the selection.
