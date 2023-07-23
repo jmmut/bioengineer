@@ -1,18 +1,14 @@
 use bioengineer::external::assets_macroquad::load_tileset;
-use bioengineer::external::drawer_egui_macroquad::DrawerEguiMacroquad;
-use bioengineer::external::drawer_macroquad::DrawerMacroquad;
 use bioengineer::external::input_macroquad::InputMacroquad as InputSource;
 use bioengineer::external::backends::{drawer_factory, UiBackend};
 use bioengineer::screen::drawer_trait::DrawerTrait;
 use bioengineer::screen::gui::set_skin;
 use bioengineer::screen::input::InputSourceTrait;
-use bioengineer::world::map::cell::ExtraTextures;
 use macroquad::color::colors::LIGHTGRAY;
 use macroquad::texture::Texture2D;
 use macroquad::window::{next_frame, Conf};
 use std::str::FromStr;
 use macroquad::color;
-use macroquad::color::{Color, ORANGE};
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;
@@ -58,7 +54,8 @@ fn drawer_factory_from_name(
     drawer_factory(drawer_type, textures)
 }
 
-static mut width :f32 = 300.0;
+static mut WIDTH:f32 = 300.0;
+
 fn frame(drawer: &mut Box<dyn DrawerTrait>, input_source: &mut Box<InputSource>) -> bool {
     let input = input_source.get_input();
     drawer.clear_background(LIGHTGRAY);
@@ -66,7 +63,7 @@ fn frame(drawer: &mut Box<dyn DrawerTrait>, input_source: &mut Box<InputSource>)
     drawer.draw_rectangle(
         600.0,
         100.0,
-        unsafe {width},
+        unsafe { WIDTH },
         200.0,
         color::ORANGE);
     drawer.ui_run(&mut |drawer: &mut dyn DrawerTrait| {
@@ -75,17 +72,17 @@ fn frame(drawer: &mut Box<dyn DrawerTrait>, input_source: &mut Box<InputSource>)
             "test buttons",
             800.0,
             50.0,
-            unsafe {width},
+            unsafe { WIDTH },
             200.0,
             &mut |drawer: &mut dyn DrawerTrait| {
                 drawer.ui_button("click me");
                 if drawer.ui_button("increase width +10").is_clicked() {
-                    unsafe {width += 10.0;}
+                    unsafe { WIDTH += 10.0;}
                 }
                 if drawer.ui_button("decrease width -10").is_clicked() {
-                    unsafe {width -= 10.0;}
+                    unsafe { WIDTH -= 10.0;}
                 }
-                drawer.ui_text(&format!("current width: {}", unsafe { width }));
+                drawer.ui_text(&format!("current width: {}", unsafe { WIDTH }));
 
             },
         );
@@ -106,7 +103,7 @@ fn frame(drawer: &mut Box<dyn DrawerTrait>, input_source: &mut Box<InputSource>)
             "window",
             600.0,
             400.0,
-            unsafe {width},
+            unsafe { WIDTH },
             200.0,
             &mut |drawer: &mut dyn DrawerTrait| {
                 drawer.ui_text("size:");

@@ -23,6 +23,7 @@ pub struct DrawerEguiMacroquad<'a> {
     egui_ui: Option<&'a mut egui::Ui>,
     input_processor_id: usize,
     inner: Option<DrawerMacroquad>,
+    something_clicked: bool
 }
 
 impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
@@ -34,6 +35,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             input_processor_id: macroquad::input::utils::register_input_subscriber(),
             // inner: RefCell::new(DrawerMacroquad::new(textures)),
             inner: Some(DrawerMacroquad::new(textures)),
+            something_clicked: false,
         }
     }
 
@@ -111,6 +113,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         macroquad::input::utils::repeat_all_miniquad_input(self, self.input_processor_id);
         let mut egui_mq = None;
         swap(&mut egui_mq, &mut self.egui_mq);
+        let something_clicked = self.something_clicked;
         let ref_cell_self = RefCell::new(self);
         egui_mq.as_mut().unwrap().run(
             gl.quad_context,
@@ -128,11 +131,13 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
                             egui_ui: Some(ui),
                             input_processor_id: 0,
                             inner: ref_mut.inner.take(),
+                            something_clicked
                         };
 
                         f(&mut drawer);
 
                         ref_mut.inner = drawer.inner.take();
+                        ref_mut.something_clicked = drawer.something_clicked;
                     });
             },
         );
@@ -144,6 +149,11 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         // Ensure that macroquad's shapes are not going to be lost, and draw them now
         gl.flush();
         self.egui_mq.as_mut().unwrap().draw(&mut gl.quad_context);
+        if is_mouse_button_released(MouseButton::Left)
+                || is_mouse_button_released(MouseButton::Right)
+                || is_mouse_button_released(MouseButton::Middle) {
+            self.something_clicked = false;
+        }
     }
 
     fn ui_group(
@@ -187,7 +197,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         let response = egui::Button::new(text)
             .wrap(false)
             .ui(self.egui_ui.as_mut().unwrap());
-        let inter = Self::response_to_interaction(Some(response));
+        let inter = self.response_to_interaction(Some(response));
         match inter {
             Interaction::Clicked => {
                 return Interaction::Clicked;
@@ -201,7 +211,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         }
     }
 
-    fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction {
+    fn ui_button_with_pos(&mut self, text: &str, _x: f32, _y: f32) -> Interaction {
         self.ui_button(text) //TODO: use position
     }
 
@@ -224,9 +234,11 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
                 egui_ui: Some(ui),
                 input_processor_id: self.input_processor_id,
                 inner: self.inner.take(),
+                something_clicked: self.something_clicked,
             };
             f(&mut drawer);
             self.inner = drawer.inner.take();
+            self.something_clicked = drawer.something_clicked;
         });
     }
 
@@ -356,10 +368,15 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
 }
 
 impl<'a> DrawerEguiMacroquad<'a> {
-    fn response_to_interaction(response: Option<Response>) -> Interaction {
+    fn response_to_interaction(&mut self, response: Option<Response>) -> Interaction {
         if let Some(response) = response {
-            if response.clicked() {
-                return Interaction::Clicked;
+            if response.is_pointer_button_down_on() {
+                return if self.something_clicked {
+                    Interaction::None
+                } else {
+                    self.something_clicked = true;
+                    Interaction::Clicked
+                }
             } else if response.hovered() {
                 return Interaction::Hovered;
             }
@@ -407,14 +424,16 @@ impl<'a> DrawerEguiMacroquad<'a> {
                     egui_ui: Some(ui),
                     input_processor_id: self.input_processor_id,
                     inner: self.inner.take(),
+                    something_clicked: self.something_clicked,
                 };
                 f(&mut drawer);
 
                 self.inner = drawer.inner.take();
+                self.something_clicked = drawer.something_clicked;
             });
 
         swap(&mut egui_context, &mut self.egui_context);
-        Self::response_to_interaction(response.map(|inner| inner.response))
+        self.response_to_interaction(response.map(|inner| inner.response))
     }
 
     // TODO: make positions work
@@ -438,14 +457,14 @@ impl<'a> DrawerEguiMacroquad<'a> {
         let image = image.sense(Sense {
             click: true,
             drag: false,
-            focusable: false,
+            focusable: true,
         });
         let ui = self.egui_ui.as_mut().unwrap();
         // let extra_margin = ui.style().spacing.window_margin;
         // let space = y - ui.min_rect().size().y - extra_margin.top;
         // ui.add_space(space);
         let response = image.ui(ui);
-        Self::response_to_interaction(Some(response)).is_clicked()
+        self.response_to_interaction(Some(response)).is_clicked()
     }
 
 }
