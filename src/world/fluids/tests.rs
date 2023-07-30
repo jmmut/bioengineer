@@ -3,7 +3,7 @@ pub mod change_tiles;
 pub mod floodable;
 
 use super::*;
-use crate::world::map::Map;
+use crate::world::map::{Map, PressureAndType};
 use crate::IVec3;
 
 fn assert_steps_2x2(maps: Vec<Vec<i32>>) {
@@ -20,6 +20,22 @@ fn assert_steps(maps: Vec<Vec<Pressure>>, min_cell: CellIndex, max_cell: CellInd
         let mut map = Map::_new_from_pressures(initial, min_cell, max_cell);
         advance_fluid(&mut map);
         let computed = map._get_pressures(min_cell, max_cell);
+        assert_eq!(computed, expected);
+    }
+}
+
+fn assert_steps_with_types(
+    maps: Vec<Vec<PressureAndType>>,
+    min_cell: CellIndex,
+    max_cell: CellIndex,
+) {
+    assert!(maps.len() >= 2);
+    for i in 1..maps.len() {
+        let initial = maps[i - 1].clone();
+        let expected = maps[i].clone();
+        let mut map = Map::_new_from_pressures_and_tiles(initial, min_cell, max_cell);
+        advance_fluid(&mut map);
+        let computed = map._get_pressures_and_types(min_cell, max_cell);
         assert_eq!(computed, expected);
     }
 }
