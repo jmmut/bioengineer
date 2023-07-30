@@ -2,7 +2,7 @@ use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::screen::gui::{GuiActions, FONT_SIZE};
-use crate::world::map::TileType;
+use crate::world::map::{is_liquid_or_air, Cell, TileType};
 use crate::world::World;
 
 pub fn draw_cell_info(
@@ -21,6 +21,8 @@ pub fn draw_cell_info(
         let panel_width = max_button_width + 2.0 * big_margin_x;
         let line_height = FONT_SIZE * 1.5;
         let panel_height = 10.0 * line_height;
+        let cell = world.map.get_cell(*selected);
+        let cell_description = cell_to_str(cell);
         let interaction = drawer.ui_named_group(
             panel_title,
             drawer.screen_width() - panel_width - panel_margin,
@@ -28,16 +30,18 @@ pub fn draw_cell_info(
             panel_width,
             panel_height,
             &mut |drawer| {
-                let cell = world.map.get_cell(*selected);
-                drawer.ui_text(cell_to_str(cell.tile_type))
+                for line in &cell_description {
+                    drawer.ui_text(&line);
+                }
             },
         );
     }
     gui_actions
 }
 
-fn cell_to_str(tile: TileType) -> &'static str {
-    match tile {
+fn cell_to_str(cell: &Cell) -> Vec<String> {
+    let tile = cell.tile_type;
+    let basic_name = match tile {
         TileType::Unset => "Unset cell",
         TileType::WallRock => "Wall of rock",
         TileType::WallDirt => "Wall of dirt",
@@ -59,5 +63,12 @@ fn cell_to_str(tile: TileType) -> &'static str {
         TileType::TreeSparse => "Tree (Sparse)",
         TileType::TreeDying => "Tree (Dying)",
         TileType::TreeDead => "Tree (Dead)",
+    };
+    let mut description = vec![basic_name.to_string()];
+    if is_liquid_or_air(tile) {
+        description.push(format!("- Liquid pressure: {} ", cell.pressure));
     }
+    // TODO: print if a machine is working or not?
+    // TODO: print contents of wires?
+    description
 }
