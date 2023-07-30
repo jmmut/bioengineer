@@ -285,24 +285,22 @@ fn update_tile_type(map: &mut Map) {
                     false
                 }
             };
-            if is_liquid_or_air(cell.tile_type) {
-                if cell.pressure < 0 {
-                    panic!(
-                        "negative pressure! for cell {}, with pressure {}, next pressure {}.",
-                        cell_index, cell.pressure, cell.next_pressure
-                    );
-                }
-                cell.tile_type = if cell.pressure <= 0 {
-                    TileType::Air
-                } else if nothing_above {
-                    // if pressure_above > 0 {
-                    //     println!("above cell should be air!");
-                    // }
-                    TileType::DirtyWaterSurface
-                } else {
-                    TileType::DirtyWaterWall
-                };
+            if cell.pressure < 0 {
+                panic!(
+                    "negative pressure! for cell {}, with pressure {}, next pressure {}.",
+                    cell_index, cell.pressure, cell.next_pressure
+                );
             }
+            cell.tile_type = if cell.pressure <= 0 {
+                TileType::Air
+            } else if nothing_above {
+                // if pressure_above > 0 {
+                //     println!("above cell should be air!");
+                // }
+                TileType::DirtyWaterSurface
+            } else {
+                TileType::DirtyWaterWall
+            };
         }
     }
     *map = Map::new_from_iter(iter);
