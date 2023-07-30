@@ -1,10 +1,10 @@
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::{DrawingState, TopBarShowing};
-use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
 use crate::screen::gui::format_units::format_unit;
+use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
 use crate::screen::input::CellSelection;
 use crate::world::game_state::{get_goal_air_cleaned, get_goal_air_cleaned_str};
-use crate::world::{LIFE_COUNT_REQUIRED_FOR_WINNING, World};
+use crate::world::{World, LIFE_COUNT_REQUIRED_FOR_WINNING};
 use crate::Vec2;
 
 pub const TOP_BAR_HEIGHT: f32 = FONT_SIZE * 3.0;
@@ -61,7 +61,7 @@ fn maybe_draw_goals(
             world.networks.get_machine_count(),
             world.life.len(),
         );
-        draw_pop_up(drawer, drawing, "Goals", &text_lines, |_|{})
+        draw_pop_up(drawer, drawing, "Goals", &text_lines, |_| {})
     } else {
         Interaction::None
     };
@@ -140,7 +140,11 @@ fn toggle_showing_or_none(top_bar_showing: &mut TopBarShowing, showing: TopBarSh
 
 fn goals_text_lines(air_cleaned: f64, machines: usize, trees: usize) -> Vec<String> {
     fn get_symbol_is_done(done: bool) -> &'static str {
-        if done { "✅" } else { "❌" }
+        if done {
+            "✅"
+        } else {
+            "❌"
+        }
     }
     let goal_air = get_goal_air_cleaned();
     let air_cleaned_str = format_unit(air_cleaned, "L");

@@ -53,7 +53,6 @@ fn precision(quantity: f64) -> usize {
     }
 }
 
-
 pub fn format_age(age_in_minutes: i64) -> String {
     const MINUTES_PER_HOUR: i64 = 60;
     const HOURS_PER_DAY: i64 = 24;

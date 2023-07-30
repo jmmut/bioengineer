@@ -156,6 +156,18 @@ pub fn is_walkable_vertical(target_tile: TileType, origin_tile: TileType) -> boo
     vertical_tiles.contains(&target_tile) && vertical_tiles.contains(&origin_tile)
 }
 
+pub fn is_floodable_horizontal(tile: TileType) -> bool {
+    ![WallDirt, WallRock].contains(&tile)
+}
+
+pub fn is_floodable_from_above(tile: TileType) -> bool {
+    ![WallDirt, WallRock].contains(&tile)
+}
+
+pub fn is_floodable_from_below(tile: TileType) -> bool {
+    is_liquid_or_air(tile)
+}
+
 /// Returns whether the tile image is tall enough that it would cover a robot behind this tile.
 /// This function is used to reduce the opacity for such tiles.
 pub fn is_covering(tile: TileType) -> bool {
