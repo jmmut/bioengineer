@@ -4,10 +4,13 @@ use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
 use crate::screen::input::CellSelection;
 use crate::world::game_state::{get_goal_air_cleaned, get_goal_air_cleaned_str};
 use crate::Vec2;
+use crate::world::World;
+
 pub const TOP_BAR_HEIGHT: f32 = FONT_SIZE * 3.0;
 
 pub fn draw_top_bar(
     drawer: &mut dyn DrawerTrait,
+    world: &World,
     drawing: &mut DrawingState,
     gui_actions: GuiActions,
 ) -> GuiActions {
@@ -34,7 +37,7 @@ pub fn draw_top_bar(
         },
     );
     maybe_ignore_cell_selection(panel_interaction);
-    maybe_ignore_cell_selection(maybe_draw_goals(drawer, drawing, goals));
+    maybe_ignore_cell_selection(maybe_draw_goals(drawer, drawing, world, goals));
     maybe_ignore_cell_selection(maybe_draw_help(drawer, drawing, help));
     GuiActions {
         cell_selection,
@@ -45,23 +48,29 @@ pub fn draw_top_bar(
 fn maybe_draw_goals(
     drawer: &mut dyn DrawerTrait,
     drawing: &mut DrawingState,
+    world: &World,
     goals: Interaction,
 ) -> Interaction {
     if goals.is_clicked() {
         toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Goals.clone());
     }
     return if drawing.top_bar_showing == TopBarShowing::Goals {
-        draw_pop_up(drawer, drawing, "Goals", &goals_text_lines())
+        draw_pop_up(drawer, drawing, "Goals", &goals_text_lines(world.networks.get_total_air_cleaned()),
+        |drawer| {
+            let mut checked = true;
+            drawer.ui_checkbox(&mut checked,"some label");
+        })
     } else {
         Interaction::None
     };
 }
 
-fn draw_pop_up(
+fn draw_pop_up<F: FnMut(&mut dyn DrawerTrait) -> ()>(
     drawer: &mut dyn DrawerTrait,
     drawing: &mut DrawingState,
     pop_up_name: &str,
     text: &Vec<String>,
+    mut draw_extra_widgets: F,
 ) -> Interaction {
     let center = Vec2::new(drawer.screen_width() / 2.0, drawer.screen_height() / 2.0);
     let title_height = FONT_SIZE * 2.0;
@@ -82,6 +91,7 @@ fn draw_pop_up(
             for line in text {
                 drawer.ui_text(&line);
             }
+            draw_extra_widgets(drawer);
             let button_pos_x = panel_size.x / 2.0 - button_size.x / 2.0;
             let button_pos_y = title_height + text_size.y;
             if drawer
@@ -126,17 +136,19 @@ fn toggle_showing_or_none(top_bar_showing: &mut TopBarShowing, showing: TopBarSh
     };
 }
 
-fn goals_text_lines() -> Vec<String> {
+fn goals_text_lines(air_cleaned: f64) -> Vec<String> {
     format!(
         r#"You are an Artificial Intelligence sent to this barren planet
 to put life on it.
 
 You have to:
-- Clean {} of air ({} liters)
+- Clean {} liters of air: {}/{} {}
 - Remove all machines
 - Keep 50 trees alive"#,
+        get_goal_air_cleaned(),
+        air_cleaned,
         get_goal_air_cleaned_str(),
-        get_goal_air_cleaned()
+        if air_cleaned >= get_goal_air_cleaned() { "✅" } else { "❌" }
     )
     .split("\n")
     .map(|s| s.to_string())
@@ -152,7 +164,7 @@ fn maybe_draw_help(
         toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Help.clone());
     }
     return if drawing.top_bar_showing == TopBarShowing::Help {
-        draw_pop_up(drawer, drawing, "Help", &help_text_lines())
+        draw_pop_up(drawer, drawing, "Help", &help_text_lines(), |_|{})
     } else {
         Interaction::None
     };

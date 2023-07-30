@@ -219,6 +219,11 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         self.ui_button(text) //TODO: use position
     }
 
+    fn ui_checkbox(&mut self, checked: &mut bool, text: &str) {
+        let checkbox = egui::Checkbox::new(checked, text);
+        checkbox.ui(self.egui_ui.as_mut().unwrap());
+    }
+
     fn ui_text(&mut self, text: &str) {
         egui::Label::new(text)
             .wrap(false)
