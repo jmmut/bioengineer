@@ -34,7 +34,7 @@ pub async fn factory(args: &CliArgs) -> (Screen, World) {
     let tileset = load_tileset("assets/image/tileset.png");
     let drawer = drawer_factory(args.ui, tileset.await);
     let input_source = Box::new(InputSource::new());
-    let world = World::new_with_options(args.profile);
+    let world = World::new_with_options(args.profile, args.fluids);
     (Screen::new(drawer, input_source), world)
 }
 

@@ -22,7 +22,7 @@ use robots::{
 };
 
 use crate::screen::gui::gui_actions::GuiActions;
-use crate::world::game_state::DEFAULT_PROFILE_ENABLED;
+use crate::world::game_state::{DEFAULT_ADVANCING_FLUIDS, DEFAULT_PROFILE_ENABLED};
 use crate::world::map::cell::{ages, transition_aging_tile};
 use crate::world::map::{Cell, TileType};
 
@@ -66,11 +66,11 @@ pub enum GameGoalState {
 impl World {
     #[allow(unused)]
     pub fn new() -> Self {
-        Self::new_with_options(DEFAULT_PROFILE_ENABLED)
+        Self::new_with_options(DEFAULT_PROFILE_ENABLED, DEFAULT_ADVANCING_FLUIDS)
     }
 
-    pub fn new_with_options(profile: bool) -> Self {
-        let game_state = GameState::new();
+    pub fn new_with_options(profile: bool, fluids: bool) -> Self {
+        let game_state = GameState::new(fluids);
         let mut map = Map::new();
         map.regenerate();
         let ship_position = map.get_ship_position();

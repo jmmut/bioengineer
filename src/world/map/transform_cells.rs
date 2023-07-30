@@ -67,7 +67,7 @@ pub fn allowed_transformations_of_cell(
         FloorDirt => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
         Stairs => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
         Air => vec![
-        // DirtyWaterSurface, DirtyWaterWall, WallRock
+        DirtyWaterSurface, DirtyWaterWall, WallRock
         ],
         Wire => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
         MachineAssembler => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
@@ -89,6 +89,9 @@ pub fn allowed_transformations_of_cell(
         TreeDead => machines_plus(vec![FloorRock, Stairs]),
     };
     new_tiles.push(cell.tile_type);
+    if cell.tile_type != Air {
+        new_tiles.push(Air);
+    }
     new_tiles
         .iter()
         .map(|tile| Transformation::to(*tile))

@@ -276,15 +276,15 @@ fn update_tile_type(map: &mut Map) {
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
         if is_liquid_or_air(cell.tile_type) {
-            let nothing_above = {
-                let index_above = cell_index + CellIndex::new(0, 1, 0);
-                let option_above_cell = map.get_cell_optional(index_above);
-                if let Option::Some(above_cell) = option_above_cell {
-                    (above_cell.pressure <= 0) && is_liquid_or_air(above_cell.tile_type)
-                } else {
-                    false
-                }
-            };
+            // let nothing_above = {
+            //     let index_above = cell_index + CellIndex::new(0, 1, 0);
+            //     let option_above_cell = map.get_cell_optional(index_above);
+            //     if let Option::Some(above_cell) = option_above_cell {
+            //         (above_cell.pressure <= 0) && is_liquid_or_air(above_cell.tile_type)
+            //     } else {
+            //         false
+            //     }
+            // };
             if cell.pressure < 0 {
                 panic!(
                     "negative pressure! for cell {}, with pressure {}, next pressure {}.",
@@ -293,7 +293,7 @@ fn update_tile_type(map: &mut Map) {
             }
             cell.tile_type = if cell.pressure <= 0 {
                 TileType::Air
-            } else if nothing_above {
+            } else if cell.pressure < VERTICAL_PRESSURE_DIFFERENCE {
                 // if pressure_above > 0 {
                 //     println!("above cell should be air!");
                 // }
