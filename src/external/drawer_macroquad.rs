@@ -193,7 +193,6 @@ impl DrawerTrait for DrawerMacroquad {
         root_ui().checkbox(hash!(text), text, checked)
     }
 
-
     fn ui_text(&mut self, text: &str) {
         self.maybe_apply_same_line();
         root_ui().label(None, text);

@@ -1,10 +1,11 @@
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::{DrawingState, TopBarShowing};
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
+use crate::screen::gui::format_units::format_unit;
 use crate::screen::input::CellSelection;
 use crate::world::game_state::{get_goal_air_cleaned, get_goal_air_cleaned_str};
+use crate::world::{LIFE_COUNT_REQUIRED_FOR_WINNING, World};
 use crate::Vec2;
-use crate::world::World;
 
 pub const TOP_BAR_HEIGHT: f32 = FONT_SIZE * 3.0;
 
@@ -55,11 +56,12 @@ fn maybe_draw_goals(
         toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Goals.clone());
     }
     return if drawing.top_bar_showing == TopBarShowing::Goals {
-        draw_pop_up(drawer, drawing, "Goals", &goals_text_lines(world.networks.get_total_air_cleaned()),
-        |drawer| {
-            let mut checked = true;
-            drawer.ui_checkbox(&mut checked,"some label");
-        })
+        let text_lines = goals_text_lines(
+            world.networks.get_total_air_cleaned(),
+            world.networks.get_machine_count(),
+            world.life.len(),
+        );
+        draw_pop_up(drawer, drawing, "Goals", &text_lines, |_|{})
     } else {
         Interaction::None
     };
@@ -136,19 +138,27 @@ fn toggle_showing_or_none(top_bar_showing: &mut TopBarShowing, showing: TopBarSh
     };
 }
 
-fn goals_text_lines(air_cleaned: f64) -> Vec<String> {
+fn goals_text_lines(air_cleaned: f64, machines: usize, trees: usize) -> Vec<String> {
+    fn get_symbol_is_done(done: bool) -> &'static str {
+        if done { "✅" } else { "❌" }
+    }
+    let goal_air = get_goal_air_cleaned();
+    let air_cleaned_str = format_unit(air_cleaned, "L");
+    let goal_air_str = get_goal_air_cleaned_str();
+    let air_done = get_symbol_is_done(air_cleaned >= get_goal_air_cleaned());
+    let machines_done = get_symbol_is_done(machines == 0);
+    let trees_goal = LIFE_COUNT_REQUIRED_FOR_WINNING;
+    let trees_done = get_symbol_is_done(trees == LIFE_COUNT_REQUIRED_FOR_WINNING);
+
+    // TODO: draw progress bars
     format!(
         r#"You are an Artificial Intelligence sent to this barren planet
 to put life on it.
 
 You have to:
-- Clean {} liters of air: {}/{} {}
-- Remove all machines
-- Keep 50 trees alive"#,
-        get_goal_air_cleaned(),
-        air_cleaned,
-        get_goal_air_cleaned_str(),
-        if air_cleaned >= get_goal_air_cleaned() { "✅" } else { "❌" }
+- Clean {goal_air} liters of air (or more): {air_cleaned_str}/{goal_air_str} {air_done}
+- Have no machines: {machines}/0 {machines_done}
+- Keep {trees_goal} trees alive (or more): {trees}/{trees_goal} {trees_done}"#,
     )
     .split("\n")
     .map(|s| s.to_string())
@@ -164,7 +174,7 @@ fn maybe_draw_help(
         toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Help.clone());
     }
     return if drawing.top_bar_showing == TopBarShowing::Help {
-        draw_pop_up(drawer, drawing, "Help", &help_text_lines(), |_|{})
+        draw_pop_up(drawer, drawing, "Help", &help_text_lines(), |_| {})
     } else {
         Interaction::None
     };

@@ -103,6 +103,14 @@ impl Networks {
         self.networks.len()
     }
 
+    pub fn get_machine_count(&self) -> usize {
+        let mut machines = 0;
+        for network in &self.networks {
+            machines += network.len();
+        }
+        machines
+    }
+
     pub fn iter(&self) -> Iter<Network> {
         self.networks.iter()
     }

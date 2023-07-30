@@ -28,7 +28,7 @@ use crate::world::map::{Cell, TileType};
 
 type AgeInMinutes = i64;
 
-const LIFE_COUNT_REQUIRED_FOR_WINNING: usize = 50;
+pub const LIFE_COUNT_REQUIRED_FOR_WINNING: usize = 50;
 
 pub struct World {
     pub map: Map,

@@ -10,37 +10,49 @@ const YOTTA: f64 = 1.0e24;
 #[rustfmt::skip]
 pub fn format_unit(quantity: f64, unit_name: &str) -> String {
     let unsigned_quantity = quantity.abs().floor();
+    fn custom_format(quantity:f64, scale: f64, scale_str: &str, unit_name: &str) -> String {
+        let rounded_quantity = round_with_some_decimals(quantity / scale);
+        let precision = precision(quantity / scale);
+        format!("{rounded_quantity:.precision$} {scale_str}{unit_name}")
+    }
     if unsigned_quantity < KILO {
-        format!("{} {}", round_with_some_decimals(quantity), unit_name)
+        custom_format(quantity, 1.0, "", unit_name)
     } else if unsigned_quantity < MEGA {
-        format!("{} K{}", round_with_some_decimals(quantity / KILO), unit_name)
+        custom_format(quantity, KILO, "K", unit_name)
     } else if unsigned_quantity < GIGA {
-        format!("{} M{}", round_with_some_decimals(quantity / MEGA), unit_name)
+        custom_format(quantity, MEGA, "M", unit_name)
     } else if unsigned_quantity < TERA {
-        format!("{} G{}", round_with_some_decimals(quantity / GIGA), unit_name)
+        custom_format(quantity, GIGA, "G", unit_name)
     } else if unsigned_quantity < PETA {
-        format!("{} T{}", round_with_some_decimals(quantity / TERA), unit_name)
+        custom_format(quantity, TERA, "T", unit_name)
     } else if unsigned_quantity < EXA {
-        format!("{} P{}", round_with_some_decimals(quantity / PETA), unit_name)
+        custom_format(quantity, PETA, "P", unit_name)
     } else if unsigned_quantity < ZETTA {
-        format!("{} E{}", round_with_some_decimals(quantity / EXA), unit_name)
+        custom_format(quantity, EXA, "E", unit_name)
     } else if unsigned_quantity < YOTTA {
-        format!("{} Z{}", round_with_some_decimals(quantity / ZETTA), unit_name)
+        custom_format(quantity, ZETTA, "Z", unit_name)
     } else {
-        format!("{} Y{}", round_with_some_decimals(quantity / YOTTA), unit_name)
+        custom_format(quantity, YOTTA, "Y", unit_name)
     }
 }
 
 fn round_with_some_decimals(quantity: f64) -> f64 {
+    let precision = precision(quantity);
+    let precision_factor = 10.0f64.powi(precision as i32);
+    (quantity * precision_factor).trunc() / precision_factor
+}
+
+fn precision(quantity: f64) -> usize {
     let unsigned_quantity = quantity.abs();
     if unsigned_quantity >= 100.0 {
-        quantity.floor()
+        0
     } else if unsigned_quantity >= 10.0 {
-        (quantity * 10.0).floor() / 10.0
+        1
     } else {
-        (quantity * 100.0).floor() / 100.0
+        2
     }
 }
+
 
 pub fn format_age(age_in_minutes: i64) -> String {
     const MINUTES_PER_HOUR: i64 = 60;
@@ -95,31 +107,32 @@ mod tests {
 
     #[test]
     fn test_format_units() {
-        assert_eq!(format_unit(1000.0, " paperclips"), "1 K paperclips");
-        assert_eq!(format_unit(0.0, "W"), "0 W");
-        assert_eq!(format_unit(0.5, "W"), "0.5 W");
-        assert_eq!(format_unit(-0.5, "W"), "-0.5 W");
-        assert_eq!(format_unit(10.0, "W"), "10 W");
+        assert_eq!(format_unit(1000.0, " paperclips"), "1.00 K paperclips");
+        assert_eq!(format_unit(0.0, "W"), "0.00 W");
+        assert_eq!(format_unit(0.5, "W"), "0.50 W");
+        assert_eq!(format_unit(-0.5, "W"), "-0.50 W");
+        assert_eq!(format_unit(10.0, "W"), "10.0 W");
         assert_eq!(format_unit(999.0, "W"), "999 W");
-        assert_eq!(format_unit(1000.0, "W"), "1 KW");
+        assert_eq!(format_unit(1000.0, "W"), "1.00 KW");
         assert_eq!(format_unit(1110.0, "W"), "1.11 KW");
-        assert_eq!(format_unit(10000.0, "W"), "10 KW");
+        assert_eq!(format_unit(-1110.0, "W"), "-1.11 KW");
+        assert_eq!(format_unit(10000.0, "W"), "10.0 KW");
         assert_eq!(format_unit(10100.0, "W"), "10.1 KW");
         assert_eq!(format_unit(100100.0, "W"), "100 KW");
         assert_eq!(format_unit(999999.0, "W"), "999 KW");
-        assert_eq!(format_unit(1000000.0, "W"), "1 MW");
+        assert_eq!(format_unit(1000000.0, "W"), "1.00 MW");
         assert_eq!(format_unit(999999999.0, "W"), "999 MW");
-        assert_eq!(format_unit(1000000000.0, "W"), "1 GW");
+        assert_eq!(format_unit(1000000000.0, "W"), "1.00 GW");
         assert_eq!(format_unit(999999999999.0, "W"), "999 GW");
-        assert_eq!(format_unit(1000000000000.0, "W"), "1 TW");
+        assert_eq!(format_unit(1000000000000.0, "W"), "1.00 TW");
         assert_eq!(format_unit(999999999999999.0, "W"), "999 TW");
-        assert_eq!(format_unit(1000000000000000.0, "W"), "1 PW");
+        assert_eq!(format_unit(1000000000000000.0, "W"), "1.00 PW");
         assert_eq!(format_unit(999999999999999935.0, "W"), "999 PW");
-        assert_eq!(format_unit(1000000000000000000.0, "W"), "1 EW");
+        assert_eq!(format_unit(1000000000000000000.0, "W"), "1.00 EW");
         assert_eq!(format_unit(999999999999999934000.0, "W"), "999 EW");
-        assert_eq!(format_unit(1000000000000000000000.0, "W"), "1 ZW");
+        assert_eq!(format_unit(1000000000000000000000.0, "W"), "1.00 ZW");
         assert_eq!(format_unit(999999999999999916000000.0, "W"), "999 ZW");
-        assert_eq!(format_unit(1000000000000000000000000.0, "W"), "1 YW");
+        assert_eq!(format_unit(1000000000000000000000000.0, "W"), "1.00 YW");
         assert_eq!(format_unit(1000000000000000000000000000.0, "W"), "1000 YW");
     }
 
