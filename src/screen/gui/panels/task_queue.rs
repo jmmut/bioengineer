@@ -21,7 +21,8 @@ pub fn draw_robot_queue(
     let mut go_to_robot = Option::None;
     let mut robot_hovered = false;
     let group_robot = drawer.ui_group(
-        drawer.screen_width() - icon_width - margin,
+        // this 1.5 is a hack to fix that we can't use the texture positions in drawer_egui::ui_texture_with_pos
+        drawer.screen_width() - icon_width - 1.5 * margin,
         drawer.screen_height() - robot_window_height - margin,
         icon_width,
         robot_window_height,

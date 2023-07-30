@@ -106,13 +106,13 @@ fn draw_pop_up<F: FnMut(&mut dyn DrawerTrait) -> ()>(
     )
 }
 
-fn measure_text(drawer: &dyn DrawerTrait, text: &Vec<String>) -> Vec2 {
+fn measure_text(drawer: &mut dyn DrawerTrait, text: &Vec<String>) -> Vec2 {
     let text_height = text.len() as f32 * FONT_SIZE * 1.2;
     let text_width = measure_longest_width(drawer, &text);
     Vec2::new(text_width, text_height)
 }
 
-fn measure_longest_width(drawer: &dyn DrawerTrait, text: &Vec<String>) -> f32 {
+fn measure_longest_width(drawer: &mut dyn DrawerTrait, text: &Vec<String>) -> f32 {
     let mut max_width = 0.0;
     for line in text {
         let line_width = drawer.measure_text(line, FONT_SIZE).x;
@@ -123,7 +123,7 @@ fn measure_longest_width(drawer: &dyn DrawerTrait, text: &Vec<String>) -> f32 {
     max_width
 }
 
-fn measure_button(drawer: &dyn DrawerTrait, button_text: &str) -> Vec2 {
+fn measure_button(drawer: &mut dyn DrawerTrait, button_text: &str) -> Vec2 {
     let button_size = drawer.measure_text(&button_text, FONT_SIZE);
     // let button_size = Vec2::new(button_size.x / button_text.len() as f32 * (button_text.len() + 6) as f32, button_size.y * 2.0);
     let button_size = Vec2::new(button_size.x + MARGIN * 4.0, button_size.y + MARGIN);

@@ -230,8 +230,10 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .ui(self.egui_ui.as_mut().unwrap());
     }
 
-    fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {
-        self.inner.as_ref().unwrap().measure_text(text, font_size)
+    fn measure_text(&mut self, text: &str, _font_size: f32) -> Vec2 {
+        let ui = self.egui_ui.as_mut().unwrap();
+        let (pos, galley, response) = egui::Label::new(text).layout_in_ui(ui);
+        Vec2::new(galley.size().x, galley.size().y)
     }
 
     fn ui_same_line(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) {

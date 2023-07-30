@@ -76,7 +76,7 @@ pub trait DrawerTrait {
     fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction;
     fn ui_checkbox(&mut self, checked: &mut bool, text: &str);
     fn ui_text(&mut self, text: &str);
-    fn measure_text(&self, text: &str, font_size: f32) -> Vec2;
+    fn measure_text(&mut self, text: &str, font_size: f32) -> Vec2;
     fn ui_same_line(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ());
 
     fn set_style(

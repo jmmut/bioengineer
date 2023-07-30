@@ -198,7 +198,7 @@ impl DrawerTrait for DrawerMacroquad {
         root_ui().label(None, text);
     }
 
-    fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {
+    fn measure_text(&mut self, text: &str, font_size: f32) -> Vec2 {
         let text_dimensions = measure_text(text, Option::None, font_size as u16, 1.0);
         Vec2::new(text_dimensions.width, text_dimensions.height)
     }
