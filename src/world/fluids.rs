@@ -9,7 +9,7 @@ use crate::world::map::{
     Map, TileType,
 };
 
-const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
+pub const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
 pub struct Fluids {
     mode: FluidMode,
@@ -135,7 +135,7 @@ fn prepare_fluid_sideways(map: &mut Map) {
             flow.flow_outwards(cell_index + zn, current_pressure, &mut pressure_diff);
             let next_pressure = pressure_diff + cell.pressure;
             // change this to > for stable, >= for dynamic. see test_minimize_movement()
-            cell.can_flow_out = next_pressure >= 0;
+            cell.can_flow_out = next_pressure > 0;
             if cell.can_flow_out {
                 cell.next_pressure = next_pressure;
             } else {
@@ -291,9 +291,9 @@ fn update_tile_type(map: &mut Map) {
                     cell_index, cell.pressure, cell.next_pressure
                 );
             }
-            cell.tile_type = if cell.pressure <= 0 {
+            let new_type = if cell.pressure <= 0 {
                 TileType::Air
-            } else if cell.pressure < VERTICAL_PRESSURE_DIFFERENCE {
+            } else if cell.pressure <= VERTICAL_PRESSURE_DIFFERENCE {
                 // if pressure_above > 0 {
                 //     println!("above cell should be air!");
                 // }
@@ -301,6 +301,13 @@ fn update_tile_type(map: &mut Map) {
             } else {
                 TileType::DirtyWaterWall
             };
+            // if cell_index == CellIndex::new(0, 1, 5) {
+            //     println!(
+            //         "cell with pressure {}, is {:?}, converted to {:?}",
+            //         cell.pressure, cell.tile_type, new_type
+            //     );
+            // }
+            cell.tile_type = new_type;
         }
     }
     *map = Map::new_from_iter(iter);

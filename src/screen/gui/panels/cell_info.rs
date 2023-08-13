@@ -67,6 +67,9 @@ fn cell_to_str(cell: &Cell) -> Vec<String> {
     let mut description = vec![basic_name.to_string()];
     if is_liquid_or_air(tile) {
         description.push(format!("- Liquid pressure: {} ", cell.pressure));
+        if cell.pressure == 0 && tile != TileType::Air {
+            // println!("wut");
+        }
     }
     // TODO: print if a machine is working or not?
     // TODO: print contents of wires?

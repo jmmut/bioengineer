@@ -7,6 +7,7 @@ pub mod ref_mut_iterator;
 pub mod transform_cells;
 
 use crate::common::trunc::trunc_towards_neg_inf;
+use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
 use crate::{now, IVec3};
 use cell::Pressure;
 pub use cell::{
@@ -217,7 +218,8 @@ impl Map {
                 let tile = choose_tile(value, cell_index);
                 let cell = chunk.get_cell_mut(cell_index);
                 if is_liquid_or_air(tile) {
-                    cell.pressure = i32::max(0, 10 - 10 * cell_index.y);
+                    use VERTICAL_PRESSURE_DIFFERENCE as PRESSURE;
+                    cell.pressure = i32::max(0, PRESSURE - PRESSURE * cell_index.y);
                     // cell.pressure = if tile == TileType::Air { 0 } else {40};
                 }
                 cell.tile_type = tile
@@ -286,7 +288,8 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
                 Ordering::Less => TileType::DirtyWaterWall,
                 Ordering::Equal => TileType::DirtyWaterSurface,
             };
-            cell.pressure = i32::max(0, 10 - 10 * cell_index.y);
+            use VERTICAL_PRESSURE_DIFFERENCE as PRESSURE;
+            cell.pressure = i32::max(0, PRESSURE - PRESSURE * cell_index.y);
         }
     }
 }

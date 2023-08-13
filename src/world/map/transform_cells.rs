@@ -1,6 +1,7 @@
 use crate::world::map::cell::DEFAULT_HEALTH;
 use crate::world::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
 use std::collections::HashSet;
+use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
 
 const AIR_LEVELS_FOR_ALLOWING_SOLAR: i32 = 20;
 
@@ -149,9 +150,9 @@ impl Transformation {
     pub fn apply(&self, cell: &mut Cell) {
         if cell.tile_type == TileType::Air {
             if self.new_tile_type == TileType::DirtyWaterWall {
-                cell.pressure = 20;
+                cell.pressure = 2 * VERTICAL_PRESSURE_DIFFERENCE;
             } else if self.new_tile_type == TileType::DirtyWaterSurface {
-                cell.pressure = 10;
+                cell.pressure = VERTICAL_PRESSURE_DIFFERENCE;
             }
         } else if is_liquid(cell.tile_type) {
             if self.new_tile_type == TileType::Air {
