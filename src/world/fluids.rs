@@ -135,7 +135,7 @@ fn prepare_fluid_sideways(map: &mut Map) {
             flow.flow_outwards(cell_index + zn, current_pressure, &mut pressure_diff);
             let next_pressure = pressure_diff + cell.pressure;
             // change this to > for stable, >= for dynamic. see test_minimize_movement()
-            cell.can_flow_out = next_pressure > 0;
+            cell.can_flow_out = next_pressure >= 0;
             if cell.can_flow_out {
                 cell.next_pressure = next_pressure;
             } else {
@@ -216,7 +216,7 @@ impl<'a> Flow<'a> {
         pressure_diff: &mut Pressure,
     ) {
         if current_pressure > 0 {
-            let option_cell = is_valid(adjacent_index, self.map);
+            let option_cell = is_floodable(adjacent_index, self.map);
             if let Option::Some(adjacent_cell) = option_cell {
                 if (current_pressure - adjacent_cell.pressure) > self.pressure_threshold {
                     *pressure_diff -= 1;
@@ -231,7 +231,7 @@ impl<'a> Flow<'a> {
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
     ) {
-        let option_cell = is_valid(adjacent_index, self.map);
+        let option_cell = is_floodable(adjacent_index, self.map);
         if let Option::Some(adjacent_cell) = option_cell {
             if adjacent_cell.pressure > 0
                 && (adjacent_cell.pressure - current_pressure) > self.pressure_threshold
@@ -247,7 +247,7 @@ impl<'a> Flow<'a> {
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
     ) {
-        let option_cell = is_valid(adjacent_index, self.map);
+        let option_cell = is_floodable(adjacent_index, self.map);
         if let Option::Some(adjacent_cell) = option_cell {
             if adjacent_cell.can_flow_out
                 && ((adjacent_cell.pressure - current_pressure) > self.pressure_threshold)
@@ -258,7 +258,7 @@ impl<'a> Flow<'a> {
     }
 }
 
-fn is_valid(cell_index: CellIndex, map: &Map) -> Option<Cell> {
+fn is_floodable(cell_index: CellIndex, map: &Map) -> Option<Cell> {
     let option_cell = map.get_cell_optional(cell_index);
     return if let Option::Some(cell) = option_cell {
         if is_liquid_or_air(cell.tile_type) {
