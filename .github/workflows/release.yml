@@ -1,9 +1,11 @@
 name: Deployment to itch.io
 
 on:
+  # workflow_dispatch will enable manual triggers
+  workflow_dispatch:
   push:
     tags: [ "*.*.*" ]
-  
+
 
 env:
   CARGO_TERM_COLOR: always
