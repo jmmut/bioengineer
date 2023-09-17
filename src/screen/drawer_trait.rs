@@ -42,6 +42,7 @@ pub trait DrawerTrait {
     );
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
+    fn measure_text(&mut self, text: &str, font_size: f32) -> Vec2;
 
     /// all ui_* methods need to run inside ui_run. This is a restriction of using egui_miniquad :(
     fn ui_run(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ());
@@ -76,7 +77,7 @@ pub trait DrawerTrait {
     fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction;
     fn ui_checkbox(&mut self, checked: &mut bool, text: &str);
     fn ui_text(&mut self, text: &str);
-    fn measure_text(&mut self, text: &str, font_size: f32) -> Vec2;
+    fn ui_measure_text(&mut self, text: &str, font_size: f32) -> Vec2;
     fn ui_same_line(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ());
 
     fn set_style(

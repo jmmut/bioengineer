@@ -25,14 +25,15 @@ pub fn show_available_transformations(
         });
         let line_height = FONT_SIZE * 1.5;
         let panel_title = "Available actions";
-        let mut max_button_width = drawer.measure_text(panel_title, FONT_SIZE).x;
+        let mut max_button_width = drawer.ui_measure_text(panel_title, FONT_SIZE).x;
         let panel_margin = 10.0;
         let big_margin_x = panel_margin + 2.0 * FONT_SIZE;
         let panel_height = 10.0 * line_height;
         let panel_width = max_button_width + 2.0 * big_margin_x;
         for transformation in &transformations {
             let text = to_action_str(transformation.new_tile_type);
-            max_button_width = f32::max(max_button_width, drawer.measure_text(text, FONT_SIZE).x);
+            max_button_width =
+                f32::max(max_button_width, drawer.ui_measure_text(text, FONT_SIZE).x);
         }
 
         let panel = Rect::new(

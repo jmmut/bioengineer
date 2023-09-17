@@ -92,6 +92,9 @@ impl DrawerTrait for DrawerMacroquad {
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         draw_text(text, x, y, font_size, color);
     }
+    fn measure_text(&mut self, text: &str, font_size: f32) -> Vec2 {
+        self.ui_measure_text(text, font_size)
+    }
 
     fn ui_run(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) {
         f(self);
@@ -198,7 +201,7 @@ impl DrawerTrait for DrawerMacroquad {
         root_ui().label(None, text);
     }
 
-    fn measure_text(&mut self, text: &str, font_size: f32) -> Vec2 {
+    fn ui_measure_text(&mut self, text: &str, font_size: f32) -> Vec2 {
         let text_dimensions = measure_text(text, Option::None, font_size as u16, 1.0);
         Vec2::new(text_dimensions.width, text_dimensions.height)
     }

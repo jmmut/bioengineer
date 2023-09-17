@@ -41,7 +41,7 @@ pub async fn factory(args: &CliArgs) -> (Screen, World) {
 pub async fn introduction_factory(args: &CliArgs) -> impl Scene {
     let tileset = load_tileset("assets/image/tileset.png");
     let drawer = drawer_factory(args.ui, tileset.await);
-    IntroductionScene { drawer }
+    IntroductionScene::new(drawer)
 }
 
 pub fn drawer_factory(drawer_type: UiBackend, textures: Vec<Texture2D>) -> Box<dyn DrawerTrait> {

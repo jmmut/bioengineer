@@ -18,8 +18,8 @@ pub fn draw_game_finished(
         robot_movement = None;
         let panel_title = "You won!";
         let time_spent = format!("Time spent: {}", format_age(age));
-        let text_size_title = drawer.measure_text(panel_title, FONT_SIZE);
-        let text_size_age = drawer.measure_text(&time_spent, FONT_SIZE);
+        let text_size_title = drawer.ui_measure_text(panel_title, FONT_SIZE);
+        let text_size_age = drawer.ui_measure_text(&time_spent, FONT_SIZE);
         let text_size_x = f32::max(text_size_title.x, text_size_age.x);
         let panel_width = text_size_x + 5.0 * FONT_SIZE;
         let height_per_line = text_size_title.y * 2.0;

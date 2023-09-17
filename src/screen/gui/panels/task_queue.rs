@@ -130,7 +130,7 @@ fn draw_task_queue_tooltip(
     tooltip: &str,
 ) {
     let tooltip_height = FONT_SIZE * 2.5;
-    let tooltip_width = drawer.measure_text(tooltip, FONT_SIZE).x + 4.0 * MARGIN;
+    let tooltip_width = drawer.ui_measure_text(tooltip, FONT_SIZE).x + 4.0 * MARGIN;
     drawer.ui_group(
         drawer.screen_width() - margin - tooltip_width,
         drawer.screen_height() - group_height - margin - tooltip_height - margin,

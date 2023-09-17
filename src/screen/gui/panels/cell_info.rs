@@ -15,7 +15,7 @@ pub fn draw_cell_info(
     if highlighted_cells.len() == 1 {
         let selected = highlighted_cells.iter().next().unwrap();
         let panel_title = "Cell information";
-        let max_button_width = drawer.measure_text(panel_title, FONT_SIZE).x;
+        let max_button_width = drawer.ui_measure_text(panel_title, FONT_SIZE).x;
         let panel_margin = 10.0;
         let big_margin_x = panel_margin + 2.0 * FONT_SIZE;
         let panel_width = max_button_width + 2.0 * big_margin_x;

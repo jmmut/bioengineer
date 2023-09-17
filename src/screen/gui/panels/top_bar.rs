@@ -115,7 +115,7 @@ fn measure_text(drawer: &mut dyn DrawerTrait, text: &Vec<String>) -> Vec2 {
 fn measure_longest_width(drawer: &mut dyn DrawerTrait, text: &Vec<String>) -> f32 {
     let mut max_width = 0.0;
     for line in text {
-        let line_width = drawer.measure_text(line, FONT_SIZE).x;
+        let line_width = drawer.ui_measure_text(line, FONT_SIZE).x;
         if line_width > max_width {
             max_width = line_width;
         }
@@ -124,7 +124,7 @@ fn measure_longest_width(drawer: &mut dyn DrawerTrait, text: &Vec<String>) -> f3
 }
 
 fn measure_button(drawer: &mut dyn DrawerTrait, button_text: &str) -> Vec2 {
-    let button_size = drawer.measure_text(&button_text, FONT_SIZE);
+    let button_size = drawer.ui_measure_text(&button_text, FONT_SIZE);
     // let button_size = Vec2::new(button_size.x / button_text.len() as f32 * (button_text.len() + 6) as f32, button_size.y * 2.0);
     let button_size = Vec2::new(button_size.x + MARGIN * 4.0, button_size.y + MARGIN);
     button_size

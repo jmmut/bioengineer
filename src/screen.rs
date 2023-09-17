@@ -15,7 +15,7 @@ pub mod gui;
 pub mod hud;
 pub mod input;
 
-const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
+pub const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
 pub struct Screen {
     drawer: Box<dyn DrawerTrait>,
