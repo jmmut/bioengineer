@@ -9,22 +9,40 @@ use crate::Vec2;
 use macroquad::prelude::{info, is_key_pressed, Color, KeyCode};
 use std::f32::consts::PI;
 
+const WHITE: Color = Color::new(1.0, 1.0, 1.0, 1.0);
+
 pub struct IntroductionScene {
     pub drawer: Box<dyn DrawerTrait>,
     pub frame: i64,
     pub fire: Vec<Particle>,
     pub stars: Vec<Particle>,
+    pub stars_opacity: f32,
     pub ship_pos: Vec2,
 }
+
+const STARS_SPEED: f32 = 0.25;
 
 impl IntroductionScene {
     pub fn new(drawer: Box<dyn DrawerTrait>) -> Self {
         let (w, h) = (drawer.screen_width(), drawer.screen_height());
+        let height = drawer.screen_height();
+        let width = drawer.screen_width();
+        let mut stars = Vec::new();
+        for i in 0..100 {
+            let rand = next_rand(i);
+            let rand2 = next_rand((rand * 2000.0) as i64);
+            stars.push(Particle {
+                pos: Vec2::new(rand * width, rand2 * height),
+                direction: Vec2::new(0.0, -STARS_SPEED),
+                opacity: 1.0,
+            });
+        }
         Self {
             drawer,
             frame: 0,
             fire: Vec::new(),
-            stars: Vec::new(),
+            stars,
+            stars_opacity: 0.0,
             ship_pos: Vec2::new(w * 0.5, h * 0.5),
         }
     }
@@ -32,17 +50,41 @@ impl IntroductionScene {
 
 impl Scene for IntroductionScene {
     fn frame(&mut self) -> State {
-        self.frame += 1;
+        self.frame = (self.frame + 1) % 100000000;
         if is_key_pressed(KeyCode::Escape) {
             State::ShouldFinish
         } else {
             self.drawer.clear_background(BLACK);
-            let rand =
-                (((1 + self.frame % 17) * 38135 * (1 + self.frame / 4 % 5)) % 1000 - 500) as f32;
+            let height = self.drawer.screen_height();
+            let width = self.drawer.screen_width();
+            let rand = next_rand(self.frame);
+
+            if self.frame %20 == 0 {
+                self.stars.push(Particle {
+                    pos: Vec2::new(rand * width, height),
+                    direction: Vec2::new(0.0, -0.25),
+                    opacity: 1.0,
+                });
+            }
+            self.stars_opacity = (self.stars_opacity + 0.002).min(1.0);
+            let mut to_remove = Vec::new();
+            for (i, particle) in &mut self.stars.iter_mut().enumerate() {
+                particle.pos += particle.direction;
+                if particle.pos.x < 0.0 {
+                    to_remove.push(i);
+                }
+                let white = Color::new(1.0, 1.0, 1.0, self.stars_opacity);
+                self.drawer
+                    .draw_rectangle(particle.pos.x, particle.pos.y, 3.0, 3.0, white);
+            }
+            for i in to_remove.iter().rev() {
+                self.stars.swap_remove(*i);
+            }
+
             let zoom = 2.0;
             self.fire.push(Particle {
-                pos: self.ship_pos + Vec2::new(rand * 0.025 * zoom, 5.0),
-                direction: Vec2::new(0.0, -3.0) + Vec2::new(rand * 0.002, 0.0),
+                pos: self.ship_pos + Vec2::new((rand - 0.5) * 20.0 * zoom, 5.0),
+                direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
                 opacity: 1.0,
             });
             let mut to_remove = Vec::new();
@@ -61,17 +103,21 @@ impl Scene for IntroductionScene {
             for i in to_remove.iter().rev() {
                 self.fire.swap_remove(*i);
             }
-            let color_mask = Color::new(1.0, 1.0, 1.0, 1.0);
             let texture_size = self.drawer.texture_size(&ExtraTextures::Ship) * zoom;
             self.drawer.draw_rotated_texture(
                 &ExtraTextures::Ship,
-                self.drawer.screen_width() * 0.5 - texture_size.x * 0.5,
-                self.drawer.screen_height() * 0.5 - texture_size.y * 0.5,
+                width * 0.5 - texture_size.x * 0.5,
+                height * 0.5 - texture_size.y * 0.5,
                 zoom,
-                color_mask,
+                WHITE,
                 PI,
             );
             State::ShouldContinue
         }
     }
+}
+
+/// Given a seed, returns a float in the range of [0, 1]
+fn next_rand(seed: i64) -> f32 {
+    ((((1 + seed % 101) * 38135) % 101 * 31 * (1 + seed / 4 % 37)) % 1000 ) as f32 / 1000.0
 }
