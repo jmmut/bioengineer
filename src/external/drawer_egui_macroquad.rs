@@ -57,6 +57,14 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         self.inner.as_ref().unwrap().clear_background(color)
     }
 
+    fn texture_size(&self, texture_index: &dyn TextureIndexTrait) -> Vec2 {
+        self.inner
+            .as_ref()
+            .unwrap()
+            .texture_size(texture_index)
+    }
+
+
     fn draw_texture(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) {
         // self.inner.borrow().draw_texture(texture_index, x, y)
         self.inner

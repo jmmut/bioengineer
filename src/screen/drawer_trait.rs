@@ -20,6 +20,7 @@ pub trait DrawerTrait {
     fn screen_width(&self) -> f32;
     fn screen_height(&self) -> f32;
     fn clear_background(&self, color: Color);
+    fn texture_size(&self, texture_index: &dyn TextureIndexTrait) -> Vec2;
     fn draw_texture(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32);
 
     /// Takes texture by &dyn because of the hot-reloading machinery. You can't pass a struct

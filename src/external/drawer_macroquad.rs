@@ -58,6 +58,12 @@ impl DrawerTrait for DrawerMacroquad {
     fn clear_background(&self, color: Color) {
         clear_background(color);
     }
+
+    fn texture_size(&self, texture_index: &dyn TextureIndexTrait) -> Vec2 {
+        let t = &self.textures[texture_index.get_index()];
+        Vec2::new(t.width(), t.height())
+    }
+
     fn draw_texture(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) {
         self.draw_transparent_texture(texture_index, x, y, 1.0, 1.0);
     }
