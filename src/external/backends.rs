@@ -3,12 +3,13 @@ use crate::external::assets_macroquad::load_tileset;
 use crate::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use crate::external::drawer_macroquad::DrawerMacroquad;
 use crate::external::input_macroquad::InputMacroquad as InputSource;
-use crate::scene::{IntroductionScene, Scene};
+use crate::scene::Scene;
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::Screen;
 use crate::world::World;
 use macroquad::texture::Texture2D;
 use std::str::FromStr;
+use crate::scene::introduction_scene::IntroductionScene;
 
 #[derive(Debug, Copy, Clone)]
 pub enum UiBackend {
