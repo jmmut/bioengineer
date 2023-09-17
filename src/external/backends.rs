@@ -3,6 +3,7 @@ use crate::external::assets_macroquad::load_tileset;
 use crate::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use crate::external::drawer_macroquad::DrawerMacroquad;
 use crate::external::input_macroquad::InputMacroquad as InputSource;
+use crate::scene::{IntroductionScene, Scene};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::Screen;
 use crate::world::World;
@@ -36,6 +37,11 @@ pub async fn factory(args: &CliArgs) -> (Screen, World) {
     let input_source = Box::new(InputSource::new());
     let world = World::new_with_options(args.profile, args.fluids);
     (Screen::new(drawer, input_source), world)
+}
+pub async fn introduction_factory(args: &CliArgs) -> impl Scene {
+    let tileset = load_tileset("assets/image/tileset.png");
+    let drawer = drawer_factory(args.ui, tileset.await);
+    IntroductionScene { drawer }
 }
 
 pub fn drawer_factory(drawer_type: UiBackend, textures: Vec<Texture2D>) -> Box<dyn DrawerTrait> {

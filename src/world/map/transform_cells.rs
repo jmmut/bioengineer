@@ -1,7 +1,7 @@
+use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
 use crate::world::map::cell::DEFAULT_HEALTH;
 use crate::world::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
 use std::collections::HashSet;
-use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
 
 const AIR_LEVELS_FOR_ALLOWING_SOLAR: i32 = 20;
 

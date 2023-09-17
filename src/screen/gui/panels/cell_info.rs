@@ -15,7 +15,7 @@ pub fn draw_cell_info(
     if highlighted_cells.len() == 1 {
         let selected = highlighted_cells.iter().next().unwrap();
         let panel_title = "Cell information";
-        let mut max_button_width = drawer.measure_text(panel_title, FONT_SIZE).x;
+        let max_button_width = drawer.measure_text(panel_title, FONT_SIZE).x;
         let panel_margin = 10.0;
         let big_margin_x = panel_margin + 2.0 * FONT_SIZE;
         let panel_width = max_button_width + 2.0 * big_margin_x;
@@ -23,7 +23,7 @@ pub fn draw_cell_info(
         let panel_height = 10.0 * line_height;
         let cell = world.map.get_cell(*selected);
         let cell_description = cell_to_str(cell);
-        let interaction = drawer.ui_named_group(
+        let _interaction = drawer.ui_named_group(
             panel_title,
             drawer.screen_width() - panel_width - panel_margin,
             panel_margin + TOP_BAR_HEIGHT,

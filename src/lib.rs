@@ -3,6 +3,7 @@ pub mod common {
     pub mod profiling;
     pub mod trunc;
 }
+pub mod scene;
 pub mod screen;
 pub mod world;
 
