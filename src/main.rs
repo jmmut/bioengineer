@@ -19,6 +19,7 @@ async fn main() {
     while scene.frame() == State::ShouldContinue {
         next_frame().await
     }
+    next_frame().await;
 
     let (mut screen, mut world) = factory(&args).await;
     while frame(&mut screen, &mut world) {

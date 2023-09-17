@@ -40,6 +40,15 @@ pub trait DrawerTrait {
         zoom: f32,
         color_mask: Color,
     );
+    fn draw_rotated_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        color_mask: Color,
+        rotation_radians: f32,
+    );
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
     fn measure_text(&mut self, text: &str, font_size: f32) -> Vec2;

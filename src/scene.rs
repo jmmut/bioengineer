@@ -1,6 +1,8 @@
 use crate::screen::drawer_trait::DrawerTrait;
-use crate::screen::GREY;
 use crate::screen::gui::BLACK;
+use crate::world::map::cell::ExtraTextures;
+use macroquad::prelude::{is_key_pressed, Color, KeyCode};
+use std::f32::consts::PI;
 
 pub trait Scene {
     fn frame(&mut self) -> State;
@@ -26,21 +28,20 @@ impl IntroductionScene {
 impl Scene for IntroductionScene {
     fn frame(&mut self) -> State {
         self.frame += 1;
-        if self.frame < 200 {
-            self.drawer.clear_background(GREY);
-            let text = "Loading...";
-            let font_size = 32.0;
-            let text_size = self.drawer.measure_text(text, font_size);
-            self.drawer.draw_text(
-                text,
-                (self.drawer.screen_width() * 0.5 - text_size.x * 0.5).round(),
-                (self.drawer.screen_height() * 0.5 + text_size.y * 0.5).round(),
-                font_size,
-                BLACK,
+        if is_key_pressed(KeyCode::Escape) {
+            State::ShouldFinish
+        } else {
+            self.drawer.clear_background(BLACK);
+            let color_mask = Color::new(1.0, 1.0, 1.0, 1.0);
+            self.drawer.draw_rotated_texture(
+                &ExtraTextures::Ship,
+                self.drawer.screen_width() * 0.5,
+                self.drawer.screen_height() * 0.5,
+                1.0,
+                color_mask,
+                PI,
             );
             State::ShouldContinue
-        } else {
-            State::ShouldFinish
         }
     }
 }

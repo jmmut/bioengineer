@@ -95,6 +95,25 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .draw_colored_texture(texture, x, y, zoom, color_mask)
     }
 
+    fn draw_rotated_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        color_mask: Color,
+        rotation_radians: f32,
+    ) {
+        self.inner.as_ref().unwrap().draw_rotated_texture(
+            texture,
+            x,
+            y,
+            zoom,
+            color_mask,
+            rotation_radians,
+        )
+    }
+
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         // self.inner.borrow().draw_rectangle(x, y, w, h, color)
         self.inner

@@ -86,6 +86,29 @@ impl DrawerTrait for DrawerMacroquad {
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
 
+    fn draw_rotated_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        color_mask: Color,
+        rotation_radians: f32,
+    ) {
+        let texture = self.textures[texture.get_index()];
+        macroquad_draw_texture_ex(
+            texture,
+            x,
+            y,
+            color_mask,
+            DrawTextureParams {
+                dest_size: Some(zoom_to_size(zoom, texture)),
+                rotation: rotation_radians,
+                ..Default::default()
+            },
+        );
+    }
+
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         draw_rectangle(x, y, w, h, color);
     }
@@ -368,11 +391,15 @@ fn get_interaction(x: f32, y: f32, w: f32, h: f32) -> Interaction {
 
 fn params_from_zoom(zoom: f32, texture: Texture2D) -> DrawTextureParams {
     DrawTextureParams {
-        dest_size: Some(Vec2::new(texture.height() * zoom, texture.width() * zoom)),
+        dest_size: Some(zoom_to_size(zoom, texture)),
         source: None,
         rotation: 0.0,
         flip_x: false,
         flip_y: false,
         pivot: None,
     }
+}
+
+fn zoom_to_size(zoom: f32, texture: Texture2D) -> Vec2 {
+    Vec2::new(texture.height() * zoom, texture.width() * zoom)
 }

@@ -63,6 +63,7 @@ pub enum ExtraTextures {
     ZoomedRobot = 32,
     Robot = 4,
     Movement = 22,
+    Ship = 31,
 }
 
 #[derive(Clone, Copy)]
