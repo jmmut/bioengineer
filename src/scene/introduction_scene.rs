@@ -90,9 +90,13 @@ impl Scene for IntroductionScene {
             for i in to_remove.iter().rev() {
                 self.stars.swap_remove(*i);
             }
-
+            let pos_x = if self.frame % 2 == 0 {
+                ((rand - 0.5) * 2.0 + 5.0) * ZOOM
+            } else {
+                ((rand - 0.5) * 2.0 - 12.5) * ZOOM
+            };
             self.fire.push(Particle {
-                pos: self.ship_pos + Vec2::new((rand - 0.5) * 20.0 * ZOOM, 5.0),
+                pos: self.ship_pos + Vec2::new(pos_x, 5.0),
                 direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
                 opacity: 1.0,
             });
