@@ -31,9 +31,10 @@ impl IntroductionScene {
         for i in 0..100 {
             let rand = next_rand(i);
             let rand2 = next_rand((rand * 2000.0) as i64);
+            let rand3 = next_rand((rand * rand2 * 1000.0) as i64);
             stars.push(Particle {
                 pos: Vec2::new(rand * width, rand2 * height),
-                direction: Vec2::new(0.0, -STARS_SPEED),
+                direction: Vec2::new(0.0, -STARS_SPEED - rand3 * 0.0625),
                 opacity: 1.0,
             });
         }
@@ -59,10 +60,11 @@ impl Scene for IntroductionScene {
             let width = self.drawer.screen_width();
             let rand = next_rand(self.frame);
 
-            if self.frame %20 == 0 {
+            if self.frame % 20 == 0 {
+                let rand2 = next_rand((self.frame as f32 * rand) as i64);
                 self.stars.push(Particle {
                     pos: Vec2::new(rand * width, height),
-                    direction: Vec2::new(0.0, -0.25),
+                    direction: Vec2::new(0.0, -STARS_SPEED - rand2 * 0.0625),
                     opacity: 1.0,
                 });
             }
@@ -119,5 +121,5 @@ impl Scene for IntroductionScene {
 
 /// Given a seed, returns a float in the range of [0, 1]
 fn next_rand(seed: i64) -> f32 {
-    ((((1 + seed % 101) * 38135) % 101 * 31 * (1 + seed / 4 % 37)) % 1000 ) as f32 / 1000.0
+    ((((1 + seed % 101) * 38135) % 101 * 31 * (1 + seed / 4 % 37)) % 1000) as f32 / 1000.0
 }
