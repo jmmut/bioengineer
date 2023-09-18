@@ -38,16 +38,19 @@ impl IntroductionScene {
                 opacity: 1.0,
             });
         }
+        let texture_size = drawer.texture_size(&ExtraTextures::Ship) * ZOOM;
         Self {
             drawer,
             frame: 0,
             fire: Vec::new(),
             stars,
             stars_opacity: 0.0,
-            ship_pos: Vec2::new(w * 0.5, h * 0.5),
+            ship_pos: Vec2::new(w * 0.5, -texture_size.y),
         }
     }
 }
+
+const ZOOM: f32 = 2.0;
 
 impl Scene for IntroductionScene {
     fn frame(&mut self) -> State {
@@ -58,6 +61,11 @@ impl Scene for IntroductionScene {
             self.drawer.clear_background(BLACK);
             let height = self.drawer.screen_height();
             let width = self.drawer.screen_width();
+
+            if self.ship_pos.y < height * 0.5 {
+                self.ship_pos.y += 2.0;
+            }
+
             let rand = next_rand(self.frame);
 
             if self.frame % 20 == 0 {
@@ -83,9 +91,8 @@ impl Scene for IntroductionScene {
                 self.stars.swap_remove(*i);
             }
 
-            let zoom = 2.0;
             self.fire.push(Particle {
-                pos: self.ship_pos + Vec2::new((rand - 0.5) * 20.0 * zoom, 5.0),
+                pos: self.ship_pos + Vec2::new((rand - 0.5) * 20.0 * ZOOM, 5.0),
                 direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
                 opacity: 1.0,
             });
@@ -105,12 +112,12 @@ impl Scene for IntroductionScene {
             for i in to_remove.iter().rev() {
                 self.fire.swap_remove(*i);
             }
-            let texture_size = self.drawer.texture_size(&ExtraTextures::Ship) * zoom;
+            let texture_size = self.drawer.texture_size(&ExtraTextures::Ship) * ZOOM;
             self.drawer.draw_rotated_texture(
                 &ExtraTextures::Ship,
-                width * 0.5 - texture_size.x * 0.5,
-                height * 0.5 - texture_size.y * 0.5,
-                zoom,
+                self.ship_pos.x - texture_size.x * 0.5,
+                self.ship_pos.y - texture_size.y * 0.5,
+                ZOOM,
                 WHITE,
                 PI,
             );
