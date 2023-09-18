@@ -6,7 +6,7 @@ use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::BLACK;
 use crate::world::map::cell::ExtraTextures;
 use crate::Vec2;
-use macroquad::prelude::{info, is_key_pressed, Color, KeyCode};
+use macroquad::prelude::{draw_circle, info, is_key_pressed, Color, KeyCode};
 use std::f32::consts::PI;
 
 const WHITE: Color = Color::new(1.0, 1.0, 1.0, 1.0);
@@ -24,7 +24,7 @@ const STARS_SPEED: f32 = 0.25;
 
 impl IntroductionScene {
     pub fn new(drawer: Box<dyn DrawerTrait>) -> Self {
-        let (w, h) = (drawer.screen_width(), drawer.screen_height());
+        let w = drawer.screen_width();
         let height = drawer.screen_height();
         let width = drawer.screen_width();
         let mut stars = Vec::new();
@@ -83,9 +83,29 @@ impl Scene for IntroductionScene {
                 if particle.pos.x < 0.0 {
                     to_remove.push(i);
                 }
-                let white = Color::new(1.0, 1.0, 1.0, self.stars_opacity);
-                self.drawer
-                    .draw_rectangle(particle.pos.x, particle.pos.y, 3.0, 3.0, white);
+                let rand2 = next_rand(i as i64 + (rand * 1000.0) as i64);
+                // particle.opacity
+                let mut white = Color::new(
+                    1.0,
+                    1.0,
+                    1.0,
+                    self.stars_opacity - self.stars_opacity * rand2 * 0.75,
+                );
+                // draw_circle(particle.pos.x, particle.pos.y, 1.5, white);
+
+                self.drawer.draw_rectangle(
+                    particle.pos.x - 1.5,
+                    particle.pos.y - 1.5,
+                    3.0,
+                    3.0,
+                    white,
+                );
+                white.a *= 0.03;
+                // if particle.pos.x < width * 0.5 {
+                draw_circle(particle.pos.x, particle.pos.y, 8.0, white);
+                // }
+                // self.drawer
+                //     .draw_rectangle(particle.pos.x - 5.0, particle.pos.y-5.0, 13.0, 13.0, white);
             }
             for i in to_remove.iter().rev() {
                 self.stars.swap_remove(*i);
