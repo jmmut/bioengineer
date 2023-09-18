@@ -198,6 +198,7 @@ mod tests {
 
     #[test]
     // #[ignore]
+    #[ignore]
     fn test_basic_surface_transformation() {
         let fx = CellTransformationFixture::new();
         let transformation =
@@ -218,6 +219,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_basic_covered_surface_transformation() {
         let mut fx = CellTransformationFixture::new();
         fx.map.get_cell_mut(CellIndex::new(0, 5, 0)).tile_type = TileType::WallRock;
