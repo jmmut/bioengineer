@@ -103,8 +103,9 @@ pub trait DrawerTrait {
     fn debug_ui(&mut self);
 }
 
-#[derive(Eq, PartialEq)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub enum Interaction {
+    Pressing,
     Clicked,
     Hovered,
     None,

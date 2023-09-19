@@ -2,13 +2,13 @@ mod fire_particles;
 
 use crate::scene::introduction_scene::fire_particles::Particle;
 use crate::scene::{Scene, State};
-use crate::screen::drawer_trait::DrawerTrait;
-use crate::screen::gui::BLACK;
+use crate::screen::drawer_trait::{DrawerTrait, Interaction};
+use crate::screen::gui::{BLACK, FONT_SIZE};
 use crate::world::map::cell::ExtraTextures;
 use crate::Vec2;
-use macroquad::prelude::{draw_circle, info, is_key_pressed, Color, KeyCode};
-use std::f32::consts::PI;
+use macroquad::prelude::{draw_circle, draw_rectangle, draw_text, info, is_key_pressed, is_mouse_button_pressed, measure_text, mouse_position, Color, KeyCode, MouseButton, Rect, DARKGRAY, GRAY, LIGHTGRAY, TextDimensions, is_mouse_button_released, is_mouse_button_down};
 use macroquad::ui::root_ui;
+use std::f32::consts::PI;
 
 const WHITE: Color = Color::new(1.0, 1.0, 1.0, 1.0);
 
@@ -58,11 +58,18 @@ impl Scene for IntroductionScene {
         self.frame = (self.frame + 1) % 100000000;
         let height = self.drawer.screen_height();
         let width = self.drawer.screen_width();
+        let mut buttons = Vec::new();
         let new_game_clicked = if self.ship_pos.y < height * 0.5 {
             self.ship_pos.y += 2.0;
             false
         } else {
-            self.drawer.ui_button_with_pos("New Game", 0.5 * width, 0.8 * height).is_clicked()
+            let mut button = CenteredButton::from_pos(
+                "New Game",
+                Vec2::new(0.5 * width, 0.8 * height),
+            );
+            let interaction = button.interact().is_clicked();
+            buttons.push(button);
+            interaction
         };
 
         if new_game_clicked || is_key_pressed(KeyCode::Escape) {
@@ -149,6 +156,9 @@ impl Scene for IntroductionScene {
                 WHITE,
                 PI,
             );
+            for button in &buttons {
+                button.render();
+            }
             State::ShouldContinue
         }
     }
@@ -157,4 +167,69 @@ impl Scene for IntroductionScene {
 /// Given a seed, returns a float in the range of [0, 1]
 fn next_rand(seed: i64) -> f32 {
     ((((1 + seed % 101) * 38135) % 101 * 31 * (1 + seed / 4 % 37)) % 1000) as f32 / 1000.0
+}
+
+pub struct CenteredButton {
+    text: String,
+    text_dimensions: TextDimensions,
+    rect: Rect,
+    pad: Vec2,
+    interaction: Interaction,
+}
+
+impl CenteredButton {
+    pub fn from_pos(text: &str, center: Vec2) -> Self {
+        let text_dimensions = measure_text(text, None, FONT_SIZE as u16, 1.0);
+        let pad = Vec2::new(FONT_SIZE, FONT_SIZE * 0.5);
+        let rect = Rect::new(
+            center.x - text_dimensions.width * 0.5 - pad.x,
+            center.y - text_dimensions.height * 0.5 - pad.y,
+            text_dimensions.width + pad.x * 2.0,
+            text_dimensions.height + pad.y * 2.0,
+        );
+
+        Self {
+            text: text.to_string(),
+            text_dimensions,
+            rect,
+            pad,
+            interaction: Interaction::None,
+        }
+    }
+
+    pub fn interact(&mut self) -> Interaction {
+        self.interaction = if self.rect.contains(Vec2::from(mouse_position())) {
+            if is_mouse_button_down(MouseButton::Left) {
+                Interaction::Pressing
+            } else if is_mouse_button_released(MouseButton::Left) {
+                Interaction::Clicked
+            } else {
+                Interaction::Hovered
+            }
+        } else {
+            Interaction::None
+        };
+        self.interaction
+    }
+    pub fn render(&self) {
+        let color = match self.interaction {
+            Interaction::Clicked | Interaction::Pressing => DARKGRAY,
+            Interaction::Hovered => LIGHTGRAY,
+            Interaction::None => GRAY,
+        };
+        draw_rectangle(
+            self.rect.x,
+            self.rect.y,
+            self.rect.w,
+            self.rect.h,
+            color,
+        );
+        draw_text(
+            &self.text,
+            (self.rect.x + self.pad.x).round(),
+            (self.rect.y + self.pad.y + self.text_dimensions.height).round(),
+            FONT_SIZE,
+            BLACK,
+        );
+    }
 }

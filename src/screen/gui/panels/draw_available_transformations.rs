@@ -53,7 +53,7 @@ pub fn show_available_transformations(
                 for transformation in &transformations {
                     let text = to_action_str(transformation.new_tile_type);
                     match drawer.ui_button(text) {
-                        Interaction::Clicked => {
+                        Interaction::Clicked |Interaction::Pressing => {
                             let transformation_task = TransformationTask {
                                 to_transform: highlighted_cells.clone(),
                                 transformation: transformation.clone(),
