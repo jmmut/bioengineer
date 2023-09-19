@@ -71,18 +71,21 @@ impl Scene for IntroductionScene {
         } else {
             self.show_new_game_button = true;
         }
-        if is_mouse_button_pressed(MouseButton::Left) {
-            self.show_new_game_button = true;
-        }
         let new_game_clicked = if self.show_new_game_button {
             let mut button =
                 CenteredButton::from_pos("New Game", Vec2::new(0.5 * width, 0.8 * height));
             let interaction = button.interact().is_clicked();
             buttons.push(button);
-            interaction
+            interaction || is_any_key_pressed(&[KeyCode::Space, KeyCode::Enter, KeyCode::KpEnter])
         } else {
             false
         };
+        if is_mouse_button_pressed(MouseButton::Left)
+            || is_any_key_pressed(&[KeyCode::Space, KeyCode::Enter, KeyCode::KpEnter])
+        {
+            self.show_new_game_button = true;
+        }
+
         if is_key_down(KeyCode::Right) {
             if self.ship_pos.x < width * 0.8 {
                 self.ship_pos.x += 2.0;
@@ -189,6 +192,15 @@ impl Scene for IntroductionScene {
 /// Given a seed, returns a float in the range of [0, 1]
 fn next_rand(seed: i64) -> f32 {
     ((((1 + seed % 101) * 38135) % 101 * 31 * (1 + seed / 4 % 37)) % 1000) as f32 / 1000.0
+}
+
+fn is_any_key_pressed(keys: &[KeyCode]) -> bool {
+    for key in keys {
+        if is_key_pressed(*key) {
+            return true;
+        }
+    }
+    return false;
 }
 
 pub struct CenteredButton {
