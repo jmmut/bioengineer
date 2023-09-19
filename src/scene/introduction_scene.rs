@@ -1,4 +1,10 @@
-mod fire_particles;
+use std::f32::consts::PI;
+
+use macroquad::prelude::{
+    draw_circle, draw_rectangle, draw_text, is_key_down, is_key_pressed, is_mouse_button_down,
+    is_mouse_button_pressed, is_mouse_button_released, measure_text, mouse_position, Color,
+    KeyCode, MouseButton, Rect, TextDimensions, DARKGRAY, GRAY, LIGHTGRAY,
+};
 
 use crate::scene::introduction_scene::fire_particles::Particle;
 use crate::scene::{Scene, State};
@@ -6,9 +12,8 @@ use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::gui::{BLACK, FONT_SIZE};
 use crate::world::map::cell::ExtraTextures;
 use crate::Vec2;
-use macroquad::prelude::{draw_circle, draw_rectangle, draw_text, info, is_key_pressed, is_mouse_button_pressed, measure_text, mouse_position, Color, KeyCode, MouseButton, Rect, DARKGRAY, GRAY, LIGHTGRAY, TextDimensions, is_mouse_button_released, is_mouse_button_down, is_key_down};
-use macroquad::ui::root_ui;
-use std::f32::consts::PI;
+
+mod fire_particles;
 
 const WHITE: Color = Color::new(1.0, 1.0, 1.0, 1.0);
 
@@ -19,6 +24,7 @@ pub struct IntroductionScene {
     pub stars: Vec<Particle>,
     pub stars_opacity: f32,
     pub ship_pos: Vec2,
+    pub show_new_game_button: bool,
 }
 
 const STARS_SPEED: f32 = 0.25;
@@ -47,6 +53,7 @@ impl IntroductionScene {
             stars,
             stars_opacity: 0.0,
             ship_pos: Vec2::new(w * 0.5, -texture_size.y),
+            show_new_game_button: false,
         }
     }
 }
@@ -59,20 +66,25 @@ impl Scene for IntroductionScene {
         let height = self.drawer.screen_height();
         let width = self.drawer.screen_width();
         let mut buttons = Vec::new();
-        let new_game_clicked = if self.ship_pos.y < height * 0.5 {
+        if self.ship_pos.y < height * 0.5 {
             self.ship_pos.y += 2.0;
-            false
         } else {
-            let mut button = CenteredButton::from_pos(
-                "New Game",
-                Vec2::new(0.5 * width, 0.8 * height),
-            );
+            self.show_new_game_button = true;
+        }
+        if is_mouse_button_pressed(MouseButton::Left) {
+            self.show_new_game_button = true;
+        }
+        let new_game_clicked = if self.show_new_game_button {
+            let mut button =
+                CenteredButton::from_pos("New Game", Vec2::new(0.5 * width, 0.8 * height));
             let interaction = button.interact().is_clicked();
             buttons.push(button);
             interaction
+        } else {
+            false
         };
         if is_key_down(KeyCode::Right) {
-            if self.ship_pos.x < width *0.8 {
+            if self.ship_pos.x < width * 0.8 {
                 self.ship_pos.x += 2.0;
             }
         }
@@ -227,13 +239,7 @@ impl CenteredButton {
             Interaction::Hovered => LIGHTGRAY,
             Interaction::None => GRAY,
         };
-        draw_rectangle(
-            self.rect.x,
-            self.rect.y,
-            self.rect.w,
-            self.rect.h,
-            color,
-        );
+        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color);
         draw_text(
             &self.text,
             (self.rect.x + self.pad.x).round(),

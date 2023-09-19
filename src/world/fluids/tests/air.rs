@@ -1,6 +1,4 @@
 use super::*;
-use crate::world::map::Map;
-use crate::IVec3;
 use std::panic;
 
 #[test]
