@@ -6,7 +6,7 @@ use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::gui::{BLACK, FONT_SIZE};
 use crate::world::map::cell::ExtraTextures;
 use crate::Vec2;
-use macroquad::prelude::{draw_circle, draw_rectangle, draw_text, info, is_key_pressed, is_mouse_button_pressed, measure_text, mouse_position, Color, KeyCode, MouseButton, Rect, DARKGRAY, GRAY, LIGHTGRAY, TextDimensions, is_mouse_button_released, is_mouse_button_down};
+use macroquad::prelude::{draw_circle, draw_rectangle, draw_text, info, is_key_pressed, is_mouse_button_pressed, measure_text, mouse_position, Color, KeyCode, MouseButton, Rect, DARKGRAY, GRAY, LIGHTGRAY, TextDimensions, is_mouse_button_released, is_mouse_button_down, is_key_down};
 use macroquad::ui::root_ui;
 use std::f32::consts::PI;
 
@@ -71,6 +71,16 @@ impl Scene for IntroductionScene {
             buttons.push(button);
             interaction
         };
+        if is_key_down(KeyCode::Right) {
+            if self.ship_pos.x < width *0.8 {
+                self.ship_pos.x += 2.0;
+            }
+        }
+        if is_key_down(KeyCode::Left) {
+            if self.ship_pos.x > width * 0.2 {
+                self.ship_pos.x -= 2.0;
+            }
+        }
 
         if new_game_clicked || is_key_pressed(KeyCode::Escape) {
             State::ShouldFinish
