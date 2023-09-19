@@ -19,7 +19,7 @@ pub struct CliArgs {
     #[clap(
         long,
         help = "Choose UI backend, egui or macroquad.",
-        default_value = "egui"
+        default_value = "macroquad"
     )]
     pub ui: UiBackend,
 }
