@@ -120,7 +120,7 @@ fn above_is(expected_tile: TileType, levels: i32, mut cell_index: CellIndex, map
     true
 }
 
-pub fn set_intersection<T: PartialEq + Copy>(transformations_per_cell: Vec<Vec<T>>) -> Vec<T> {
+pub fn set_intersection<T: Eq + Copy>(transformations_per_cell: Vec<Vec<T>>) -> Vec<T> {
     match transformations_per_cell.first() {
         None => Vec::new(),
         Some(first) => {
@@ -137,7 +137,14 @@ pub fn set_intersection<T: PartialEq + Copy>(transformations_per_cell: Vec<Vec<T
                     result.push(*should_be_present_in_all);
                 }
             }
-            result
+            let mut reversed_result = result.iter().rev().collect::<Vec<_>>();
+            let mut unique = Vec::<T>::new();
+            while let Some(last) = reversed_result.pop() {
+                if !unique.contains(&last) {
+                    unique.push(*last);
+                }
+            }
+            unique
         }
     }
 }
@@ -295,5 +302,13 @@ mod tests {
         let b = vec![to_drill];
         let in_both = set_intersection(vec![a, b]);
         assert_eq!(in_both, vec![to_drill]);
+    }
+
+    #[test]
+    fn test_intersection_duplicates() {
+        let a = vec![1, 2, 3, 2];
+        let b = vec![3, 2, 8];
+        let in_both = set_intersection(vec![a, b]);
+        assert_eq!(in_both, vec![2, 3]);
     }
 }

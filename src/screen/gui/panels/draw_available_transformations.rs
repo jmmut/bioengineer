@@ -28,7 +28,7 @@ pub fn show_available_transformations(
         let mut max_button_width = drawer.ui_measure_text(panel_title, FONT_SIZE).x;
         let panel_margin = 10.0;
         let big_margin_x = panel_margin + 2.0 * FONT_SIZE;
-        let panel_height = 10.0 * line_height;
+        let panel_height = 3.0 * line_height + transformations.len() as f32 * 1.2 * line_height;
         let panel_width = max_button_width + 2.0 * big_margin_x;
         for transformation in &transformations {
             let text = to_action_str(transformation.new_tile_type);
