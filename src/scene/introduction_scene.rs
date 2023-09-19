@@ -8,6 +8,7 @@ use crate::world::map::cell::ExtraTextures;
 use crate::Vec2;
 use macroquad::prelude::{draw_circle, info, is_key_pressed, Color, KeyCode};
 use std::f32::consts::PI;
+use macroquad::ui::root_ui;
 
 const WHITE: Color = Color::new(1.0, 1.0, 1.0, 1.0);
 
@@ -55,16 +56,19 @@ const ZOOM: f32 = 2.0;
 impl Scene for IntroductionScene {
     fn frame(&mut self) -> State {
         self.frame = (self.frame + 1) % 100000000;
-        if is_key_pressed(KeyCode::Escape) {
+        let height = self.drawer.screen_height();
+        let width = self.drawer.screen_width();
+        let new_game_clicked = if self.ship_pos.y < height * 0.5 {
+            self.ship_pos.y += 2.0;
+            false
+        } else {
+            self.drawer.ui_button_with_pos("New Game", 0.5 * width, 0.8 * height).is_clicked()
+        };
+
+        if new_game_clicked || is_key_pressed(KeyCode::Escape) {
             State::ShouldFinish
         } else {
             self.drawer.clear_background(BLACK);
-            let height = self.drawer.screen_height();
-            let width = self.drawer.screen_width();
-
-            if self.ship_pos.y < height * 0.5 {
-                self.ship_pos.y += 2.0;
-            }
 
             let rand = next_rand(self.frame);
 
