@@ -103,14 +103,21 @@ impl IntroductionScene {
     }
 
     fn draw_fire(&mut self, rand: f32) {
-        let pos_x = if self.frame % 2 == 0 {
-            ((rand - 0.5) * 2.0 + 5.0) * ZOOM
+        let exhaust = if self.frame % 2 == 0 {
+            6.0
         } else {
-            ((rand - 0.5) * 2.0 - 12.5) * ZOOM
+            -12.5
         };
+        let side = if self.frame / 2 % 2 == 0 {
+            -1.0
+        } else {
+            1.0
+        };
+        let pos_x = (exhaust + side) * ZOOM;
         self.fire.push(Particle {
             pos: self.ship_pos + Vec2::new(pos_x, 5.0),
-            direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
+            // direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
+            direction: Vec2::new(0.0, -3.0),
             opacity: 1.0,
         });
         let mut to_remove = Vec::new();
