@@ -18,7 +18,7 @@ mod fire_particles;
 const WHITE: Color = Color::new(1.0, 1.0, 1.0, 1.0);
 
 pub struct IntroductionScene {
-    pub drawer: Box<dyn DrawerTrait>,
+    pub drawer: Option<Box<dyn DrawerTrait>>,
     pub frame: i64,
     pub fire: Vec<Particle>,
     pub stars: Vec<Particle>,
@@ -31,9 +31,8 @@ const STARS_SPEED: f32 = 0.25;
 
 impl IntroductionScene {
     pub fn new(drawer: Box<dyn DrawerTrait>) -> Self {
-        let w = drawer.screen_width();
-        let height = drawer.screen_height();
         let width = drawer.screen_width();
+        let height = drawer.screen_height();
         let mut stars = Vec::new();
         for i in 0..100 {
             let rand = next_rand(i);
@@ -47,14 +46,17 @@ impl IntroductionScene {
         }
         let texture_size = drawer.texture_size(&ExtraTextures::Ship) * ZOOM;
         Self {
-            drawer,
+            drawer: Some(drawer),
             frame: 0,
             fire: Vec::new(),
             stars,
             stars_opacity: 0.0,
-            ship_pos: Vec2::new(w * 0.5, -texture_size.y),
+            ship_pos: Vec2::new(width * 0.5, -texture_size.y),
             show_new_game_button: false,
         }
+    }
+    fn reset(&mut self) {
+        *self = Self::new(self.drawer.take().unwrap())
     }
 }
 
@@ -62,9 +64,13 @@ const ZOOM: f32 = 2.0;
 
 impl Scene for IntroductionScene {
     fn frame(&mut self) -> State {
+        if is_key_pressed(KeyCode::R) {
+            self.reset();
+        }
         self.frame = (self.frame + 1) % 100000000;
-        let height = self.drawer.screen_height();
-        let width = self.drawer.screen_width();
+        let drawer = self.drawer.as_mut().unwrap();
+        let height = drawer.screen_height();
+        let width = drawer.screen_width();
         let mut buttons = Vec::new();
         if self.ship_pos.y < height * 0.5 {
             self.ship_pos.y += 2.0;
@@ -100,7 +106,7 @@ impl Scene for IntroductionScene {
         if new_game_clicked || is_key_pressed(KeyCode::Escape) {
             State::ShouldFinish
         } else {
-            self.drawer.clear_background(BLACK);
+            drawer.clear_background(BLACK);
 
             let rand = next_rand(self.frame);
 
@@ -129,7 +135,7 @@ impl Scene for IntroductionScene {
                 );
                 // draw_circle(particle.pos.x, particle.pos.y, 1.5, white);
 
-                self.drawer.draw_rectangle(
+                drawer.draw_rectangle(
                     particle.pos.x - 1.5,
                     particle.pos.y - 1.5,
                     3.0,
@@ -140,7 +146,7 @@ impl Scene for IntroductionScene {
                 // if particle.pos.x < width * 0.5 {
                 draw_circle(particle.pos.x, particle.pos.y, 8.0, white);
                 // }
-                // self.drawer
+                // drawer
                 //     .draw_rectangle(particle.pos.x - 5.0, particle.pos.y-5.0, 13.0, 13.0, white);
             }
             for i in to_remove.iter().rev() {
@@ -166,14 +172,14 @@ impl Scene for IntroductionScene {
                 }
 
                 let yellow = Color::new(0.8, 0.9, 0.5, 0.75 * particle.opacity);
-                self.drawer
+                drawer
                     .draw_rectangle(particle.pos.x, particle.pos.y, 5.0, 5.0, yellow);
             }
             for i in to_remove.iter().rev() {
                 self.fire.swap_remove(*i);
             }
-            let texture_size = self.drawer.texture_size(&ExtraTextures::Ship) * ZOOM;
-            self.drawer.draw_rotated_texture(
+            let texture_size = drawer.texture_size(&ExtraTextures::Ship) * ZOOM;
+            drawer.draw_rotated_texture(
                 &ExtraTextures::Ship,
                 self.ship_pos.x - texture_size.x * 0.5,
                 self.ship_pos.y - texture_size.y * 0.5,
