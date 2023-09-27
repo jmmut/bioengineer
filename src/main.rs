@@ -4,7 +4,6 @@ use macroquad::window::Conf;
 
 use bioengineer::common::cli::CliArgs;
 use bioengineer::external::backends::{factory, introduction_factory};
-use bioengineer::frame;
 use bioengineer::scene::{Scene, State};
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
 
@@ -21,11 +20,11 @@ async fn main() {
     }
     next_frame().await;
 
-    let (mut screen, mut world) = factory(&args).await;
-    while frame(&mut screen, &mut world) {
+    let mut scene = factory(&args).await;
+    while scene.frame() == State::ShouldContinue {
         next_frame().await
     }
-    print_cache_stats(world.game_state.profile);
+    print_cache_stats(scene.world.game_state.profile);
 }
 
 fn window_conf() -> Conf {

@@ -10,6 +10,7 @@ use crate::screen::Screen;
 use crate::world::World;
 use macroquad::texture::Texture2D;
 use std::str::FromStr;
+use crate::scene::main_scene::MainScene;
 
 #[derive(Debug, Copy, Clone)]
 pub enum UiBackend {
@@ -31,13 +32,16 @@ impl FromStr for UiBackend {
     }
 }
 
-pub async fn factory(args: &CliArgs) -> (Screen, World) {
+pub async fn factory(args: &CliArgs) -> MainScene {
     println!("Running Bioengineer version {}", GIT_VERSION);
     let tileset = load_tileset("assets/image/tileset.png");
     let drawer = drawer_factory(args.ui, tileset.await);
     let input_source = Box::new(InputSource::new());
     let world = World::new_with_options(args.profile, args.fluids);
-    (Screen::new(drawer, input_source), world)
+    MainScene {
+        screen: Screen::new(drawer, input_source),
+        world
+    }
 }
 pub async fn introduction_factory(args: &CliArgs) -> impl Scene {
     let tileset = load_tileset("assets/image/tileset.png");
