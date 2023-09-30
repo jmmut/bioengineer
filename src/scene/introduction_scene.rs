@@ -184,15 +184,15 @@ impl IntroductionScene {
     }
     fn fire_color(particle: &Particle, rand: f32) -> Color {
         let rand = 0.0;
-        let ttl_coef = particle.time_to_live as f32 / MAX_TTL;
+        let ttl_coef = (particle.time_to_live as f32 / MAX_TTL*0.75 + 0.25).sqrt();
         let big_small_small = ttl_coef * ttl_coef;
         let small_small_big = (1.0 - ttl_coef)*(1.0 - ttl_coef);
         let big_big_small = 1.0 - small_small_big;
         Color::new(
-            0.4 + rand * 0.1 + big_big_small * 0.6,
-            1.0 + rand * 0.1 - big_small_small * 0.8,
-            0.5 + rand * 0.1 + (small_small_big * 0.4),
-            0.75 * particle.opacity,
+            0.5 + rand * 0.1 + big_big_small * 0.5,
+            0.5 + rand * 0.1 + big_small_small * 0.5,
+            0.5 + rand * 0.1 + (small_small_big * 0.5),
+            0.75 * particle.opacity* ttl_coef,
         )
     }
     fn input(&self) -> &dyn InputTrait {
