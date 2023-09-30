@@ -44,6 +44,7 @@ impl IntroductionSceneState {
                 pos: Vec2::new(rand * width, rand2 * height),
                 direction: Vec2::new(0.0, -STARS_SPEED - rand3 * 0.0625),
                 opacity: 1.0,
+                time_to_live: -1,
             });
         }
         let texture_size = drawer.texture_size(&ExtraTextures::Ship) * ZOOM;
@@ -71,6 +72,7 @@ impl IntroductionScene {
                 pos: Vec2::new(rand * width, height),
                 direction: Vec2::new(0.0, -STARS_SPEED - rand2 * 0.0625),
                 opacity: 1.0,
+                time_to_live: -1,
             });
         }
         self.state.stars_opacity = (self.state.stars_opacity + 0.002).min(1.0);
@@ -111,39 +113,52 @@ impl IntroductionScene {
         }
     }
 
-    fn draw_fire(&mut self, _rand: f32) {
-        let exhaust = if self.state.frame % 2 == 0 {
-            6.0
+    fn draw_fire(&mut self, rand: f32) {
+        let exhaust_x = if self.state.frame % 2 == 0 {
+            7.5
+                // + 25.0
         } else {
-            -12.5
+            -10.5
+                // + 30.0
         };
-        let side = if self.state.frame / 2 % 2 == 0 {
+        let exhaust_y = if self.state.frame % 2 == 0 {
+            -2.0
+        } else {
+            0.0
+        };
+        let side = 1.5* if self.state.frame / 2 % 2 == 0 {
             -1.0
         } else {
             1.0
         };
-        let pos_x = (exhaust + side) * ZOOM;
-        self.state.fire.push(Particle {
-            pos: self.state.ship_pos + Vec2::new(pos_x, 5.0),
-            // direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
-            direction: Vec2::new(0.0, -3.0),
-            opacity: 1.0,
-        });
+        let pos_x = (exhaust_x + side) * ZOOM;
+        let max_ttl = 60.0;
+        if self.state.frame % 8 >= 0 {
+            self.state.fire.push(Particle {
+                pos: self.state.ship_pos + Vec2::new(pos_x, exhaust_y),
+                // direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
+                direction: Vec2::new(0.0, -3.0),
+                opacity: 1.0,
+                time_to_live: (rand * max_ttl) as i64,
+            });
+        }
         let mut to_remove = Vec::new();
         for (i, particle) in &mut self.state.fire.iter_mut().enumerate() {
             particle.pos += particle.direction;
             let particle_ship_diff = self.state.ship_pos - particle.pos;
             particle.opacity = 1.0 - particle_ship_diff.length() / 200.0;
-            if particle.opacity < 0.0 {
+            particle.time_to_live -= 1;
+            if particle.time_to_live <= 0 {
                 to_remove.push(i);
             }
 
             let yellow = Color::new(0.8, 0.9, 0.5, 0.75 * particle.opacity);
+            let size = Vec2::new(20.0, 20.0);
             self.state.drawer.as_mut().unwrap().draw_rectangle(
-                particle.pos.x,
-                particle.pos.y,
-                5.0,
-                5.0,
+                particle.pos.x - size.x *0.5,
+                particle.pos.y - size.y,
+                size.x,
+                size.y,
                 yellow,
             );
         }
