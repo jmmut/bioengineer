@@ -152,7 +152,7 @@ impl IntroductionScene {
                 to_remove.push(i);
             }
 
-            let yellow = Self::fire_color(&particle, rand);
+            let yellow = fire_color(&particle, rand);
             self.state.drawer.as_mut().unwrap().draw_rectangle(
                 particle.pos.x - size.x * 0.5,
                 particle.pos.y - size.y,
@@ -171,7 +171,7 @@ impl IntroductionScene {
                 opacity: 1.0,
                 time_to_live: i,
             };
-            let color = Self::fire_color(&particle, 0.0);
+            let color = fire_color(&particle, 0.0);
             self.state.drawer.as_mut().unwrap().draw_rectangle(
                 particle.pos.x - size.x * 0.5,
                 particle.pos.y - size.y,
@@ -182,19 +182,7 @@ impl IntroductionScene {
 
         }
     }
-    fn fire_color(particle: &Particle, rand: f32) -> Color {
-        let rand = 0.0;
-        let ttl_coef = (particle.time_to_live as f32 / MAX_TTL*0.75 + 0.25).sqrt();
-        let big_small_small = ttl_coef * ttl_coef;
-        let small_small_big = (1.0 - ttl_coef)*(1.0 - ttl_coef);
-        let big_big_small = 1.0 - small_small_big;
-        Color::new(
-            0.5 + rand * 0.1 + big_big_small * 0.5,
-            0.5 + rand * 0.1 + big_small_small * 0.5,
-            0.5 + rand * 0.1 + (small_small_big * 0.5),
-            0.75 * particle.opacity* ttl_coef,
-        )
-    }
+
     fn input(&self) -> &dyn InputTrait {
         self.state.input.as_ref().unwrap().as_ref()
     }
@@ -209,6 +197,43 @@ impl IntroductionScene {
     }
 }
 
+fn fire_color(particle: &Particle, rand: f32) -> Color {
+    let rand = 0.0;
+    let ttl_coef = (particle.time_to_live as f32 / (MAX_TTL-1.0)*4.0).min(1.0);
+    let big_small_small = ttl_coef*ttl_coef;
+    let small_big_big = 1.0 - big_small_small;
+    let small_small_big = (1.0 - ttl_coef)*(1.0 - ttl_coef);
+    let big_big_small = 1.0 - small_small_big;
+    let big_small_big = (ttl_coef + small_small_big).min(1.0);
+    Color::new(
+        0.8 + rand * 0.1 + big_big_small * 0.2,
+        0.5 + rand * 0.1 + big_small_small * 0.5,
+        0.1 + rand * 0.1 + (big_small_big * 0.8),
+        0.75
+             * particle.opacity* ttl_coef,
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_fire_color() {
+
+        for i in (0..60).rev() {
+            let particle = Particle {
+                pos: Vec2::new((20 * i) as f32 + 20.0, 100.0),
+                direction: Vec2::new(0.0, 0.0),
+                opacity: 1.0,
+                time_to_live: i,
+            };
+            let color = fire_color(&particle, 0.0);
+
+            println!("{:?}", color);
+        }
+    }
+}
 const ZOOM: f32 = 2.0;
 
 impl Scene for IntroductionScene {
