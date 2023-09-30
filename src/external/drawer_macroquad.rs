@@ -3,7 +3,7 @@ use macroquad::hash;
 use macroquad::input::{is_mouse_button_pressed, mouse_position, MouseButton};
 use macroquad::math::{Rect, RectOffset, Vec2};
 use macroquad::prelude::Texture2D;
-use macroquad::shapes::draw_rectangle;
+use macroquad::shapes::{draw_circle, draw_rectangle};
 use macroquad::text::{draw_text, measure_text};
 use macroquad::texture::{
     draw_texture as macroquad_draw_texture, draw_texture_ex as macroquad_draw_texture_ex,
@@ -117,6 +117,9 @@ impl DrawerTrait for DrawerMacroquad {
 
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         draw_rectangle(x, y, w, h, color);
+    }
+    fn draw_circle(&self, position: Vec2, radius: f32, color: Color) {
+        draw_circle(position.x, position.y, radius, color);
     }
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         draw_text(text, x, y, font_size, color);

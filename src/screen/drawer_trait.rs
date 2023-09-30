@@ -51,6 +51,7 @@ pub trait DrawerTrait {
         rotation_radians: f32,
     );
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
+    fn draw_circle(&self, position: Vec2, radius: f32, color: Color);
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
     fn measure_text(&mut self, text: &str, font_size: f32) -> Vec2;
 

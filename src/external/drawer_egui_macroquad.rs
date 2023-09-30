@@ -126,6 +126,14 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .draw_rectangle(x, y, w, h, color)
     }
 
+    fn draw_circle(&self, position: Vec2, radius: f32, color: Color) {
+        // self.inner.borrow().draw_rectangle(x, y, w, h, color)
+        self.inner
+            .as_ref()
+            .unwrap()
+            .draw_circle(position, radius, color)
+    }
+
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         // self.inner.borrow().draw_text(text, x, y, font_size, color)
         self.inner

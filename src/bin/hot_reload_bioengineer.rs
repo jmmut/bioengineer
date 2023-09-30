@@ -2,18 +2,18 @@
 
 use bioengineer::common::cli::CliArgs;
 use clap::Parser;
+use macroquad::logging::info;
 use macroquad::window::next_frame;
 use macroquad::window::Conf;
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::ffi::{c_char, c_int, c_void, CString};
 use std::path::PathBuf;
 use std::sync::mpsc::Receiver;
-use macroquad::logging::info;
 
 use bioengineer::external::backends::{factory, introduction_factory};
 use bioengineer::scene::State;
-use bioengineer::{SceneState, SceneWrapper};
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
+use bioengineer::{SceneState, SceneWrapper};
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;

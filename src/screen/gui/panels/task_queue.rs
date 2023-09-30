@@ -2,7 +2,7 @@ use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::panels::draw_available_transformations::to_action_str;
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
-use crate::screen::input::CellSelection;
+use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::cell::{ExtraTextures, TextureIndex};
 use crate::world::{Task, World};
 

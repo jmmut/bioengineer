@@ -2,7 +2,7 @@ use crate::world::map::CellIndex;
 
 pub type PixelPosition = crate::Vec2;
 
-pub trait InputSourceTrait {
+pub trait MainSceneInputTrait {
     fn get_input(&mut self) -> Input;
 }
 

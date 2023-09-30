@@ -3,7 +3,7 @@ use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::screen::gui::FONT_SIZE;
-use crate::screen::input::CellSelection;
+use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
 use crate::world::{TransformationTask, World};

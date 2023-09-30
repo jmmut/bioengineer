@@ -1,15 +1,12 @@
 use std::f32::consts::PI;
 
-use macroquad::prelude::{
-    draw_circle, draw_rectangle, draw_text, is_key_down, is_key_pressed, is_mouse_button_down,
-    is_mouse_button_pressed, is_mouse_button_released, measure_text, mouse_position, Color,
-    KeyCode, MouseButton, Rect, TextDimensions, DARKGRAY, GRAY, LIGHTGRAY,
-};
+use macroquad::prelude::{Color, KeyCode, MouseButton, Rect, DARKGRAY, GRAY, LIGHTGRAY};
 
 use crate::scene::introduction_scene::fire_particles::Particle;
 use crate::scene::{Scene, State};
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::gui::{BLACK, FONT_SIZE};
+use crate::screen::input_trait::InputTrait;
 use crate::world::map::cell::ExtraTextures;
 use crate::Vec2;
 
@@ -19,6 +16,7 @@ const WHITE: Color = Color::new(1.0, 1.0, 1.0, 1.0);
 
 pub struct IntroductionSceneState {
     pub drawer: Option<Box<dyn DrawerTrait>>,
+    pub input: Option<Box<dyn InputTrait>>,
     pub frame: i64,
     pub fire: Vec<Particle>,
     pub stars: Vec<Particle>,
@@ -34,7 +32,7 @@ pub struct IntroductionScene {
 const STARS_SPEED: f32 = 0.25;
 
 impl IntroductionSceneState {
-    pub fn new(drawer: Box<dyn DrawerTrait>) -> Self {
+    pub fn new(drawer: Box<dyn DrawerTrait>, input: Box<dyn InputTrait>) -> Self {
         let width = drawer.screen_width();
         let height = drawer.screen_height();
         let mut stars = Vec::new();
@@ -51,6 +49,7 @@ impl IntroductionSceneState {
         let texture_size = drawer.texture_size(&ExtraTextures::Ship) * ZOOM;
         Self {
             drawer: Some(drawer),
+            input: Some(input),
             frame: 0,
             fire: Vec::new(),
             stars,
@@ -60,12 +59,11 @@ impl IntroductionSceneState {
         }
     }
     fn reset(&mut self) {
-        *self = Self::new(self.drawer.take().unwrap())
+        *self = Self::new(self.drawer.take().unwrap(), self.input.take().unwrap())
     }
 }
 
 impl IntroductionScene {
-
     fn draw_stars(&mut self, height: f32, width: f32, rand: f32) {
         if self.state.frame % 20 == 0 {
             let rand2 = next_rand((self.state.frame as f32 * rand) as i64);
@@ -100,7 +98,11 @@ impl IntroductionScene {
                 white,
             );
             white.a *= 0.03;
-            draw_circle(particle.pos.x, particle.pos.y, 8.0, white);
+            self.state
+                .drawer
+                .as_mut()
+                .unwrap()
+                .draw_circle(particle.pos, 8.0, white);
             // TODO: draw black circles to simulate a brightness cross
         }
 
@@ -149,13 +151,25 @@ impl IntroductionScene {
             self.state.fire.swap_remove(*i);
         }
     }
+    fn input(&self) -> &dyn InputTrait {
+        self.state.input.as_ref().unwrap().as_ref()
+    }
+
+    fn is_any_key_pressed(&self, keys: &[KeyCode]) -> bool {
+        for key in keys {
+            if self.input().is_key_pressed(*key) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 const ZOOM: f32 = 2.0;
 
 impl Scene for IntroductionScene {
     fn frame(&mut self) -> State {
-        if is_key_pressed(KeyCode::R) {
+        if self.input().is_key_pressed(KeyCode::R) {
             self.state.reset();
         }
         self.state.frame = (self.state.frame + 1) % 100000000;
@@ -168,32 +182,36 @@ impl Scene for IntroductionScene {
             self.state.show_new_game_button = true;
         }
         let new_game_clicked = if self.state.show_new_game_button {
-            let mut button =
-                CenteredButton::from_pos("New Game", Vec2::new(0.5 * width, 0.8 * height));
-            let interaction = button.interact().is_clicked();
+            let mut button = CenteredButton::from_pos(
+                "New Game",
+                Vec2::new(0.5 * width, 0.8 * height),
+                self.state.drawer.as_mut().unwrap().as_mut(),
+            );
+            let interaction = button.interact(self.input()).is_clicked();
             buttons.push(button);
-            interaction || is_any_key_pressed(&[KeyCode::Space, KeyCode::Enter, KeyCode::KpEnter])
+            interaction
+                || self.is_any_key_pressed(&[KeyCode::Space, KeyCode::Enter, KeyCode::KpEnter])
         } else {
             false
         };
-        if is_mouse_button_pressed(MouseButton::Left)
-            || is_any_key_pressed(&[KeyCode::Space, KeyCode::Enter, KeyCode::KpEnter])
+        if self.input().is_mouse_button_pressed(MouseButton::Left)
+            || self.is_any_key_pressed(&[KeyCode::Space, KeyCode::Enter, KeyCode::KpEnter])
         {
             self.state.show_new_game_button = true;
         }
 
-        if is_key_down(KeyCode::Right) {
+        if self.input().is_key_down(KeyCode::Right) {
             if self.state.ship_pos.x < width * 0.8 {
                 self.state.ship_pos.x += 2.0;
             }
         }
-        if is_key_down(KeyCode::Left) {
+        if self.input().is_key_down(KeyCode::Left) {
             if self.state.ship_pos.x > width * 0.2 {
                 self.state.ship_pos.x -= 2.0;
             }
         }
 
-        if new_game_clicked || is_key_pressed(KeyCode::Escape) {
+        if new_game_clicked || self.input().is_key_pressed(KeyCode::Escape) {
             State::ShouldFinish
         } else {
             self.state.drawer.as_mut().unwrap().clear_background(BLACK);
@@ -215,7 +233,7 @@ impl Scene for IntroductionScene {
                 PI,
             );
             for button in &buttons {
-                button.render();
+                button.render(self.state.drawer.as_mut().unwrap().as_ref());
             }
             State::ShouldContinue
         }
@@ -227,32 +245,23 @@ fn next_rand(seed: i64) -> f32 {
     ((((1 + seed % 101) * 38135) % 101 * 31 * (1 + seed / 4 % 37)) % 1000) as f32 / 1000.0
 }
 
-fn is_any_key_pressed(keys: &[KeyCode]) -> bool {
-    for key in keys {
-        if is_key_pressed(*key) {
-            return true;
-        }
-    }
-    return false;
-}
-
 pub struct CenteredButton {
     text: String,
-    text_dimensions: TextDimensions,
+    text_dimensions: Vec2,
     rect: Rect,
     pad: Vec2,
     interaction: Interaction,
 }
 
 impl CenteredButton {
-    pub fn from_pos(text: &str, center: Vec2) -> Self {
-        let text_dimensions = measure_text(text, None, FONT_SIZE as u16, 1.0);
+    pub fn from_pos(text: &str, center: Vec2, drawer: &mut dyn DrawerTrait) -> Self {
+        let text_dimensions = drawer.measure_text(text, FONT_SIZE);
         let pad = Vec2::new(FONT_SIZE, FONT_SIZE * 0.5);
         let rect = Rect::new(
-            center.x - text_dimensions.width * 0.5 - pad.x,
-            center.y - text_dimensions.height * 0.5 - pad.y,
-            text_dimensions.width + pad.x * 2.0,
-            text_dimensions.height + pad.y * 2.0,
+            center.x - text_dimensions.x * 0.5 - pad.x,
+            center.y - text_dimensions.y * 0.5 - pad.y,
+            text_dimensions.x + pad.x * 2.0,
+            text_dimensions.y + pad.y * 2.0,
         );
 
         Self {
@@ -264,11 +273,11 @@ impl CenteredButton {
         }
     }
 
-    pub fn interact(&mut self) -> Interaction {
-        self.interaction = if self.rect.contains(Vec2::from(mouse_position())) {
-            if is_mouse_button_down(MouseButton::Left) {
+    pub fn interact(&mut self, input: &dyn InputTrait) -> Interaction {
+        self.interaction = if self.rect.contains(Vec2::from(input.mouse_position())) {
+            if input.is_mouse_button_down(MouseButton::Left) {
                 Interaction::Pressing
-            } else if is_mouse_button_released(MouseButton::Left) {
+            } else if input.is_mouse_button_released(MouseButton::Left) {
                 Interaction::Clicked
             } else {
                 Interaction::Hovered
@@ -278,17 +287,17 @@ impl CenteredButton {
         };
         self.interaction
     }
-    pub fn render(&self) {
+    pub fn render(&self, drawer: &dyn DrawerTrait) {
         let color = match self.interaction {
             Interaction::Clicked | Interaction::Pressing => DARKGRAY,
             Interaction::Hovered => LIGHTGRAY,
             Interaction::None => GRAY,
         };
-        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color);
-        draw_text(
+        drawer.draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color);
+        drawer.draw_text(
             &self.text,
             (self.rect.x + self.pad.x).round(),
-            (self.rect.y + self.pad.y + self.text_dimensions.height).round(),
+            (self.rect.y + self.pad.y + self.text_dimensions.y).round(),
             FONT_SIZE,
             BLACK,
         );

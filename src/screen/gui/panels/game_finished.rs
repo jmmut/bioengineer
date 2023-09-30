@@ -1,7 +1,7 @@
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::format_units::format_age;
 use crate::screen::gui::{GuiActions, FONT_SIZE};
-use crate::screen::input::CellSelection;
+use crate::screen::main_scene_input::CellSelection;
 use crate::world::GameGoalState::{Finished, PostFinished};
 use crate::world::World;
 use crate::{Rect, Vec2};

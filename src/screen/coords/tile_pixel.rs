@@ -2,7 +2,7 @@ use crate::screen::assets;
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::coords::cast::Cast;
 use crate::screen::drawing_state::{DrawingState, SubTilePosition, TilePosition};
-use crate::screen::input::PixelPosition;
+use crate::screen::main_scene_input::PixelPosition;
 
 pub fn tile_to_pixel(
     tile: TilePosition,

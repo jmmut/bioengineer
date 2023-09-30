@@ -4,9 +4,9 @@ use macroquad::window::Conf;
 
 use bioengineer::common::cli::CliArgs;
 use bioengineer::external::backends::{factory, introduction_factory};
-use bioengineer::scene::{Scene, State};
 use bioengineer::scene::introduction_scene::IntroductionSceneState;
 use bioengineer::scene::main_scene::MainScene;
+use bioengineer::scene::{Scene, State};
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;

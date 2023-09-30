@@ -2,7 +2,7 @@ use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::{DrawingState, TopBarShowing};
 use crate::screen::gui::format_units::format_unit;
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
-use crate::screen::input::CellSelection;
+use crate::screen::main_scene_input::CellSelection;
 use crate::world::game_state::{get_goal_air_cleaned, get_goal_air_cleaned_str};
 use crate::world::{World, LIFE_COUNT_REQUIRED_FOR_WINNING};
 use crate::Vec2;
