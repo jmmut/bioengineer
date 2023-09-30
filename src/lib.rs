@@ -21,12 +21,34 @@ use macroquad::miniquad::date::now;
 use macroquad::texture::{Image, Texture2D};
 
 use crate::scene::{Scene, State};
+use crate::scene::introduction_scene::{IntroductionScene, IntroductionSceneState};
+use crate::scene::main_scene::MainScene;
 
 
 pub struct SceneWrapper<'a> {
     pub scene: &'a mut dyn Scene,
 }
+pub enum SceneState {
+    Introduction(IntroductionSceneState),
+    Main(MainScene),
+}
+
 #[no_mangle]
-pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut SceneWrapper) -> State {
-    scene_wrapper.scene.frame()
+pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
+    let wrapper = scene_wrapper.take().unwrap();
+    match wrapper {
+        SceneState::Introduction(scene_state) => {
+            let mut scene = IntroductionScene {
+                state: scene_state,
+            };
+            let output_state = scene.frame();
+            scene_wrapper.replace(SceneState::Introduction(scene.state));
+            output_state
+        }
+        SceneState::Main(mut main_scene) => {
+            let output_state = main_scene.frame();
+            scene_wrapper.replace(SceneState::Main(main_scene));
+            output_state
+        }
+    }
 }

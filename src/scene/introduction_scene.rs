@@ -17,7 +17,7 @@ mod fire_particles;
 
 const WHITE: Color = Color::new(1.0, 1.0, 1.0, 1.0);
 
-pub struct IntroductionScene {
+pub struct IntroductionSceneState {
     pub drawer: Option<Box<dyn DrawerTrait>>,
     pub frame: i64,
     pub fire: Vec<Particle>,
@@ -27,9 +27,13 @@ pub struct IntroductionScene {
     pub show_new_game_button: bool,
 }
 
+pub struct IntroductionScene {
+    pub state: IntroductionSceneState,
+}
+
 const STARS_SPEED: f32 = 0.25;
 
-impl IntroductionScene {
+impl IntroductionSceneState {
     pub fn new(drawer: Box<dyn DrawerTrait>) -> Self {
         let width = drawer.screen_width();
         let height = drawer.screen_height();
@@ -58,19 +62,22 @@ impl IntroductionScene {
     fn reset(&mut self) {
         *self = Self::new(self.drawer.take().unwrap())
     }
+}
+
+impl IntroductionScene {
 
     fn draw_stars(&mut self, height: f32, width: f32, rand: f32) {
-        if self.frame % 20 == 0 {
-            let rand2 = next_rand((self.frame as f32 * rand) as i64);
-            self.stars.push(Particle {
+        if self.state.frame % 20 == 0 {
+            let rand2 = next_rand((self.state.frame as f32 * rand) as i64);
+            self.state.stars.push(Particle {
                 pos: Vec2::new(rand * width, height),
                 direction: Vec2::new(0.0, -STARS_SPEED - rand2 * 0.0625),
                 opacity: 1.0,
             });
         }
-        self.stars_opacity = (self.stars_opacity + 0.002).min(1.0);
+        self.state.stars_opacity = (self.state.stars_opacity + 0.002).min(1.0);
         let mut to_remove = Vec::new();
-        for (i, particle) in &mut self.stars.iter_mut().enumerate() {
+        for (i, particle) in &mut self.state.stars.iter_mut().enumerate() {
             particle.pos += particle.direction;
             if particle.pos.x < 0.0 {
                 to_remove.push(i);
@@ -81,11 +88,11 @@ impl IntroductionScene {
                 1.0,
                 1.0,
                 1.0,
-                self.stars_opacity - self.stars_opacity * rand2 * 0.75,
+                self.state.stars_opacity - self.state.stars_opacity * rand2 * 0.75,
             );
             // draw_circle(particle.pos.x, particle.pos.y, 1.5, white);
 
-            self.drawer.as_mut().unwrap().draw_rectangle(
+            self.state.drawer.as_mut().unwrap().draw_rectangle(
                 particle.pos.x - 1.5,
                 particle.pos.y - 1.5,
                 3.0,
@@ -98,39 +105,39 @@ impl IntroductionScene {
         }
 
         for i in to_remove.iter().rev() {
-            self.stars.swap_remove(*i);
+            self.state.stars.swap_remove(*i);
         }
     }
 
     fn draw_fire(&mut self, rand: f32) {
-        let exhaust = if self.frame % 2 == 0 {
+        let exhaust = if self.state.frame % 2 == 0 {
             6.0
         } else {
             -12.5
         };
-        let side = if self.frame / 2 % 2 == 0 {
+        let side = if self.state.frame / 2 % 2 == 0 {
             -1.0
         } else {
             1.0
         };
         let pos_x = (exhaust + side) * ZOOM;
-        self.fire.push(Particle {
-            pos: self.ship_pos + Vec2::new(pos_x, 5.0),
+        self.state.fire.push(Particle {
+            pos: self.state.ship_pos + Vec2::new(pos_x, 5.0),
             // direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
             direction: Vec2::new(0.0, -3.0),
             opacity: 1.0,
         });
         let mut to_remove = Vec::new();
-        for (i, particle) in &mut self.fire.iter_mut().enumerate() {
+        for (i, particle) in &mut self.state.fire.iter_mut().enumerate() {
             particle.pos += particle.direction;
-            let particle_ship_diff = self.ship_pos - particle.pos;
+            let particle_ship_diff = self.state.ship_pos - particle.pos;
             particle.opacity = 1.0 - particle_ship_diff.length() / 200.0;
             if particle.opacity < 0.0 {
                 to_remove.push(i);
             }
 
             let yellow = Color::new(0.8, 0.9, 0.5, 0.75 * particle.opacity);
-            self.drawer.as_mut().unwrap().draw_rectangle(
+            self.state.drawer.as_mut().unwrap().draw_rectangle(
                 particle.pos.x,
                 particle.pos.y,
                 5.0,
@@ -139,7 +146,7 @@ impl IntroductionScene {
             );
         }
         for i in to_remove.iter().rev() {
-            self.fire.swap_remove(*i);
+            self.state.fire.swap_remove(*i);
         }
     }
 }
@@ -149,18 +156,18 @@ const ZOOM: f32 = 2.0;
 impl Scene for IntroductionScene {
     fn frame(&mut self) -> State {
         if is_key_pressed(KeyCode::R) {
-            self.reset();
+            self.state.reset();
         }
-        self.frame = (self.frame + 1) % 100000000;
-        let height = self.drawer.as_mut().unwrap().screen_height();
-        let width = self.drawer.as_mut().unwrap().screen_width();
+        self.state.frame = (self.state.frame + 1) % 100000000;
+        let height = self.state.drawer.as_mut().unwrap().screen_height();
+        let width = self.state.drawer.as_mut().unwrap().screen_width();
         let mut buttons = Vec::new();
-        if self.ship_pos.y < height * 0.5 {
-            self.ship_pos.y += 2.0;
+        if self.state.ship_pos.y < height * 0.5 {
+            self.state.ship_pos.y += 2.0;
         } else {
-            self.show_new_game_button = true;
+            self.state.show_new_game_button = true;
         }
-        let new_game_clicked = if self.show_new_game_button {
+        let new_game_clicked = if self.state.show_new_game_button {
             let mut button =
                 CenteredButton::from_pos("New Game", Vec2::new(0.5 * width, 0.8 * height));
             let interaction = button.interact().is_clicked();
@@ -172,37 +179,37 @@ impl Scene for IntroductionScene {
         if is_mouse_button_pressed(MouseButton::Left)
             || is_any_key_pressed(&[KeyCode::Space, KeyCode::Enter, KeyCode::KpEnter])
         {
-            self.show_new_game_button = true;
+            self.state.show_new_game_button = true;
         }
 
         if is_key_down(KeyCode::Right) {
-            if self.ship_pos.x < width * 0.8 {
-                self.ship_pos.x += 2.0;
+            if self.state.ship_pos.x < width * 0.8 {
+                self.state.ship_pos.x += 2.0;
             }
         }
         if is_key_down(KeyCode::Left) {
-            if self.ship_pos.x > width * 0.2 {
-                self.ship_pos.x -= 2.0;
+            if self.state.ship_pos.x > width * 0.2 {
+                self.state.ship_pos.x -= 2.0;
             }
         }
 
         if new_game_clicked || is_key_pressed(KeyCode::Escape) {
             State::ShouldFinish
         } else {
-            self.drawer.as_mut().unwrap().clear_background(BLACK);
+            self.state.drawer.as_mut().unwrap().clear_background(BLACK);
 
-            let rand = next_rand(self.frame);
+            let rand = next_rand(self.state.frame);
 
             self.draw_stars(height, width, rand);
 
             self.draw_fire(rand);
 
-            let drawer = self.drawer.as_mut().unwrap();
+            let drawer = self.state.drawer.as_mut().unwrap();
             let texture_size = drawer.texture_size(&ExtraTextures::Ship) * ZOOM;
             drawer.draw_rotated_texture(
                 &ExtraTextures::Ship,
-                self.ship_pos.x - texture_size.x * 0.5,
-                self.ship_pos.y - texture_size.y * 0.5,
+                self.state.ship_pos.x - texture_size.x * 0.5,
+                self.state.ship_pos.y - texture_size.y * 0.5,
                 ZOOM,
                 WHITE,
                 PI,

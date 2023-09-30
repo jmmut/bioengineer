@@ -12,7 +12,7 @@ use macroquad::logging::info;
 
 use bioengineer::external::backends::{factory, introduction_factory};
 use bioengineer::scene::State;
-use bioengineer::SceneWrapper;
+use bioengineer::{SceneState, SceneWrapper};
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
@@ -25,7 +25,7 @@ pub const RTLD_LAZY: c_int = 0x00001;
 
 type AnyError = Box<dyn std::error::Error>;
 
-pub type DrawFrameFunction = extern "C" fn(scene_wrapper: &mut SceneWrapper) -> State;
+pub type DrawFrameFunction = extern "C" fn(scene_wrapper: &mut Box<Option<SceneState>>) -> State;
 
 #[link(name = "dl")]
 extern "C" {
@@ -54,8 +54,7 @@ async fn main() -> Result<(), AnyError> {
 
     {
         let mut scene = introduction_factory(&args).await;
-        let mut scene_wrapper = SceneWrapper { scene: &mut scene };
-        while draw_frame(&mut scene_wrapper) == State::ShouldContinue {
+        while draw_frame(&mut scene) == State::ShouldContinue {
             if should_reload(&rx) {
                 info!("reloading lib");
                 (draw_frame, lib_handle) = reload(lib_handle)?;
@@ -67,15 +66,16 @@ async fn main() -> Result<(), AnyError> {
 
     {
         let mut scene = factory(&args).await;
-        let mut scene_wrapper = SceneWrapper { scene: &mut scene };
-        while draw_frame(&mut scene_wrapper) == State::ShouldContinue {
+        while draw_frame(&mut scene) == State::ShouldContinue {
             if should_reload(&rx) {
                 info!("reloading lib");
                 (draw_frame, lib_handle) = reload(lib_handle)?;
             }
             next_frame().await
         }
-        print_cache_stats(scene.world.game_state.profile)
+        if let Some(SceneState::Main(main_scene)) = *scene {
+            print_cache_stats(main_scene.world.game_state.profile)
+        }
     }
 
     unload(lib_handle);
