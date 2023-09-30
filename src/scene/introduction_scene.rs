@@ -14,6 +14,8 @@ mod fire_particles;
 
 const WHITE: Color = Color::new(1.0, 1.0, 1.0, 1.0);
 
+const MAX_TTL:f32 = 60.0;
+
 pub struct IntroductionSceneState {
     pub drawer: Option<Box<dyn DrawerTrait>>,
     pub input: Option<Box<dyn InputTrait>>,
@@ -116,46 +118,43 @@ impl IntroductionScene {
     fn draw_fire(&mut self, rand: f32) {
         let exhaust_x = if self.state.frame % 2 == 0 {
             7.5
-                // + 25.0
+            // + 25.0
         } else {
             -10.5
-                // + 30.0
+            // + 30.0
         };
-        let exhaust_y = if self.state.frame % 2 == 0 {
-            -2.0
-        } else {
-            0.0
-        };
-        let side = 1.5* if self.state.frame / 2 % 2 == 0 {
-            -1.0
-        } else {
-            1.0
-        };
+        let exhaust_y = if self.state.frame % 2 == 0 { -2.0 } else { 0.0 };
+        let side = 1.5
+            * if self.state.frame / 2 % 2 == 0 {
+                -1.0
+            } else {
+                1.0
+            };
         let pos_x = (exhaust_x + side) * ZOOM;
-        let max_ttl = 60.0;
         if self.state.frame % 8 >= 0 {
             self.state.fire.push(Particle {
                 pos: self.state.ship_pos + Vec2::new(pos_x, exhaust_y),
                 // direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
                 direction: Vec2::new(0.0, -3.0),
                 opacity: 1.0,
-                time_to_live: (rand * max_ttl) as i64,
+                time_to_live: (rand * MAX_TTL * 0.75 + MAX_TTL * 0.25) as i64,
             });
         }
         let mut to_remove = Vec::new();
+        let size = Vec2::new(20.0, 20.0);
         for (i, particle) in &mut self.state.fire.iter_mut().enumerate() {
             particle.pos += particle.direction;
-            let particle_ship_diff = self.state.ship_pos - particle.pos;
-            particle.opacity = 1.0 - particle_ship_diff.length() / 200.0;
+            // let particle_ship_diff = self.state.ship_pos - particle.pos;
+            // let age = MAX_TTL - particle.time_to_live as f32;
+            // particle.opacity = 1.0 - (age * age) / (max_ttl * max_ttl);
             particle.time_to_live -= 1;
             if particle.time_to_live <= 0 {
                 to_remove.push(i);
             }
 
-            let yellow = Color::new(0.8, 0.9, 0.5, 0.75 * particle.opacity);
-            let size = Vec2::new(20.0, 20.0);
+            let yellow = Self::fire_color(&particle, rand);
             self.state.drawer.as_mut().unwrap().draw_rectangle(
-                particle.pos.x - size.x *0.5,
+                particle.pos.x - size.x * 0.5,
                 particle.pos.y - size.y,
                 size.x,
                 size.y,
@@ -165,6 +164,36 @@ impl IntroductionScene {
         for i in to_remove.iter().rev() {
             self.state.fire.swap_remove(*i);
         }
+        for i in 0..60 {
+            let particle = Particle {
+                pos: Vec2::new((20 * i) as f32 + 20.0, 100.0),
+                direction: Vec2::new(0.0, 0.0),
+                opacity: 1.0,
+                time_to_live: i,
+            };
+            let color = Self::fire_color(&particle, 0.0);
+            self.state.drawer.as_mut().unwrap().draw_rectangle(
+                particle.pos.x - size.x * 0.5,
+                particle.pos.y - size.y,
+                size.x,
+                size.y,
+                color,
+            );
+
+        }
+    }
+    fn fire_color(particle: &Particle, rand: f32) -> Color {
+        let rand = 0.0;
+        let ttl_coef = particle.time_to_live as f32 / MAX_TTL;
+        let big_small_small = ttl_coef * ttl_coef;
+        let small_small_big = (1.0 - ttl_coef)*(1.0 - ttl_coef);
+        let big_big_small = 1.0 - small_small_big;
+        Color::new(
+            0.4 + rand * 0.1 + big_big_small * 0.6,
+            1.0 + rand * 0.1 - big_small_small * 0.8,
+            0.5 + rand * 0.1 + (small_small_big * 0.4),
+            0.75 * particle.opacity,
+        )
     }
     fn input(&self) -> &dyn InputTrait {
         self.state.input.as_ref().unwrap().as_ref()
