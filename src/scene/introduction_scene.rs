@@ -137,7 +137,7 @@ impl IntroductionScene {
                 // direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
                 direction: Vec2::new(0.0, -3.0),
                 opacity: 1.0,
-                time_to_live: (rand * MAX_TTL * 0.75 + MAX_TTL * 0.25) as i64,
+                time_to_live: (rand * MAX_TTL * 0.5 + MAX_TTL * 0.5) as i64,
             });
         }
         let mut to_remove = Vec::new();
@@ -204,11 +204,12 @@ fn fire_color(particle: &Particle, rand: f32) -> Color {
     let small_big_big = 1.0 - big_small_small;
     let small_small_big = (1.0 - ttl_coef)*(1.0 - ttl_coef);
     let big_big_small = 1.0 - small_small_big;
-    let big_small_big = (ttl_coef + small_small_big).min(1.0);
+    let big_small_big = ((big_small_small + small_small_big)*1.0).min(1.0);
+    let medium_small_big = (big_small_small*0.4 + 0.6*small_small_big).min(1.0);
     Color::new(
         0.8 + rand * 0.1 + big_big_small * 0.2,
         0.5 + rand * 0.1 + big_small_small * 0.5,
-        0.1 + rand * 0.1 + (big_small_big * 0.8),
+        0.25+ rand * 0.1 + (medium_small_big * 0.75),
         0.75
              * particle.opacity* ttl_coef,
     )
