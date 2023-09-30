@@ -134,8 +134,7 @@ impl IntroductionScene {
         let centered_rand = rand - 0.5;
         if self.state.frame % 8 >= 0 {
             self.state.fire.push(Particle {
-                pos: self.state.ship_pos
-                    + Vec2::new(pos_x, exhaust_y)
+                pos: Vec2::new(pos_x, exhaust_y)
                     + Vec2::new(centered_rand, centered_rand),
                 // direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
                 direction: Vec2::new(0.0, -3.0) + Vec2::new(0.125 * centered_rand, -rand * 0.5),
@@ -157,8 +156,8 @@ impl IntroductionScene {
 
             let yellow = fire_color(&particle, rand);
             self.state.drawer.as_mut().unwrap().draw_rectangle(
-                particle.pos.x - size.x * 0.5,
-                particle.pos.y - size.y,
+                self.state.ship_pos.x + particle.pos.x - size.x * 0.5,
+                self.state.ship_pos.y + particle.pos.y - size.y,
                 size.x,
                 size.y,
                 yellow,
@@ -167,6 +166,10 @@ impl IntroductionScene {
         for i in to_remove.iter().rev() {
             self.state.fire.swap_remove(*i);
         }
+        // self.debug_render_particles(size);
+    }
+
+    fn debug_render_particles(&self, size: Vec2) {
         for i in 0..60 {
             let particle = Particle {
                 pos: Vec2::new((20 * i) as f32 + 20.0, 100.0),
@@ -175,7 +178,7 @@ impl IntroductionScene {
                 time_to_live: i,
             };
             let color = fire_color(&particle, 0.0);
-            self.state.drawer.as_mut().unwrap().draw_rectangle(
+            self.state.drawer.as_ref().unwrap().draw_rectangle(
                 particle.pos.x - size.x * 0.5,
                 particle.pos.y - size.y,
                 size.x,
