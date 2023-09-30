@@ -206,10 +206,11 @@ fn fire_color(particle: &Particle, rand: f32) -> Color {
     let big_big_small = 1.0 - small_small_big;
     let big_small_big = ((big_small_small + small_small_big)*1.0).min(1.0);
     let medium_small_big = (big_small_small*0.4 + 0.6*small_small_big).min(1.0);
+    let big_small_medium = (big_small_small*0.6 + 0.4*small_small_big).min(1.0);
     Color::new(
         0.8 + rand * 0.1 + big_big_small * 0.2,
         0.5 + rand * 0.1 + big_small_small * 0.5,
-        0.25+ rand * 0.1 + (medium_small_big * 0.75),
+        0.25+ rand * 0.1 + (big_small_medium * 0.75),
         0.75
              * particle.opacity* ttl_coef,
     )
