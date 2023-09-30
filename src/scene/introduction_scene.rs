@@ -169,6 +169,7 @@ impl IntroductionScene {
         // self.debug_render_particles(size);
     }
 
+    #[allow(unused)]
     fn debug_render_particles(&self, size: Vec2) {
         for i in 0..60 {
             let particle = Particle {
@@ -202,15 +203,15 @@ impl IntroductionScene {
     }
 }
 
-fn fire_color(particle: &Particle, rand: f32) -> Color {
+fn fire_color(particle: &Particle, _rand: f32) -> Color {
     let rand = 0.0;
     let ttl_coef = (particle.time_to_live as f32 / (MAX_TTL - 1.0) * 4.0).min(1.0);
     let big_small_small = ttl_coef * ttl_coef;
-    let small_big_big = 1.0 - big_small_small;
+    let _small_big_big = 1.0 - big_small_small;
     let small_small_big = (1.0 - ttl_coef) * (1.0 - ttl_coef);
     let big_big_small = 1.0 - small_small_big;
-    let big_small_big = ((big_small_small + small_small_big) * 1.0).min(1.0);
-    let medium_small_big = (big_small_small * 0.4 + 0.6 * small_small_big).min(1.0);
+    let _big_small_big = ((big_small_small + small_small_big) * 1.0).min(1.0);
+    let _medium_small_big = (big_small_small * 0.4 + 0.6 * small_small_big).min(1.0);
     let big_small_medium = (big_small_small * 0.6 + 0.4 * small_small_big).min(1.0);
     Color::new(
         0.8 + rand * 0.1 + big_big_small * 0.2,
