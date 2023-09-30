@@ -13,7 +13,7 @@ use std::sync::mpsc::Receiver;
 use bioengineer::external::backends::{factory, introduction_factory};
 use bioengineer::scene::State;
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
-use bioengineer::{SceneState, SceneWrapper};
+use bioengineer::SceneState;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;

@@ -6,7 +6,6 @@ use crate::external::input_macroquad::InputMacroquad;
 use crate::external::main_input_macroquad::InputMacroquad as InputSource;
 use crate::scene::introduction_scene::IntroductionSceneState;
 use crate::scene::main_scene::MainScene;
-use crate::scene::Scene;
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::Screen;
 use crate::world::World;

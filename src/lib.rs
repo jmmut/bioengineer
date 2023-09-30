@@ -33,8 +33,7 @@ pub enum SceneState {
     Main(MainScene),
 }
 
-#[no_mangle]
-pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
+pub fn frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
     let wrapper = scene_wrapper.take().unwrap();
     match wrapper {
         SceneState::Introduction(scene_state) => {
@@ -49,4 +48,9 @@ pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut Box<Option<SceneStat
             output_state
         }
     }
+}
+
+#[no_mangle]
+pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
+    frame(scene_wrapper)
 }

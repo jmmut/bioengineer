@@ -4,10 +4,9 @@ use macroquad::window::Conf;
 
 use bioengineer::common::cli::CliArgs;
 use bioengineer::external::backends::{factory, introduction_factory};
-use bioengineer::scene::introduction_scene::IntroductionSceneState;
-use bioengineer::scene::main_scene::MainScene;
-use bioengineer::scene::{Scene, State};
+use bioengineer::scene::State;
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
+use bioengineer::{frame, SceneState};
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;
@@ -17,16 +16,18 @@ const DEFAULT_WINDOW_TITLE: &str = "Bioengineer";
 async fn main() {
     let args = CliArgs::parse();
     let mut scene = introduction_factory(&args).await;
-    while scene.frame() == State::ShouldContinue {
+    while frame(&mut scene) == State::ShouldContinue {
         next_frame().await
     }
     next_frame().await;
 
     let mut scene = factory(&args).await;
-    while scene.frame() == State::ShouldContinue {
+    while frame(&mut scene) == State::ShouldContinue {
         next_frame().await
     }
-    print_cache_stats(scene.world.game_state.profile);
+    if let SceneState::Main(main_scene) = scene.as_ref().as_ref().unwrap() {
+        print_cache_stats(main_scene.world.game_state.profile);
+    }
 }
 
 fn window_conf() -> Conf {

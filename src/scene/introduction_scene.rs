@@ -111,7 +111,7 @@ impl IntroductionScene {
         }
     }
 
-    fn draw_fire(&mut self, rand: f32) {
+    fn draw_fire(&mut self, _rand: f32) {
         let exhaust = if self.state.frame % 2 == 0 {
             6.0
         } else {
