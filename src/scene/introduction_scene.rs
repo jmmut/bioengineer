@@ -14,7 +14,7 @@ mod fire_particles;
 
 const WHITE: Color = Color::new(1.0, 1.0, 1.0, 1.0);
 
-const MAX_TTL:f32 = 60.0;
+const MAX_TTL: f32 = 60.0;
 
 pub struct IntroductionSceneState {
     pub drawer: Option<Box<dyn DrawerTrait>>,
@@ -131,11 +131,14 @@ impl IntroductionScene {
                 1.0
             };
         let pos_x = (exhaust_x + side) * ZOOM;
+        let centered_rand = rand - 0.5;
         if self.state.frame % 8 >= 0 {
             self.state.fire.push(Particle {
-                pos: self.state.ship_pos + Vec2::new(pos_x, exhaust_y),
+                pos: self.state.ship_pos
+                    + Vec2::new(pos_x, exhaust_y)
+                    + Vec2::new(centered_rand, centered_rand),
                 // direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
-                direction: Vec2::new(0.0, -3.0),
+                direction: Vec2::new(0.0, -3.0) + Vec2::new(0.125 * centered_rand, -rand * 0.5),
                 opacity: 1.0,
                 time_to_live: (rand * MAX_TTL * 0.5 + MAX_TTL * 0.5) as i64,
             });
@@ -179,7 +182,6 @@ impl IntroductionScene {
                 size.y,
                 color,
             );
-
         }
     }
 
@@ -199,20 +201,19 @@ impl IntroductionScene {
 
 fn fire_color(particle: &Particle, rand: f32) -> Color {
     let rand = 0.0;
-    let ttl_coef = (particle.time_to_live as f32 / (MAX_TTL-1.0)*4.0).min(1.0);
-    let big_small_small = ttl_coef*ttl_coef;
+    let ttl_coef = (particle.time_to_live as f32 / (MAX_TTL - 1.0) * 4.0).min(1.0);
+    let big_small_small = ttl_coef * ttl_coef;
     let small_big_big = 1.0 - big_small_small;
-    let small_small_big = (1.0 - ttl_coef)*(1.0 - ttl_coef);
+    let small_small_big = (1.0 - ttl_coef) * (1.0 - ttl_coef);
     let big_big_small = 1.0 - small_small_big;
-    let big_small_big = ((big_small_small + small_small_big)*1.0).min(1.0);
-    let medium_small_big = (big_small_small*0.4 + 0.6*small_small_big).min(1.0);
-    let big_small_medium = (big_small_small*0.6 + 0.4*small_small_big).min(1.0);
+    let big_small_big = ((big_small_small + small_small_big) * 1.0).min(1.0);
+    let medium_small_big = (big_small_small * 0.4 + 0.6 * small_small_big).min(1.0);
+    let big_small_medium = (big_small_small * 0.6 + 0.4 * small_small_big).min(1.0);
     Color::new(
         0.8 + rand * 0.1 + big_big_small * 0.2,
         0.5 + rand * 0.1 + big_small_small * 0.5,
-        0.25+ rand * 0.1 + (big_small_medium * 0.75),
-        0.75
-             * particle.opacity* ttl_coef,
+        0.25 + rand * 0.1 + (big_small_medium * 0.75),
+        0.75 * particle.opacity * ttl_coef,
     )
 }
 
@@ -222,7 +223,6 @@ mod tests {
 
     #[test]
     fn test_fire_color() {
-
         for i in (0..60).rev() {
             let particle = Particle {
                 pos: Vec2::new((20 * i) as f32 + 20.0, 100.0),
