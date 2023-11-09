@@ -99,6 +99,7 @@ dependencies = [
  "futures",
  "git-version",
  "glam 0.22.0",
+ "juquad",
  "macroquad",
  "notify",
  "opensimplex_noise_rs",
@@ -667,6 +668,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "445dde2150c55e483f3d8416706b97ec8e8237c307e5b7b4b8dd15e6af2a0730"
 dependencies = [
  "wasm-bindgen",
+]
+
+[[package]]
+name = "juquad"
+version = "0.2.0"
+source = "git+https://github.com/jmmut/juquad.git?tag=0.2.0#d38f83bbad62a00c6a11a29f8b9edf3be186d854"
+dependencies = [
+ "macroquad",
 ]
 
 [[package]]

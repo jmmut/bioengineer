@@ -45,11 +45,10 @@ pub async fn factory(args: &CliArgs) -> Box<Option<SceneState>> {
     })))
 }
 pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
-    let tileset = load_tileset("assets/image/tileset.png");
-    let drawer = drawer_factory(args.ui, tileset.await);
+    let drawer = drawer_factory(args.ui, Vec::new());
     let input = Box::new(InputMacroquad);
     Box::new(Some(SceneState::Introduction(IntroductionSceneState::new(
-        drawer, input,
+        &["assets/image/tileset.png"], drawer, input,
     ))))
 }
 

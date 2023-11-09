@@ -1,4 +1,5 @@
 use std::f32::consts::PI;
+use juquad::texture_loader::TextureLoader;
 
 use macroquad::prelude::{Color, KeyCode, MouseButton, Rect, DARKGRAY, GRAY, LIGHTGRAY};
 
@@ -25,6 +26,9 @@ pub struct IntroductionSceneState {
     pub stars_opacity: f32,
     pub ship_pos: Vec2,
     pub show_new_game_button: bool,
+    pub textures: &'static [&'static str],
+    pub loader: TextureLoader,
+    pub textures_ready: bool,
 }
 
 pub struct IntroductionScene {
@@ -34,7 +38,7 @@ pub struct IntroductionScene {
 const STARS_SPEED: f32 = 0.25;
 
 impl IntroductionSceneState {
-    pub fn new(drawer: Box<dyn DrawerTrait>, input: Box<dyn InputTrait>) -> Self {
+    pub fn new(textures: &'static [&'static str], drawer: Box<dyn DrawerTrait>, input: Box<dyn InputTrait>) -> Self {
         let width = drawer.screen_width();
         let height = drawer.screen_height();
         let mut stars = Vec::new();
@@ -49,7 +53,7 @@ impl IntroductionSceneState {
                 time_to_live: -1,
             });
         }
-        let texture_size = drawer.texture_size(&ExtraTextures::Ship) * ZOOM;
+        // let texture_size = drawer.texture_size(&ExtraTextures::Ship) * ZOOM; // TODO: move this after loading textures
         Self {
             drawer: Some(drawer),
             input: Some(input),
@@ -57,12 +61,28 @@ impl IntroductionSceneState {
             fire: Vec::new(),
             stars,
             stars_opacity: 0.0,
-            ship_pos: Vec2::new(width * 0.5, -texture_size.y),
+            // ship_pos: Vec2::new(width * 0.5, -texture_size.y),// TODO: move this after loading textures
+            ship_pos: Vec2::new(width * 0.5, 0.0),
             show_new_game_button: false,
+            textures,
+            loader: TextureLoader::new(textures),
+            textures_ready: false,
         }
     }
     fn reset(&mut self) {
-        *self = Self::new(self.drawer.take().unwrap(), self.input.take().unwrap())
+        *self = Self::new(self.textures, self.drawer.take().unwrap(), self.input.take().unwrap())
+    }
+
+    fn try_load_textures(&mut self) -> bool {
+        let loaded = self.loader.get_textures();
+        match loaded {
+            Ok(Some(t)) => {
+                // self.drawer =
+                return false;
+            }
+            Ok(None) => {return false}
+            Err(e) => {panic!("{}", e);}
+        }
     }
 }
 
@@ -247,6 +267,9 @@ impl Scene for IntroductionScene {
         if self.input().is_key_pressed(KeyCode::R) {
             self.state.reset();
         }
+
+        self.state.textures_ready = self.state.try_load_textures();
+
         self.state.frame = (self.state.frame + 1) % 100000000;
         let height = self.state.drawer.as_mut().unwrap().screen_height();
         let width = self.state.drawer.as_mut().unwrap().screen_width();
@@ -295,20 +318,22 @@ impl Scene for IntroductionScene {
 
             self.draw_stars(height, width, rand);
 
-            self.draw_fire(rand);
+            if self.state.textures_ready {
+                self.draw_fire(rand);
 
-            let drawer = self.state.drawer.as_mut().unwrap();
-            let texture_size = drawer.texture_size(&ExtraTextures::Ship) * ZOOM;
-            drawer.draw_rotated_texture(
-                &ExtraTextures::Ship,
-                self.state.ship_pos.x - texture_size.x * 0.5,
-                self.state.ship_pos.y - texture_size.y * 0.5,
-                ZOOM,
-                WHITE,
-                PI,
-            );
-            for button in &buttons {
-                button.render(self.state.drawer.as_mut().unwrap().as_ref());
+                let drawer = self.state.drawer.as_mut().unwrap();
+                let texture_size = drawer.texture_size(&ExtraTextures::Ship) * ZOOM;
+                drawer.draw_rotated_texture(
+                    &ExtraTextures::Ship,
+                    self.state.ship_pos.x - texture_size.x * 0.5,
+                    self.state.ship_pos.y - texture_size.y * 0.5,
+                    ZOOM,
+                    WHITE,
+                    PI,
+                );
+                for button in &buttons {
+                    button.render(self.state.drawer.as_mut().unwrap().as_ref());
+                }
             }
             State::ShouldContinue
         }
