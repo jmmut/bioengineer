@@ -1,5 +1,7 @@
 use std::f32::consts::PI;
 use juquad::texture_loader::TextureLoader;
+use juquad::widgets::anchor::Anchor;
+use juquad::widgets::button::{Button, InteractionStyle, Style};
 
 use macroquad::prelude::{Color, KeyCode, MouseButton, Rect, DARKGRAY, GRAY, LIGHTGRAY, Image, Texture2D};
 use crate::external::assets_macroquad::split_tileset;
@@ -7,7 +9,7 @@ use crate::external::assets_macroquad::split_tileset;
 use crate::scene::introduction_scene::fire_particles::Particle;
 use crate::scene::{Scene, State};
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
-use crate::screen::gui::{BLACK, FONT_SIZE};
+use crate::screen::gui::{BACKGROUND_UI_COLOR_BUTTON, BACKGROUND_UI_COLOR_BUTTON_CLICKED, BACKGROUND_UI_COLOR_BUTTON_HOVERED, BLACK, BUTTON_TEXT_COLOR, FONT_SIZE, TEXT_COLOR};
 use crate::screen::input_trait::InputTrait;
 use crate::world::map::cell::ExtraTextures;
 use crate::Vec2;
@@ -15,6 +17,24 @@ use crate::Vec2;
 mod fire_particles;
 
 const WHITE: Color = Color::new(1.0, 1.0, 1.0, 1.0);
+const STYLE: Style = Style {
+    bg_color: InteractionStyle {
+        at_rest: BACKGROUND_UI_COLOR_BUTTON,
+        hovered: BACKGROUND_UI_COLOR_BUTTON_HOVERED,
+        pressed: BACKGROUND_UI_COLOR_BUTTON_CLICKED,
+    },
+    text_color: InteractionStyle {
+        at_rest: BUTTON_TEXT_COLOR,
+        hovered: BUTTON_TEXT_COLOR,
+        pressed: BUTTON_TEXT_COLOR,
+    },
+    border_color: InteractionStyle {
+        at_rest: DARKGRAY,
+        hovered: Color::new(0.88, 0.88, 0.88, 1.00),
+        pressed: DARKGRAY,
+    },
+
+};
 
 const MAX_TTL: f32 = 60.0;
 
@@ -286,12 +306,12 @@ impl Scene for IntroductionScene {
             self.state.show_new_game_button = true;
         }
         let new_game_clicked = if self.state.show_new_game_button {
-            let mut button = CenteredButton::from_pos(
+            let mut button = Button::new(
                 "New Game",
-                Vec2::new(0.5 * width, 0.8 * height),
-                self.state.drawer.as_mut().unwrap().as_mut(),
+                Anchor::center(0.5 * width, 0.8 * height),
+                FONT_SIZE,
             );
-            let interaction = button.interact(self.input()).is_clicked();
+            let interaction = button.interact().is_clicked();
             buttons.push(button);
             interaction
                 || self.is_any_key_pressed(&[KeyCode::Space, KeyCode::Enter, KeyCode::KpEnter])
@@ -338,7 +358,7 @@ impl Scene for IntroductionScene {
                     PI,
                 );
                 for button in &buttons {
-                    button.render(self.state.drawer.as_mut().unwrap().as_ref());
+                    button.render(&STYLE);
                 }
             }
             State::ShouldContinue
@@ -349,63 +369,4 @@ impl Scene for IntroductionScene {
 /// Given a seed, returns a float in the range of [0, 1]
 fn next_rand(seed: i64) -> f32 {
     ((((1 + seed % 101) * 38135) % 101 * 31 * (1 + seed / 4 % 37)) % 1000) as f32 / 1000.0
-}
-
-pub struct CenteredButton {
-    text: String,
-    text_dimensions: Vec2,
-    rect: Rect,
-    pad: Vec2,
-    interaction: Interaction,
-}
-
-impl CenteredButton {
-    pub fn from_pos(text: &str, center: Vec2, drawer: &mut dyn DrawerTrait) -> Self {
-        let text_dimensions = drawer.measure_text(text, FONT_SIZE);
-        let pad = Vec2::new(FONT_SIZE, FONT_SIZE * 0.5);
-        let rect = Rect::new(
-            center.x - text_dimensions.x * 0.5 - pad.x,
-            center.y - text_dimensions.y * 0.5 - pad.y,
-            text_dimensions.x + pad.x * 2.0,
-            text_dimensions.y + pad.y * 2.0,
-        );
-
-        Self {
-            text: text.to_string(),
-            text_dimensions,
-            rect,
-            pad,
-            interaction: Interaction::None,
-        }
-    }
-
-    pub fn interact(&mut self, input: &dyn InputTrait) -> Interaction {
-        self.interaction = if self.rect.contains(Vec2::from(input.mouse_position())) {
-            if input.is_mouse_button_down(MouseButton::Left) {
-                Interaction::Pressing
-            } else if input.is_mouse_button_released(MouseButton::Left) {
-                Interaction::Clicked
-            } else {
-                Interaction::Hovered
-            }
-        } else {
-            Interaction::None
-        };
-        self.interaction
-    }
-    pub fn render(&self, drawer: &dyn DrawerTrait) {
-        let color = match self.interaction {
-            Interaction::Clicked | Interaction::Pressing => DARKGRAY,
-            Interaction::Hovered => LIGHTGRAY,
-            Interaction::None => GRAY,
-        };
-        drawer.draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color);
-        drawer.draw_text(
-            &self.text,
-            (self.rect.x + self.pad.x).round(),
-            (self.rect.y + self.pad.y + self.text_dimensions.y).round(),
-            FONT_SIZE,
-            BLACK,
-        );
-    }
 }
