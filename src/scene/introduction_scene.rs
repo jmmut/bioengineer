@@ -1,15 +1,18 @@
-use std::f32::consts::PI;
 use juquad::texture_loader::TextureLoader;
 use juquad::widgets::anchor::Anchor;
 use juquad::widgets::button::{Button, InteractionStyle, Style};
+use std::f32::consts::PI;
 
-use macroquad::prelude::{Color, KeyCode, MouseButton, DARKGRAY, Image};
 use crate::external::assets_macroquad::split_tileset;
+use macroquad::prelude::{Color, Image, KeyCode, MouseButton, DARKGRAY};
 
 use crate::scene::introduction_scene::fire_particles::Particle;
 use crate::scene::{Scene, State};
-use crate::screen::drawer_trait::{DrawerTrait};
-use crate::screen::gui::{BACKGROUND_UI_COLOR_BUTTON, BACKGROUND_UI_COLOR_BUTTON_CLICKED, BACKGROUND_UI_COLOR_BUTTON_HOVERED, BLACK, BUTTON_TEXT_COLOR, FONT_SIZE};
+use crate::screen::drawer_trait::DrawerTrait;
+use crate::screen::gui::{
+    BACKGROUND_UI_COLOR_BUTTON, BACKGROUND_UI_COLOR_BUTTON_CLICKED,
+    BACKGROUND_UI_COLOR_BUTTON_HOVERED, BLACK, BUTTON_TEXT_COLOR, FONT_SIZE,
+};
 use crate::screen::input_trait::InputTrait;
 use crate::world::map::cell::ExtraTextures;
 use crate::Vec2;
@@ -33,7 +36,6 @@ const STYLE: Style = Style {
         hovered: Color::new(0.88, 0.88, 0.88, 1.00),
         pressed: DARKGRAY,
     },
-
 };
 
 const MAX_TTL: f32 = 60.0;
@@ -59,7 +61,11 @@ pub struct IntroductionScene {
 const STARS_SPEED: f32 = 0.25;
 
 impl IntroductionSceneState {
-    pub fn new(textures: &'static [&'static str], drawer: Box<dyn DrawerTrait>, input: Box<dyn InputTrait>) -> Self {
+    pub fn new(
+        textures: &'static [&'static str],
+        drawer: Box<dyn DrawerTrait>,
+        input: Box<dyn InputTrait>,
+    ) -> Self {
         let width = drawer.screen_width();
         let height = drawer.screen_height();
         let mut stars = Vec::new();
@@ -87,12 +93,16 @@ impl IntroductionSceneState {
             ship_pos: Vec2::new(width * 0.5, 0.0),
             show_new_game_button: false,
             textures,
-            loader: TextureLoader::new_from_image(  textures),
+            loader: TextureLoader::new_from_image(textures),
             textures_ready: false,
         }
     }
     fn reset(&mut self) {
-        *self = Self::new(self.textures, self.drawer.take().unwrap(), self.input.take().unwrap())
+        *self = Self::new(
+            self.textures,
+            self.drawer.take().unwrap(),
+            self.input.take().unwrap(),
+        )
     }
 
     fn try_load_textures(&mut self) {
@@ -104,11 +114,21 @@ impl IntroductionSceneState {
                     let textures = split_tileset(&atlas[0]);
                     self.drawer.as_mut().unwrap().set_textures(textures);
                     self.textures_ready = true;
-                    let texture_size = self.drawer.as_ref().unwrap().texture_size(&ExtraTextures::Ship) * ZOOM;
-                    self.ship_pos = Vec2::new(self.drawer.as_ref().unwrap().screen_width() * 0.5, -texture_size.y)
+                    let texture_size = self
+                        .drawer
+                        .as_ref()
+                        .unwrap()
+                        .texture_size(&ExtraTextures::Ship)
+                        * ZOOM;
+                    self.ship_pos = Vec2::new(
+                        self.drawer.as_ref().unwrap().screen_width() * 0.5,
+                        -texture_size.y,
+                    )
                 }
                 Ok(None) => {}
-                Err(e) => { panic!("{}", e); }
+                Err(e) => {
+                    panic!("{}", e);
+                }
             }
         }
     }
@@ -136,7 +156,11 @@ impl IntroductionScene {
                 to_remove.push(i);
             }
             let rand2 = next_rand(i as i64 + (rand * 1000.0) as i64);
-            let (orange, blue) = if particle.user_float >= 0.5 { (particle.user_float as f32, 0.0) } else { (0.0, particle.user_float as f32) };
+            let (orange, blue) = if particle.user_float >= 0.5 {
+                (particle.user_float as f32, 0.0)
+            } else {
+                (0.0, particle.user_float as f32)
+            };
             // particle.opacity
             let mut white = Color::new(
                 1.0 - blue * 0.35,
@@ -190,8 +214,7 @@ impl IntroductionScene {
         let centered_rand = rand - 0.5;
         if self.state.frame % 8 >= 0 {
             self.state.fire.push(Particle {
-                pos: Vec2::new(pos_x, exhaust_y)
-                    + Vec2::new(centered_rand, centered_rand),
+                pos: Vec2::new(pos_x, exhaust_y) + Vec2::new(centered_rand, centered_rand),
                 // direction: Vec2::new(0.0, -3.0) + Vec2::new((rand - 0.5) * 2.0, 0.0),
                 direction: Vec2::new(0.0, -3.0) + Vec2::new(0.125 * centered_rand, -rand * 0.5),
                 opacity: 1.0,

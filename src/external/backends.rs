@@ -48,7 +48,9 @@ pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
     let drawer = drawer_factory(args.ui, Vec::new());
     let input = Box::new(InputMacroquad);
     Box::new(Some(SceneState::Introduction(IntroductionSceneState::new(
-        &["assets/image/tileset.png"], drawer, input,
+        &["assets/image/tileset.png"],
+        drawer,
+        input,
     ))))
 }
 

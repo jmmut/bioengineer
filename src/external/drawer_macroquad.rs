@@ -49,7 +49,6 @@ impl DrawerTrait for DrawerMacroquad {
         self.textures = textures;
     }
 
-
     // fn draw(&self, game_state: &GameState) {
     // self.debug_draw_all_textures();
     // }
