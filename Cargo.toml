@@ -22,4 +22,4 @@ egui = "=0.21.0"
 
 egui_demo_lib = { version = "=0.21.0", default-features = false }
 glam = "=0.22.0"
-juquad = { git = "https://github.com/jmmut/juquad.git", tag = "0.2.0" }
+juquad = { git = "https://github.com/jmmut/juquad.git", tag = "0.3.1" }

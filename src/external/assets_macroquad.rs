@@ -1,3 +1,4 @@
+use macroquad::prelude::Image;
 use crate::screen::assets::{
     crop, extract_images, zoom, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH,
 };
@@ -8,6 +9,9 @@ use macroquad::texture::{FilterMode, Texture2D};
 pub async fn load_tileset(path: &str) -> Vec<Texture2D> {
     let image_future = macroquad::texture::load_image(path);
     let image = image_future.await.unwrap();
+    split_tileset(&image)
+}
+pub fn split_tileset(image: &Image) -> Vec<Texture2D> {
     let images = extract_images(&image, PIXELS_PER_TILE_WIDTH, PIXELS_PER_TILE_HEIGHT);
     let loaded_textures = images
         .into_iter()

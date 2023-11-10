@@ -1,7 +1,8 @@
 use std::f32::consts::PI;
 use juquad::texture_loader::TextureLoader;
 
-use macroquad::prelude::{Color, KeyCode, MouseButton, Rect, DARKGRAY, GRAY, LIGHTGRAY};
+use macroquad::prelude::{Color, KeyCode, MouseButton, Rect, DARKGRAY, GRAY, LIGHTGRAY, Image, Texture2D};
+use crate::external::assets_macroquad::split_tileset;
 
 use crate::scene::introduction_scene::fire_particles::Particle;
 use crate::scene::{Scene, State};
@@ -27,7 +28,7 @@ pub struct IntroductionSceneState {
     pub ship_pos: Vec2,
     pub show_new_game_button: bool,
     pub textures: &'static [&'static str],
-    pub loader: TextureLoader,
+    pub loader: TextureLoader<Image>,
     pub textures_ready: bool,
 }
 
@@ -61,11 +62,10 @@ impl IntroductionSceneState {
             fire: Vec::new(),
             stars,
             stars_opacity: 0.0,
-            // ship_pos: Vec2::new(width * 0.5, -texture_size.y),// TODO: move this after loading textures
             ship_pos: Vec2::new(width * 0.5, 0.0),
             show_new_game_button: false,
             textures,
-            loader: TextureLoader::new(textures),
+            loader: TextureLoader::new_from_image(  textures),
             textures_ready: false,
         }
     }
@@ -73,15 +73,21 @@ impl IntroductionSceneState {
         *self = Self::new(self.textures, self.drawer.take().unwrap(), self.input.take().unwrap())
     }
 
-    fn try_load_textures(&mut self) -> bool {
-        let loaded = self.loader.get_textures();
-        match loaded {
-            Ok(Some(t)) => {
-                // self.drawer =
-                return false;
+    fn try_load_textures(&mut self) {
+        if !self.textures_ready {
+            let loaded = self.loader.get_textures();
+            match loaded {
+                Ok(Some(atlas)) => {
+                    println!("loaded!");
+                    let textures = split_tileset(&atlas[0]);
+                    self.drawer.as_mut().unwrap().set_textures(textures);
+                    self.textures_ready = true;
+                    let texture_size = self.drawer.as_ref().unwrap().texture_size(&ExtraTextures::Ship) * ZOOM;
+                    self.ship_pos = Vec2::new(self.drawer.as_ref().unwrap().screen_width() * 0.5, -texture_size.y)
+                }
+                Ok(None) => {}
+                Err(e) => { panic!("{}", e); }
             }
-            Ok(None) => {return false}
-            Err(e) => {panic!("{}", e);}
         }
     }
 }
@@ -268,7 +274,7 @@ impl Scene for IntroductionScene {
             self.state.reset();
         }
 
-        self.state.textures_ready = self.state.try_load_textures();
+        self.state.try_load_textures();
 
         self.state.frame = (self.state.frame + 1) % 100000000;
         let height = self.state.drawer.as_mut().unwrap().screen_height();

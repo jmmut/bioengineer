@@ -17,6 +17,7 @@ pub trait DrawerTrait {
     where
         Self: Sized;
 
+    fn set_textures(&mut self, textures: Vec<Texture2D>);
     fn screen_width(&self) -> f32;
     fn screen_height(&self) -> f32;
     fn clear_background(&self, color: Color);

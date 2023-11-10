@@ -42,6 +42,11 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         }
     }
 
+    fn set_textures(&mut self, textures: Vec<Texture2D>) {
+        self.inner.as_mut().unwrap().set_textures(textures);
+    }
+
+
     fn screen_width(&self) -> f32 {
         // self.inner.borrow().screen_width()
         self.inner.as_ref().unwrap().screen_width()
