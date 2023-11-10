@@ -5,4 +5,6 @@ pub struct Particle {
     pub direction: Vec2,
     pub opacity: f32,
     pub time_to_live: i64,
+    pub user_float: f64,
+    pub user_int: i64,
 }

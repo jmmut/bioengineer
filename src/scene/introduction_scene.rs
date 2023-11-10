@@ -3,13 +3,13 @@ use juquad::texture_loader::TextureLoader;
 use juquad::widgets::anchor::Anchor;
 use juquad::widgets::button::{Button, InteractionStyle, Style};
 
-use macroquad::prelude::{Color, KeyCode, MouseButton, Rect, DARKGRAY, GRAY, LIGHTGRAY, Image, Texture2D};
+use macroquad::prelude::{Color, KeyCode, MouseButton, DARKGRAY, Image};
 use crate::external::assets_macroquad::split_tileset;
 
 use crate::scene::introduction_scene::fire_particles::Particle;
 use crate::scene::{Scene, State};
-use crate::screen::drawer_trait::{DrawerTrait, Interaction};
-use crate::screen::gui::{BACKGROUND_UI_COLOR_BUTTON, BACKGROUND_UI_COLOR_BUTTON_CLICKED, BACKGROUND_UI_COLOR_BUTTON_HOVERED, BLACK, BUTTON_TEXT_COLOR, FONT_SIZE, TEXT_COLOR};
+use crate::screen::drawer_trait::{DrawerTrait};
+use crate::screen::gui::{BACKGROUND_UI_COLOR_BUTTON, BACKGROUND_UI_COLOR_BUTTON_CLICKED, BACKGROUND_UI_COLOR_BUTTON_HOVERED, BLACK, BUTTON_TEXT_COLOR, FONT_SIZE};
 use crate::screen::input_trait::InputTrait;
 use crate::world::map::cell::ExtraTextures;
 use crate::Vec2;
@@ -72,6 +72,8 @@ impl IntroductionSceneState {
                 direction: Vec2::new(0.0, -STARS_SPEED - rand3 * 0.0625),
                 opacity: 1.0,
                 time_to_live: -1,
+                user_float: next_rand((rand * rand2 * rand3 * 10000.0) as i64) as f64,
+                user_int: 0,
             });
         }
         // let texture_size = drawer.texture_size(&ExtraTextures::Ship) * ZOOM; // TODO: move this after loading textures
@@ -116,14 +118,17 @@ impl IntroductionScene {
     fn draw_stars(&mut self, height: f32, width: f32, rand: f32) {
         if self.state.frame % 20 == 0 {
             let rand2 = next_rand((self.state.frame as f32 * rand) as i64);
+            let rand3 = next_rand((rand * rand2 * 1000.0) as i64);
             self.state.stars.push(Particle {
                 pos: Vec2::new(rand * width, height),
                 direction: Vec2::new(0.0, -STARS_SPEED - rand2 * 0.0625),
                 opacity: 1.0,
                 time_to_live: -1,
+                user_float: next_rand((rand * rand2 * rand3 * 10000.0) as i64) as f64,
+                user_int: 0,
             });
         }
-        self.state.stars_opacity = (self.state.stars_opacity + 0.002).min(1.0);
+        self.state.stars_opacity = (self.state.stars_opacity + 0.02).min(1.0);
         let mut to_remove = Vec::new();
         for (i, particle) in &mut self.state.stars.iter_mut().enumerate() {
             particle.pos += particle.direction;
@@ -131,13 +136,18 @@ impl IntroductionScene {
                 to_remove.push(i);
             }
             let rand2 = next_rand(i as i64 + (rand * 1000.0) as i64);
+            let (orange, blue) = if particle.user_float >= 0.5 { (particle.user_float as f32, 0.0) } else { (0.0, particle.user_float as f32) };
             // particle.opacity
             let mut white = Color::new(
-                1.0,
-                1.0,
-                1.0,
+                1.0 - blue * 0.35,
+                1.0 - next_rand((particle.user_float * 1000.0) as i64) * 0.0625,
+                1.0 - orange * 0.35,
                 self.state.stars_opacity - self.state.stars_opacity * rand2 * 0.75,
             );
+
+            if white.g < 0.5 && white.b < 0.5 {
+                println!("wut");
+            }
             // draw_circle(particle.pos.x, particle.pos.y, 1.5, white);
 
             self.state.drawer.as_mut().unwrap().draw_rectangle(
@@ -186,6 +196,8 @@ impl IntroductionScene {
                 direction: Vec2::new(0.0, -3.0) + Vec2::new(0.125 * centered_rand, -rand * 0.5),
                 opacity: 1.0,
                 time_to_live: (rand * MAX_TTL * 0.5 + MAX_TTL * 0.5) as i64,
+                user_float: 0.0,
+                user_int: 0,
             });
         }
         let mut to_remove = Vec::new();
@@ -223,6 +235,8 @@ impl IntroductionScene {
                 direction: Vec2::new(0.0, 0.0),
                 opacity: 1.0,
                 time_to_live: i,
+                user_float: 0.0,
+                user_int: 0,
             };
             let color = fire_color(&particle, 0.0);
             self.state.drawer.as_ref().unwrap().draw_rectangle(
@@ -279,6 +293,8 @@ mod tests {
                 direction: Vec2::new(0.0, 0.0),
                 opacity: 1.0,
                 time_to_live: i,
+                user_float: 0.0,
+                user_int: 0,
             };
             let color = fire_color(&particle, 0.0);
 
@@ -366,7 +382,7 @@ impl Scene for IntroductionScene {
     }
 }
 
-/// Given a seed, returns a float in the range of [0, 1]
+/// Given a seed, returns a float in the range of [0, 1)
 fn next_rand(seed: i64) -> f32 {
     ((((1 + seed % 101) * 38135) % 101 * 31 * (1 + seed / 4 % 37)) % 1000) as f32 / 1000.0
 }
