@@ -52,7 +52,7 @@ async fn main() -> Result<(), AnyError> {
     let (mut draw_frame, mut lib_handle) = load()?;
     let (_watcher, rx) = watch()?;
 
-    {
+    let textures = {
         let mut scene = introduction_factory(&args).await;
         while draw_frame(&mut scene) == State::ShouldContinue {
             if should_reload(&rx) {
@@ -62,10 +62,11 @@ async fn main() -> Result<(), AnyError> {
             next_frame().await
         }
         next_frame().await;
-    }
+        scene.unwrap().take_textures()
+    };
 
     {
-        let mut scene = factory(&args).await;
+        let mut scene = factory(&args, textures).await;
         while draw_frame(&mut scene) == State::ShouldContinue {
             if should_reload(&rx) {
                 info!("reloading lib");

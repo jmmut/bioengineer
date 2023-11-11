@@ -51,7 +51,6 @@ pub struct IntroductionSceneState {
     pub stars_opacity: f32,
     pub ship_pos: Vec2,
     pub show_new_game_button: bool,
-    pub textures: &'static [&'static str],
     pub loader: TextureLoader<Image>,
     pub textures_ready: bool,
 }
@@ -63,9 +62,9 @@ pub struct IntroductionScene {
 
 impl IntroductionSceneState {
     pub fn new(
-        textures: &'static [&'static str],
         drawer: Box<dyn DrawerTrait>,
         input: Box<dyn InputTrait>,
+        loader: TextureLoader<Image>,
     ) -> Self {
         let width = drawer.screen_width();
         let height = drawer.screen_height();
@@ -93,16 +92,17 @@ impl IntroductionSceneState {
             stars_opacity: 0.0,
             ship_pos: Vec2::new(width * 0.5, 0.0),
             show_new_game_button: false,
-            textures,
-            loader: TextureLoader::new_from_image(textures),
+            loader,
             textures_ready: false,
         }
     }
     fn reset(&mut self) {
+        let mut fake_loader = TextureLoader::new_from_image(&[]);
+        std::mem::swap(&mut fake_loader, &mut self.loader);
         *self = Self::new(
-            self.textures,
             self.drawer.take().unwrap(),
             self.input.take().unwrap(),
+            fake_loader,
         )
     }
 
@@ -170,6 +170,7 @@ impl IntroductionScene {
             self.state.show_new_game_button = true;
         }
         let new_game_clicked = if self.state.show_new_game_button {
+            // juquad::Button is incompatible with hot reloading. Will need drawer_juquad :DrawerTrait
             let mut button = Button::new(
                 "New Game",
                 Anchor::center(0.5 * width, 0.8 * height),

@@ -12,6 +12,7 @@ use crate::world::World;
 use crate::SceneState;
 use macroquad::texture::Texture2D;
 use std::str::FromStr;
+use juquad::texture_loader::TextureLoader;
 
 #[derive(Debug, Copy, Clone)]
 pub enum UiBackend {
@@ -48,9 +49,9 @@ pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
     let drawer = drawer_factory(args.ui, Vec::new());
     let input = Box::new(InputMacroquad);
     Box::new(Some(SceneState::Introduction(IntroductionSceneState::new(
-        &["assets/image/tileset.png"],
         drawer,
         input,
+        TextureLoader::new_from_image(&["assets/image/tileset.png"]),
     ))))
 }
 
