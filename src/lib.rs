@@ -33,6 +33,15 @@ pub enum SceneState {
     Main(MainScene),
 }
 
+impl SceneState {
+    pub fn take_textures(self) -> Vec<Texture2D> {
+        match self {
+            SceneState::Introduction(state) => state.take_textures(),
+            SceneState::Main(state) => state.screen.drawer.take_textures(),
+        }
+    }
+}
+
 pub fn frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
     let wrapper = scene_wrapper.take().unwrap();
     match wrapper {

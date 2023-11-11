@@ -19,7 +19,7 @@ pub mod main_scene_input;
 pub const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
 pub struct Screen {
-    drawer: Box<dyn DrawerTrait>,
+    pub drawer: Box<dyn DrawerTrait>,
     input_source: Box<dyn MainSceneInputTrait>,
     gui: Gui,
     drawing_state: DrawingState,

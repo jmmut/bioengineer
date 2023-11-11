@@ -4,7 +4,7 @@ use juquad::widgets::button::{Button, InteractionStyle, Style};
 use std::f32::consts::PI;
 
 use crate::external::assets_macroquad::split_tileset;
-use macroquad::prelude::{Color, Image, KeyCode, MouseButton, DARKGRAY, get_fps};
+use macroquad::prelude::{get_fps, Color, Image, KeyCode, MouseButton, Texture2D, DARKGRAY};
 
 use crate::scene::introduction_scene::fire_particles::Particle;
 use crate::scene::{Scene, State};
@@ -41,7 +41,6 @@ const STYLE: Style = Style {
     },
 };
 
-
 pub struct IntroductionSceneState {
     pub drawer: Option<Box<dyn DrawerTrait>>,
     pub input: Option<Box<dyn InputTrait>>,
@@ -58,7 +57,6 @@ pub struct IntroductionSceneState {
 pub struct IntroductionScene {
     pub state: IntroductionSceneState,
 }
-
 
 impl IntroductionSceneState {
     pub fn new(
@@ -133,8 +131,10 @@ impl IntroductionSceneState {
             }
         }
     }
+    pub fn take_textures(self) -> Vec<Texture2D> {
+        self.drawer.unwrap().take_textures()
+    }
 }
-
 
 impl Scene for IntroductionScene {
     fn frame(&mut self) -> State {
@@ -199,7 +199,10 @@ impl IntroductionScene {
                 self.state.ship_pos.x -= 2.0;
             }
         }
-        (buttons, new_game_clicked || self.input().is_key_pressed(KeyCode::Escape))
+        (
+            buttons,
+            new_game_clicked || self.input().is_key_pressed(KeyCode::Escape),
+        )
     }
 
     fn render(&mut self, height: f32, width: f32, buttons: &Vec<Button>) {

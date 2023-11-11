@@ -49,6 +49,10 @@ impl DrawerTrait for DrawerMacroquad {
         self.textures = textures;
     }
 
+    fn take_textures(self: Box<Self>) -> Vec<Texture2D> {
+        self.textures
+    }
+
     // fn draw(&self, game_state: &GameState) {
     // self.debug_draw_all_textures();
     // }

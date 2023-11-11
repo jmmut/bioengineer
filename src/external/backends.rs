@@ -1,5 +1,4 @@
 use crate::common::cli::{CliArgs, GIT_VERSION};
-use crate::external::assets_macroquad::load_tileset;
 use crate::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use crate::external::drawer_macroquad::DrawerMacroquad;
 use crate::external::input_macroquad::InputMacroquad;
@@ -34,10 +33,9 @@ impl FromStr for UiBackend {
     }
 }
 
-pub async fn factory(args: &CliArgs) -> Box<Option<SceneState>> {
+pub async fn factory(args: &CliArgs, textures: Vec<Texture2D>) -> Box<Option<SceneState>> {
     println!("Running Bioengineer version {}", GIT_VERSION);
-    let tileset = load_tileset("assets/image/tileset.png");
-    let drawer = drawer_factory(args.ui, tileset.await);
+    let drawer = drawer_factory(args.ui, textures);
     let input_source = Box::new(InputSource::new());
     let world = World::new_with_options(args.profile, args.fluids);
     Box::new(Some(SceneState::Main(MainScene {

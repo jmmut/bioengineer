@@ -21,7 +21,7 @@ async fn main() {
     }
     next_frame().await;
 
-    let mut scene = factory(&args).await;
+    let mut scene = factory(&args, scene.unwrap().take_textures()).await;
     while frame(&mut scene) == State::ShouldContinue {
         next_frame().await
     }
