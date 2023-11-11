@@ -61,10 +61,7 @@ fn get_opacity(
     min_cell: &CellIndex,
     max_cell: &CellIndex,
 ) -> f32 {
-    let border_opacity = get_border_opacity(cell_index, min_cell, max_cell, &drawing.subcell_diff);
-    let opacity_to_see_robot = get_opacity_to_see_robot(cell_index, tile_type, &world.robots);
-    let opacity = f32::min(border_opacity, opacity_to_see_robot);
-    opacity
+    get_border_opacity(cell_index, min_cell, max_cell, &drawing.subcell_diff)
 }
 
 #[allow(unused)]
