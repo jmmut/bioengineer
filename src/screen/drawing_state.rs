@@ -4,7 +4,7 @@ pub mod move_horizontally;
 
 use crate::screen::drawing_state::highlight_cells::merge_consolidated_and_in_progress;
 use crate::screen::gui::GuiActions;
-use crate::screen::input::{CellSelectionType, ZoomChange};
+use crate::screen::main_scene_input::{CellSelectionType, ZoomChange};
 use crate::world::map::CellIndex;
 use crate::{IVec2, Vec2, Vec3};
 use std::collections::HashSet;

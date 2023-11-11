@@ -9,7 +9,7 @@ use crate::world::map::{
     Map, TileType,
 };
 
-const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
+pub const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
 pub struct Fluids {
     mode: FluidMode,
@@ -216,7 +216,7 @@ impl<'a> Flow<'a> {
         pressure_diff: &mut Pressure,
     ) {
         if current_pressure > 0 {
-            let option_cell = is_valid(adjacent_index, self.map);
+            let option_cell = is_floodable(adjacent_index, self.map);
             if let Option::Some(adjacent_cell) = option_cell {
                 if (current_pressure - adjacent_cell.pressure) > self.pressure_threshold {
                     *pressure_diff -= 1;
@@ -231,7 +231,7 @@ impl<'a> Flow<'a> {
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
     ) {
-        let option_cell = is_valid(adjacent_index, self.map);
+        let option_cell = is_floodable(adjacent_index, self.map);
         if let Option::Some(adjacent_cell) = option_cell {
             if adjacent_cell.pressure > 0
                 && (adjacent_cell.pressure - current_pressure) > self.pressure_threshold
@@ -247,7 +247,7 @@ impl<'a> Flow<'a> {
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
     ) {
-        let option_cell = is_valid(adjacent_index, self.map);
+        let option_cell = is_floodable(adjacent_index, self.map);
         if let Option::Some(adjacent_cell) = option_cell {
             if adjacent_cell.can_flow_out
                 && ((adjacent_cell.pressure - current_pressure) > self.pressure_threshold)
@@ -258,7 +258,7 @@ impl<'a> Flow<'a> {
     }
 }
 
-fn is_valid(cell_index: CellIndex, map: &Map) -> Option<Cell> {
+fn is_floodable(cell_index: CellIndex, map: &Map) -> Option<Cell> {
     let option_cell = map.get_cell_optional(cell_index);
     return if let Option::Some(cell) = option_cell {
         if is_liquid_or_air(cell.tile_type) {
@@ -276,33 +276,38 @@ fn update_tile_type(map: &mut Map) {
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
         if is_liquid_or_air(cell.tile_type) {
-            let nothing_above = {
-                let index_above = cell_index + CellIndex::new(0, 1, 0);
-                let option_above_cell = map.get_cell_optional(index_above);
-                if let Option::Some(above_cell) = option_above_cell {
-                    (above_cell.pressure <= 0) && is_liquid_or_air(above_cell.tile_type)
-                } else {
-                    false
-                }
-            };
-            if is_liquid_or_air(cell.tile_type) {
-                if cell.pressure < 0 {
-                    panic!(
-                        "negative pressure! for cell {}, with pressure {}, next pressure {}.",
-                        cell_index, cell.pressure, cell.next_pressure
-                    );
-                }
-                cell.tile_type = if cell.pressure <= 0 {
-                    TileType::Air
-                } else if nothing_above {
-                    // if pressure_above > 0 {
-                    //     println!("above cell should be air!");
-                    // }
-                    TileType::DirtyWaterSurface
-                } else {
-                    TileType::DirtyWaterWall
-                };
+            // let nothing_above = {
+            //     let index_above = cell_index + CellIndex::new(0, 1, 0);
+            //     let option_above_cell = map.get_cell_optional(index_above);
+            //     if let Option::Some(above_cell) = option_above_cell {
+            //         (above_cell.pressure <= 0) && is_liquid_or_air(above_cell.tile_type)
+            //     } else {
+            //         false
+            //     }
+            // };
+            if cell.pressure < 0 {
+                panic!(
+                    "negative pressure! for cell {}, with pressure {}, next pressure {}.",
+                    cell_index, cell.pressure, cell.next_pressure
+                );
             }
+            let new_type = if cell.pressure <= 0 {
+                TileType::Air
+            } else if cell.pressure <= VERTICAL_PRESSURE_DIFFERENCE {
+                // if pressure_above > 0 {
+                //     println!("above cell should be air!");
+                // }
+                TileType::DirtyWaterSurface
+            } else {
+                TileType::DirtyWaterWall
+            };
+            // if cell_index == CellIndex::new(0, 1, 5) {
+            //     println!(
+            //         "cell with pressure {}, is {:?}, converted to {:?}",
+            //         cell.pressure, cell.tile_type, new_type
+            //     );
+            // }
+            cell.tile_type = new_type;
         }
     }
     *map = Map::new_from_iter(iter);

@@ -42,6 +42,10 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         }
     }
 
+    fn set_textures(&mut self, textures: Vec<Texture2D>) {
+        self.inner.as_mut().unwrap().set_textures(textures);
+    }
+
     fn screen_width(&self) -> f32 {
         // self.inner.borrow().screen_width()
         self.inner.as_ref().unwrap().screen_width()
@@ -55,6 +59,10 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
     fn clear_background(&self, color: Color) {
         // self.inner.borrow().clear_background(color)
         self.inner.as_ref().unwrap().clear_background(color)
+    }
+
+    fn texture_size(&self, texture_index: &dyn TextureIndexTrait) -> Vec2 {
+        self.inner.as_ref().unwrap().texture_size(texture_index)
     }
 
     fn draw_texture(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) {
@@ -95,6 +103,25 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .draw_colored_texture(texture, x, y, zoom, color_mask)
     }
 
+    fn draw_rotated_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        color_mask: Color,
+        rotation_radians: f32,
+    ) {
+        self.inner.as_ref().unwrap().draw_rotated_texture(
+            texture,
+            x,
+            y,
+            zoom,
+            color_mask,
+            rotation_radians,
+        )
+    }
+
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         // self.inner.borrow().draw_rectangle(x, y, w, h, color)
         self.inner
@@ -103,12 +130,24 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .draw_rectangle(x, y, w, h, color)
     }
 
+    fn draw_circle(&self, position: Vec2, radius: f32, color: Color) {
+        // self.inner.borrow().draw_rectangle(x, y, w, h, color)
+        self.inner
+            .as_ref()
+            .unwrap()
+            .draw_circle(position, radius, color)
+    }
+
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         // self.inner.borrow().draw_text(text, x, y, font_size, color)
         self.inner
             .as_ref()
             .unwrap()
             .draw_text(text, x, y, font_size, color)
+    }
+
+    fn measure_text(&mut self, text: &str, font_size: f32) -> Vec2 {
+        self.inner.as_mut().unwrap().measure_text(text, font_size)
     }
 
     fn ui_run(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) {
@@ -201,18 +240,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         let response = egui::Button::new(text)
             .wrap(false)
             .ui(self.egui_ui.as_mut().unwrap());
-        let inter = self.response_to_interaction(Some(response));
-        match inter {
-            Interaction::Clicked => {
-                return Interaction::Clicked;
-            }
-            Interaction::Hovered => {
-                return Interaction::Hovered;
-            }
-            Interaction::None => {
-                return Interaction::None;
-            }
-        }
+        self.response_to_interaction(Some(response))
     }
 
     fn ui_button_with_pos(&mut self, text: &str, _x: f32, _y: f32) -> Interaction {
@@ -230,8 +258,10 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
             .ui(self.egui_ui.as_mut().unwrap());
     }
 
-    fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {
-        self.inner.as_ref().unwrap().measure_text(text, font_size)
+    fn ui_measure_text(&mut self, text: &str, _font_size: f32) -> Vec2 {
+        let ui = self.egui_ui.as_mut().unwrap();
+        let (_pos, galley, _response) = egui::Label::new(text).layout_in_ui(ui);
+        Vec2::new(galley.size().x, galley.size().y)
     }
 
     fn ui_same_line(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) {

@@ -1,9 +1,9 @@
 use bioengineer::external::assets_macroquad::load_tileset;
 use bioengineer::external::backends::{drawer_factory, UiBackend};
-use bioengineer::external::input_macroquad::InputMacroquad as InputSource;
+use bioengineer::external::main_input_macroquad::InputMacroquad as InputSource;
 use bioengineer::screen::drawer_trait::DrawerTrait;
 use bioengineer::screen::gui::set_skin;
-use bioengineer::screen::input::InputSourceTrait;
+use bioengineer::screen::main_scene_input::MainSceneInputTrait;
 use macroquad::color;
 use macroquad::color::colors::LIGHTGRAY;
 use macroquad::texture::Texture2D;

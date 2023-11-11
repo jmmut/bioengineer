@@ -2,7 +2,7 @@ use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::panels::draw_available_transformations::to_action_str;
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
-use crate::screen::input::CellSelection;
+use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::cell::{ExtraTextures, TextureIndex};
 use crate::world::{Task, World};
 
@@ -21,7 +21,8 @@ pub fn draw_robot_queue(
     let mut go_to_robot = Option::None;
     let mut robot_hovered = false;
     let group_robot = drawer.ui_group(
-        drawer.screen_width() - icon_width - margin,
+        // this 1.5 is a hack to fix that we can't use the texture positions in drawer_egui::ui_texture_with_pos
+        drawer.screen_width() - icon_width - 1.5 * margin,
         drawer.screen_height() - robot_window_height - margin,
         icon_width,
         robot_window_height,
@@ -129,7 +130,7 @@ fn draw_task_queue_tooltip(
     tooltip: &str,
 ) {
     let tooltip_height = FONT_SIZE * 2.5;
-    let tooltip_width = drawer.measure_text(tooltip, FONT_SIZE).x + 4.0 * MARGIN;
+    let tooltip_width = drawer.ui_measure_text(tooltip, FONT_SIZE).x + 4.0 * MARGIN;
     drawer.ui_group(
         drawer.screen_width() - margin - tooltip_width,
         drawer.screen_height() - group_height - margin - tooltip_height - margin,

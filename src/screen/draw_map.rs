@@ -5,7 +5,7 @@ use crate::screen::coords::truncate::assert_in_range_0_1;
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
-use crate::screen::input::PixelPosition;
+use crate::screen::main_scene_input::PixelPosition;
 use crate::world::map::cell::ExtraTextures;
 use crate::world::map::{is_covering, Cell, CellIndex, TileType};
 use crate::world::robots::Robot;

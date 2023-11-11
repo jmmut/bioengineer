@@ -3,6 +3,7 @@ pub mod common {
     pub mod profiling;
     pub mod trunc;
 }
+pub mod scene;
 pub mod screen;
 pub mod world;
 
@@ -12,6 +13,7 @@ pub mod external {
     pub mod drawer_egui_macroquad;
     pub mod drawer_macroquad;
     pub mod input_macroquad;
+    pub mod main_input_macroquad;
 }
 
 use macroquad::color::Color;
@@ -19,20 +21,36 @@ use macroquad::math::{IVec2, IVec3, Rect, Vec2, Vec3};
 use macroquad::miniquad::date::now;
 use macroquad::texture::{Image, Texture2D};
 
-use common::profiling::ScopedProfiler;
-use screen::Screen;
-use world::World;
+use crate::scene::introduction_scene::{IntroductionScene, IntroductionSceneState};
+use crate::scene::main_scene::MainScene;
+use crate::scene::{Scene, State};
 
-/// returns if should continue looping. In other words, if there should be another future frame.
-pub fn frame(screen: &mut Screen, world: &mut World) -> bool {
-    let _profiler = ScopedProfiler::new_named(world.game_state.profile, "whole toplevel frame");
-    let gui_actions = screen.get_gui_actions(world);
-    let should_continue = world.update(gui_actions);
-    screen.draw(world);
-    should_continue
+pub struct SceneWrapper<'a> {
+    pub scene: &'a mut dyn Scene,
+}
+pub enum SceneState {
+    Introduction(IntroductionSceneState),
+    Main(MainScene),
+}
+
+pub fn frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
+    let wrapper = scene_wrapper.take().unwrap();
+    match wrapper {
+        SceneState::Introduction(scene_state) => {
+            let mut scene = IntroductionScene { state: scene_state };
+            let output_state = scene.frame();
+            scene_wrapper.replace(SceneState::Introduction(scene.state));
+            output_state
+        }
+        SceneState::Main(mut main_scene) => {
+            let output_state = main_scene.frame();
+            scene_wrapper.replace(SceneState::Main(main_scene));
+            output_state
+        }
+    }
 }
 
 #[no_mangle]
-pub extern "C" fn hot_reload_draw_frame(screen: &mut Screen, world: &mut World) -> bool {
-    frame(screen, world)
+pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
+    frame(scene_wrapper)
 }

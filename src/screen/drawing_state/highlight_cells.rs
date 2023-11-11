@@ -1,5 +1,5 @@
 use crate::screen::drawing_state::DrawingState;
-use crate::screen::input::{CellSelection, CellSelectionState, CellSelectionType};
+use crate::screen::main_scene_input::{CellSelection, CellSelectionState, CellSelectionType};
 use crate::world::map::cell_envelope::{is_horizontally_inside, Envelope};
 use crate::world::map::{CellCubeIterator, CellIndex};
 use std::collections::HashSet;
@@ -93,8 +93,8 @@ pub fn merge_consolidated_and_in_progress(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::screen::input::CellSelectionState::*;
-    use crate::screen::input::CellSelectionType::*;
+    use crate::screen::main_scene_input::CellSelectionState::*;
+    use crate::screen::main_scene_input::CellSelectionType::*;
     use crate::world::robots::up;
 
     #[test]

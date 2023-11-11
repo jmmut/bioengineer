@@ -2,10 +2,14 @@ use crate::common::cli::{CliArgs, GIT_VERSION};
 use crate::external::assets_macroquad::load_tileset;
 use crate::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use crate::external::drawer_macroquad::DrawerMacroquad;
-use crate::external::input_macroquad::InputMacroquad as InputSource;
+use crate::external::input_macroquad::InputMacroquad;
+use crate::external::main_input_macroquad::InputMacroquad as InputSource;
+use crate::scene::introduction_scene::IntroductionSceneState;
+use crate::scene::main_scene::MainScene;
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::Screen;
 use crate::world::World;
+use crate::SceneState;
 use macroquad::texture::Texture2D;
 use std::str::FromStr;
 
@@ -29,13 +33,25 @@ impl FromStr for UiBackend {
     }
 }
 
-pub async fn factory(args: &CliArgs) -> (Screen, World) {
+pub async fn factory(args: &CliArgs) -> Box<Option<SceneState>> {
     println!("Running Bioengineer version {}", GIT_VERSION);
     let tileset = load_tileset("assets/image/tileset.png");
     let drawer = drawer_factory(args.ui, tileset.await);
     let input_source = Box::new(InputSource::new());
-    let world = World::new_with_options(args.profile);
-    (Screen::new(drawer, input_source), world)
+    let world = World::new_with_options(args.profile, args.fluids);
+    Box::new(Some(SceneState::Main(MainScene {
+        screen: Screen::new(drawer, input_source),
+        world,
+    })))
+}
+pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
+    let drawer = drawer_factory(args.ui, Vec::new());
+    let input = Box::new(InputMacroquad);
+    Box::new(Some(SceneState::Introduction(IntroductionSceneState::new(
+        &["assets/image/tileset.png"],
+        drawer,
+        input,
+    ))))
 }
 
 pub fn drawer_factory(drawer_type: UiBackend, textures: Vec<Texture2D>) -> Box<dyn DrawerTrait> {

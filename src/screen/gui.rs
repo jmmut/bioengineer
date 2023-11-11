@@ -9,10 +9,10 @@ use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::panels::top_bar::draw_top_bar;
 use crate::screen::gui::panels::{
-    draw_available_transformations::show_available_transformations,
+    cell_info::draw_cell_info, draw_available_transformations::show_available_transformations,
     game_finished::draw_game_finished, task_queue::draw_robot_queue,
 };
-use crate::screen::input::{
+use crate::screen::main_scene_input::{
     CellIndexSelection, CellSelection, Input, PixelCellSelection, PixelPosition,
 };
 use crate::world::map::CellIndex;
@@ -57,6 +57,7 @@ impl Gui {
 
             let unhandled_input = draw_robot_queue(drawer, world, unhandled_input);
             let unhandled_input = draw_top_bar(drawer, world, drawing, unhandled_input);
+            let unhandled_input = draw_cell_info(drawer, world, drawing, unhandled_input);
             gui_actions = unhandled_input
         });
         gui_actions

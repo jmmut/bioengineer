@@ -424,7 +424,7 @@ mod tests {
     mod tasks {
         use super::*;
         use crate::screen::gui::GuiActions;
-        use crate::screen::input::{CellSelection, ZoomChange};
+        use crate::screen::main_scene_input::{CellSelection, ZoomChange};
         use crate::world::World;
 
         #[test]

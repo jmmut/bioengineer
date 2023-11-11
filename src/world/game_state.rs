@@ -3,7 +3,7 @@ use crate::screen::gui::format_units::format_unit;
 use crate::screen::gui::GuiActions;
 
 pub const DEFAULT_PROFILE_ENABLED: bool = false;
-const DEFAULT_ADVANCING_FLUIDS: bool = false;
+pub const DEFAULT_ADVANCING_FLUIDS: bool = false;
 const DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES: i32 = 10;
 const DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES: i32 = 15;
 const DEFAULT_AGING_EVERY_N_FRAMES: i32 = 15;
@@ -27,12 +27,12 @@ pub struct GameState {
 }
 
 impl GameState {
-    pub fn new() -> GameState {
+    pub fn new(fluids: bool) -> GameState {
         GameState {
             frame_index: 0,
             previous_frame_ts: now() - 1.0,
             current_frame_ts: now(),
-            advancing_fluids: DEFAULT_ADVANCING_FLUIDS,
+            advancing_fluids: fluids,
             advancing_fluids_single_step: false,
             advance_fluid_every_n_frames: DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES,
             advance_robots_every_n_frames: DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES,

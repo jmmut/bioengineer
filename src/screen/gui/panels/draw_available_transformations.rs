@@ -3,7 +3,7 @@ use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::screen::gui::FONT_SIZE;
-use crate::screen::input::CellSelection;
+use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
 use crate::world::{TransformationTask, World};
@@ -25,14 +25,15 @@ pub fn show_available_transformations(
         });
         let line_height = FONT_SIZE * 1.5;
         let panel_title = "Available actions";
-        let mut max_button_width = drawer.measure_text(panel_title, FONT_SIZE).x;
+        let mut max_button_width = drawer.ui_measure_text(panel_title, FONT_SIZE).x;
         let panel_margin = 10.0;
         let big_margin_x = panel_margin + 2.0 * FONT_SIZE;
-        let panel_height = 10.0 * line_height;
+        let panel_height = 3.0 * line_height + transformations.len() as f32 * 1.2 * line_height;
         let panel_width = max_button_width + 2.0 * big_margin_x;
         for transformation in &transformations {
             let text = to_action_str(transformation.new_tile_type);
-            max_button_width = f32::max(max_button_width, drawer.measure_text(text, FONT_SIZE).x);
+            max_button_width =
+                f32::max(max_button_width, drawer.ui_measure_text(text, FONT_SIZE).x);
         }
 
         let panel = Rect::new(
@@ -52,7 +53,7 @@ pub fn show_available_transformations(
                 for transformation in &transformations {
                     let text = to_action_str(transformation.new_tile_type);
                     match drawer.ui_button(text) {
-                        Interaction::Clicked => {
+                        Interaction::Clicked | Interaction::Pressing => {
                             let transformation_task = TransformationTask {
                                 to_transform: highlighted_cells.clone(),
                                 transformation: transformation.clone(),

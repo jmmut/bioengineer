@@ -7,7 +7,9 @@ pub mod ref_mut_iterator;
 pub mod transform_cells;
 
 use crate::common::trunc::trunc_towards_neg_inf;
+use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
 use crate::{now, IVec3};
+use cell::Pressure;
 pub use cell::{
     is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, Cell, TileType,
 };
@@ -25,6 +27,7 @@ use std::cmp::Ordering;
 /// - y: up
 /// - z: left towards camera
 pub type CellIndex = IVec3;
+pub type PressureAndType = (Pressure, TileType);
 
 const MAP_SIZE: i32 = 64;
 
@@ -56,7 +59,11 @@ impl Map {
         }
     }
 
-    pub fn _new_from_pressures(cells: Vec<i32>, min_cell: CellIndex, max_cell: CellIndex) -> Self {
+    pub fn _new_from_pressures(
+        cells: Vec<Pressure>,
+        min_cell: CellIndex,
+        max_cell: CellIndex,
+    ) -> Self {
         let mut map = Self::new_for_cube(min_cell, max_cell);
         for (i, cell_index) in CellCubeIterator::new(min_cell, max_cell).enumerate() {
             map.get_cell_mut(cell_index).pressure = cells[i];
@@ -65,6 +72,21 @@ impl Map {
             } else {
                 TileType::WallRock
             };
+        }
+        map
+    }
+
+    pub fn _new_from_pressures_and_tiles(
+        cells: Vec<PressureAndType>,
+        min_cell: CellIndex,
+        max_cell: CellIndex,
+    ) -> Self {
+        let mut map = Self::new_for_cube(min_cell, max_cell);
+        for (i, cell_index) in CellCubeIterator::new(min_cell, max_cell).enumerate() {
+            (
+                map.get_cell_mut(cell_index).pressure,
+                map.get_cell_mut(cell_index).tile_type,
+            ) = cells[i];
         }
         map
     }
@@ -196,7 +218,8 @@ impl Map {
                 let tile = choose_tile(value, cell_index);
                 let cell = chunk.get_cell_mut(cell_index);
                 if is_liquid_or_air(tile) {
-                    cell.pressure = i32::max(0, 10 - 10 * cell_index.y);
+                    use VERTICAL_PRESSURE_DIFFERENCE as PRESSURE;
+                    cell.pressure = i32::max(0, PRESSURE - PRESSURE * cell_index.y);
                     // cell.pressure = if tile == TileType::Air { 0 } else {40};
                 }
                 cell.tile_type = tile
@@ -209,10 +232,23 @@ impl Map {
         self.ship_position
     }
 
-    pub fn _get_pressures(&self, min_cell: CellIndex, max_cell: CellIndex) -> Vec<i32> {
+    pub fn _get_pressures(&self, min_cell: CellIndex, max_cell: CellIndex) -> Vec<Pressure> {
         let mut cells = Vec::new();
         for cell_index in CellCubeIterator::new(min_cell, max_cell) {
             cells.push(self.get_cell(cell_index).pressure);
+        }
+        cells
+    }
+
+    pub fn _get_pressures_and_types(
+        &self,
+        min_cell: CellIndex,
+        max_cell: CellIndex,
+    ) -> Vec<PressureAndType> {
+        let mut cells = Vec::new();
+        for cell_index in CellCubeIterator::new(min_cell, max_cell) {
+            let cell = self.get_cell(cell_index);
+            cells.push((cell.pressure, cell.tile_type));
         }
         cells
     }
@@ -252,7 +288,8 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
                 Ordering::Less => TileType::DirtyWaterWall,
                 Ordering::Equal => TileType::DirtyWaterSurface,
             };
-            cell.pressure = i32::max(0, 10 - 10 * cell_index.y);
+            use VERTICAL_PRESSURE_DIFFERENCE as PRESSURE;
+            cell.pressure = i32::max(0, PRESSURE - PRESSURE * cell_index.y);
         }
     }
 }

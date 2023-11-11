@@ -63,6 +63,7 @@ pub enum ExtraTextures {
     ZoomedRobot = 32,
     Robot = 4,
     Movement = 22,
+    Ship = 31,
 }
 
 #[derive(Clone, Copy)]
@@ -154,6 +155,18 @@ pub fn is_walkable_horizontal(tile: TileType) -> bool {
 pub fn is_walkable_vertical(target_tile: TileType, origin_tile: TileType) -> bool {
     let vertical_tiles = [Stairs];
     vertical_tiles.contains(&target_tile) && vertical_tiles.contains(&origin_tile)
+}
+
+pub fn is_floodable_horizontal(tile: TileType) -> bool {
+    ![WallDirt, WallRock].contains(&tile)
+}
+
+pub fn is_floodable_from_above(tile: TileType) -> bool {
+    ![WallDirt, WallRock].contains(&tile)
+}
+
+pub fn is_floodable_from_below(tile: TileType) -> bool {
+    is_liquid_or_air(tile)
 }
 
 /// Returns whether the tile image is tall enough that it would cover a robot behind this tile.

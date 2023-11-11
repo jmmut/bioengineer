@@ -17,9 +17,11 @@ pub trait DrawerTrait {
     where
         Self: Sized;
 
+    fn set_textures(&mut self, textures: Vec<Texture2D>);
     fn screen_width(&self) -> f32;
     fn screen_height(&self) -> f32;
     fn clear_background(&self, color: Color);
+    fn texture_size(&self, texture_index: &dyn TextureIndexTrait) -> Vec2;
     fn draw_texture(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32);
 
     /// Takes texture by &dyn because of the hot-reloading machinery. You can't pass a struct
@@ -40,8 +42,19 @@ pub trait DrawerTrait {
         zoom: f32,
         color_mask: Color,
     );
+    fn draw_rotated_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        color_mask: Color,
+        rotation_radians: f32,
+    );
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
+    fn draw_circle(&self, position: Vec2, radius: f32, color: Color);
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color);
+    fn measure_text(&mut self, text: &str, font_size: f32) -> Vec2;
 
     /// all ui_* methods need to run inside ui_run. This is a restriction of using egui_miniquad :(
     fn ui_run(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ());
@@ -76,7 +89,7 @@ pub trait DrawerTrait {
     fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction;
     fn ui_checkbox(&mut self, checked: &mut bool, text: &str);
     fn ui_text(&mut self, text: &str);
-    fn measure_text(&self, text: &str, font_size: f32) -> Vec2;
+    fn ui_measure_text(&mut self, text: &str, font_size: f32) -> Vec2;
     fn ui_same_line(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ());
 
     fn set_style(
@@ -92,8 +105,9 @@ pub trait DrawerTrait {
     fn debug_ui(&mut self);
 }
 
-#[derive(Eq, PartialEq)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub enum Interaction {
+    Pressing,
     Clicked,
     Hovered,
     None,

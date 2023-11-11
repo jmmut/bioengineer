@@ -1,5 +1,5 @@
 use crate::screen::drawing_state::SubCellIndex;
-use crate::screen::input::{CellSelection, ZoomChange};
+use crate::screen::main_scene_input::{CellSelection, ZoomChange};
 use crate::world::map::CellIndex;
 use crate::world::{GameGoalState, TransformationTask};
 

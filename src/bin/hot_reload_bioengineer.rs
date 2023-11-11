@@ -2,6 +2,7 @@
 
 use bioengineer::common::cli::CliArgs;
 use clap::Parser;
+use macroquad::logging::info;
 use macroquad::window::next_frame;
 use macroquad::window::Conf;
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
@@ -9,10 +10,10 @@ use std::ffi::{c_char, c_int, c_void, CString};
 use std::path::PathBuf;
 use std::sync::mpsc::Receiver;
 
-use bioengineer::external::backends::factory;
-use bioengineer::screen::Screen;
+use bioengineer::external::backends::{factory, introduction_factory};
+use bioengineer::scene::State;
 use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
-use bioengineer::world::World;
+use bioengineer::SceneState;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;
@@ -24,7 +25,7 @@ pub const RTLD_LAZY: c_int = 0x00001;
 
 type AnyError = Box<dyn std::error::Error>;
 
-pub type DrawFrameFunction = extern "C" fn(screen: &mut Screen, world: &mut World) -> bool;
+pub type DrawFrameFunction = extern "C" fn(scene_wrapper: &mut Box<Option<SceneState>>) -> State;
 
 #[link(name = "dl")]
 extern "C" {
@@ -35,17 +36,48 @@ extern "C" {
 
 #[macroquad::main(window_conf)]
 async fn main() -> Result<(), AnyError> {
+    // let args = CliArgs::parse();
+    // let mut scene = factory(&args).await; // TODO: reload screen too (textures)
+    // while draw_frame(&mut scene) {
+    //     if should_reload(&rx) {
+    //         (draw_frame, lib_handle) = reload(lib_handle)?;
+    //     }
+    //     next_frame().await
+    // }
+    // print_cache_stats(world.game_state.profile);
+    // unload(lib_handle);
+    // Ok(())
+    //
     let args = CliArgs::parse();
-    let (mut screen, mut world) = factory(&args).await; // TODO: reload screen too (textures)
-    let (_watcher, rx) = watch()?;
     let (mut draw_frame, mut lib_handle) = load()?;
-    while draw_frame(&mut screen, &mut world) {
-        if should_reload(&rx) {
-            (draw_frame, lib_handle) = reload(lib_handle)?;
+    let (_watcher, rx) = watch()?;
+
+    {
+        let mut scene = introduction_factory(&args).await;
+        while draw_frame(&mut scene) == State::ShouldContinue {
+            if should_reload(&rx) {
+                info!("reloading lib");
+                (draw_frame, lib_handle) = reload(lib_handle)?;
+            }
+            next_frame().await
         }
-        next_frame().await
+        next_frame().await;
     }
-    print_cache_stats(world.game_state.profile);
+
+    {
+        let mut scene = factory(&args).await;
+        while draw_frame(&mut scene) == State::ShouldContinue {
+            if should_reload(&rx) {
+                info!("reloading lib");
+                (draw_frame, lib_handle) = reload(lib_handle)?;
+            }
+            next_frame().await
+        }
+        if let Some(SceneState::Main(main_scene)) = *scene {
+            print_cache_stats(main_scene.world.game_state.profile)
+        }
+    }
+
     unload(lib_handle);
     Ok(())
 }

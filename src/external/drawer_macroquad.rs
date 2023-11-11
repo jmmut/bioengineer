@@ -3,7 +3,7 @@ use macroquad::hash;
 use macroquad::input::{is_mouse_button_pressed, mouse_position, MouseButton};
 use macroquad::math::{Rect, RectOffset, Vec2};
 use macroquad::prelude::Texture2D;
-use macroquad::shapes::draw_rectangle;
+use macroquad::shapes::{draw_circle, draw_rectangle};
 use macroquad::text::{draw_text, measure_text};
 use macroquad::texture::{
     draw_texture as macroquad_draw_texture, draw_texture_ex as macroquad_draw_texture_ex,
@@ -45,6 +45,10 @@ impl DrawerTrait for DrawerMacroquad {
         d
     }
 
+    fn set_textures(&mut self, textures: Vec<Texture2D>) {
+        self.textures = textures;
+    }
+
     // fn draw(&self, game_state: &GameState) {
     // self.debug_draw_all_textures();
     // }
@@ -58,6 +62,12 @@ impl DrawerTrait for DrawerMacroquad {
     fn clear_background(&self, color: Color) {
         clear_background(color);
     }
+
+    fn texture_size(&self, texture_index: &dyn TextureIndexTrait) -> Vec2 {
+        let t = &self.textures[texture_index.get_index()];
+        Vec2::new(t.width(), t.height())
+    }
+
     fn draw_texture(&self, texture_index: &dyn TextureIndexTrait, x: f32, y: f32) {
         self.draw_transparent_texture(texture_index, x, y, 1.0, 1.0);
     }
@@ -86,11 +96,40 @@ impl DrawerTrait for DrawerMacroquad {
         macroquad_draw_texture_ex(texture, x, y, color_mask, params_from_zoom(zoom, texture));
     }
 
+    fn draw_rotated_texture(
+        &self,
+        texture: &dyn TextureIndexTrait,
+        x: f32,
+        y: f32,
+        zoom: f32,
+        color_mask: Color,
+        rotation_radians: f32,
+    ) {
+        let texture = self.textures[texture.get_index()];
+        macroquad_draw_texture_ex(
+            texture,
+            x,
+            y,
+            color_mask,
+            DrawTextureParams {
+                dest_size: Some(zoom_to_size(zoom, texture)),
+                rotation: rotation_radians,
+                ..Default::default()
+            },
+        );
+    }
+
     fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         draw_rectangle(x, y, w, h, color);
     }
+    fn draw_circle(&self, position: Vec2, radius: f32, color: Color) {
+        draw_circle(position.x, position.y, radius, color);
+    }
     fn draw_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         draw_text(text, x, y, font_size, color);
+    }
+    fn measure_text(&mut self, text: &str, font_size: f32) -> Vec2 {
+        self.ui_measure_text(text, font_size)
     }
 
     fn ui_run(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ()) {
@@ -198,7 +237,7 @@ impl DrawerTrait for DrawerMacroquad {
         root_ui().label(None, text);
     }
 
-    fn measure_text(&self, text: &str, font_size: f32) -> Vec2 {
+    fn ui_measure_text(&mut self, text: &str, font_size: f32) -> Vec2 {
         let text_dimensions = measure_text(text, Option::None, font_size as u16, 1.0);
         Vec2::new(text_dimensions.width, text_dimensions.height)
     }
@@ -365,11 +404,15 @@ fn get_interaction(x: f32, y: f32, w: f32, h: f32) -> Interaction {
 
 fn params_from_zoom(zoom: f32, texture: Texture2D) -> DrawTextureParams {
     DrawTextureParams {
-        dest_size: Some(Vec2::new(texture.height() * zoom, texture.width() * zoom)),
+        dest_size: Some(zoom_to_size(zoom, texture)),
         source: None,
         rotation: 0.0,
         flip_x: false,
         flip_y: false,
         pivot: None,
     }
+}
+
+fn zoom_to_size(zoom: f32, texture: Texture2D) -> Vec2 {
+    Vec2::new(texture.height() * zoom, texture.width() * zoom)
 }

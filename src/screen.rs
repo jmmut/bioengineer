@@ -1,4 +1,4 @@
-use crate::screen::input::InputSourceTrait;
+use crate::screen::main_scene_input::MainSceneInputTrait;
 use crate::world::World;
 use crate::Color;
 use drawer_trait::DrawerTrait;
@@ -13,19 +13,23 @@ pub mod drawer_trait;
 pub mod drawing_state;
 pub mod gui;
 pub mod hud;
-pub mod input;
+pub mod input_trait;
+pub mod main_scene_input;
 
-const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
+pub const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
 pub struct Screen {
     drawer: Box<dyn DrawerTrait>,
-    input_source: Box<dyn InputSourceTrait>,
+    input_source: Box<dyn MainSceneInputTrait>,
     gui: Gui,
     drawing_state: DrawingState,
 }
 
 impl Screen {
-    pub fn new(mut drawer: Box<dyn DrawerTrait>, input_source: Box<dyn InputSourceTrait>) -> Self {
+    pub fn new(
+        mut drawer: Box<dyn DrawerTrait>,
+        input_source: Box<dyn MainSceneInputTrait>,
+    ) -> Self {
         let gui = Gui::new(drawer.as_mut());
         let drawing_state = DrawingState::new();
         Screen {
