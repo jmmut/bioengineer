@@ -150,9 +150,6 @@ impl World {
         {
             self.queue_transformation(transformation_task);
         }
-        if let Option::Some(target_cell) = gui_actions.robot_movement {
-            self.queue_movement(target_cell);
-        }
 
         if self.game_state.should_advance_robots_this_frame() {
             self.advance_robots_task_queue();
@@ -163,6 +160,8 @@ impl World {
         self.task_queue
             .push_back(Task::Transform(transformation_task));
     }
+
+    #[allow(unused)]
     fn queue_movement(&mut self, destination: CellIndex) {
         self.task_queue.push_back(Task::Movement(destination));
     }

@@ -85,7 +85,6 @@ fn new_gui_from_input(
         // input: input.clone(),
         cell_selection: pixel_to_cell_selection(input.cell_selection, drawer, drawing),
         selected_cell_transformation: Option::None,
-        robot_movement: robot_movement_pixel_to_cell(input.robot_movement, drawer, drawing),
         go_to_robot: Option::None,
         cancel_task: Option::None,
         do_now_task: Option::None,
@@ -123,6 +122,7 @@ fn pixel_to_cell_selection(
     }
 }
 
+#[allow(unused)]
 fn robot_movement_pixel_to_cell(
     robot_movement: Option<PixelPosition>,
     drawer: &dyn DrawerTrait,

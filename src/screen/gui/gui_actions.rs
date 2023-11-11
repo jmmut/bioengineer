@@ -6,7 +6,6 @@ use crate::world::{GameGoalState, TransformationTask};
 pub struct GuiActions {
     pub cell_selection: CellSelection,
     pub selected_cell_transformation: Option<TransformationTask>,
-    pub robot_movement: Option<CellIndex>,
     pub go_to_robot: Option<CellIndex>,
     pub cancel_task: Option<usize>,
     pub do_now_task: Option<usize>,
@@ -33,7 +32,6 @@ impl Default for GuiActions {
         Self {
             cell_selection: CellSelection::no_selection(),
             selected_cell_transformation: None,
-            robot_movement: None,
             go_to_robot: None,
             cancel_task: None,
             do_now_task: None,

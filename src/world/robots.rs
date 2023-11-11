@@ -590,7 +590,6 @@ mod tests {
                 move_map_horizontally_diff: Default::default(),
                 cell_selection: CellSelection::no_selection(),
                 reset_quantities: false,
-                robot_movement: None,
                 go_to_robot: None,
                 cancel_task: None,
                 do_now_task: None,
