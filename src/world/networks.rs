@@ -28,6 +28,10 @@ impl Networks {
         networks
     }
 
+    pub fn new_default() -> Self {
+        Self::new(CellIndex::default())
+    }
+
     pub fn add(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
         if self.replace_if_present(cell_index, new_machine) {
             return true;
@@ -197,7 +201,7 @@ mod tests {
 
     #[test]
     fn test_join_networks() {
-        let mut networks = Networks::new();
+        let mut networks = Networks::new_default();
         networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
         networks.add(CellIndex::new(0, 0, 2), TileType::MachineAssembler);
         assert_eq!(networks.len(), 2);
@@ -208,7 +212,7 @@ mod tests {
 
     #[test]
     fn test_append_to_network() {
-        let mut networks = Networks::new();
+        let mut networks = Networks::new_default();
         networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
         networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
         assert_eq!(networks.len(), 1);
@@ -216,7 +220,7 @@ mod tests {
 
     #[test]
     fn test_replace_machine() {
-        let mut networks = Networks::new();
+        let mut networks = Networks::new_default();
         networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
         networks.add(CellIndex::new(0, 0, 0), TileType::MachineDrill);
         assert_eq!(networks.len(), 1);
@@ -235,7 +239,7 @@ mod tests {
 
     #[test]
     fn test_destroy_machine() {
-        let mut networks = Networks::new();
+        let mut networks = Networks::new_default();
         networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
         networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
         networks.replace_if_present(CellIndex::new(0, 0, 1), TileType::FloorRock);
@@ -247,7 +251,7 @@ mod tests {
 
     #[test]
     fn test_split_network() {
-        let mut networks = Networks::new();
+        let mut networks = Networks::new_default();
         networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
         networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
         networks.add(CellIndex::new(0, 0, 2), TileType::MachineAssembler);
@@ -259,7 +263,7 @@ mod tests {
     #[test]
     fn test_air_cleaned_is_kept_when_spliting_network() {
         let expected_air_cleaned = 1.0;
-        let mut networks = Networks::new();
+        let mut networks = Networks::new_default();
         networks.add(CellIndex::new(0, 0, 0), TileType::MachineSolarPanel);
         networks.add(CellIndex::new(0, 1, 0), TileType::MachineAirCleaner);
         networks.update();
@@ -272,24 +276,18 @@ mod tests {
         assert_eq!(networks.get_total_air_cleaned(), expected_air_cleaned);
     }
 
+    fn new_node(position: CellIndex, tile: TileType) -> Node {
+        Node {position, tile, distance_to_ship: -1, parent_position: position}
+    }
     #[test]
     fn test_connected() {
         let mut network = Network::new();
         assert_eq!(network.is_connected(), true);
-        network.add(Node {
-            position: CellIndex::new(0, 0, 0),
-            tile: TileType::Unset,
-        });
+        network.add(new_node(CellIndex::new(0, 0, 0), TileType::Unset));
         assert_eq!(network.is_connected(), true);
-        network.add(Node {
-            position: CellIndex::new(0, 0, 2),
-            tile: TileType::Unset,
-        });
+        network.add(new_node(CellIndex::new(0, 0, 2), TileType::Unset));
         assert_eq!(network.is_connected(), false);
-        network.add(Node {
-            position: CellIndex::new(0, 0, 1),
-            tile: TileType::Unset,
-        });
+        network.add(new_node(CellIndex::new(0, 0, 1), TileType::Unset));
         assert_eq!(network.is_connected(), true);
     }
 
@@ -299,10 +297,7 @@ mod tests {
         let adjacent = CellIndex::new(0, 0, 0);
         let position = CellIndex::new(0, 0, 1);
         assert_eq!(network.is_adjacent(adjacent), false);
-        network.add(Node {
-            tile: TileType::MachineDrill,
-            position,
-        });
+        network.add(new_node(position, TileType::MachineDrill));
         assert_eq!(network.is_adjacent(adjacent), true);
     }
 }

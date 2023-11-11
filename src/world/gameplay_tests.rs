@@ -8,7 +8,7 @@ mod game_goal_state_transition_tests {
 
     #[test]
     fn test_starting() {
-        let networks = Networks::new();
+        let networks = Networks::new_default();
         let mut current_goal = GameGoalState::Started;
 
         transition_goal_state(&mut current_goal, &networks, 0, 100);
@@ -18,7 +18,7 @@ mod game_goal_state_transition_tests {
 
     #[test]
     fn test_producing() {
-        let mut networks = Networks::new();
+        let mut networks = Networks::new_default();
         networks.set_production(get_goal_air_cleaned() / 2.0);
         let mut current_goal = GameGoalState::Started;
 
@@ -29,7 +29,7 @@ mod game_goal_state_transition_tests {
 
     #[test]
     fn test_reaching_production() {
-        let mut networks = Networks::new();
+        let mut networks = Networks::new_default();
         networks.set_production(get_goal_air_cleaned());
         let mut current_goal = GameGoalState::Started;
 
@@ -40,7 +40,7 @@ mod game_goal_state_transition_tests {
 
     #[test]
     fn test_dismantling() {
-        let mut networks = Networks::new();
+        let mut networks = Networks::new_default();
         networks.add(CellIndex::default(), TileType::MachineAirCleaner);
         networks.set_production(get_goal_air_cleaned());
         let mut current_goal = GameGoalState::ReachedProduction;
@@ -52,7 +52,7 @@ mod game_goal_state_transition_tests {
 
     #[test]
     fn test_finishing() {
-        let mut networks = Networks::new();
+        let mut networks = Networks::new_default();
         networks.set_production(get_goal_air_cleaned());
         let mut current_goal = GameGoalState::ReachedProduction;
 
