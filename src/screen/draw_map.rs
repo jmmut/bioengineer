@@ -6,7 +6,6 @@ use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::main_scene_input::PixelPosition;
-use crate::world::map::cell::ExtraTextures;
 use crate::world::map::{is_covering, Cell, CellIndex, TileType};
 use crate::world::robots::Robot;
 use crate::world::World;
@@ -52,11 +51,6 @@ fn draw_cell(
     }
     // draw_pressure_number(drawer, cell_index, screen_width, drawing, max_cell, cell)
     // draw_cell_hit_box(drawer, game_state, cell_index);
-    if world.robots.contains(&Robot {
-        position: cell_index,
-    }) {
-        drawer.draw_transparent_texture(&ExtraTextures::Robot, pixel.x, pixel.y, drawing.zoom, 1.0);
-    }
 }
 
 fn get_opacity(
