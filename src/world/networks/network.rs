@@ -9,9 +9,12 @@ pub struct Network {
     pub nodes: Vec<Node>,
 }
 
+#[derive(Copy, Clone)]
 pub struct Node {
     pub position: CellIndex,
     pub tile: TileType,
+    pub distance_to_ship: i64,
+    pub parent_position: CellIndex,
 }
 
 const POWER_PER_SOLAR_PANEL: f64 = 1000.0;
@@ -119,6 +122,14 @@ impl Network {
         }
         Option::None
     }
+    pub fn get_node(&self, cell_index: CellIndex) -> Option<Node> {
+        for node in &self.nodes {
+            if node.position == cell_index {
+                return Some(*node);
+            }
+        }
+        None
+    }
 
     pub fn replace_if_present(
         &mut self,
@@ -191,13 +202,6 @@ impl Network {
         self.nodes.push(node);
     }
 
-    pub fn copy_into_networks(&self) -> Networks {
-        let mut new_networks = Networks::new();
-        for node in &self.nodes {
-            new_networks.add(node.position, node.tile);
-        }
-        new_networks
-    }
 
     pub fn join(&mut self, other: Network) {
         for node in other.nodes {
@@ -219,5 +223,15 @@ fn adjacent_positions() -> [CellIndexDiff; 6] {
         CellIndexDiff::new(0, -1, 0),
         CellIndexDiff::new(0, 0, 1),
         CellIndexDiff::new(0, 0, -1),
+    ]
+}
+pub fn neighbours(a: CellIndex) -> [CellIndexDiff; 6] {
+    [
+        a + CellIndexDiff::new(1, 0, 0),
+        a + CellIndexDiff::new(-1, 0, 0),
+        a + CellIndexDiff::new(0, 1, 0),
+        a + CellIndexDiff::new(0, -1, 0),
+        a + CellIndexDiff::new(0, 0, 1),
+        a + CellIndexDiff::new(0, 0, -1),
     ]
 }

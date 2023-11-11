@@ -2,7 +2,9 @@ use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::screen::gui::{GuiActions, FONT_SIZE};
-use crate::world::map::{is_liquid_or_air, Cell, TileType};
+use crate::world::map::{is_liquid_or_air, Cell, TileType, CellIndex};
+use crate::world::map::cell::is_networkable;
+use crate::world::networks::Networks;
 use crate::world::World;
 
 pub fn draw_cell_info(
@@ -22,7 +24,7 @@ pub fn draw_cell_info(
         let line_height = FONT_SIZE * 1.5;
         let panel_height = 10.0 * line_height;
         let cell = world.map.get_cell(*selected);
-        let cell_description = cell_to_str(cell);
+        let cell_description = cell_to_str(cell, *selected, &world.networks);
         let _interaction = drawer.ui_named_group(
             panel_title,
             drawer.screen_width() - panel_width - panel_margin,
@@ -39,7 +41,7 @@ pub fn draw_cell_info(
     gui_actions
 }
 
-fn cell_to_str(cell: &Cell) -> Vec<String> {
+fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> {
     let tile = cell.tile_type;
     let basic_name = match tile {
         TileType::Unset => "Unset cell",
@@ -69,6 +71,14 @@ fn cell_to_str(cell: &Cell) -> Vec<String> {
         description.push(format!("- Liquid pressure: {} ", cell.pressure));
         if cell.pressure == 0 && tile != TileType::Air {
             // println!("wut");
+        }
+    }
+    if is_networkable(tile) {
+        description.push("- Networking:".to_string());
+        let option = networks.get(pos);
+        if let Some(node) = option {
+            description.push(format!("  pos: ({} {} {})", node.position.x, node.position.y, node.position.z));
+            description.push(format!("  distance to ship: {}", node.distance_to_ship));
         }
     }
     // TODO: print if a machine is working or not?

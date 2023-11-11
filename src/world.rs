@@ -2,7 +2,7 @@ pub mod fluids;
 pub mod game_state;
 mod gameplay_tests;
 pub mod map;
-mod networks;
+pub mod networks;
 pub mod robots;
 
 use std::collections::{HashSet, VecDeque};
@@ -81,7 +81,7 @@ impl World {
             fluids,
             robots,
             task_queue: VecDeque::new(),
-            networks: Networks::new(),
+            networks: Networks::new(ship_position.unwrap()),
             aging_tiles: HashSet::new(),
             life: HashSet::new(),
             game_state,
