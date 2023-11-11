@@ -2,8 +2,8 @@ use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::screen::gui::{GuiActions, FONT_SIZE};
-use crate::world::map::{is_liquid_or_air, Cell, TileType, CellIndex};
 use crate::world::map::cell::is_networkable;
+use crate::world::map::{is_liquid_or_air, Cell, CellIndex, TileType};
 use crate::world::networks::Networks;
 use crate::world::World;
 
@@ -77,9 +77,15 @@ fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> 
         description.push("- Networking:".to_string());
         let option = networks.get(pos);
         if let Some(node) = option {
-            description.push(format!("  pos: ({} {} {})", node.position.x, node.position.y, node.position.z));
+            description.push(format!(
+                "  pos: ({} {} {})",
+                node.position.x, node.position.y, node.position.z
+            ));
             description.push(format!("  distance to ship: {}", node.distance_to_ship));
         }
+    } else if !networks.is_adjacent(pos) {
+        description.push("- Networking:".to_string());
+        description.push("  Unreachable".to_string());
     }
     // TODO: print if a machine is working or not?
     // TODO: print contents of wires?

@@ -23,7 +23,7 @@ use robots::{
 
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::{DEFAULT_ADVANCING_FLUIDS, DEFAULT_PROFILE_ENABLED};
-use crate::world::map::cell::{ages, transition_aging_tile};
+use crate::world::map::cell::{ages, is_networkable, transition_aging_tile};
 use crate::world::map::{Cell, TileType};
 
 type AgeInMinutes = i64;
@@ -215,8 +215,18 @@ impl World {
                     &reachable_position,
                 ) {
                     let cell = self.map.get_cell_mut(reachable_position);
-                    transform.transformation.apply(cell);
-                    self.networks.add(reachable_position, cell.tile_type);
+                    let mut cell_copy = cell.clone();
+                    transform.transformation.apply(&mut cell_copy);
+                    if is_networkable(cell_copy.tile_type) {
+                        let added = self.networks.add(reachable_position, cell_copy.tile_type);
+                        if !added {
+                            // transformation can't be done on this cell,
+                            // probably because it's a machine not connected to the ship
+                            transform.to_transform.insert(reachable_position);
+                            return Some(transform);
+                        }
+                    }
+                    *cell = cell_copy;
                     if ages(cell.tile_type) {
                         self.aging_tiles.insert(reachable_position);
                         self.life.insert(reachable_position);

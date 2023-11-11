@@ -194,6 +194,7 @@ pub fn is_networkable(tile: TileType) -> bool {
         MachineAirCleaner,
         MachineDrill,
         MachineSolarPanel,
+        MachineShip,
     ]
     .contains(&tile)
 }

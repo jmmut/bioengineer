@@ -73,7 +73,7 @@ impl Networks {
             true
         } else {
             false
-        }
+        };
     }
 
     fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
@@ -95,7 +95,7 @@ impl Networks {
         return false;
     }
 
-    pub fn get_adjacent_networks(&self, cell_index: CellIndex) -> Vec<usize> {
+    fn get_adjacent_networks(&self, cell_index: CellIndex) -> Vec<usize> {
         let mut adjacents = Vec::new();
         for (i, network) in self.networks.iter().enumerate() {
             if network.is_adjacent(cell_index) {
@@ -103,6 +103,9 @@ impl Networks {
             }
         }
         adjacents
+    }
+    pub fn is_adjacent(&self, cell_index: CellIndex) -> bool {
+        self.get_adjacent_networks(cell_index).len() > 0
     }
 
     fn join_networks_and_add_node(&mut self, node: Node, kept: usize, to_be_merged: &[usize]) {
@@ -165,9 +168,7 @@ impl Networks {
     }
 
     fn split_network(&mut self, network_index: usize) {
-        let network_to_split = self
-            .networks
-            .swap_remove(network_index);
+        let network_to_split = self.networks.swap_remove(network_index);
         for node in network_to_split.nodes {
             self.add(node.position, node.tile);
         }

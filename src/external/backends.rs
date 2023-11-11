@@ -9,9 +9,9 @@ use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::Screen;
 use crate::world::World;
 use crate::SceneState;
+use juquad::texture_loader::TextureLoader;
 use macroquad::texture::Texture2D;
 use std::str::FromStr;
-use juquad::texture_loader::TextureLoader;
 
 pub type Seconds = f64;
 

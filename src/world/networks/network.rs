@@ -202,7 +202,6 @@ impl Network {
         self.nodes.push(node);
     }
 
-
     pub fn join(&mut self, other: Network) {
         for node in other.nodes {
             self.add(node);
