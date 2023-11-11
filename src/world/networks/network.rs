@@ -25,6 +25,7 @@ const AIR_CLEANED_PER_CLEANER: f64 = 1.0;
 pub enum Replacement {
     SplitNetwork,
     Regular,
+    Forbidden,
     None,
 }
 
@@ -139,6 +140,9 @@ impl Network {
         let mut index_to_change = Option::None;
         for (i, node) in self.nodes.iter().enumerate() {
             if node.position == cell_index {
+                if node.tile == TileType::MachineShip {
+                    return Replacement::Forbidden;
+                }
                 index_to_change = Option::Some(i);
                 break;
             }

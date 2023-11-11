@@ -67,6 +67,9 @@ fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> 
         TileType::TreeDead => "Tree (Dead)",
     };
     let mut description = vec![basic_name.to_string()];
+    if tile == TileType::MachineShip {
+        description.push("Can't be deconstructed".to_string());
+    }
     if is_liquid_or_air(tile) {
         description.push(format!("- Liquid pressure: {} ", cell.pressure));
         if cell.pressure == 0 && tile != TileType::Air {

@@ -8,24 +8,26 @@ use std::slice::Iter;
 
 pub struct Networks {
     ship_position: CellIndex,
-    networks: Vec<Network>,
+    ship_network: Network,
+    unconnected_networks: Vec<Network>,
     air_cleaned: f64,
 }
 
 impl Networks {
     pub fn new(ship_position: CellIndex) -> Self {
-        let mut networks = Networks {
-            ship_position,
-            networks: Vec::new(),
-            air_cleaned: 0.0,
-        };
-        networks.add_new_network_with_node(Node {
+        let mut network = Network::new();
+        network.add(Node {
             position: ship_position,
             tile: TileType::MachineShip,
             distance_to_ship: 0,
             parent_position: ship_position,
         });
-        networks
+        Networks {
+            ship_position,
+            ship_network: network,
+            unconnected_networks: Vec::new(),
+            air_cleaned: 0.0,
+        }
     }
 
     pub fn new_default() -> Self {
@@ -42,15 +44,11 @@ impl Networks {
         let neighbour_positions = neighbours(cell_index);
         let mut min_distance_to_ship = None;
         let mut parent_node = None;
-        let mut parent_network = None;
-        for (i_network, network) in self.networks.iter().enumerate() {
-            for neighbour_pos in &neighbour_positions {
-                if let Some(neighbour) = network.get_node(*neighbour_pos) {
-                    if min_distance_to_ship.map_or(true, |min| neighbour.distance_to_ship < min) {
-                        min_distance_to_ship = Some(neighbour.distance_to_ship);
-                        parent_node = Some(neighbour);
-                        parent_network = Some(i_network);
-                    }
+        for neighbour_pos in &neighbour_positions {
+            if let Some(neighbour) = self.ship_network.get_node(*neighbour_pos) {
+                if min_distance_to_ship.map_or(true, |min| neighbour.distance_to_ship < min) {
+                    min_distance_to_ship = Some(neighbour.distance_to_ship);
+                    parent_node = Some(neighbour);
                 }
             }
         }
@@ -61,7 +59,9 @@ impl Networks {
                 distance_to_ship: parent.distance_to_ship + 1,
                 parent_position: parent.position,
             };
+            self.ship_network.add(node);
             let adjacent_networks = self.get_adjacent_networks(cell_index);
+            for network.
             match adjacent_networks.split_first() {
                 Option::Some((index_of_network_kept, indexes_of_networks_to_be_merged)) => {
                     self.join_networks_and_add_node(
@@ -82,18 +82,19 @@ impl Networks {
     }
 
     fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
-        for (i, network) in &mut self.networks.iter_mut().enumerate() {
+        for (i, network) in &mut self.unconnected_networks.iter_mut().enumerate() {
             match network.replace_if_present(cell_index, new_machine) {
                 Replacement::SplitNetwork => {
                     self.split_network(i);
                     return true;
                 }
                 Replacement::Regular => {
-                    if self.networks.get(i).unwrap().len() == 0 {
-                        self.networks.remove(i);
+                    if self.unconnected_networks.get(i).unwrap().len() == 0 {
+                        self.unconnected_networks.remove(i);
                     }
                     return true;
                 }
+                Replacement::Forbidden => {return false;}
                 Replacement::None => {}
             }
         }
@@ -102,7 +103,7 @@ impl Networks {
 
     fn get_adjacent_networks(&self, cell_index: CellIndex) -> Vec<usize> {
         let mut adjacents = Vec::new();
-        for (i, network) in self.networks.iter().enumerate() {
+        for (i, network) in self.unconnected_networks.iter().enumerate() {
             if network.is_adjacent(cell_index) {
                 adjacents.push(i);
             }
@@ -116,9 +117,9 @@ impl Networks {
     fn join_networks_and_add_node(&mut self, node: Node, kept: usize, to_be_merged: &[usize]) {
         let mut networks_to_be_merged = Vec::new();
         for i in to_be_merged.iter().rev() {
-            networks_to_be_merged.push(self.networks.remove(*i));
+            networks_to_be_merged.push(self.unconnected_networks.remove(*i));
         }
-        let network_kept = self.networks.get_mut(kept).unwrap();
+        let network_kept = self.unconnected_networks.get_mut(kept).unwrap();
         while let Option::Some(network_to_be_merged) = networks_to_be_merged.pop() {
             network_kept.join(network_to_be_merged);
         }
@@ -128,30 +129,30 @@ impl Networks {
     fn add_new_network_with_node(&mut self, node: Node) {
         let mut network = Network::new();
         network.add(node);
-        self.networks.push(network);
+        self.unconnected_networks.push(network);
     }
 
     pub fn update(&mut self) {
-        for network in self.networks.iter_mut() {
+        for network in self.unconnected_networks.iter_mut() {
             let update = network.update();
             self.air_cleaned += update.air_cleaned;
         }
     }
 
     pub fn len(&self) -> usize {
-        self.networks.len()
+        self.unconnected_networks.len()
     }
 
     pub fn get_non_ship_machine_count(&self) -> i32 {
         let mut machines = 0;
-        for network in &self.networks {
+        for network in &self.unconnected_networks {
             machines += network.len() as i32;
         }
         machines -1
     }
 
     pub fn iter(&self) -> Iter<Network> {
-        self.networks.iter()
+        self.unconnected_networks.iter()
     }
 
     pub fn get_total_air_cleaned(&self) -> f64 {
@@ -173,19 +174,19 @@ impl Networks {
     }
 
     fn split_network(&mut self, network_index: usize) {
-        let network_to_split = self.networks.swap_remove(network_index);
+        let network_to_split = self.unconnected_networks.swap_remove(network_index);
         for node in network_to_split.nodes {
             self.add(node.position, node.tile);
         }
     }
 
     pub fn clear(&mut self) {
-        self.networks.clear();
+        self.unconnected_networks.clear();
         self.reset_production();
     }
 
     pub fn get(&self, position: CellIndex) -> Option<Node> {
-        for network in &self.networks {
+        for network in &self.unconnected_networks {
             let node_opt = network.get_node(position);
             if node_opt.is_some() {
                 return node_opt;
@@ -208,7 +209,7 @@ mod tests {
         assert_eq!(networks.len(), 2);
         networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
         assert_eq!(networks.len(), 1);
-        assert_eq!(networks.networks.get(0).unwrap().nodes.len(), 3);
+        assert_eq!(networks.unconnected_networks.get(0).unwrap().nodes.len(), 3);
     }
 
     #[test]
@@ -227,7 +228,7 @@ mod tests {
         assert_eq!(networks.len(), 1);
         assert_eq!(
             networks
-                .networks
+                .unconnected_networks
                 .get(0)
                 .unwrap()
                 .nodes
@@ -245,7 +246,7 @@ mod tests {
         networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
         networks.replace_if_present(CellIndex::new(0, 0, 1), TileType::FloorRock);
         assert_eq!(networks.len(), 1);
-        assert_eq!(networks.networks.get(0).unwrap().nodes.len(), 1);
+        assert_eq!(networks.unconnected_networks.get(0).unwrap().nodes.len(), 1);
         networks.replace_if_present(CellIndex::new(0, 0, 0), TileType::FloorRock);
         assert_eq!(networks.len(), 0);
     }
