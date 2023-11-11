@@ -76,7 +76,8 @@ impl Networks {
             }
             true
         } else {
-            false
+            self.add_new_network_with_node(Node { position: cell_index, tile: new_machine, distance_to_ship: 0, parent_position: cell_index });
+            true
         };
     }
 
@@ -141,12 +142,12 @@ impl Networks {
         self.networks.len()
     }
 
-    pub fn get_machine_count(&self) -> usize {
+    pub fn get_non_ship_machine_count(&self) -> i32 {
         let mut machines = 0;
         for network in &self.networks {
-            machines += network.len();
+            machines += network.len() as i32;
         }
-        machines
+        machines -1
     }
 
     pub fn iter(&self) -> Iter<Network> {

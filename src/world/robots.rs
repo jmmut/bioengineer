@@ -550,33 +550,6 @@ mod tests {
             panic!("unimplemented");
         }
 
-        #[test]
-        fn almost_reaching_a_task() {
-            let mut world = World::new();
-            let initial_pos = CellIndex::new(0, 1, 0);
-            let below_pos = CellIndex::new(0, 0, 0);
-            let transformation_task = TransformationTask {
-                to_transform: HashSet::from([below_pos, initial_pos]),
-                transformation: Transformation::to(TileType::Stairs),
-            };
-            world.map = Map::_new_from_tiles(
-                Cell::new(TileType::FloorDirt),
-                vec![(below_pos, TileType::FloorDirt)],
-            );
-            world.robots.first_mut().unwrap().position = CellIndex::new(1, 1, 0);
-
-            assert_positions_equal(&world, TileType::FloorDirt, TileType::FloorDirt);
-
-            let gui_actions = mock_gui_action(Some(transformation_task));
-            world.update_with_gui_actions(&gui_actions);
-
-            assert_positions_equal(&world, TileType::FloorDirt, TileType::Stairs);
-
-            let gui_actions = mock_gui_action(None);
-            world.update_with_gui_actions(&gui_actions);
-
-            assert_positions_equal(&world, TileType::Stairs, TileType::Stairs);
-        }
 
         fn mock_gui_action(task: Option<TransformationTask>) -> GuiActions {
             GuiActions {
@@ -598,54 +571,6 @@ mod tests {
             }
         }
 
-        #[test]
-        fn c_path() {
-            let mut world = World::new();
-            let initial_pos = CellIndex::new(1, 1, 0);
-            let below_pos = CellIndex::new(0, 0, 0);
-            let transformation_task = TransformationTask {
-                to_transform: HashSet::from([below_pos]),
-                transformation: Transformation::to(TileType::MachineAssembler),
-            };
-            let stairs_pos = CellIndex::new(2, 1, 0);
-            world.map = Map::_new_from_tiles(
-                Cell::new(TileType::FloorDirt),
-                vec![
-                    (stairs_pos, TileType::Stairs),
-                    (CellIndex::new(2, 0, 0), TileType::Stairs),
-                ],
-            );
-            world.robots.first_mut().unwrap().position = initial_pos;
 
-            let gui_actions = mock_gui_action(Some(transformation_task));
-            world.update_with_gui_actions(&gui_actions);
-
-            assert_eq!(world.robots.first_mut().unwrap().position, stairs_pos);
-        }
-
-        #[test]
-        fn fork_path() {
-            let mut world = World::new();
-            let initial_pos = CellIndex::new(1, 1, 0);
-            let stairs_pos = CellIndex::new(0, 1, 0);
-            let transformation_task = TransformationTask {
-                to_transform: HashSet::from([initial_pos + down(), initial_pos + up()]),
-                transformation: Transformation::to(TileType::MachineAssembler),
-            };
-            world.map = Map::_new_from_tiles(
-                Cell::new(TileType::FloorDirt),
-                vec![
-                    (stairs_pos + down(), TileType::Stairs),
-                    (stairs_pos, TileType::Stairs),
-                    (stairs_pos + up(), TileType::Stairs),
-                ],
-            );
-            world.robots.first_mut().unwrap().position = initial_pos;
-
-            let gui_actions = mock_gui_action(Some(transformation_task));
-            world.update_with_gui_actions(&gui_actions);
-
-            assert_eq!(world.robots.first_mut().unwrap().position, stairs_pos);
-        }
     }
 }

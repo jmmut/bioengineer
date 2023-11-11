@@ -58,7 +58,7 @@ fn maybe_draw_goals(
     return if drawing.top_bar_showing == TopBarShowing::Goals {
         let text_lines = goals_text_lines(
             world.networks.get_total_air_cleaned(),
-            world.networks.get_machine_count(),
+            world.networks.get_non_ship_machine_count(),
             world.life.len(),
         );
         draw_pop_up(drawer, drawing, "Goals", &text_lines, |_| {})
@@ -138,12 +138,12 @@ fn toggle_showing_or_none(top_bar_showing: &mut TopBarShowing, showing: TopBarSh
     };
 }
 
-fn goals_text_lines(air_cleaned: f64, machines: usize, trees: usize) -> Vec<String> {
+fn goals_text_lines(air_cleaned: f64, machines: i32, trees: usize) -> Vec<String> {
     fn get_symbol_is_done(done: bool) -> &'static str {
         if done {
-            "✅"
+            ""
         } else {
-            "❌"
+            ""
         }
     }
     let goal_air = get_goal_air_cleaned();

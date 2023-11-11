@@ -360,7 +360,7 @@ fn transition_goal_state(
             *current = GameGoalState::ReachedProduction;
         }
     } else if *current == GameGoalState::ReachedProduction {
-        if networks.len() == 0 && life_count >= LIFE_COUNT_REQUIRED_FOR_WINNING {
+        if networks.get_non_ship_machine_count() == 0 && life_count >= LIFE_COUNT_REQUIRED_FOR_WINNING {
             *current = GameGoalState::Finished(age);
         }
     }
