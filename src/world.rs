@@ -152,7 +152,8 @@ impl World {
         }
 
         if self.game_state.should_advance_robots_this_frame() {
-            self.advance_robots_task_queue();
+            self.advance_construction_task_queue();
+            // self.advance_robots_task_queue();
         }
     }
 
@@ -164,6 +165,38 @@ impl World {
     #[allow(unused)]
     fn queue_movement(&mut self, destination: CellIndex) {
         self.task_queue.push_back(Task::Movement(destination));
+    }
+
+    fn advance_construction_task_queue(&mut self) {
+        if let Some(task) = self.task_queue.pop_front() {
+            match task {
+                Task::Transform(TransformationTask{to_transform, transformation}) => {
+                    let mut remaining = HashSet::new();
+                    let mut adjacent = Vec::<CellIndex>::new();
+                    for pos_to_transform in to_transform {
+                        if self.networks.is_adjacent(pos_to_transform) {
+                            adjacent.push(pos_to_transform);
+                        } else {
+                            remaining.insert(pos_to_transform);
+                        }
+                    }
+                    for pos_to_transform in adjacent {
+                        let cell = self.map.get_cell_mut(pos_to_transform);
+                        let mut cell_copy = cell.clone();
+                        transformation.apply(&mut cell_copy);
+                        if self.networks.add(pos_to_transform, cell_copy.tile_type) {
+                            *cell = cell_copy;
+                        } else {
+                            remaining.insert(pos_to_transform);
+                        }
+                    }
+                    if remaining.len() > 0 {
+                        self.task_queue.push_front(Task::Transform(TransformationTask {to_transform: remaining, transformation}));
+                    }
+                }
+                Task::Movement(_) => {}
+            }
+        }
     }
 
     fn advance_robots_task_queue(&mut self) {
