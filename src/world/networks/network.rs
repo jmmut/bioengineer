@@ -13,8 +13,6 @@ pub struct Network {
 pub struct Node {
     pub position: CellIndex,
     pub tile: TileType,
-    pub distance_to_ship: i64,
-    pub parent_position: CellIndex,
 }
 
 const POWER_PER_SOLAR_PANEL: f64 = 1000.0;

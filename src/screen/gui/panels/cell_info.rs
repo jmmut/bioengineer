@@ -84,9 +84,8 @@ fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> 
                 "  pos: ({} {} {})",
                 node.position.x, node.position.y, node.position.z
             ));
-            description.push(format!("  distance to ship: {}", node.distance_to_ship));
         }
-    } else if !networks.is_adjacent(pos) {
+    } else if !networks.is_adjacent_to_ship_network(pos) {
         description.push("- Networking:".to_string());
         description.push("  Unreachable".to_string());
     }

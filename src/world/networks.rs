@@ -19,8 +19,6 @@ impl Networks {
         network.add(Node {
             position: ship_position,
             tile: TileType::MachineShip,
-            distance_to_ship: 0,
-            parent_position: ship_position,
         });
         Networks {
             ship_position,
@@ -41,44 +39,29 @@ impl Networks {
         if !is_networkable(new_machine) {
             return false;
         }
-        let neighbour_positions = neighbours(cell_index);
-        let mut min_distance_to_ship = None;
-        let mut parent_node = None;
-        for neighbour_pos in &neighbour_positions {
-            if let Some(neighbour) = self.ship_network.get_node(*neighbour_pos) {
-                if min_distance_to_ship.map_or(true, |min| neighbour.distance_to_ship < min) {
-                    min_distance_to_ship = Some(neighbour.distance_to_ship);
-                    parent_node = Some(neighbour);
-                }
-            }
-        }
-        return if let Some(parent) = parent_node {
-            let node = Node {
-                position: cell_index,
-                tile: new_machine,
-                distance_to_ship: parent.distance_to_ship + 1,
-                parent_position: parent.position,
-            };
+        let node = Node {
+            position: cell_index,
+            tile: new_machine,
+        };
+        if self.ship_network.is_adjacent(cell_index) {
             self.ship_network.add(node);
             let adjacent_networks = self.get_adjacent_networks(cell_index);
-            for network.
-            match adjacent_networks.split_first() {
-                Option::Some((index_of_network_kept, indexes_of_networks_to_be_merged)) => {
-                    self.join_networks_and_add_node(
-                        node,
-                        *index_of_network_kept,
-                        indexes_of_networks_to_be_merged,
-                    );
-                }
-                Option::None => {
-                    self.add_new_network_with_node(node);
+            for i_network in adjacent_networks.iter().rev() {
+                let joining_network = self.unconnected_networks.remove(*i_network);
+                for unconnected_nodes in joining_network.nodes {
+                    self.ship_network.add(unconnected_nodes);
                 }
             }
-            true
+            return true
+        }
+        // not connected to ship_network
+        let adjacent_networks = self.get_adjacent_networks(cell_index);
+        if adjacent_networks.len() > 0 {
+            self.join_networks_and_add_node(node, adjacent_networks[0], &adjacent_networks);
         } else {
-            self.add_new_network_with_node(Node { position: cell_index, tile: new_machine, distance_to_ship: 0, parent_position: cell_index });
-            true
+            self.add_new_network_with_node(node);
         };
+        return true;
     }
 
     fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
@@ -110,8 +93,11 @@ impl Networks {
         }
         adjacents
     }
-    pub fn is_adjacent(&self, cell_index: CellIndex) -> bool {
+    pub fn is_adjacent_to_unconnected_networks(&self, cell_index: CellIndex) -> bool {
         self.get_adjacent_networks(cell_index).len() > 0
+    }
+    pub fn is_adjacent_to_ship_network(&self, cell_index: CellIndex) -> bool {
+        self.ship_network.is_adjacent(cell_index)
     }
 
     fn join_networks_and_add_node(&mut self, node: Node, kept: usize, to_be_merged: &[usize]) {
@@ -193,6 +179,10 @@ impl Networks {
             }
         }
         None
+    }
+    pub fn is_in_ship_network(&self, position: CellIndex) -> bool {
+        let node_opt = self.ship_network.get_node(position);
+        return node_opt.is_some();
     }
 }
 

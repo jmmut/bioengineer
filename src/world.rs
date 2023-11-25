@@ -174,7 +174,7 @@ impl World {
                     let mut remaining = HashSet::new();
                     let mut adjacent = Vec::<CellIndex>::new();
                     for pos_to_transform in to_transform {
-                        if self.networks.is_adjacent(pos_to_transform) {
+                        if self.networks.is_adjacent_to_ship_network(pos_to_transform) {
                             adjacent.push(pos_to_transform);
                         } else {
                             remaining.insert(pos_to_transform);
