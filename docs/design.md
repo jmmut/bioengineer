@@ -77,3 +77,78 @@ home, with industrial touches (think Factorio, Rammstein or Slipknot, but chill)
 you introduce life, the music must convey nature and life (think flutes).
 
 
+## Making the game design more specific
+
+- how do you play
+- mechanics
+- controls
+- levels
+- progression
+- story
+- ending
+- characters
+- worldbuilding
+- graphics
+- UI
+- hours of content
+- payment
+- platform (touchscreen?) and requirement (licenses, hardware)
+
+## Further plan
+
+### Resources
+
+- requires other people?
+- budget
+
+### Proof of concept
+
+make sure it's possible
+
+### prototype iteratively
+
+- version of the game ugly but fun
+- change things that don't work
+
+### Demo
+
+graphics and music close to finished, all mechanics but not all content.
+
+### Funding
+
+publisher or crowdfunding
+
+### trailer and steam page
+
+get wishlists
+
+### publish the demo
+
+- get feedback, create community
+- send trailer to press
+- send demo to streamers
+
+### review this Game Design Document
+
+answer any remaining questions
+
+## Production of the full game
+
+- calendar plan
+- make alpha version (main storyline complete, may lack secondary missions or
+secondary objects)
+- make beta version (release candidate for final testing and polishing)
+- launch marketing: update trailer with date announcement, update store pages
+- polish beta
+- launch trailer: 2-3 weeks before send keys to press and streamers
+
+## Post-production
+
+maintain and maybe expand:
+- bug reports
+- new languages
+- extra content
+
+
+
+
