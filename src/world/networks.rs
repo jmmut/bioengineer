@@ -54,10 +54,14 @@ impl Networks {
             }
             return true
         }
+        if cell_index == self.ship_position {
+            self.ship_network.add(node);
+            return true
+        }
         // not connected to ship_network
         let adjacent_networks = self.get_adjacent_networks(cell_index);
         if adjacent_networks.len() > 0 {
-            self.join_networks_and_add_node(node, adjacent_networks[0], &adjacent_networks);
+            self.join_networks_and_add_node(node, &adjacent_networks);
         } else {
             self.add_new_network_with_node(node);
         };
@@ -100,12 +104,15 @@ impl Networks {
         self.ship_network.is_adjacent(cell_index)
     }
 
-    fn join_networks_and_add_node(&mut self, node: Node, kept: usize, to_be_merged: &[usize]) {
+    fn join_networks_and_add_node(&mut self, node: Node, to_be_merged: &[usize]) {
+        assert!(to_be_merged.len() > 0);
+        let to_be_removed = &to_be_merged[1..];
+        let kept = to_be_merged[0];
         let mut networks_to_be_merged = Vec::new();
-        for i in to_be_merged.iter().rev() {
+        for i in to_be_removed.iter().rev() {
             networks_to_be_merged.push(self.unconnected_networks.remove(*i));
         }
-        let network_kept = self.unconnected_networks.get_mut(kept).unwrap();
+        let mut network_kept = self.unconnected_networks.get_mut(kept).unwrap();
         while let Option::Some(network_to_be_merged) = networks_to_be_merged.pop() {
             network_kept.join(network_to_be_merged);
         }
@@ -119,22 +126,23 @@ impl Networks {
     }
 
     pub fn update(&mut self) {
+        self.air_cleaned += self.ship_network.update().air_cleaned;
         for network in self.unconnected_networks.iter_mut() {
-            let update = network.update();
-            self.air_cleaned += update.air_cleaned;
+            self.air_cleaned += network.update().air_cleaned;
         }
     }
 
     pub fn len(&self) -> usize {
-        self.unconnected_networks.len()
+        self.unconnected_networks.len() +1 // plus the ship network
     }
 
     pub fn get_non_ship_machine_count(&self) -> i32 {
         let mut machines = 0;
+        machines += self.ship_network.len() as i32 -1;
         for network in &self.unconnected_networks {
             machines += network.len() as i32;
         }
-        machines -1
+        machines
     }
 
     pub fn iter(&self) -> Iter<Network> {
@@ -194,11 +202,11 @@ mod tests {
     #[test]
     fn test_join_networks() {
         let mut networks = Networks::new_default();
-        networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
-        networks.add(CellIndex::new(0, 0, 2), TileType::MachineAssembler);
+        networks.add(CellIndex::new(0, 0,10), TileType::MachineAssembler);
+        networks.add(CellIndex::new(0, 0, 12), TileType::MachineAssembler);
+        assert_eq!(networks.len(), 3);
+        networks.add(CellIndex::new(0, 0, 11), TileType::MachineAssembler);
         assert_eq!(networks.len(), 2);
-        networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
-        assert_eq!(networks.len(), 1);
         assert_eq!(networks.unconnected_networks.get(0).unwrap().nodes.len(), 3);
     }
 
@@ -213,9 +221,10 @@ mod tests {
     #[test]
     fn test_replace_machine() {
         let mut networks = Networks::new_default();
-        networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
-        networks.add(CellIndex::new(0, 0, 0), TileType::MachineDrill);
-        assert_eq!(networks.len(), 1);
+        networks.add(CellIndex::new(0, 0, 10), TileType::MachineAssembler);
+        networks.add(CellIndex::new(0, 0, 10), TileType::MachineDrill);
+        assert_eq!(networks.len(), 2);
+        assert_eq!(networks.get_non_ship_machine_count(), 1);
         assert_eq!(
             networks
                 .unconnected_networks
@@ -232,24 +241,24 @@ mod tests {
     #[test]
     fn test_destroy_machine() {
         let mut networks = Networks::new_default();
-        networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
-        networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
-        networks.replace_if_present(CellIndex::new(0, 0, 1), TileType::FloorRock);
-        assert_eq!(networks.len(), 1);
+        networks.add(CellIndex::new(0, 0, 10), TileType::MachineAssembler);
+        networks.add(CellIndex::new(0, 0, 11), TileType::MachineAssembler);
+        networks.replace_if_present(CellIndex::new(0, 0, 11), TileType::FloorRock);
+        assert_eq!(networks.len(), 2);
         assert_eq!(networks.unconnected_networks.get(0).unwrap().nodes.len(), 1);
-        networks.replace_if_present(CellIndex::new(0, 0, 0), TileType::FloorRock);
-        assert_eq!(networks.len(), 0);
+        networks.replace_if_present(CellIndex::new(0, 0, 10), TileType::FloorRock);
+        assert_eq!(networks.len(), 1);
     }
 
     #[test]
     fn test_split_network() {
         let mut networks = Networks::new_default();
-        networks.add(CellIndex::new(0, 0, 0), TileType::MachineAssembler);
-        networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
-        networks.add(CellIndex::new(0, 0, 2), TileType::MachineAssembler);
-        assert_eq!(networks.len(), 1);
-        networks.add(CellIndex::new(0, 0, 1), TileType::FloorRock);
+        networks.add(CellIndex::new(0, 0, 10), TileType::MachineAssembler);
+        networks.add(CellIndex::new(0, 0, 11), TileType::MachineAssembler);
+        networks.add(CellIndex::new(0, 0, 12), TileType::MachineAssembler);
         assert_eq!(networks.len(), 2);
+        networks.add(CellIndex::new(0, 0, 11), TileType::FloorRock);
+        assert_eq!(networks.len(), 3);
     }
 
     #[test]
@@ -269,7 +278,7 @@ mod tests {
     }
 
     fn new_node(position: CellIndex, tile: TileType) -> Node {
-        Node {position, tile, distance_to_ship: -1, parent_position: position}
+        Node {position, tile}
     }
     #[test]
     fn test_connected() {
