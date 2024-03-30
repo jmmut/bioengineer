@@ -9,11 +9,13 @@ use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::ffi::{c_char, c_int, c_void, CString};
 use std::path::PathBuf;
 use std::sync::mpsc::Receiver;
+use juquad::fps::sleep_until_next_frame;
 
 use bioengineer::external::backends::{factory, introduction_factory};
 use logic::scene::State;
 use logic::world::map::chunk::chunks::cache::print_cache_stats;
 use logic::SceneState;
+use mq_basics::now;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;
@@ -52,6 +54,7 @@ async fn main() -> Result<(), AnyError> {
     let (mut draw_frame, mut lib_handle) = load()?;
     let (_watcher, rx) = watch()?;
 
+    let mut previous_time = now();
     let textures = {
         let mut scene = introduction_factory(&args).await;
         while draw_frame(&mut scene) == State::ShouldContinue {
@@ -59,7 +62,7 @@ async fn main() -> Result<(), AnyError> {
                 info!("reloading lib");
                 (draw_frame, lib_handle) = reload(lib_handle)?;
             }
-            next_frame().await
+            sleep_until_next_frame(&mut previous_time).await
         }
         next_frame().await;
         scene.unwrap().take_textures()
@@ -72,7 +75,7 @@ async fn main() -> Result<(), AnyError> {
                 info!("reloading lib");
                 (draw_frame, lib_handle) = reload(lib_handle)?;
             }
-            next_frame().await
+            sleep_until_next_frame(&mut previous_time).await
         }
         if let Some(SceneState::Main(main_scene)) = *scene {
             print_cache_stats(main_scene.world.game_state.profile)
@@ -148,7 +151,7 @@ fn unload(lib: *const c_void) {
 
 fn watch() -> Result<(RecommendedWatcher, Receiver<()>), AnyError> {
     let base = PathBuf::from(".").canonicalize().unwrap();
-    let libname = "libbioengineer.so";
+    let libname = "liblogic.so";
     let relative_path = PathBuf::from("target").join("debug").join(libname);
     // let absolute_path = base.join(&relative_path);
 

@@ -1,7 +1,8 @@
 use juquad::texture_loader::TextureLoader;
 use juquad::widgets::anchor::Anchor;
-use juquad::widgets::button::{Button, InteractionStyle, Style};
+use juquad::widgets::button::{Button, InteractionStyle, RenderButton, Style};
 use std::f32::consts::PI;
+use juquad::widgets::text::{DrawText, MeasureText};
 use mq_basics::{Color, Image, KeyCode, MouseButton, Texture2D, Vec2};
 use mq_basics::color::DARKGRAY;
 
@@ -12,8 +13,8 @@ use crate::screen::gui::{
     BACKGROUND_UI_COLOR_BUTTON, BACKGROUND_UI_COLOR_BUTTON_CLICKED,
     BACKGROUND_UI_COLOR_BUTTON_HOVERED, BLACK, BUTTON_TEXT_COLOR, FONT_SIZE,
 };
-use crate::screen::input_trait::InputTrait;
 use crate::world::map::cell::ExtraTextures;
+use juquad::input::input_trait::InputTrait;
 
 mod fire_particles;
 
@@ -53,6 +54,14 @@ pub struct IntroductionSceneState {
     pub show_new_game_button: bool,
     pub loader: TextureLoader<Image>,
     pub textures_ready: bool,
+    pub juquad_functions: JuquadFunctions,
+}
+
+#[derive(Copy, Clone)]
+pub struct JuquadFunctions {
+    pub measure_text: MeasureText,
+    pub draw_text: DrawText,
+    pub render_button: RenderButton,
 }
 
 pub struct IntroductionScene {
@@ -65,6 +74,7 @@ impl IntroductionSceneState {
         input: Box<dyn InputTrait>,
         loader: TextureLoader<Image>,
         split_tileset: SplitTileset,
+        juquad_functions: JuquadFunctions,
     ) -> Self {
         let width = drawer.screen_width();
         let height = drawer.screen_height();
@@ -95,6 +105,7 @@ impl IntroductionSceneState {
             show_new_game_button: false,
             loader,
             textures_ready: false,
+            juquad_functions,
         }
     }
     fn reset(&mut self) {
@@ -105,6 +116,7 @@ impl IntroductionSceneState {
             self.input.take().unwrap(),
             fake_loader,
             self.split_tileset,
+            self.juquad_functions,
         )
     }
 
@@ -175,10 +187,14 @@ impl IntroductionScene {
         }
         let new_game_clicked = if self.state.show_new_game_button {
             // juquad::Button is incompatible with hot reloading. Will need drawer_juquad :DrawerTrait
-            let mut button = Button::new(
+            let mut button = Button::new_generic(
                 "New Game",
                 Anchor::center(0.5 * width, 0.8 * height),
                 FONT_SIZE,
+                self.state.juquad_functions.measure_text,
+                self.state.juquad_functions.draw_text,
+                self.state.juquad_functions.render_button,
+                self.state.input.as_ref().unwrap().as_ref().clone(),
             );
             let interaction = button.interact().is_clicked();
             buttons.push(button);

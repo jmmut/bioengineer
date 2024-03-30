@@ -1,9 +1,9 @@
 use crate::common::cli::{CliArgs, GIT_VERSION};
 use crate::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use crate::external::drawer_macroquad::DrawerMacroquad;
-use crate::external::input_macroquad::InputMacroquad;
+use juquad::input::input_macroquad::InputMacroquad;
 use crate::external::main_input_macroquad::InputMacroquad as InputSource;
-use logic::scene::introduction_scene::IntroductionSceneState;
+use logic::scene::introduction_scene::{IntroductionSceneState, JuquadFunctions};
 use logic::scene::main_scene::MainScene;
 use logic::screen::drawer_trait::DrawerTrait;
 use logic::screen::Screen;
@@ -48,11 +48,17 @@ pub async fn factory(args: &CliArgs, textures: Vec<Texture2D>) -> Box<Option<Sce
 pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
     let drawer = drawer_factory(args.ui, Vec::new());
     let input = Box::new(InputMacroquad);
+    let juquad_functions = JuquadFunctions {
+        measure_text: macroquad::prelude::measure_text,
+        draw_text: macroquad::prelude::draw_text,
+        render_button: juquad::widgets::button::render_button,
+    };
     Box::new(Some(SceneState::Introduction(IntroductionSceneState::new(
         drawer,
         input,
         TextureLoader::new_from_image(&["assets/image/tileset.png"]),
         logic::external::assets_macroquad::split_tileset,
+        juquad_functions
     ))))
 }
 
