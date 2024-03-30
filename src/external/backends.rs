@@ -13,6 +13,12 @@ use macroquad::texture::Texture2D;
 use std::str::FromStr;
 use juquad::texture_loader::TextureLoader;
 
+pub type Seconds = f64;
+
+pub fn now() -> Seconds {
+    macroquad::miniquad::date::now()
+}
+
 #[derive(Debug, Copy, Clone)]
 pub enum UiBackend {
     Macroquad,

@@ -18,9 +18,9 @@ pub mod external {
 
 use macroquad::color::Color;
 use macroquad::math::{IVec2, IVec3, Rect, Vec2, Vec3};
-use macroquad::miniquad::date::now;
 use macroquad::texture::{Image, Texture2D};
 
+use crate::external::backends::now;
 use crate::scene::introduction_scene::{IntroductionScene, IntroductionSceneState};
 use crate::scene::main_scene::MainScene;
 use crate::scene::{Scene, State};
