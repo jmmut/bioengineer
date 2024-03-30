@@ -2,12 +2,9 @@
 name = "bioengineer"
 version = "0.0.0"  # version comes from git at build time
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 default-run = "bioengineer"
 
-[lib]
-crate-type = ["cdylib", "lib"]
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 clap = { version = "=3.2.23", features = ["derive"] }
