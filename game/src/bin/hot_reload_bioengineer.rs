@@ -11,9 +11,9 @@ use std::path::PathBuf;
 use std::sync::mpsc::Receiver;
 
 use bioengineer::external::backends::{factory, introduction_factory};
-use bioengineer::scene::State;
-use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
-use bioengineer::SceneState;
+use logic::scene::State;
+use logic::world::map::chunk::chunks::cache::print_cache_stats;
+use logic::SceneState;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;
@@ -94,7 +94,7 @@ fn window_conf() -> Conf {
 
 fn load() -> Result<(DrawFrameFunction, *const c_void), AnyError> {
     let function_name = "hot_reload_draw_frame";
-    let lib_name = "target/debug/libbioengineer.so";
+    let lib_name = "target/debug/liblogic.so";
 
     let lib_name = CString::new(lib_name).unwrap();
     let lib = unsafe { dlopen(lib_name.as_ptr(), RTLD_LAZY) };

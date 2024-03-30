@@ -90,7 +90,9 @@ dependencies = [
  "git-version",
  "glam 0.22.0",
  "juquad",
+ "logic",
  "macroquad",
+ "mq_basics",
  "notify",
  "opensimplex_noise_rs",
 ]
@@ -750,6 +752,16 @@ checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
 [[package]]
 name = "logic"
 version = "0.1.0"
+dependencies = [
+ "clap",
+ "fluent-asserter",
+ "futures",
+ "git-version",
+ "juquad",
+ "mq_basics",
+ "notify",
+ "opensimplex_noise_rs",
+]
 
 [[package]]
 name = "macroquad"
@@ -844,6 +856,13 @@ dependencies = [
  "log",
  "wasi",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "mq_basics"
+version = "0.1.0"
+dependencies = [
+ "macroquad",
 ]
 
 [[package]]

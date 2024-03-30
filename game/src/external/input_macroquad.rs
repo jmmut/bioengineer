@@ -1,4 +1,4 @@
-use crate::screen::input_trait::InputTrait;
+use logic::screen::input_trait::InputTrait;
 use macroquad::input::{
     is_key_down, is_key_pressed, is_mouse_button_down, is_mouse_button_pressed,
     is_mouse_button_released, mouse_position, KeyCode, MouseButton,

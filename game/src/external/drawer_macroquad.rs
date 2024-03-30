@@ -13,12 +13,12 @@ use macroquad::ui::widgets::Texture;
 use macroquad::ui::{root_ui, widgets, Skin};
 use macroquad::window::{clear_background, screen_height, screen_width};
 
-use crate::screen::assets;
-use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use crate::screen::drawer_trait::{DrawerTrait, Interaction};
-use crate::screen::drawing_state::DrawingState;
-use crate::screen::gui::{FONT_SIZE, MARGIN};
-use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
+use logic::screen::assets;
+use logic::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use logic::screen::drawer_trait::{DrawerTrait, Interaction};
+use logic::screen::drawing_state::DrawingState;
+use logic::screen::gui::{FONT_SIZE, MARGIN};
+use logic::world::map::cell::{TextureIndex, TextureIndexTrait};
 
 #[derive(Clone)]
 pub struct DrawerMacroquad {

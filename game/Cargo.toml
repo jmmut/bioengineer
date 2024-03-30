@@ -22,3 +22,6 @@ juquad = { git = "https://github.com/jmmut/juquad.git", tag = "0.3.1" }
 macroquad = "=0.3.24"
 notify = "=5.1.0"
 opensimplex_noise_rs = "=0.3.0"
+logic = { path = "../logic" }
+mq_basics = { path = "../mq_basics" }
+

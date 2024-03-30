@@ -6,10 +6,10 @@ use std::collections::BTreeMap;
 use std::mem::swap;
 
 use crate::external::drawer_macroquad::DrawerMacroquad;
-use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use crate::screen::drawer_trait::{DrawerTrait, Interaction};
-use crate::screen::gui::FONT_SIZE;
-use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
+use logic::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use logic::screen::drawer_trait::{DrawerTrait, Interaction};
+use logic::screen::gui::FONT_SIZE;
+use logic::world::map::cell::{TextureIndex, TextureIndexTrait};
 pub use egui;
 use egui::epaint::Shadow;
 use egui::style::{Spacing, WidgetVisuals, Widgets};

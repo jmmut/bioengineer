@@ -3,10 +3,11 @@ use macroquad::window::next_frame;
 use macroquad::window::Conf;
 
 use bioengineer::common::cli::CliArgs;
-use bioengineer::external::backends::{factory, introduction_factory, Seconds, now};
-use bioengineer::scene::State;
-use bioengineer::world::map::chunk::chunks::cache::print_cache_stats;
-use bioengineer::{frame, SceneState};
+use bioengineer::external::backends::{factory, introduction_factory};
+use logic::scene::State;
+use logic::world::map::chunk::chunks::cache::print_cache_stats;
+use logic::{frame, SceneState};
+use mq_basics::{now, Seconds};
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;

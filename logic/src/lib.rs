@@ -1,14 +1,56 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+use mq_basics::Texture2D;
+use crate::scene::introduction_scene::{IntroductionScene, IntroductionSceneState};
+use crate::scene::main_scene::MainScene;
+use crate::scene::{Scene, State};
+
+pub mod common {
+    pub mod profiling;
+    pub mod trunc;
+}
+pub mod screen;
+pub mod world;
+pub mod scene;
+
+pub mod external {
+    pub mod assets_macroquad;
+    // pub mod backends;
+    // pub mod drawer_egui_macroquad;
+    // pub mod drawer_macroquad;
+    // pub mod input_macroquad;
+    // pub mod main_input_macroquad;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+pub enum SceneState {
+    Introduction(IntroductionSceneState),
+    Main(MainScene),
+}
+impl SceneState {
+    pub fn take_textures(self) -> Vec<Texture2D> {
+        match self {
+            SceneState::Introduction(state) => state.take_textures(),
+            SceneState::Main(state) => state.screen.drawer.take_textures(),
+        }
     }
+}
+
+pub fn frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
+    let wrapper = scene_wrapper.take().unwrap();
+    match wrapper {
+        SceneState::Introduction(scene_state) => {
+            let mut scene = IntroductionScene { state: scene_state };
+            let output_state = scene.frame();
+            scene_wrapper.replace(SceneState::Introduction(scene.state));
+            output_state
+        }
+        SceneState::Main(mut main_scene) => {
+            let output_state = main_scene.frame();
+            scene_wrapper.replace(SceneState::Main(main_scene));
+            output_state
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
+    frame(scene_wrapper)
 }

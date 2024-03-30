@@ -1,4 +1,4 @@
-use crate::screen::main_scene_input::{
+use logic::screen::main_scene_input::{
     CellSelectionType, Input, MainSceneInputTrait, PixelCellSelection, PixelPosition,
     PixelSelection, ZoomChange,
 };

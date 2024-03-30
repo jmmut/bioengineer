@@ -4,5 +4,6 @@ resolver = "2" # without this, cargo complains about the workspaces being editio
 members = [
     "game",
     "logic",
+    "mq_basics",
 ]
 

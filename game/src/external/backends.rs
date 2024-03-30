@@ -3,21 +3,17 @@ use crate::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use crate::external::drawer_macroquad::DrawerMacroquad;
 use crate::external::input_macroquad::InputMacroquad;
 use crate::external::main_input_macroquad::InputMacroquad as InputSource;
-use crate::scene::introduction_scene::IntroductionSceneState;
-use crate::scene::main_scene::MainScene;
-use crate::screen::drawer_trait::DrawerTrait;
-use crate::screen::Screen;
-use crate::world::World;
-use crate::SceneState;
+use logic::scene::introduction_scene::IntroductionSceneState;
+use logic::scene::main_scene::MainScene;
+use logic::screen::drawer_trait::DrawerTrait;
+use logic::screen::Screen;
+use logic::world::World;
+use logic::SceneState;
 use juquad::texture_loader::TextureLoader;
 use macroquad::texture::Texture2D;
 use std::str::FromStr;
 
-pub type Seconds = f64;
 
-pub fn now() -> Seconds {
-    macroquad::miniquad::date::now()
-}
 
 #[derive(Debug, Copy, Clone)]
 pub enum UiBackend {
@@ -56,6 +52,7 @@ pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
         drawer,
         input,
         TextureLoader::new_from_image(&["assets/image/tileset.png"]),
+        logic::external::assets_macroquad::split_tileset,
     ))))
 }
 
