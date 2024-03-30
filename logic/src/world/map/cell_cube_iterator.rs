@@ -65,8 +65,6 @@ impl Iterator for CellCubeIterator {
 
 #[cfg(test)]
 mod tests {
-    use fluent_asserter::*;
-
     use super::*;
 
     #[test]
@@ -94,10 +92,11 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
     fn test_iterate_cells_panics() {
         let min_cell = CellIndex::new(0, 0, 0);
         let max_cell = CellIndex::new(0, -1, 0);
-        assert_that_code!(|| CellCubeIterator::new(min_cell, max_cell)).panics();
+        CellCubeIterator::new(min_cell, max_cell);
     }
     #[test]
     fn test_iterate_single_cell() {

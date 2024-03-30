@@ -14,15 +14,11 @@ clap = { version = "=3.2.23", features = ["derive"] }
 egui = "=0.21.0"
 egui-miniquad = "=0.14.0"
 egui_demo_lib = { version = "=0.21.0", default-features = false }
-fluent-asserter = "=0.1.9"
-futures = "=0.3.21"
 git-version = "=0.3.5"
-glam = "=0.22.0"
-#juquad = { git = "https://github.com/jmmut/juquad.git", tag = "0.4.1" }
-juquad = {path = "../../juquad" }
+juquad = { git = "https://github.com/jmmut/juquad.git", tag = "0.4.2" }
+#juquad = {path = "../../juquad" }
 macroquad = "=0.3.24"
 notify = "=5.1.0"
-opensimplex_noise_rs = "=0.3.0"
 logic = { path = "../logic" }
 mq_basics = { path = "../mq_basics" }
 
