@@ -1,9 +1,24 @@
 [package]
-name = "game"
-version = "0.1.0"
+name = "bioengineer"
+version = "0.0.0"  # version comes from git at build time
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+default-run = "bioengineer"
+
+[lib]
+crate-type = ["cdylib", "lib"]
 
 [dependencies]
-logic = { path = "../logic" }
+clap = { version = "=3.2.23", features = ["derive"] }
+egui = "=0.21.0"
+egui-miniquad = "=0.14.0"
+egui_demo_lib = { version = "=0.21.0", default-features = false }
+fluent-asserter = "=0.1.9"
+futures = "=0.3.21"
+git-version = "=0.3.5"
+glam = "=0.22.0"
+juquad = { git = "https://github.com/jmmut/juquad.git", tag = "0.3.1" }
+macroquad = "=0.3.24"
+notify = "=5.1.0"
+opensimplex_noise_rs = "=0.3.0"
