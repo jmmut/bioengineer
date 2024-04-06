@@ -12,7 +12,7 @@ use logic::SceneState;
 use juquad::texture_loader::TextureLoader;
 use macroquad::texture::Texture2D;
 use std::str::FromStr;
-
+use crate::external::assets_macroquad;
 
 
 #[derive(Debug, Copy, Clone)]
@@ -57,7 +57,7 @@ pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
         drawer,
         input,
         TextureLoader::new_from_image(&["assets/image/tileset.png"]),
-        logic::external::assets_macroquad::split_tileset,
+        assets_macroquad::split_tileset,
         juquad_functions
     ))))
 }

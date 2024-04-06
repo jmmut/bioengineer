@@ -20,15 +20,6 @@ pub mod screen;
 pub mod world;
 pub mod scene;
 
-pub mod external {
-    pub mod assets_macroquad;
-    // pub mod backends;
-    // pub mod drawer_egui_macroquad;
-    // pub mod drawer_macroquad;
-    // pub mod input_macroquad;
-    // pub mod main_input_macroquad;
-}
-
 pub enum SceneState {
     Introduction(IntroductionSceneState),
     Main(MainScene),
