@@ -1,3 +1,4 @@
+use crate::scene::State;
 use crate::screen::drawing_state::SubCellIndex;
 use crate::screen::main_scene_input::{CellSelection, ZoomChange};
 use crate::world::map::CellIndex;
@@ -22,8 +23,12 @@ pub struct GuiActions {
 }
 
 impl GuiActions {
-    pub fn should_continue(&self) -> bool {
-        !self.quit
+    pub fn should_continue(&self) -> State {
+        if self.quit {
+            State::ShouldFinish
+        } else {
+            State::ShouldContinue
+        }
     }
 }
 

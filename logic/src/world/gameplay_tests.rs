@@ -86,3 +86,29 @@ mod game_goal_state_transition_tests {
         assert_eq!(cell.health, DEFAULT_HEALTH);
     }
 }
+
+#[cfg(test)]
+mod building_tests {
+    use crate::screen::gui::GuiActions;
+    use crate::world::map::transform_cells::Transformation;
+    use crate::world::map::{CellIndex, TileType};
+    use crate::world::{TransformationTask, World};
+    use std::collections::HashSet;
+
+    #[test]
+    fn test_build_machine_next_to_ship() {
+        let mut world = World::new();
+        let cell = world.map.get_ship_position().unwrap() + CellIndex::new(0, 0, 1);
+        let from_tile = TileType::FloorDirt;
+        let to_tile = TileType::MachineAirCleaner;
+        assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
+
+        let mut gui_actions = GuiActions::default();
+        gui_actions.selected_cell_transformation = Some(TransformationTask {
+            to_transform: HashSet::from([cell]),
+            transformation: Transformation::to(to_tile),
+        });
+        world.update(gui_actions);
+        assert_eq!(world.map.get_cell(cell).tile_type, to_tile);
+    }
+}

@@ -15,10 +15,6 @@ impl Scene for MainScene {
         let gui_actions = self.screen.get_gui_actions(&self.world);
         let should_continue = self.world.update(gui_actions);
         self.screen.draw(&self.world);
-        if should_continue {
-            State::ShouldContinue
-        } else {
-            State::ShouldFinish
-        }
+        should_continue
     }
 }
