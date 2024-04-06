@@ -8,9 +8,9 @@ pub mod transform_cells;
 
 use crate::common::trunc::trunc_towards_neg_inf;
 use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
-use cell::Pressure;
 pub use cell::{
-    is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, Cell, TileType,
+    is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, Cell, Pressure,
+    TileType,
 };
 pub use cell_cube_iterator::CellCubeIterator;
 use cell_envelope::Envelope;

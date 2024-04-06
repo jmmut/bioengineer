@@ -1,5 +1,5 @@
-pub use i16 as Health;
-pub use i32 as Pressure;
+pub type Health = i16;
+pub type Pressure = i32;
 use TileType::*;
 
 pub const DEFAULT_HEALTH: Health = 5;
