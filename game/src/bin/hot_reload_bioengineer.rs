@@ -1,4 +1,7 @@
 //! Most of these ideas came from https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
+//!
+//! See https://jmmut.github.io/2023/03/17/Hot-reloading-Rust-and-Macroquad.html for the specifics
+//! of hot-reloading macroquad.
 
 use bioengineer::common::cli::CliArgs;
 use clap::Parser;
@@ -38,18 +41,6 @@ extern "C" {
 
 #[macroquad::main(window_conf)]
 async fn main() -> Result<(), AnyError> {
-    // let args = CliArgs::parse();
-    // let mut scene = factory(&args).await; // TODO: reload screen too (textures)
-    // while draw_frame(&mut scene) {
-    //     if should_reload(&rx) {
-    //         (draw_frame, lib_handle) = reload(lib_handle)?;
-    //     }
-    //     next_frame().await
-    // }
-    // print_cache_stats(world.game_state.profile);
-    // unload(lib_handle);
-    // Ok(())
-    //
     let args = CliArgs::parse();
     let (mut draw_frame, mut lib_handle) = load()?;
     let (_watcher, rx) = watch()?;

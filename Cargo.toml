@@ -2,8 +2,8 @@
 resolver = "2" # without this, cargo complains about the workspaces being edition 2021
 
 members = [
-    "game",
-    "logic",
-    "mq_basics",
+    "game", # entry points for the game, including the game loop
+    "logic", # game logic, as a hot-reloadable library
+    "mq_basics", # code from dependencies required for the game logic
 ]
 

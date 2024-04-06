@@ -31,7 +31,7 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
   - [/] highlight and count cells when clicking a queued task
   - [ ] count cells while selecting (I want to build X tiles)
   - [x] bigger robot icon for the queue
-  - [ ] loading screen
+  - [x] loading screen
   - [x] minimal friction to explain that solar panels can not be build underground
   - [x] remove from selection
 - mechanics

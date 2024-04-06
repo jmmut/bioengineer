@@ -1,3 +1,12 @@
+//! The logic crate contains code about the game without including code from libraries (like macroquad).
+//!
+//! The purpose of splitting this crate in the workspace is to be able to build a small-ish dynamic
+//! library that can be reloaded at runtime. See game/src/bin/hot_reload_bioengineer.rs.
+//!
+//! Another benefit is that this structure requires taking interfaces for all functions with
+//! external effects, so it's possible to provide mocked implementations of them for integration
+//! tests. See [crate::world::gameplay_tests].
+
 use mq_basics::Texture2D;
 use crate::scene::introduction_scene::{IntroductionScene, IntroductionSceneState};
 use crate::scene::main_scene::MainScene;
