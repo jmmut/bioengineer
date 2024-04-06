@@ -1,4 +1,3 @@
-
 //! These reimports are all "safe" imports we can use in the logic crate
 //! without including the singleton context when we compile the dynamic library liblogic.so.
 //! The goal is that if the logic crate imports this crate, logic doesn't need to import macroquad.
@@ -7,7 +6,10 @@
 //! in the logic crate.
 
 pub use macroquad::miniquad::Texture;
-pub use macroquad::prelude::{Color, Image, Texture2D, Vec2, IVec2, Vec3, Rect, IVec3, KeyCode, FilterMode, load_image, MouseButton};
+pub use macroquad::prelude::{
+    load_image, Color, FilterMode, IVec2, IVec3, Image, KeyCode, MouseButton, Rect, Texture2D,
+    Vec2, Vec3,
+};
 pub mod color {
     pub use macroquad::color::*;
 }

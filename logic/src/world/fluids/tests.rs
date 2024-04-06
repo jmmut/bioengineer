@@ -2,9 +2,9 @@ pub mod air;
 pub mod change_tiles;
 pub mod floodable;
 
-use mq_basics::IVec3;
 use super::*;
 use crate::world::map::{Map, PressureAndType};
+use mq_basics::IVec3;
 
 fn assert_steps_2x2(maps: Vec<Vec<i32>>) {
     let min_cell = CellIndex::new(0, 0, 0);

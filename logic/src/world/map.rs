@@ -18,9 +18,9 @@ use chunk::chunks::Chunks;
 use chunk::Chunk;
 use chunk::{get_chunk_index, get_required_chunks};
 use map_iterator::MutMapIterator;
+use mq_basics::{now, IVec3};
 use opensimplex_noise_rs::OpenSimplexNoise;
 use std::cmp::Ordering;
-use mq_basics::{IVec3, now};
 
 /// The axis are isometric:
 /// - x: right towards camera

@@ -170,7 +170,10 @@ impl World {
     fn advance_construction_task_queue(&mut self) {
         if let Some(task) = self.task_queue.pop_front() {
             match task {
-                Task::Transform(TransformationTask{to_transform, transformation}) => {
+                Task::Transform(TransformationTask {
+                    to_transform,
+                    transformation,
+                }) => {
                     let mut remaining = HashSet::new();
                     let mut adjacent = Vec::<CellIndex>::new();
                     for pos_to_transform in to_transform {
@@ -191,7 +194,11 @@ impl World {
                         }
                     }
                     if remaining.len() > 0 {
-                        self.task_queue.push_front(Task::Transform(TransformationTask {to_transform: remaining, transformation}));
+                        self.task_queue
+                            .push_front(Task::Transform(TransformationTask {
+                                to_transform: remaining,
+                                transformation,
+                            }));
                     }
                 }
                 Task::Movement(_) => {}
@@ -360,7 +367,9 @@ fn transition_goal_state(
             *current = GameGoalState::ReachedProduction;
         }
     } else if *current == GameGoalState::ReachedProduction {
-        if networks.get_non_ship_machine_count() == 0 && life_count >= LIFE_COUNT_REQUIRED_FOR_WINNING {
+        if networks.get_non_ship_machine_count() == 0
+            && life_count >= LIFE_COUNT_REQUIRED_FOR_WINNING
+        {
             *current = GameGoalState::Finished(age);
         }
     }

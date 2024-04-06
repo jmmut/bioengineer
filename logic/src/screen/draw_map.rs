@@ -1,4 +1,3 @@
-use mq_basics::Color;
 use crate::screen::assets;
 use crate::screen::coords::cast::Cast;
 use crate::screen::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
@@ -10,6 +9,7 @@ use crate::screen::main_scene_input::PixelPosition;
 use crate::world::map::{is_covering, Cell, CellIndex, TileType};
 use crate::world::robots::Robot;
 use crate::world::World;
+use mq_basics::Color;
 
 const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);

@@ -52,11 +52,11 @@ impl Networks {
                     self.ship_network.add(unconnected_nodes);
                 }
             }
-            return true
+            return true;
         }
         if cell_index == self.ship_position {
             self.ship_network.add(node);
-            return true
+            return true;
         }
         // not connected to ship_network
         let adjacent_networks = self.get_adjacent_networks(cell_index);
@@ -81,7 +81,9 @@ impl Networks {
                     }
                     return true;
                 }
-                Replacement::Forbidden => {return false;}
+                Replacement::Forbidden => {
+                    return false;
+                }
                 Replacement::None => {}
             }
         }
@@ -133,12 +135,12 @@ impl Networks {
     }
 
     pub fn len(&self) -> usize {
-        self.unconnected_networks.len() +1 // plus the ship network
+        self.unconnected_networks.len() + 1 // plus the ship network
     }
 
     pub fn get_non_ship_machine_count(&self) -> i32 {
         let mut machines = 0;
-        machines += self.ship_network.len() as i32 -1;
+        machines += self.ship_network.len() as i32 - 1;
         for network in &self.unconnected_networks {
             machines += network.len() as i32;
         }
@@ -202,7 +204,7 @@ mod tests {
     #[test]
     fn test_join_networks() {
         let mut networks = Networks::new_default();
-        networks.add(CellIndex::new(0, 0,10), TileType::MachineAssembler);
+        networks.add(CellIndex::new(0, 0, 10), TileType::MachineAssembler);
         networks.add(CellIndex::new(0, 0, 12), TileType::MachineAssembler);
         assert_eq!(networks.len(), 3);
         networks.add(CellIndex::new(0, 0, 11), TileType::MachineAssembler);
@@ -278,7 +280,7 @@ mod tests {
     }
 
     fn new_node(position: CellIndex, tile: TileType) -> Node {
-        Node {position, tile}
+        Node { position, tile }
     }
     #[test]
     fn test_connected() {

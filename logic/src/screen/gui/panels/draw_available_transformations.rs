@@ -1,4 +1,3 @@
-use mq_basics::Rect;
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::gui_actions::GuiActions;
@@ -8,6 +7,7 @@ use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
 use crate::world::{TransformationTask, World};
+use mq_basics::Rect;
 
 pub fn show_available_transformations(
     drawer: &mut dyn DrawerTrait,

@@ -6,8 +6,8 @@ use crate::screen::drawing_state::highlight_cells::merge_consolidated_and_in_pro
 use crate::screen::gui::GuiActions;
 use crate::screen::main_scene_input::{CellSelectionType, ZoomChange};
 use crate::world::map::CellIndex;
-use std::collections::HashSet;
 use mq_basics::{IVec2, Vec2, Vec3};
+use std::collections::HashSet;
 
 pub type TilePosition = IVec2;
 pub type SubTilePosition = Vec2;

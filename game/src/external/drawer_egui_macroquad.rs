@@ -6,10 +6,6 @@ use std::collections::BTreeMap;
 use std::mem::swap;
 
 use crate::external::drawer_macroquad::DrawerMacroquad;
-use logic::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
-use logic::screen::drawer_trait::{DrawerTrait, Interaction};
-use logic::screen::gui::FONT_SIZE;
-use logic::world::map::cell::{TextureIndex, TextureIndexTrait};
 pub use egui;
 use egui::epaint::Shadow;
 use egui::style::{Spacing, WidgetVisuals, Widgets};
@@ -17,6 +13,10 @@ use egui::{
     emath, Color32, FontFamily, FontId, Frame, Id, Margin, Pos2, Response, Rounding, Sense, Stroke,
     Style, TextureId, Visuals, Widget,
 };
+use logic::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
+use logic::screen::drawer_trait::{DrawerTrait, Interaction};
+use logic::screen::gui::FONT_SIZE;
+use logic::world::map::cell::{TextureIndex, TextureIndexTrait};
 pub use macroquad;
 use macroquad::miniquad::GraphicsContext;
 

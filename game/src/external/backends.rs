@@ -1,19 +1,18 @@
 use crate::common::cli::{CliArgs, GIT_VERSION};
+use crate::external::assets_macroquad;
 use crate::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use crate::external::drawer_macroquad::DrawerMacroquad;
-use juquad::input::input_macroquad::InputMacroquad;
 use crate::external::main_input_macroquad::InputMacroquad as InputSource;
+use juquad::input::input_macroquad::InputMacroquad;
+use juquad::texture_loader::TextureLoader;
 use logic::scene::introduction_scene::{IntroductionSceneState, JuquadFunctions};
 use logic::scene::main_scene::MainScene;
 use logic::screen::drawer_trait::DrawerTrait;
 use logic::screen::Screen;
 use logic::world::World;
 use logic::SceneState;
-use juquad::texture_loader::TextureLoader;
 use macroquad::texture::Texture2D;
 use std::str::FromStr;
-use crate::external::assets_macroquad;
-
 
 #[derive(Debug, Copy, Clone)]
 pub enum UiBackend {
@@ -58,7 +57,7 @@ pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
         input,
         TextureLoader::new_from_image(&["assets/image/tileset.png"]),
         assets_macroquad::split_tileset,
-        juquad_functions
+        juquad_functions,
     ))))
 }
 

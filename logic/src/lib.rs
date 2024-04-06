@@ -7,18 +7,18 @@
 //! external effects, so it's possible to provide mocked implementations of them for integration
 //! tests. See [crate::world::gameplay_tests].
 
-use mq_basics::Texture2D;
 use crate::scene::introduction_scene::{IntroductionScene, IntroductionSceneState};
 use crate::scene::main_scene::MainScene;
 use crate::scene::{Scene, State};
+use mq_basics::Texture2D;
 
 pub mod common {
     pub mod profiling;
     pub mod trunc;
 }
+pub mod scene;
 pub mod screen;
 pub mod world;
-pub mod scene;
 
 pub enum SceneState {
     Introduction(IntroductionSceneState),

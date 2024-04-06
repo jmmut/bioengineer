@@ -1,10 +1,10 @@
 use juquad::texture_loader::TextureLoader;
 use juquad::widgets::anchor::Anchor;
 use juquad::widgets::button::{Button, InteractionStyle, RenderButton, Style};
-use std::f32::consts::PI;
 use juquad::widgets::text::{DrawText, MeasureText};
-use mq_basics::{Color, Image, KeyCode, MouseButton, Texture2D, Vec2};
 use mq_basics::color::DARKGRAY;
+use mq_basics::{Color, Image, KeyCode, MouseButton, Texture2D, Vec2};
+use std::f32::consts::PI;
 
 use crate::scene::introduction_scene::fire_particles::Particle;
 use crate::scene::{Scene, State};
@@ -40,7 +40,7 @@ const STYLE: Style = Style {
     },
 };
 
-type SplitTileset = fn (&Image) -> Vec<Texture2D>;
+type SplitTileset = fn(&Image) -> Vec<Texture2D>;
 
 pub struct IntroductionSceneState {
     pub drawer: Option<Box<dyn DrawerTrait>>,

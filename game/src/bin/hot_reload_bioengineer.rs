@@ -5,6 +5,7 @@
 
 use bioengineer::common::cli::CliArgs;
 use clap::Parser;
+use juquad::fps::sleep_until_next_frame;
 use macroquad::logging::info;
 use macroquad::window::next_frame;
 use macroquad::window::Conf;
@@ -12,7 +13,6 @@ use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::ffi::{c_char, c_int, c_void, CString};
 use std::path::PathBuf;
 use std::sync::mpsc::Receiver;
-use juquad::fps::sleep_until_next_frame;
 
 use bioengineer::external::backends::{factory, introduction_factory};
 use logic::scene::State;

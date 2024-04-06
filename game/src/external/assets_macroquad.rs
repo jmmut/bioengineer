@@ -1,9 +1,9 @@
-use mq_basics::{FilterMode, Image, load_image, Texture2D};
 use logic::screen::assets::{
     crop, extract_images, zoom, PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH,
 };
 use logic::world::map::cell::ExtraTextures;
 use logic::world::map::cell::TextureIndexTrait;
+use mq_basics::{load_image, FilterMode, Image, Texture2D};
 
 pub async fn load_tileset(path: &str) -> Vec<Texture2D> {
     let image_future = load_image(path);

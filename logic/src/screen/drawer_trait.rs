@@ -1,5 +1,5 @@
-use mq_basics::{Color, Texture2D, Vec2};
 use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
+use mq_basics::{Color, Texture2D, Vec2};
 
 /// Trait to be implemented by a graphics library.
 ///

@@ -1,10 +1,10 @@
-use mq_basics::{Rect, Vec2};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::format_units::format_age;
 use crate::screen::gui::{GuiActions, FONT_SIZE};
 use crate::screen::main_scene_input::CellSelection;
 use crate::world::GameGoalState::{Finished, PostFinished};
 use crate::world::World;
+use mq_basics::{Rect, Vec2};
 
 pub fn draw_game_finished(
     drawer: &mut dyn DrawerTrait,

@@ -1,5 +1,5 @@
-use mq_basics::{KeyCode, MouseButton};
 use mq_basics::Vec2;
+use mq_basics::{KeyCode, MouseButton};
 
 pub trait InputTrait {
     fn is_key_down(&self, key: KeyCode) -> bool;

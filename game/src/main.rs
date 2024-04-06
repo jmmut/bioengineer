@@ -3,8 +3,8 @@ use macroquad::window::next_frame;
 use macroquad::window::Conf;
 
 use bioengineer::common::cli::CliArgs;
-use juquad::fps::sleep_until_next_frame;
 use bioengineer::external::backends::{factory, introduction_factory};
+use juquad::fps::sleep_until_next_frame;
 use logic::scene::State;
 use logic::world::map::chunk::chunks::cache::print_cache_stats;
 use logic::{frame, SceneState};

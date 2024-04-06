@@ -1,6 +1,6 @@
-use mq_basics::now;
 use crate::screen::gui::format_units::format_unit;
 use crate::screen::gui::GuiActions;
+use mq_basics::now;
 
 pub const DEFAULT_PROFILE_ENABLED: bool = false;
 pub const DEFAULT_ADVANCING_FLUIDS: bool = false;
