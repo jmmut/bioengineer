@@ -49,28 +49,40 @@ impl GameState {
         self.advancing_fluids_single_step = gui_actions.single_fluid;
     }
 
-    pub fn should_advance_robots_this_frame(&mut self) -> bool {
-        let should_process_frame =
-            self.frame_index % self.advance_robots_every_n_frames == Phase::Robots as i32;
+    pub fn should_advance_robots_this_frame(&self) -> bool {
+        let should_process_frame = (self.frame_index + self.advance_robots_every_n_frames
+            - Phase::Robots as i32)
+            % self.advance_robots_every_n_frames
+            == 0;
         should_process_frame
     }
 
-    pub fn should_advance_fluids_this_frame(&mut self) -> bool {
+    pub fn should_advance_fluids_this_frame(&self) -> bool {
         if self.advancing_fluids_single_step {
             return true;
         } else {
             if self.advancing_fluids {
-                let should_process_frame =
-                    self.frame_index % self.advance_fluid_every_n_frames == Phase::Fluids as i32;
+                let should_process_frame = (self.frame_index + self.advance_fluid_every_n_frames
+                    - Phase::Fluids as i32)
+                    % self.advance_fluid_every_n_frames
+                    == 0;
                 return should_process_frame;
             }
         }
         return false;
     }
 
-    pub fn should_age_this_frame(&mut self) -> bool {
-        let should_age = self.frame_index % self.age_every_n_frames == Phase::Aging as i32;
+    pub fn should_age_this_frame(&self) -> bool {
+        let should_age = (self.frame_index + self.age_every_n_frames - Phase::Aging as i32)
+            % self.age_every_n_frames
+            == 0;
         return should_age;
+    }
+
+    pub fn set_advance_every_frame(&mut self) {
+        self.advance_robots_every_n_frames = 1;
+        self.advance_fluid_every_n_frames = 1;
+        self.age_every_n_frames = 1;
     }
 
     pub fn advance_frame(&mut self) {
@@ -86,4 +98,100 @@ pub fn get_goal_air_cleaned() -> f64 {
 
 pub fn get_goal_air_cleaned_str() -> String {
     format_unit(get_goal_air_cleaned(), "L")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_advance_robots() {
+        let mut game_state = GameState::new(true);
+        assert_eq!(game_state.should_advance_robots_this_frame(), true);
+        game_state.advance_frame();
+        for i in 1..DEFAULT_ADVANCE_ROBOTS_EVERY_N_FRAMES {
+            assert_eq!(
+                game_state.should_advance_robots_this_frame(),
+                false,
+                "on iteration {}",
+                i
+            );
+            game_state.advance_frame();
+        }
+        assert_eq!(game_state.should_advance_robots_this_frame(), true);
+    }
+
+    #[test]
+    fn test_advance_robots_every_frame() {
+        let mut game_state = GameState::new(true);
+        game_state.set_advance_every_frame();
+        assert_eq!(game_state.should_advance_robots_this_frame(), true);
+        game_state.advance_frame();
+        assert_eq!(game_state.should_advance_robots_this_frame(), true);
+        game_state.advance_frame();
+        assert_eq!(game_state.should_advance_robots_this_frame(), true);
+    }
+
+    #[test]
+    fn test_advance_fluids() {
+        let mut game_state = GameState::new(true);
+        assert_eq!(game_state.should_advance_fluids_this_frame(), false);
+        game_state.advance_frame();
+        assert_eq!(game_state.should_advance_fluids_this_frame(), true);
+        game_state.advance_frame();
+        for i in 1..DEFAULT_ADVANCE_FLUID_EVERY_N_FRAMES {
+            assert_eq!(
+                game_state.should_advance_fluids_this_frame(),
+                false,
+                "on iteration {}",
+                i
+            );
+            game_state.advance_frame();
+        }
+        assert_eq!(game_state.should_advance_fluids_this_frame(), true);
+    }
+
+    #[test]
+    fn test_advance_fluids_every_frame() {
+        let mut game_state = GameState::new(true);
+        game_state.set_advance_every_frame();
+        assert_eq!(game_state.should_advance_fluids_this_frame(), true);
+        game_state.advance_frame();
+        assert_eq!(game_state.should_advance_fluids_this_frame(), true);
+        game_state.advance_frame();
+        assert_eq!(game_state.should_advance_fluids_this_frame(), true);
+    }
+
+    #[test]
+    fn test_age() {
+        let mut game_state = GameState::new(true);
+        assert_eq!(game_state.should_age_this_frame(), false);
+        game_state.advance_frame();
+        assert_eq!(game_state.should_age_this_frame(), false);
+        game_state.advance_frame();
+        assert_eq!(game_state.should_age_this_frame(), true);
+        game_state.advance_frame();
+        for i in 1..DEFAULT_AGING_EVERY_N_FRAMES {
+            assert_eq!(
+                game_state.should_age_this_frame(),
+                false,
+                "on iteration {}",
+                i
+            );
+            game_state.advance_frame();
+        }
+        assert_eq!(game_state.should_age_this_frame(), true);
+    }
+
+    #[test]
+    fn test_age_every_frame() {
+        let mut game_state = GameState::new(true);
+        game_state.set_advance_every_frame();
+
+        assert_eq!(game_state.should_age_this_frame(), true);
+        game_state.advance_frame();
+        assert_eq!(game_state.should_age_this_frame(), true);
+        game_state.advance_frame();
+        assert_eq!(game_state.should_age_this_frame(), true);
+    }
 }

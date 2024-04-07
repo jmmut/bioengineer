@@ -33,11 +33,17 @@ impl Networks {
     }
 
     pub fn add(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
-        if self.replace_if_present(cell_index, new_machine) {
-            return true;
+        match self.replace_if_present(cell_index, new_machine) {
+            Replacement::SplitNetwork | Replacement::Regular => {
+                return true;
+            }
+            Replacement::Forbidden => {
+                return false;
+            }
+            Replacement::None => {} // continue with addition
         }
         if !is_networkable(new_machine) {
-            return false;
+            return true;
         }
         let node = Node {
             position: cell_index,
@@ -68,26 +74,51 @@ impl Networks {
         return true;
     }
 
-    fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> bool {
+    fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> Replacement {
+        let replacement = self
+            .ship_network
+            .replace_if_present(cell_index, new_machine);
+        match replacement {
+            Replacement::SplitNetwork => {
+                let network_to_split = std::mem::take(&mut self.ship_network);
+                self.re_add_network(network_to_split);
+                return replacement;
+            }
+            Replacement::Regular => {
+                return replacement;
+            }
+            Replacement::Forbidden => {
+                return replacement;
+            }
+            Replacement::None => {}
+        }
         for (i, network) in &mut self.unconnected_networks.iter_mut().enumerate() {
-            match network.replace_if_present(cell_index, new_machine) {
+            let replacement = network.replace_if_present(cell_index, new_machine);
+            match replacement {
                 Replacement::SplitNetwork => {
                     self.split_network(i);
-                    return true;
+                    return replacement;
                 }
                 Replacement::Regular => {
                     if self.unconnected_networks.get(i).unwrap().len() == 0 {
                         self.unconnected_networks.remove(i);
+                        // TODO: can this happen?
                     }
-                    return true;
+                    return replacement;
                 }
                 Replacement::Forbidden => {
-                    return false;
+                    return replacement;
                 }
                 Replacement::None => {}
             }
         }
-        return false;
+        return Replacement::None;
+    }
+
+    fn re_add_network(&mut self, network_to_split: Network) {
+        for node in network_to_split.nodes {
+            self.add(node.position, node.tile);
+        }
     }
 
     fn get_adjacent_networks(&self, cell_index: CellIndex) -> Vec<usize> {
@@ -171,9 +202,7 @@ impl Networks {
 
     fn split_network(&mut self, network_index: usize) {
         let network_to_split = self.unconnected_networks.swap_remove(network_index);
-        for node in network_to_split.nodes {
-            self.add(node.position, node.tile);
-        }
+        self.re_add_network(network_to_split)
     }
 
     pub fn clear(&mut self) {
@@ -267,15 +296,16 @@ mod tests {
     fn test_air_cleaned_is_kept_when_spliting_network() {
         let expected_air_cleaned = 1.0;
         let mut networks = Networks::new_default();
-        networks.add(CellIndex::new(0, 0, 0), TileType::MachineSolarPanel);
-        networks.add(CellIndex::new(0, 1, 0), TileType::MachineAirCleaner);
+        let ship = networks.ship_position;
+        networks.add(ship + CellIndex::new(1, 0, 0), TileType::MachineSolarPanel);
+        networks.add(ship + CellIndex::new(1, 1, 0), TileType::MachineAirCleaner);
         networks.update();
         assert_eq!(networks.get_total_air_cleaned(), expected_air_cleaned);
-        networks.add(CellIndex::new(0, 0, 2), TileType::MachineAssembler);
+        networks.add(ship + CellIndex::new(1, 0, 2), TileType::MachineAssembler);
         assert_eq!(networks.get_total_air_cleaned(), expected_air_cleaned);
-        networks.add(CellIndex::new(0, 0, 1), TileType::MachineAssembler);
+        networks.add(ship + CellIndex::new(1, 0, 1), TileType::MachineAssembler);
         assert_eq!(networks.get_total_air_cleaned(), expected_air_cleaned);
-        networks.add(CellIndex::new(0, 0, 1), TileType::FloorRock);
+        networks.add(ship + CellIndex::new(1, 0, 1), TileType::FloorRock);
         assert_eq!(networks.get_total_air_cleaned(), expected_air_cleaned);
     }
 

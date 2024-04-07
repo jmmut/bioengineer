@@ -210,6 +210,12 @@ impl Network {
     }
 }
 
+impl Default for Network {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub fn is_adjacent(a: CellIndex, b: CellIndex) -> bool {
     let diff: CellIndexDiff = a - b;
     adjacent_positions().contains(&diff)

@@ -95,6 +95,21 @@ mod building_tests {
     use crate::world::{TransformationTask, World};
     use std::collections::HashSet;
 
+    fn gui_action_transform_tile(cell: CellIndex, to_tile: TileType) -> GuiActions {
+        gui_action_transform_tiles([cell].into_iter(), to_tile)
+    }
+    fn gui_action_transform_tiles(
+        cell: impl Iterator<Item = CellIndex>,
+        to_tile: TileType,
+    ) -> GuiActions {
+        let mut gui_actions = GuiActions::default();
+        gui_actions.selected_cell_transformation = Some(TransformationTask {
+            to_transform: HashSet::from_iter(cell.into_iter()),
+            transformation: Transformation::to(to_tile),
+        });
+        gui_actions
+    }
+
     #[test]
     fn test_build_machine_next_to_ship() {
         let mut world = World::new();
@@ -103,12 +118,75 @@ mod building_tests {
         let to_tile = TileType::MachineAirCleaner;
         assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
 
-        let mut gui_actions = GuiActions::default();
-        gui_actions.selected_cell_transformation = Some(TransformationTask {
-            to_transform: HashSet::from([cell]),
-            transformation: Transformation::to(to_tile),
-        });
+        let gui_actions = gui_action_transform_tile(cell, to_tile);
         world.update(gui_actions);
         assert_eq!(world.map.get_cell(cell).tile_type, to_tile);
+    }
+
+    #[test]
+    fn test_build_tree_next_to_ship() {
+        let mut world = World::new();
+        let cell = world.map.get_ship_position().unwrap() + CellIndex::new(0, 0, 1);
+        let from_tile = TileType::FloorDirt;
+        let to_tile = TileType::TreeHealthy;
+        assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
+
+        let gui_actions = gui_action_transform_tile(cell, to_tile);
+        world.update(gui_actions);
+        assert_eq!(world.map.get_cell(cell).tile_type, to_tile);
+    }
+
+    #[test]
+    fn test_remove_machine() {
+        let mut world = World::new();
+        world.game_state.set_advance_every_frame();
+        let cell = world.map.get_ship_position().unwrap() + CellIndex::new(0, 0, 1);
+        let from_tile = TileType::FloorDirt;
+        let to_tile = TileType::MachineAirCleaner;
+        assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
+
+        let gui_actions = gui_action_transform_tile(cell, to_tile);
+        world.update(gui_actions);
+        assert_eq!(world.map.get_cell(cell).tile_type, to_tile);
+
+        let to_tile = TileType::TreeHealthy;
+        let gui_actions = gui_action_transform_tile(cell, to_tile);
+        world.update(gui_actions);
+        assert_eq!(world.map.get_cell(cell).tile_type, to_tile);
+    }
+
+    #[test]
+    fn test_replace_ship_is_forbidden() {
+        let mut world = World::new();
+        world.game_state.set_advance_every_frame();
+        let cell = world.map.get_ship_position().unwrap();
+        let from_tile = TileType::MachineShip;
+        assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
+
+        let gui_actions = gui_action_transform_tile(cell, TileType::MachineAirCleaner);
+        world.update(gui_actions);
+        assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
+
+        let gui_actions = gui_action_transform_tile(cell, TileType::TreeHealthy);
+        world.update(gui_actions);
+        assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
+    }
+
+    #[test]
+    fn test_replace_ship_is_forbidden_even_selecting_many() {
+        let mut world = World::new();
+        world.game_state.set_advance_every_frame();
+        let cell = world.map.get_ship_position().unwrap();
+        let adjacent_cell = cell + CellIndex::new(0, 0, 1);
+        let from_tile = TileType::MachineShip;
+        assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
+
+        let gui_actions = gui_action_transform_tiles(
+            [cell, adjacent_cell].into_iter(),
+            TileType::MachineAirCleaner,
+        );
+        world.update(gui_actions);
+        world.update(GuiActions::default());
+        assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
     }
 }
