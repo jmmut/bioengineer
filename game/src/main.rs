@@ -8,7 +8,7 @@ use juquad::fps::sleep_until_next_frame;
 use logic::scene::State;
 use logic::world::map::chunk::chunks::cache::print_cache_stats;
 use logic::{frame, SceneState};
-use mq_basics::{now, Seconds};
+use mq_basics::now;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1365;
 const DEFAULT_WINDOW_HEIGHT: i32 = 768;

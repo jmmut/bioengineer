@@ -423,7 +423,6 @@ mod tests {
 
     mod tasks {
         use super::*;
-        use crate::world::World;
 
         #[test]
         fn test_move_robot_basic_task() {
@@ -461,43 +460,6 @@ mod tests {
         }
 
         #[test]
-        fn test_move_robot_temporarily_unreachable() {
-            let mut world = World::new();
-            let initial_pos = CellIndex::new(0, 1, 0);
-            let below_pos = CellIndex::new(0, 0, 0);
-            let transformation_task = TransformationTask {
-                to_transform: HashSet::from([below_pos, initial_pos]),
-                transformation: Transformation::to(TileType::Stairs),
-            };
-            world.task_queue = VecDeque::from([Task::Transform(transformation_task.clone())]);
-            world.map = Map::_new_from_tiles(
-                Cell::new(TileType::FloorDirt),
-                vec![(below_pos, TileType::FloorDirt)],
-            );
-            world.robots.first_mut().unwrap().position = initial_pos;
-
-            assert_positions_equal(&world, TileType::FloorDirt, TileType::FloorDirt);
-
-            let transformation_task =
-                world.transform_cells_if_robots_can_do_so(transformation_task);
-            world.move_robots();
-
-            assert_positions_equal(&world, TileType::FloorDirt, TileType::Stairs);
-
-            world.transform_cells_if_robots_can_do_so(transformation_task.unwrap());
-            world.move_robots();
-
-            assert_positions_equal(&world, TileType::Stairs, TileType::Stairs);
-        }
-
-        fn assert_positions_equal(world: &World, tile: TileType, second_tile: TileType) {
-            let index = CellIndex::new(0, 0, 0);
-            assert_eq!(world.map.get_cell(index).tile_type, tile);
-            let other_index = CellIndex::new(0, 1, 0);
-            assert_eq!(world.map.get_cell(other_index).tile_type, second_tile);
-        }
-
-        #[test]
         fn test_move_robot_to_nearest_task() {
             let initial_pos = CellIndex::new(0, 0, 0);
             let closest_target = CellIndex::new(-1, 0, 2);
@@ -509,37 +471,6 @@ mod tests {
             let mut iter = order_by_closest_target(&transformation_task, initial_pos);
             assert_eq!(iter.next().unwrap(), closest_target);
             assert_eq!(iter.next().unwrap(), farthest_target);
-        }
-
-        #[test]
-        fn test_can_do_vertical_task_with_stairs() {
-            vertical_task(TileType::Stairs, TileType::MachineAssembler);
-        }
-
-        #[test]
-        fn test_can_not_do_vertical_task_without_stairs() {
-            vertical_task(TileType::FloorDirt, TileType::FloorDirt);
-        }
-
-        fn vertical_task(initial_tile: TileType, expected_target_transformation: TileType) {
-            let initial_pos = CellIndex::new(0, 1, 0);
-            let target = CellIndex::new(0, 0, 0);
-            let mut world = World::new();
-            let transformation_task = TransformationTask {
-                to_transform: HashSet::from([target]),
-                transformation: Transformation::to(TileType::MachineAssembler),
-            };
-            world.task_queue = VecDeque::from([Task::Transform(transformation_task.clone())]);
-            world.map = Map::_new_from_tiles(
-                Cell::new(TileType::FloorDirt),
-                vec![(target, TileType::FloorDirt), (initial_pos, initial_tile)],
-            );
-            world.robots.first_mut().unwrap().position = initial_pos;
-            world.transform_cells_if_robots_can_do_so(transformation_task);
-            assert_eq!(
-                world.map.get_cell(target).tile_type,
-                expected_target_transformation
-            );
         }
 
         #[test]

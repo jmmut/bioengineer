@@ -6,12 +6,10 @@ use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::main_scene_input::PixelPosition;
-use crate::world::map::{is_covering, Cell, CellIndex, TileType};
-use crate::world::robots::Robot;
+use crate::world::map::{Cell, CellIndex, TileType};
 use crate::world::World;
 use mq_basics::Color;
 
-const REDUCED_OPACITY_TO_SEE_ROBOT: f32 = 0.5;
 const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);
 
 pub fn draw_map(drawer: &dyn DrawerTrait, world: &World, drawing: &DrawingState) {
@@ -120,21 +118,6 @@ fn get_border_opacity(
     })
 }
 
-fn get_opacity_to_see_robot(cell_index: &CellIndex, tile_type: TileType, robots: &[Robot]) -> f32 {
-    if is_covering(tile_type) {
-        let mut cells_with_reduced_opacity = Vec::new();
-        for robot in robots {
-            cells_with_reduced_opacity.push(robot.position + CellIndex::new(0, 0, 1));
-            cells_with_reduced_opacity.push(robot.position + CellIndex::new(1, 0, 1));
-            cells_with_reduced_opacity.push(robot.position + CellIndex::new(1, 0, 0));
-        }
-        if cells_with_reduced_opacity.contains(cell_index) {
-            return REDUCED_OPACITY_TO_SEE_ROBOT;
-        }
-    }
-    return 1.0;
-}
-
 #[allow(dead_code)]
 fn draw_cell_hit_box(drawer: &dyn DrawerTrait, cell_index: CellIndex, drawing: &DrawingState) {
     let mut subcell: SubCellIndex = cell_index.cast();
@@ -180,6 +163,7 @@ pub fn hitbox_offset_square() -> PixelPosition {
 mod tests {
     use super::*;
 
+
     #[test]
     fn transparency_border_no_offset() {
         let min_cell = CellIndex::new(-5, -25, -55);
@@ -220,49 +204,5 @@ mod tests {
         let offset = SubCellIndex::new(0.2, 0.0, 0.8);
         let t = get_border_opacity(&cell, &min_cell, &max_cell, &offset);
         assert_eq!(t, 0.2);
-    }
-
-    #[test]
-    fn test_opacity_to_see_robot() {
-        let full_opacity = 1.0;
-        let robots = vec![Robot {
-            position: CellIndex::new(2, 5, 7),
-        }];
-        let tile = TileType::WallRock;
-        let opacity_to_see_robot =
-            get_opacity_to_see_robot(&CellIndex::new(2, 5, 7), tile, &robots);
-        assert_eq!(opacity_to_see_robot, full_opacity);
-        let opacity_to_see_robot =
-            get_opacity_to_see_robot(&CellIndex::new(2, 5, 8), tile, &robots);
-        assert_eq!(opacity_to_see_robot, REDUCED_OPACITY_TO_SEE_ROBOT);
-        let opacity_to_see_robot =
-            get_opacity_to_see_robot(&CellIndex::new(2, 6, 7), tile, &robots);
-        assert_eq!(opacity_to_see_robot, full_opacity);
-        let opacity_to_see_robot =
-            get_opacity_to_see_robot(&CellIndex::new(3, 5, 7), tile, &robots);
-        assert_eq!(opacity_to_see_robot, REDUCED_OPACITY_TO_SEE_ROBOT);
-        let opacity_to_see_robot =
-            get_opacity_to_see_robot(&CellIndex::new(3, 5, 8), tile, &robots);
-        assert_eq!(opacity_to_see_robot, REDUCED_OPACITY_TO_SEE_ROBOT);
-        let opacity_to_see_robot =
-            get_opacity_to_see_robot(&CellIndex::new(2, 5, 9), tile, &robots);
-        assert_eq!(opacity_to_see_robot, full_opacity);
-        let opacity_to_see_robot =
-            get_opacity_to_see_robot(&CellIndex::new(4, 7, 9), tile, &robots);
-        assert_eq!(opacity_to_see_robot, full_opacity);
-        let opacity_to_see_robot =
-            get_opacity_to_see_robot(&CellIndex::new(4, 7, 7), tile, &robots);
-        assert_eq!(opacity_to_see_robot, full_opacity);
-    }
-
-    #[test]
-    fn test_full_opacity_to_see_robot_when_non_covering() {
-        let full_opacity = 1.0;
-        let robots = vec![Robot {
-            position: CellIndex::new(2, 5, 7),
-        }];
-        let opacity_to_see_robot =
-            get_opacity_to_see_robot(&CellIndex::new(2, 5, 8), TileType::FloorRock, &robots);
-        assert_eq!(opacity_to_see_robot, full_opacity);
     }
 }

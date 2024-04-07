@@ -18,13 +18,10 @@ use map::CellIndex;
 use map::Map;
 use networks::Networks;
 use robots::Robot;
-use robots::{
-    is_tile_actionable, move_robot_to_position, move_robot_to_tasks, reachable_positions,
-};
 
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::{DEFAULT_ADVANCING_FLUIDS, DEFAULT_PROFILE_ENABLED};
-use crate::world::map::cell::{ages, is_networkable, transition_aging_tile};
+use crate::world::map::cell::{transition_aging_tile};
 use crate::world::map::{Cell, TileType};
 
 type AgeInMinutes = i64;
@@ -205,115 +202,6 @@ impl World {
                 Task::Movement(_) => {}
             }
         }
-    }
-
-    fn advance_robots_task_queue(&mut self) {
-        if let Option::Some(task) = self.task_queue.pop_front() {
-            match task {
-                Task::Transform(transform) => {
-                    let remaining = self.transform_cells_if_robots_can_do_so(transform);
-                    if let Option::Some(remaining_task) = remaining {
-                        self.task_queue.push_front(Task::Transform(remaining_task));
-                    }
-                    self.move_robots();
-                }
-                Task::Movement(movement) => {
-                    let remaining = self.move_robots_to_position(&movement);
-                    if let Option::Some(remaining_task) = remaining {
-                        self.task_queue.push_front(Task::Movement(remaining_task));
-                    }
-                }
-            }
-        }
-    }
-
-    fn transform_cells_if_robots_can_do_so(
-        &mut self,
-        transform: TransformationTask,
-    ) -> Option<TransformationTask> {
-        let mut transform_opt = Option::Some(transform);
-        for robot in &self.robots.clone() {
-            if let Option::Some(transform) = transform_opt {
-                transform_opt = self.transform_single_cell_if_robot_can_do_so(robot, transform);
-            }
-        }
-        return transform_opt;
-    }
-
-    /// Returns None: task finished. Some: task partially advanced.
-    fn transform_single_cell_if_robot_can_do_so(
-        &mut self,
-        robot: &Robot,
-        mut transform: TransformationTask,
-    ) -> Option<TransformationTask> {
-        for reachable_pos_diff in reachable_positions() {
-            let reachable_position = robot.position + reachable_pos_diff;
-            let transformation_here = transform.to_transform.take(&reachable_position);
-            if transformation_here.is_some() {
-                if is_tile_actionable(
-                    self.map.get_cell(robot.position).tile_type,
-                    &robot.position,
-                    &reachable_position,
-                ) {
-                    let cell = self.map.get_cell_mut(reachable_position);
-                    let mut cell_copy = cell.clone();
-                    transform.transformation.apply(&mut cell_copy);
-                    if is_networkable(cell_copy.tile_type) {
-                        let added = self.networks.add(reachable_position, cell_copy.tile_type);
-                        if !added {
-                            // transformation can't be done on this cell,
-                            // probably because it's a machine not connected to the ship
-                            transform.to_transform.insert(reachable_position);
-                            return Some(transform);
-                        }
-                    }
-                    *cell = cell_copy;
-                    if ages(cell.tile_type) {
-                        self.aging_tiles.insert(reachable_position);
-                        self.life.insert(reachable_position);
-                    } else {
-                        self.aging_tiles.remove(&reachable_position);
-                        self.life.remove(&reachable_position);
-                    }
-                    if transform.to_transform.len() == 0 {
-                        // no need to reinsert this
-                        return Option::None;
-                    }
-                    // we only want to transform 1 cell, so do an early return with the remaining
-                    // positions of this task
-                    return Option::Some(transform);
-                } else {
-                    transform.to_transform.insert(reachable_position);
-                }
-            }
-        }
-        // No actions done. Task still pending.
-        return Option::Some(transform);
-    }
-
-    fn move_robots(&mut self) {
-        for robot in &mut self.robots {
-            let movement_opt = move_robot_to_tasks(robot.position, &self.task_queue, &self.map);
-            if let Option::Some(movement) = movement_opt {
-                robot.position += movement;
-            }
-        }
-    }
-
-    /// returns Some: more movement needed. None: destination reached.
-    fn move_robots_to_position(&mut self, movement_target: &CellIndex) -> Option<CellIndex> {
-        for robot in &mut self.robots {
-            let movement_opt = move_robot_to_position(robot.position, movement_target, &self.map);
-            if let Option::Some(movement) = movement_opt {
-                robot.position += movement;
-                if robot.position == *movement_target {
-                    return Option::None;
-                }
-            } else {
-                return Option::None;
-            }
-        }
-        return Option::Some(*movement_target);
     }
 
     fn age_tiles(&mut self) {
