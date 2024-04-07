@@ -90,6 +90,7 @@ mod game_goal_state_transition_tests {
 #[cfg(test)]
 mod building_tests {
     use crate::screen::gui::GuiActions;
+    use crate::world::map::cell::DEFAULT_HEALTH;
     use crate::world::map::transform_cells::Transformation;
     use crate::world::map::{CellIndex, TileType};
     use crate::world::{TransformationTask, World};
@@ -188,5 +189,35 @@ mod building_tests {
         world.update(gui_actions);
         world.update(GuiActions::default());
         assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
+    }
+
+    #[test]
+    fn test_trees_degrade() {
+        let mut world = World::new();
+        world.game_state.set_advance_every_frame();
+        let cell = world.map.get_ship_position().unwrap() + CellIndex::new(0, 0, 1);
+        let from_tile = TileType::FloorDirt;
+        let to_tile = TileType::TreeHealthy;
+        assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
+
+        let gui_actions = gui_action_transform_tile(cell, to_tile);
+        world.update(gui_actions);
+        assert_eq!(world.map.get_cell(cell).tile_type, to_tile);
+        for _ in 0..DEFAULT_HEALTH {
+            world.update(GuiActions::default());
+        }
+        assert_eq!(world.map.get_cell(cell).tile_type, TileType::TreeSparse);
+        for _ in 0..DEFAULT_HEALTH {
+            world.update(GuiActions::default());
+        }
+        assert_eq!(world.map.get_cell(cell).tile_type, TileType::TreeDying);
+        for _ in 0..DEFAULT_HEALTH {
+            world.update(GuiActions::default());
+        }
+        assert_eq!(world.map.get_cell(cell).tile_type, TileType::TreeDead);
+        for _ in 0..DEFAULT_HEALTH {
+            world.update(GuiActions::default());
+        }
+        assert_eq!(world.map.get_cell(cell).tile_type, TileType::TreeDead);
     }
 }

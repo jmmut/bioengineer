@@ -21,7 +21,7 @@ use robots::Robot;
 
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::{DEFAULT_ADVANCING_FLUIDS, DEFAULT_PROFILE_ENABLED};
-use crate::world::map::cell::{transition_aging_tile};
+use crate::world::map::cell::{ages, transition_aging_tile};
 use crate::world::map::{Cell, TileType};
 
 type AgeInMinutes = i64;
@@ -187,6 +187,13 @@ impl World {
                         transformation.apply(&mut cell_copy);
                         if self.networks.add(pos_to_transform, cell_copy.tile_type) {
                             *cell = cell_copy;
+                            if ages(cell.tile_type) {
+                                self.aging_tiles.insert(pos_to_transform);
+                                self.life.insert(pos_to_transform);
+                            } else {
+                                self.aging_tiles.remove(&pos_to_transform);
+                                self.life.remove(&pos_to_transform);
+                            }
                         } else {
                             remaining.insert(pos_to_transform);
                         }

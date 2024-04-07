@@ -163,7 +163,6 @@ pub fn hitbox_offset_square() -> PixelPosition {
 mod tests {
     use super::*;
 
-
     #[test]
     fn transparency_border_no_offset() {
         let min_cell = CellIndex::new(-5, -25, -55);
