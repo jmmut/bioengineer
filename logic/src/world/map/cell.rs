@@ -149,6 +149,8 @@ pub fn is_walkable_horizontal(tile: TileType) -> bool {
         MachineSolarPanel,
         MachineShip,
         TreeHealthy,
+        TreeSparse,
+        TreeDying,
         TreeDead,
     ]
     .contains(&tile)

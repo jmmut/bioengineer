@@ -3,7 +3,7 @@ use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::screen::gui::{GuiActions, FONT_SIZE};
 use crate::world::map::cell::is_networkable;
-use crate::world::map::{is_liquid_or_air, Cell, CellIndex, TileType};
+use crate::world::map::{is_liquid_or_air, is_walkable_horizontal, Cell, CellIndex, TileType};
 use crate::world::networks::Networks;
 use crate::world::World;
 
@@ -72,7 +72,7 @@ fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> 
     if tile == TileType::MachineShip {
         description.push("Can't be deconstructed".to_string());
     }
-    if is_liquid_or_air(tile) {
+    if is_liquid_or_air(tile) || is_walkable_horizontal(tile) || cell.pressure > 0 {
         description.push(format!("- Liquid pressure: {} ", cell.pressure));
         if cell.pressure == 0 && tile != TileType::Air {
             // println!("wut");

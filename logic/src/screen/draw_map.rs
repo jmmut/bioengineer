@@ -56,13 +56,17 @@ fn draw_cell(
 }
 
 fn choose_texture<'a>(cell: &'a Cell, tile_type: &'a TileType) -> &'a dyn TextureIndexTrait {
-    if cell.tile_type != TileType::Air {
-        tile_type
-    } else {
+    if cell.tile_type == TileType::Air {
         if cell.pressure <= 0 {
             tile_type
         } else if cell.pressure <= VERTICAL_PRESSURE_DIFFERENCE {
             &ExtraTextures::DirtyWaterSurface
+        } else {
+            &ExtraTextures::DirtyWaterWall
+        }
+    } else {
+        if cell.pressure <= VERTICAL_PRESSURE_DIFFERENCE {
+            tile_type
         } else {
             &ExtraTextures::DirtyWaterWall
         }

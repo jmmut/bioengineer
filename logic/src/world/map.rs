@@ -277,6 +277,7 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
         let enlargement_by_deepness = -cell_index.y as f32 / steepness;
         let is_land = horizontal_distance_from_center < island_radius + enlargement_by_deepness;
         if is_land {
+            cell.pressure = VERTICAL_PRESSURE_DIFFERENCE; // Hack to make floors and machines quickly floodable
             cell.tile_type = if cell_index.y == 1 {
                 TileType::FloorDirt
             } else {

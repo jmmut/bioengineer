@@ -5,7 +5,8 @@ use crate::common::profiling::ScopedProfiler;
 use crate::world::map::chunk::cell_iter::CellIterItem;
 use crate::world::map::ref_mut_iterator::RefMutIterator;
 use crate::world::map::{
-    cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, Cell, CellCubeIterator, CellIndex, Map,
+    cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, is_walkable_horizontal, Cell,
+    CellCubeIterator, CellIndex, Map,
 };
 
 pub const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
@@ -125,7 +126,7 @@ fn prepare_fluid_sideways(map: &mut Map) {
     let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
-        if is_liquid(cell.tile_type) {
+        if is_liquid_or_air(cell.tile_type) || is_walkable_horizontal(cell.tile_type) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
             flow.flow_outwards(cell_index + xp, current_pressure, &mut pressure_diff);
@@ -155,7 +156,7 @@ fn advance_fluid_sideways(map: &mut Map) {
     let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
-        if is_liquid(cell.tile_type) {
+        if is_liquid_or_air(cell.tile_type) || is_walkable_horizontal(cell.tile_type) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
             flow.maybe_flow_inwards(cell_index + xp, current_pressure, &mut pressure_diff);
@@ -260,7 +261,7 @@ impl<'a> Flow<'a> {
 fn is_floodable(cell_index: CellIndex, map: &Map) -> Option<Cell> {
     let option_cell = map.get_cell_optional(cell_index);
     return if let Option::Some(cell) = option_cell {
-        if is_liquid_or_air(cell.tile_type) {
+        if is_liquid_or_air(cell.tile_type) || is_walkable_horizontal(cell.tile_type) {
             Option::Some(*cell)
         } else {
             Option::None
