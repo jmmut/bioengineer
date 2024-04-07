@@ -62,30 +62,37 @@ pub fn allowed_transformations_of_cell(
         Unset => {
             panic!("can not transform an UNSET cell!")
         }
-        WallRock => machines_plus(vec![FloorRock, Stairs, TreeHealthy]),
-        WallDirt => machines_plus(vec![FloorDirt, Stairs, TreeHealthy]),
-        FloorRock => machines_plus(vec![Stairs, TreeHealthy]),
-        FloorDirt => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
-        Stairs => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
-        Air => vec![DirtyWaterSurface, DirtyWaterWall, WallRock],
-        Wire => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
-        MachineAssembler => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
-        MachineAirCleaner => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
-        MachineDrill => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
-        MachineSolarPanel => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
-        MachineShip => machines_plus(vec![Stairs, FloorRock, TreeHealthy]),
+        WallRock => machines_plus(vec![FloorRock, TreeHealthy]),
+        WallDirt => machines_plus(vec![FloorDirt, TreeHealthy]),
+        FloorRock => machines_plus(vec![TreeHealthy]),
+        FloorDirt => machines_plus(vec![FloorRock, TreeHealthy]),
+        Stairs => machines_plus(vec![FloorRock, TreeHealthy]),
+        Air => vec![
+            // DirtyWaterSurface, DirtyWaterWall,
+            WallRock, FloorRock,
+            // WallDirt,
+            // FloorDirt,
+        ],
+        Wire => machines_plus(vec![FloorRock, TreeHealthy]),
+        MachineAssembler => machines_plus(vec![FloorRock, TreeHealthy]),
+        MachineAirCleaner => machines_plus(vec![FloorRock, TreeHealthy]),
+        MachineDrill => machines_plus(vec![FloorRock, TreeHealthy]),
+        MachineSolarPanel => machines_plus(vec![FloorRock, TreeHealthy]),
+        MachineShip => vec![],
         DirtyWaterSurface => vec![
+            WallRock, FloorRock,
             // Air
         ],
-        CleanWaterSurface => vec![],
+        CleanWaterSurface => vec![WallRock, FloorRock],
         DirtyWaterWall => vec![
+            WallRock, FloorRock,
             // Air
         ],
-        CleanWaterWall => vec![],
-        TreeHealthy => machines_plus(vec![FloorRock, Stairs]),
-        TreeSparse => machines_plus(vec![FloorRock, Stairs]),
-        TreeDying => machines_plus(vec![FloorRock, Stairs]),
-        TreeDead => machines_plus(vec![FloorRock, Stairs]),
+        CleanWaterWall => vec![WallRock, FloorRock],
+        TreeHealthy => machines_plus(vec![FloorRock]),
+        TreeSparse => machines_plus(vec![FloorRock]),
+        TreeDying => machines_plus(vec![FloorRock]),
+        TreeDead => machines_plus(vec![FloorRock]),
     };
     new_tiles.push(cell.tile_type);
     if cell.tile_type != Air {
