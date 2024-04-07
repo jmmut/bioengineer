@@ -68,7 +68,7 @@ impl Map {
         for (i, cell_index) in CellCubeIterator::new(min_cell, max_cell).enumerate() {
             map.get_cell_mut(cell_index).pressure = cells[i];
             map.get_cell_mut(cell_index).tile_type = if cells[i] >= 0 {
-                TileType::DirtyWaterWall
+                TileType::Air
             } else {
                 TileType::WallRock
             };
@@ -283,11 +283,7 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
                 TileType::WallRock
             };
         } else {
-            cell.tile_type = match cell_index.y.cmp(&0) {
-                Ordering::Greater => TileType::Air,
-                Ordering::Less => TileType::DirtyWaterWall,
-                Ordering::Equal => TileType::DirtyWaterSurface,
-            };
+            cell.tile_type = TileType::Air;
             use VERTICAL_PRESSURE_DIFFERENCE as PRESSURE;
             cell.pressure = i32::max(0, PRESSURE - PRESSURE * cell_index.y);
         }
@@ -300,14 +296,7 @@ fn choose_tile(value: f64, cell_index: CellIndex) -> TileType {
     match cell_index.y.cmp(&terrain_height) {
         Ordering::Less => WallRock,
         Ordering::Equal => FloorDirt,
-        Ordering::Greater => {
-            let water_height = 0;
-            match cell_index.y.cmp(&water_height) {
-                Ordering::Less => DirtyWaterWall,
-                Ordering::Equal => DirtyWaterSurface,
-                Ordering::Greater => Air,
-            }
-        }
+        Ordering::Greater => Air,
     }
 }
 

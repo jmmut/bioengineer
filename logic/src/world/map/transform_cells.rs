@@ -1,4 +1,3 @@
-use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
 use crate::world::map::cell::DEFAULT_HEALTH;
 use crate::world::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
 use std::collections::HashSet;
@@ -79,16 +78,16 @@ pub fn allowed_transformations_of_cell(
         MachineDrill => machines_plus(vec![FloorRock, TreeHealthy]),
         MachineSolarPanel => machines_plus(vec![FloorRock, TreeHealthy]),
         MachineShip => vec![],
-        DirtyWaterSurface => vec![
-            WallRock, FloorRock,
-            // Air
-        ],
-        CleanWaterSurface => vec![WallRock, FloorRock],
-        DirtyWaterWall => vec![
-            WallRock, FloorRock,
-            // Air
-        ],
-        CleanWaterWall => vec![WallRock, FloorRock],
+        // DirtyWaterSurface => vec![
+        //     WallRock, FloorRock,
+        //     // Air
+        // ],
+        // CleanWaterSurface => vec![WallRock, FloorRock],
+        // DirtyWaterWall => vec![
+        //     WallRock, FloorRock,
+        //     // Air
+        // ],
+        // CleanWaterWall => vec![WallRock, FloorRock],
         TreeHealthy => machines_plus(vec![FloorRock]),
         TreeSparse => machines_plus(vec![FloorRock]),
         TreeDying => machines_plus(vec![FloorRock]),
@@ -162,13 +161,7 @@ impl Transformation {
     }
 
     pub fn apply(&self, cell: &mut Cell) {
-        if cell.tile_type == TileType::Air {
-            if self.new_tile_type == TileType::DirtyWaterWall {
-                cell.pressure = 2 * VERTICAL_PRESSURE_DIFFERENCE;
-            } else if self.new_tile_type == TileType::DirtyWaterSurface {
-                cell.pressure = VERTICAL_PRESSURE_DIFFERENCE;
-            }
-        } else if is_liquid(cell.tile_type) {
+        if is_liquid(cell.tile_type) {
             if self.new_tile_type == TileType::Air {
                 cell.pressure = 0;
             }

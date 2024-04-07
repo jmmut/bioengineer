@@ -1,5 +1,6 @@
 pub type Health = i16;
 pub type Pressure = i32;
+pub type Pollution = i16;
 use TileType::*;
 
 pub const DEFAULT_HEALTH: Health = 5;
@@ -9,6 +10,7 @@ pub struct Cell {
     pub tile_type: TileType,
     pub pressure: Pressure,
     pub next_pressure: Pressure,
+    // pub pollution: Pollution,
     pub health: Health,
     pub can_flow_out: bool,
 }
@@ -48,10 +50,6 @@ pub enum TileType {
     MachineDrill = 13,
     MachineSolarPanel = 21,
     MachineShip = 28,
-    DirtyWaterSurface = 6,
-    CleanWaterSurface = 7,
-    DirtyWaterWall = 14,
-    CleanWaterWall = 15,
     TreeHealthy = 8,
     TreeSparse = 9,
     TreeDying = 10,
@@ -60,6 +58,10 @@ pub enum TileType {
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
 pub enum ExtraTextures {
+    DirtyWaterSurface = 6,
+    CleanWaterSurface = 7,
+    DirtyWaterWall = 14,
+    CleanWaterWall = 15,
     ZoomedRobot = 32,
     Robot = 4,
     Movement = 22,
@@ -122,10 +124,10 @@ impl TextureIndexTrait for ExtraTextures {
 
 pub fn is_liquid(tile: TileType) -> bool {
     [
-        DirtyWaterWall,
-        CleanWaterWall,
-        DirtyWaterSurface,
-        CleanWaterSurface,
+        // DirtyWaterWall,
+        // CleanWaterWall,
+        // DirtyWaterSurface,
+        // CleanWaterSurface,
         Air,
     ]
     .contains(&tile)
@@ -176,8 +178,8 @@ pub fn is_covering(tile: TileType) -> bool {
         Stairs,
         WallRock,
         WallDirt,
-        DirtyWaterWall,
-        CleanWaterWall,
+        // DirtyWaterWall, //TODO? do we need this kind of opacity test if there's no robots?
+        // CleanWaterWall,
         MachineAssembler,
         MachineAirCleaner,
         MachineDrill,

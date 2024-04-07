@@ -6,7 +6,7 @@ use crate::world::map::chunk::cell_iter::CellIterItem;
 use crate::world::map::ref_mut_iterator::RefMutIterator;
 use crate::world::map::{
     cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, Cell, CellCubeIterator, CellIndex,
-    Map, TileType,
+    Map,
 };
 
 pub const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
@@ -291,23 +291,23 @@ fn update_tile_type(map: &mut Map) {
                     cell_index, cell.pressure, cell.next_pressure
                 );
             }
-            let new_type = if cell.pressure <= 0 {
-                TileType::Air
-            } else if cell.pressure <= VERTICAL_PRESSURE_DIFFERENCE {
-                // if pressure_above > 0 {
-                //     println!("above cell should be air!");
-                // }
-                TileType::DirtyWaterSurface
-            } else {
-                TileType::DirtyWaterWall
-            };
-            // if cell_index == CellIndex::new(0, 1, 5) {
-            //     println!(
-            //         "cell with pressure {}, is {:?}, converted to {:?}",
-            //         cell.pressure, cell.tile_type, new_type
-            //     );
-            // }
-            cell.tile_type = new_type;
+            // let new_type = if cell.pressure <= 0 {
+            //     TileType::Air
+            // } else if cell.pressure <= VERTICAL_PRESSURE_DIFFERENCE {
+            //     // if pressure_above > 0 {
+            //     //     println!("above cell should be air!");
+            //     // }
+            //     TileType::DirtyWaterSurface
+            // } else {
+            //     TileType::DirtyWaterWall
+            // };
+            // // if cell_index == CellIndex::new(0, 1, 5) {
+            // //     println!(
+            // //         "cell with pressure {}, is {:?}, converted to {:?}",
+            // //         cell.pressure, cell.tile_type, new_type
+            // //     );
+            // // }
+            // cell.tile_type = new_type;
         }
     }
     *map = Map::new_from_iter(iter);
