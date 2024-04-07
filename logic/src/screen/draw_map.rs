@@ -6,6 +6,8 @@ use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::main_scene_input::PixelPosition;
+use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
+use crate::world::map::cell::{ExtraTextures, TextureIndexTrait};
 use crate::world::map::{Cell, CellIndex, TileType};
 use crate::world::World;
 use mq_basics::Color;
@@ -35,26 +37,40 @@ fn draw_cell(
     let max_cell = &drawing.max_cell;
     let cell = world.map.get_cell(cell_index);
     let tile_type = cell.tile_type;
+    let texture = choose_texture(cell, &tile_type);
 
     let pixel = cell_to_pixel(cell_index, drawing, screen_width);
     // if drawing.highlighted_cells.len() > 0 {
     //     println!("selected something");
     // }
     if drawing.highlighted_cells().contains(&cell_index) {
-        drawer.draw_colored_texture(&tile_type, pixel.x, pixel.y, drawing.zoom, SELECTION_COLOR);
+        drawer.draw_colored_texture(texture, pixel.x, pixel.y, drawing.zoom, SELECTION_COLOR);
     } else {
-        let opacity = get_opacity(&cell_index, tile_type, world, drawing, min_cell, max_cell);
+        let opacity = get_opacity(&cell_index, drawing, min_cell, max_cell);
         // let opacity = 1.0; // for debugging
-        drawer.draw_transparent_texture(&tile_type, pixel.x, pixel.y, drawing.zoom, opacity);
+
+        drawer.draw_transparent_texture(texture, pixel.x, pixel.y, drawing.zoom, opacity);
     }
     // draw_pressure_number(drawer, cell_index, screen_width, drawing, max_cell, cell)
     // draw_cell_hit_box(drawer, game_state, cell_index);
 }
 
+fn choose_texture<'a>(cell: &'a Cell, tile_type: &'a TileType) -> &'a dyn TextureIndexTrait {
+    if cell.tile_type != TileType::Air {
+        tile_type
+    } else {
+        if cell.pressure <= 0 {
+            tile_type
+        } else if cell.pressure <= VERTICAL_PRESSURE_DIFFERENCE {
+            &ExtraTextures::DirtyWaterSurface
+        } else {
+            &ExtraTextures::DirtyWaterWall
+        }
+    }
+}
+
 fn get_opacity(
     cell_index: &CellIndex,
-    _tile_type: TileType,
-    _world: &World,
     drawing: &DrawingState,
     min_cell: &CellIndex,
     max_cell: &CellIndex,

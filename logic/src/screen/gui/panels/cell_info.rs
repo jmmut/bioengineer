@@ -50,7 +50,13 @@ fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> 
         TileType::FloorRock => "Floor of rock",
         TileType::FloorDirt => "Floor of Dirt",
         TileType::Stairs => "Stairs",
-        TileType::Air => if cell.pressure <= 0 {"Air" } else {"Water" },
+        TileType::Air => {
+            if cell.pressure <= 0 {
+                "Air"
+            } else {
+                "Water"
+            }
+        }
         TileType::Wire => "Wire",
         TileType::MachineAssembler => "Assembler machine",
         TileType::MachineAirCleaner => "Air cleaner machine",
