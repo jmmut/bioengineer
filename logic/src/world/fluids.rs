@@ -1,13 +1,16 @@
 #[cfg(test)]
 mod tests;
 
+use mq_basics::IVec3;
 use crate::common::profiling::ScopedProfiler;
+use crate::world::fluids::FluidStage::{Downwards, Upwards};
 use crate::world::map::chunk::cell_iter::CellIterItem;
 use crate::world::map::ref_mut_iterator::RefMutIterator;
 use crate::world::map::{
     cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, is_walkable_horizontal, Cell,
     CellCubeIterator, CellIndex, Map,
 };
+use crate::world::map::cell::{is_floodable_from_above, is_floodable_from_below, is_floodable_horizontal};
 
 pub const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
@@ -91,9 +94,9 @@ fn advance_fluid(map: &mut Map) {
 
 fn advance_fluid_downwards(map: &mut Map) {
     #[cfg(test)]
-    println!("advancing");
+    println!("advancing (before down)");
     #[cfg(test)]
-    print_map_pressures(map);
+    print_map_pressures(map, "before down");
 
     let yp = CellIndex::new(0, 1, 0);
     let yn = CellIndex::new(0, -1, 0);
@@ -102,18 +105,18 @@ fn advance_fluid_downwards(map: &mut Map) {
     let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
-        if is_liquid(cell.tile_type) {
+        if is_floodable_from_above(cell.tile_type) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
-            flow.flow_outwards(cell_index + yn, current_pressure, &mut pressure_diff);
-            flow.flow_inwards(cell_index + yp, current_pressure, &mut pressure_diff);
+            flow.flow_outwards(cell_index, yn, current_pressure, &mut pressure_diff);
+            flow.flow_inwards(cell_index, yp, current_pressure, &mut pressure_diff);
             cell.pressure += pressure_diff;
         }
     }
     *map = Map::new_from_iter(iter);
 
     #[cfg(test)]
-    print_map_pressures(map);
+    print_map_pressures(map, "after down");
 }
 
 fn prepare_fluid_sideways(map: &mut Map) {
@@ -126,13 +129,13 @@ fn prepare_fluid_sideways(map: &mut Map) {
     let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
-        if is_liquid_or_air(cell.tile_type) || is_walkable_horizontal(cell.tile_type) {
+        if is_floodable_horizontal(cell.tile_type) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
-            flow.flow_outwards(cell_index + xp, current_pressure, &mut pressure_diff);
-            flow.flow_outwards(cell_index + xn, current_pressure, &mut pressure_diff);
-            flow.flow_outwards(cell_index + zp, current_pressure, &mut pressure_diff);
-            flow.flow_outwards(cell_index + zn, current_pressure, &mut pressure_diff);
+            flow.flow_outwards(cell_index, xp, current_pressure, &mut pressure_diff);
+            flow.flow_outwards(cell_index, xn, current_pressure, &mut pressure_diff);
+            flow.flow_outwards(cell_index, zp, current_pressure, &mut pressure_diff);
+            flow.flow_outwards(cell_index, zn, current_pressure, &mut pressure_diff);
             let next_pressure = pressure_diff + cell.pressure;
             // change this to > for stable, >= for dynamic. see test_minimize_movement()
             cell.can_flow_out = next_pressure >= 0;
@@ -156,13 +159,13 @@ fn advance_fluid_sideways(map: &mut Map) {
     let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
-        if is_liquid_or_air(cell.tile_type) || is_walkable_horizontal(cell.tile_type) {
+        if is_floodable_horizontal(cell.tile_type) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
-            flow.maybe_flow_inwards(cell_index + xp, current_pressure, &mut pressure_diff);
-            flow.maybe_flow_inwards(cell_index + xn, current_pressure, &mut pressure_diff);
-            flow.maybe_flow_inwards(cell_index + zp, current_pressure, &mut pressure_diff);
-            flow.maybe_flow_inwards(cell_index + zn, current_pressure, &mut pressure_diff);
+            flow.maybe_flow_inwards(cell_index, xp, current_pressure, &mut pressure_diff);
+            flow.maybe_flow_inwards(cell_index, xn, current_pressure, &mut pressure_diff);
+            flow.maybe_flow_inwards(cell_index, zp, current_pressure, &mut pressure_diff);
+            flow.maybe_flow_inwards(cell_index, zn, current_pressure, &mut pressure_diff);
             cell.pressure = cell.next_pressure + pressure_diff;
             cell.next_pressure = 0;
             cell.can_flow_out = false;
@@ -171,7 +174,7 @@ fn advance_fluid_sideways(map: &mut Map) {
     *map = Map::new_from_iter(iter);
 
     #[cfg(test)]
-    print_map_pressures(map);
+    print_map_pressures(map, "after sideways");
 }
 
 fn advance_fluid_upwards(map: &mut Map) {
@@ -182,18 +185,18 @@ fn advance_fluid_upwards(map: &mut Map) {
     let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
-        if is_liquid(cell.tile_type) {
+        if is_floodable_from_below(cell.tile_type) {
             let current_pressure = cell.pressure;
             let mut pressure_diff = 0;
-            flow.flow_outwards(cell_index + yp, current_pressure, &mut pressure_diff);
-            flow.flow_inwards(cell_index + yn, current_pressure, &mut pressure_diff);
+            flow.flow_outwards(cell_index, yp, current_pressure, &mut pressure_diff);
+            flow.flow_inwards(cell_index, yn, current_pressure, &mut pressure_diff);
             cell.pressure += pressure_diff;
         }
     }
     *map = Map::new_from_iter(iter);
 
     #[cfg(test)]
-    print_map_pressures(map);
+    print_map_pressures(map, "after upwards");
 }
 
 struct Flow<'a> {
@@ -211,12 +214,13 @@ impl<'a> Flow<'a> {
 
     fn flow_outwards(
         &self,
-        adjacent_index: CellIndex,
+        target_index: CellIndex,
+        diff: CellIndex,
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
     ) {
         if current_pressure > 0 {
-            let option_cell = is_floodable(adjacent_index, self.map);
+            let option_cell = is_floodable(target_index, diff, self.map, true);
             if let Option::Some(adjacent_cell) = option_cell {
                 if (current_pressure - adjacent_cell.pressure) > self.pressure_threshold {
                     *pressure_diff -= 1;
@@ -227,11 +231,12 @@ impl<'a> Flow<'a> {
 
     fn flow_inwards(
         &self,
-        adjacent_index: CellIndex,
+        target_index: CellIndex,
+        diff: CellIndex,
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
     ) {
-        let option_cell = is_floodable(adjacent_index, self.map);
+        let option_cell = is_floodable(target_index, diff, self.map, false);
         if let Option::Some(adjacent_cell) = option_cell {
             if adjacent_cell.pressure > 0
                 && (adjacent_cell.pressure - current_pressure) > self.pressure_threshold
@@ -243,11 +248,12 @@ impl<'a> Flow<'a> {
 
     fn maybe_flow_inwards(
         &self,
-        adjacent_index: CellIndex,
+        target_index: CellIndex,
+        diff: CellIndex,
         current_pressure: Pressure,
         pressure_diff: &mut Pressure,
     ) {
-        let option_cell = is_floodable(adjacent_index, self.map);
+        let option_cell = is_floodable(target_index, diff, self.map, false);
         if let Option::Some(adjacent_cell) = option_cell {
             if adjacent_cell.can_flow_out
                 && ((adjacent_cell.pressure - current_pressure) > self.pressure_threshold)
@@ -258,10 +264,25 @@ impl<'a> Flow<'a> {
     }
 }
 
-fn is_floodable(cell_index: CellIndex, map: &Map) -> Option<Cell> {
-    let option_cell = map.get_cell_optional(cell_index);
+fn is_floodable(cell_index: CellIndex, diff: CellIndex, map: &Map, outwards: bool) -> Option<Cell> {
+    let option_cell = map.get_cell_optional(cell_index + diff);
     return if let Option::Some(cell) = option_cell {
-        if is_liquid_or_air(cell.tile_type) || is_walkable_horizontal(cell.tile_type) {
+        let floodable = if diff == IVec3::Y {
+            if outwards {
+                is_floodable_from_below(cell.tile_type)
+            } else {
+                is_floodable_from_above(cell.tile_type)
+            }
+        } else if diff == IVec3::NEG_Y {
+            if outwards {
+                is_floodable_from_above(cell.tile_type)
+            } else {
+                is_floodable_from_below(cell.tile_type)
+            }
+        } else {
+            is_floodable_horizontal(cell.tile_type)
+        };
+        if floodable {
             Option::Some(*cell)
         } else {
             Option::None
@@ -275,7 +296,7 @@ fn update_tile_type(map: &mut Map) {
     let updated_map = map.clone();
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
-        if is_liquid_or_air(cell.tile_type) {
+        // if is_floodable_horizontal(cell.tile_type) {
             // let nothing_above = {
             //     let index_above = cell_index + CellIndex::new(0, 1, 0);
             //     let option_above_cell = map.get_cell_optional(index_above);
@@ -308,17 +329,18 @@ fn update_tile_type(map: &mut Map) {
             // //     );
             // // }
             // cell.tile_type = new_type;
-        }
+            cell.renderable_pressure = cell.pressure;
+        // }
     }
     *map = Map::new_from_iter(iter);
 }
 
 #[allow(unused)]
-fn print_map_pressures(map: &Map) {
+fn print_map_pressures(map: &Map, name: &str) {
     let iter = CellCubeIterator::new(map.min_cell(), map.max_cell());
     let mut pressures = Vec::new();
     for cell_index in iter {
         pressures.push(map.get_cell(cell_index).pressure)
     }
-    println!("pressures: {:?}", pressures);
+    println!("pressures {}: {:?}", name, pressures);
 }

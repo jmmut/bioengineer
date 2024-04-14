@@ -66,7 +66,7 @@ impl Map {
     ) -> Self {
         let mut map = Self::new_for_cube(min_cell, max_cell);
         for (i, cell_index) in CellCubeIterator::new(min_cell, max_cell).enumerate() {
-            map.get_cell_mut(cell_index).pressure = cells[i];
+            map.get_cell_mut(cell_index).pressure = if cells[i] >= 0 { cells[i] } else { 0 };
             map.get_cell_mut(cell_index).tile_type = if cells[i] >= 0 {
                 TileType::Air
             } else {
@@ -235,7 +235,8 @@ impl Map {
     pub fn _get_pressures(&self, min_cell: CellIndex, max_cell: CellIndex) -> Vec<Pressure> {
         let mut cells = Vec::new();
         for cell_index in CellCubeIterator::new(min_cell, max_cell) {
-            cells.push(self.get_cell(cell_index).pressure);
+            let cell = self.get_cell(cell_index);
+            cells.push(if cell.tile_type == TileType::WallRock {-1 } else {cell.pressure});
         }
         cells
     }
@@ -287,6 +288,7 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
             cell.tile_type = TileType::Air;
             use VERTICAL_PRESSURE_DIFFERENCE as PRESSURE;
             cell.pressure = i32::max(0, PRESSURE - PRESSURE * cell_index.y);
+            cell.renderable_pressure = cell.pressure;
         }
     }
 }

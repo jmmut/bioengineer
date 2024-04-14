@@ -10,6 +10,7 @@ pub struct Cell {
     pub tile_type: TileType,
     pub pressure: Pressure,
     pub next_pressure: Pressure,
+    pub renderable_pressure: Pressure,
     // pub pollution: Pollution,
     pub health: Health,
     pub can_flow_out: bool,
@@ -21,6 +22,7 @@ impl Cell {
             tile_type,
             pressure: 0,
             next_pressure: 0,
+            renderable_pressure: 0,
             can_flow_out: false,
             health: 0,
         }
@@ -162,15 +164,15 @@ pub fn is_walkable_vertical(target_tile: TileType, origin_tile: TileType) -> boo
 }
 
 pub fn is_floodable_horizontal(tile: TileType) -> bool {
-    ![WallDirt, WallRock].contains(&tile)
+    ![Unset, WallDirt, WallRock].contains(&tile)
 }
 
 pub fn is_floodable_from_above(tile: TileType) -> bool {
-    ![WallDirt, WallRock].contains(&tile)
+    ![Unset, WallDirt, WallRock].contains(&tile)
 }
 
 pub fn is_floodable_from_below(tile: TileType) -> bool {
-    is_liquid_or_air(tile)
+    ![Unset, WallDirt, WallRock, FloorDirt, FloorRock, TreeHealthy, TreeSparse, TreeDying, TreeDead].contains(&tile)
 }
 
 /// Returns whether the tile image is tall enough that it would cover a robot behind this tile.
