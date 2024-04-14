@@ -61,22 +61,22 @@ pub fn allowed_transformations_of_cell(
         Unset => {
             panic!("can not transform an UNSET cell!")
         }
-        WallRock => machines_plus(vec![FloorRock, TreeHealthy]),
-        WallDirt => machines_plus(vec![FloorDirt, TreeHealthy]),
+        WallRock => machines_plus(vec![TreeHealthy]),
+        WallDirt => machines_plus(vec![TreeHealthy]),
         FloorRock => machines_plus(vec![TreeHealthy]),
         FloorDirt => machines_plus(vec![FloorRock, TreeHealthy]),
         Stairs => machines_plus(vec![FloorRock, TreeHealthy]),
-        Air => vec![
+        Air => machines_plus(vec![
             // DirtyWaterSurface, DirtyWaterWall,
-            WallRock, FloorRock,
+            WallRock, // FloorRock,
             // WallDirt,
             // FloorDirt,
-        ],
+        ]),
         Wire => machines_plus(vec![FloorRock, TreeHealthy]),
-        MachineAssembler => machines_plus(vec![FloorRock, TreeHealthy]),
-        MachineAirCleaner => machines_plus(vec![FloorRock, TreeHealthy]),
-        MachineDrill => machines_plus(vec![FloorRock, TreeHealthy]),
-        MachineSolarPanel => machines_plus(vec![FloorRock, TreeHealthy]),
+        MachineAssembler => machines_plus(vec![WallRock, TreeHealthy]),
+        MachineAirCleaner => machines_plus(vec![WallRock, TreeHealthy]),
+        MachineDrill => machines_plus(vec![WallRock, TreeHealthy]),
+        MachineSolarPanel => machines_plus(vec![WallRock, TreeHealthy]),
         MachineShip => vec![],
         // DirtyWaterSurface => vec![
         //     WallRock, FloorRock,
@@ -88,10 +88,10 @@ pub fn allowed_transformations_of_cell(
         //     // Air
         // ],
         // CleanWaterWall => vec![WallRock, FloorRock],
-        TreeHealthy => machines_plus(vec![FloorRock]),
-        TreeSparse => machines_plus(vec![FloorRock]),
-        TreeDying => machines_plus(vec![FloorRock]),
-        TreeDead => machines_plus(vec![FloorRock]),
+        TreeHealthy => machines_plus(vec![WallRock]),
+        TreeSparse => machines_plus(vec![WallRock]),
+        TreeDying => machines_plus(vec![WallRock]),
+        TreeDead => machines_plus(vec![WallRock]),
     };
     new_tiles.push(cell.tile_type);
     if cell.tile_type != Air {

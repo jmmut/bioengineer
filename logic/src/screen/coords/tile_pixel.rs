@@ -64,14 +64,18 @@ fn zoom_offset(drawing: &DrawingState, tile_center_x: f32) -> PixelPosition {
 pub fn subtile_to_pixel_offset(subtile: SubTilePosition, zoom: f32) -> PixelPosition {
     PixelPosition::new(
         subtile.x * (assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5 * zoom),
-        subtile.y * (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.25 * zoom),
+        (
+            subtile.y
+            -  assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.0)
+        * (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.25 * zoom),
     )
 }
 
 pub fn pixel_to_subtile_offset(pixel_diff: PixelPosition, zoom: f32) -> SubTilePosition {
     SubTilePosition::new(
         pixel_diff.x / (assets::PIXELS_PER_TILE_WIDTH as f32 * 0.5 * zoom),
-        pixel_diff.y / (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.25 * zoom),
+        assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.0 +
+            pixel_diff.y / (assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.25 * zoom),
     )
 }
 

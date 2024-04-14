@@ -8,7 +8,7 @@ use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::main_scene_input::PixelPosition;
 use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
 use crate::world::map::cell::{ExtraTextures, TextureIndexTrait};
-use crate::world::map::{Cell, CellIndex, TileType};
+use crate::world::map::{Cell, CellIndex, Pressure, TileType};
 use crate::world::World;
 use mq_basics::Color;
 
@@ -46,10 +46,13 @@ fn draw_cell(
     if drawing.highlighted_cells().contains(&cell_index) {
         drawer.draw_colored_texture(texture, pixel.x, pixel.y, drawing.zoom, SELECTION_COLOR);
     } else {
-        let opacity = get_opacity(&cell_index, drawing, min_cell, max_cell);
+        let opacity = get_opacity(&cell_index, drawing, min_cell, max_cell, tile_type, cell.pressure);
         // let opacity = 1.0; // for debugging
 
-        drawer.draw_transparent_texture(texture, pixel.x, pixel.y, drawing.zoom, opacity);
+        let depth = max_cell.y - cell_index.y;
+        let fog = 1.0 - 0.2*depth as f32;
+        let color = Color::new(fog, fog, fog, opacity);
+        drawer.draw_colored_texture(texture, pixel.x, pixel.y, drawing.zoom, color);
     }
     // draw_pressure_number(drawer, cell_index, screen_width, drawing, max_cell, cell)
     // draw_cell_hit_box(drawer, game_state, cell_index);
@@ -78,8 +81,18 @@ fn get_opacity(
     drawing: &DrawingState,
     min_cell: &CellIndex,
     max_cell: &CellIndex,
+    tile_type: TileType,
+    pressure: Pressure,
 ) -> f32 {
-    get_border_opacity(cell_index, min_cell, max_cell, &drawing.subcell_diff)
+    if
+    // cell_index.y == max_cell.y  &&
+    tile_type == TileType::Air
+        && pressure == 0
+    {
+        0.0
+    } else {
+        get_border_opacity(cell_index, min_cell, max_cell, &drawing.subcell_diff)
+    }
 }
 
 #[allow(unused)]
@@ -166,7 +179,7 @@ fn draw_cell_hit_box(drawer: &dyn DrawerTrait, cell_index: CellIndex, drawing: &
 
 /// use this function before `pixel_to_subcell_center()` for a lifted rhombus hitbox
 pub fn hitbox_offset() -> PixelPosition {
-    PixelPosition::new(0.0, assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.125)
+    PixelPosition::new(0.0, assets::PIXELS_PER_TILE_HEIGHT as f32 * -0.125)
 }
 
 /// use this function before `pixel_to_cell()` for a centered square hitbox
