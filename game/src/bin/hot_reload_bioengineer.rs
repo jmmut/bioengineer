@@ -13,7 +13,7 @@ use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::ffi::{c_char, c_int, c_void, CString};
 use std::path::PathBuf;
 use std::sync::mpsc::Receiver;
-use macroquad::input::is_key_down;
+use macroquad::input::{is_key_down, is_key_pressed};
 use bioengineer::external::assets_macroquad::load_tileset;
 
 use bioengineer::external::backends::{factory, introduction_factory, TILESET_PATH};
@@ -68,8 +68,8 @@ async fn main() -> Result<(), AnyError> {
                 info!("reloading lib");
                 (draw_frame, lib_handle) = reload(lib_handle)?;
             }
-            if is_key_down(KeyCode::T) {
-                scene = factory(&args, load_tileset(TILESET_PATH).await).await;
+            if is_key_pressed(KeyCode::T) {
+                scene.as_mut().as_mut().unwrap().set_textures(load_tileset(TILESET_PATH).await);
             }
             sleep_until_next_frame(&mut previous_time).await
         }
