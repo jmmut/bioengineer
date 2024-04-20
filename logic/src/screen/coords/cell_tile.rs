@@ -43,7 +43,8 @@ pub fn subtile_to_subcell(
     subtile_to_subcell_offset(tile) + offset.cast()
 }
 
-/// NOTE we are mixing min_cell and max_cell !!! this is intended
+/// NOTE we are mixing min_cell and max_cell !!! this is intended because the top corner is
+/// high y (upwards), low x (towards top left), low z (towards top right).
 pub fn cell_offset(min_cell: &CellIndex, max_cell: &CellIndex) -> CellIndex {
     CellIndex::new(min_cell.x, max_cell.y, min_cell.z)
 }

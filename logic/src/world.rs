@@ -187,7 +187,7 @@ impl World {
                         transformation.apply(&mut cell_copy);
                         if self.networks.add(pos_to_transform, cell_copy.tile_type) {
                             *cell = cell_copy;
-                            if ages(cell.tile_type) {
+                            if ages(cell.tile_type) { // TODO: is_alive(). otherwise it doesn't make sense to have aging_tiles and life as separate variables
                                 self.aging_tiles.insert(pos_to_transform);
                                 self.life.insert(pos_to_transform);
                             } else {
