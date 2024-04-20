@@ -45,7 +45,7 @@ pub enum TileType {
     FloorRock = 17,
     FloorDirt = 20,
     Stairs = 18,
-    Air = 27,
+    Air = 26,
     Wire = 5,
     MachineAssembler = 12,
     MachineAirCleaner = 30,
