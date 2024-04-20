@@ -178,8 +178,8 @@ impl Networks {
         machines
     }
 
-    pub fn iter(&self) -> Iter<Network> {
-        self.unconnected_networks.iter()
+    pub fn iter(&self) -> impl Iterator<Item=&Network> {
+        std::iter::once(&self.ship_network).chain(self.unconnected_networks.iter())
     }
 
     pub fn get_total_air_cleaned(&self) -> f64 {
