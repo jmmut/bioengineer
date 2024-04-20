@@ -3,27 +3,36 @@ use crate::screen::coords::cast::Cast;
 use crate::screen::coords::cell_pixel::{cell_to_pixel, subcell_center_to_pixel};
 use crate::screen::coords::truncate::assert_in_range_0_1;
 use crate::screen::drawer_trait::DrawerTrait;
-use crate::screen::drawing_state::{DrawingState, SubCellIndex};
+use crate::screen::drawing_state::{DrawingState, SubCellIndex, SubTilePosition};
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
 use crate::screen::main_scene_input::PixelPosition;
 use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
-use crate::world::map::cell::{ExtraTextures, TextureIndexTrait};
-use crate::world::map::{Cell, CellIndex, TileType};
+use crate::world::map::cell::{ExtraTextures, is_networkable, TextureIndexTrait};
+use crate::world::map::{Cell, CellIndex, Pressure, TileType};
 use crate::world::World;
 use mq_basics::Color;
+use crate::screen::coords::tile_pixel::subtile_to_pixel_offset;
 
 const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);
 
 pub fn draw_map(drawer: &dyn DrawerTrait, world: &World, drawing: &DrawingState) {
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
+    let fog = grey(0.5, 0.7);
     for i_y in min_cell.y..=max_cell.y {
+        // draw fog on lower levels, without affecting the top level textures
+        drawer.draw_rectangle(0.0, 0.0,  drawer.screen_width(), drawer.screen_height(), fog);
         for i_z in min_cell.z..=max_cell.z {
             for i_x in min_cell.x..=max_cell.x {
                 draw_cell(drawer, world, CellIndex::new(i_x, i_y, i_z), drawing);
             }
         }
     }
+    // for i_z in min_cell.z..=max_cell.z {
+    //     for i_x in min_cell.x..=max_cell.x {
+    //         draw_cell(drawer, world, CellIndex::new(i_x, max_cell.y + 1, i_z), drawing);
+    //     }
+    // }
 }
 
 fn draw_cell(
@@ -38,38 +47,50 @@ fn draw_cell(
     let cell = world.map.get_cell(cell_index);
     let tile_type = cell.tile_type;
     let texture = choose_texture(cell, &tile_type);
+    let depth = max_cell.y - cell_index.y;
 
-    let pixel = cell_to_pixel(cell_index, drawing, screen_width);
-    // if drawing.highlighted_cells.len() > 0 {
-    //     println!("selected something");
-    // }
+    let mut pixel = cell_to_pixel(cell_index, drawing, screen_width);
+    let level_offset = subtile_to_pixel_offset(SubTilePosition::new(1.0/64.0, -0.5), drawing.zoom);
+    pixel += level_offset * depth as f32;
+    pixel = pixel.round();
+
+    // let opacity = 1.0; // for debugging
+    let opacity = get_opacity(&cell_index, drawing, min_cell, max_cell, tile_type, cell.pressure);
+    let mut color =
+        if depth < 0 {
+            if is_networkable(tile_type) {
+                grey(0.25, 0.125)
+            } else {
+                grey(0.0, 0.0)
+            }
+        } else {
+            let fog = 1.0 - 0.2 * depth.abs() as f32;
+            Color::new(fog, fog, fog, opacity)
+        };
     if drawing.highlighted_cells().contains(&cell_index) {
-        drawer.draw_colored_texture(texture, pixel.x, pixel.y, drawing.zoom, SELECTION_COLOR);
-    } else {
-        let opacity = get_opacity(&cell_index, drawing, min_cell, max_cell);
-        // let opacity = 1.0; // for debugging
-
-        drawer.draw_transparent_texture(texture, pixel.x, pixel.y, drawing.zoom, opacity);
+        color.r = SELECTION_COLOR.r;
+        color.g = SELECTION_COLOR.g;
+        color.b = SELECTION_COLOR.b;
+        if tile_type == TileType::Air {
+            color.a = SELECTION_COLOR.a;
+        }
     }
+    drawer.draw_colored_texture(texture, pixel.x, pixel.y, drawing.zoom, color);
     // draw_pressure_number(drawer, cell_index, screen_width, drawing, max_cell, cell)
     // draw_cell_hit_box(drawer, game_state, cell_index);
 }
 
+fn grey(lightness: f32, opacity: f32) -> Color {
+    Color::new(lightness, lightness, lightness, opacity)
+}
+
 fn choose_texture<'a>(cell: &'a Cell, tile_type: &'a TileType) -> &'a dyn TextureIndexTrait {
-    if cell.tile_type == TileType::Air {
-        if cell.renderable_pressure <= 0 {
-            tile_type
-        } else if cell.renderable_pressure <= VERTICAL_PRESSURE_DIFFERENCE {
-            &ExtraTextures::DirtyWaterSurface
-        } else {
-            &ExtraTextures::DirtyWaterWall
-        }
+    if cell.renderable_pressure <= 0 {
+        tile_type
+    } else if cell.renderable_pressure <= VERTICAL_PRESSURE_DIFFERENCE {
+        &ExtraTextures::DirtyWaterSurface
     } else {
-        if cell.renderable_pressure <= VERTICAL_PRESSURE_DIFFERENCE {
-            tile_type
-        } else {
-            &ExtraTextures::DirtyWaterWall
-        }
+        &ExtraTextures::DirtyWaterWall
     }
 }
 
@@ -78,8 +99,18 @@ fn get_opacity(
     drawing: &DrawingState,
     min_cell: &CellIndex,
     max_cell: &CellIndex,
+    tile_type: TileType,
+    pressure: Pressure,
 ) -> f32 {
-    get_border_opacity(cell_index, min_cell, max_cell, &drawing.subcell_diff)
+    if
+    // cell_index.y == max_cell.y  &&
+    tile_type == TileType::Air
+        && pressure == 0
+    {
+        0.0
+    } else {
+        get_border_opacity(cell_index, min_cell, max_cell, &drawing.subcell_diff)
+    }
 }
 
 #[allow(unused)]
@@ -166,7 +197,7 @@ fn draw_cell_hit_box(drawer: &dyn DrawerTrait, cell_index: CellIndex, drawing: &
 
 /// use this function before `pixel_to_subcell_center()` for a lifted rhombus hitbox
 pub fn hitbox_offset() -> PixelPosition {
-    PixelPosition::new(0.0, assets::PIXELS_PER_TILE_HEIGHT as f32 * 0.125)
+    PixelPosition::new(0.0, assets::PIXELS_PER_TILE_HEIGHT as f32 * -0.125)
 }
 
 /// use this function before `pixel_to_cell()` for a centered square hitbox

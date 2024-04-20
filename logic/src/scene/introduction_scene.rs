@@ -150,6 +150,9 @@ impl IntroductionSceneState {
     pub fn take_textures(self) -> Vec<Texture2D> {
         self.drawer.unwrap().take_textures()
     }
+    pub fn set_textures(&mut self, textures: Vec<Texture2D>) {
+        self.drawer.as_mut().unwrap().set_textures(textures)
+    }
 }
 
 impl Scene for IntroductionScene {

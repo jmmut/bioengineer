@@ -31,6 +31,12 @@ impl SceneState {
             SceneState::Main(state) => state.screen.drawer.take_textures(),
         }
     }
+    pub fn set_textures(&mut self, textures: Vec<Texture2D>) {
+        match self {
+            SceneState::Introduction(state) => state.set_textures(textures),
+            SceneState::Main(state) => state.screen.drawer.set_textures(textures),
+        }
+    }
 }
 
 pub fn frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {

@@ -61,22 +61,22 @@ pub fn allowed_transformations_of_cell(
         Unset => {
             panic!("can not transform an UNSET cell!")
         }
-        WallRock => machines_plus(vec![FloorRock, TreeHealthy]),
-        WallDirt => machines_plus(vec![FloorDirt, TreeHealthy]),
+        WallRock => machines_plus(vec![TreeHealthy]),
+        WallDirt => machines_plus(vec![TreeHealthy]),
         FloorRock => machines_plus(vec![TreeHealthy]),
         FloorDirt => machines_plus(vec![FloorRock, TreeHealthy]),
         Stairs => machines_plus(vec![FloorRock, TreeHealthy]),
-        Air => vec![
+        Air => machines_plus(vec![
             // DirtyWaterSurface, DirtyWaterWall,
-            WallRock, FloorRock,
+            WallRock, // FloorRock,
             // WallDirt,
             // FloorDirt,
-        ],
+        ]),
         Wire => machines_plus(vec![FloorRock, TreeHealthy]),
-        MachineAssembler => machines_plus(vec![FloorRock, TreeHealthy]),
-        MachineAirCleaner => machines_plus(vec![FloorRock, TreeHealthy]),
-        MachineDrill => machines_plus(vec![FloorRock, TreeHealthy]),
-        MachineSolarPanel => machines_plus(vec![FloorRock, TreeHealthy]),
+        MachineAssembler => machines_plus(vec![WallRock, TreeHealthy]),
+        MachineAirCleaner => machines_plus(vec![WallRock, TreeHealthy]),
+        MachineDrill => machines_plus(vec![WallRock, TreeHealthy]),
+        MachineSolarPanel => machines_plus(vec![WallRock, TreeHealthy]),
         MachineShip => vec![],
         // DirtyWaterSurface => vec![
         //     WallRock, FloorRock,
@@ -88,10 +88,10 @@ pub fn allowed_transformations_of_cell(
         //     // Air
         // ],
         // CleanWaterWall => vec![WallRock, FloorRock],
-        TreeHealthy => machines_plus(vec![FloorRock]),
-        TreeSparse => machines_plus(vec![FloorRock]),
-        TreeDying => machines_plus(vec![FloorRock]),
-        TreeDead => machines_plus(vec![FloorRock]),
+        TreeHealthy => machines_plus(vec![WallRock]),
+        TreeSparse => machines_plus(vec![WallRock]),
+        TreeDying => machines_plus(vec![WallRock]),
+        TreeDead => machines_plus(vec![WallRock]),
     };
     new_tiles.push(cell.tile_type);
     if cell.tile_type != Air {
@@ -165,7 +165,8 @@ impl Transformation {
             if self.new_tile_type == TileType::Air {
                 cell.pressure = 0;
             }
-        } else if self.new_tile_type == TileType::TreeHealthy {
+        }
+        if self.new_tile_type == TileType::TreeHealthy {
             cell.health = DEFAULT_HEALTH;
         }
         cell.tile_type = self.new_tile_type;
@@ -263,27 +264,27 @@ mod tests {
     fn test_identity_on_hetergeneous_set() {
         let mut fx = CellTransformationFixture::new();
         let cell_indexes = [CellIndex::new(0, 5, 0), CellIndex::new(0, 6, 0)];
-        fx.map.get_cell_mut(cell_indexes[0]).tile_type = TileType::FloorRock;
+        fx.map.get_cell_mut(cell_indexes[0]).tile_type = TileType::WallRock;
         fx.map.get_cell_mut(cell_indexes[1]).tile_type = TileType::MachineAirCleaner;
         let transformations = allowed_transformations(&HashSet::from(cell_indexes), &fx.map);
         let contains_cleaner =
             transformations.contains(&Transformation::to(TileType::MachineAirCleaner));
         assert_eq!(contains_cleaner, true);
-        let contains_floor = transformations.contains(&Transformation::to(TileType::FloorRock));
+        let contains_floor = transformations.contains(&Transformation::to(TileType::WallRock));
         assert_eq!(contains_floor, true);
     }
 
     #[test]
-    fn test_dirt_floor_and_machines_can_become_rock_floor() {
+    fn test_air_and_machines_can_become_rock_wall() {
         let mut fx = CellTransformationFixture::new();
         let cell_indexes = [CellIndex::new(0, 5, 0), CellIndex::new(0, 6, 0)];
-        fx.map.get_cell_mut(cell_indexes[0]).tile_type = TileType::FloorDirt;
+        fx.map.get_cell_mut(cell_indexes[0]).tile_type = TileType::Air;
         fx.map.get_cell_mut(cell_indexes[1]).tile_type = TileType::MachineAirCleaner;
         let transformations = allowed_transformations(&HashSet::from(cell_indexes), &fx.map);
         let contains_cleaner =
             transformations.contains(&Transformation::to(TileType::MachineAirCleaner));
         assert_eq!(contains_cleaner, true);
-        let contains_floor = transformations.contains(&Transformation::to(TileType::FloorRock));
+        let contains_floor = transformations.contains(&Transformation::to(TileType::WallRock));
         assert_eq!(contains_floor, true);
     }
 

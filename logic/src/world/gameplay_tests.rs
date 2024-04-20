@@ -115,7 +115,7 @@ mod building_tests {
     fn test_build_machine_next_to_ship() {
         let mut world = World::new();
         let cell = world.map.get_ship_position().unwrap() + CellIndex::new(0, 0, 1);
-        let from_tile = TileType::FloorDirt;
+        let from_tile = TileType::Air;
         let to_tile = TileType::MachineAirCleaner;
         assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
 
@@ -128,7 +128,7 @@ mod building_tests {
     fn test_build_tree_next_to_ship() {
         let mut world = World::new();
         let cell = world.map.get_ship_position().unwrap() + CellIndex::new(0, 0, 1);
-        let from_tile = TileType::FloorDirt;
+        let from_tile = TileType::Air;
         let to_tile = TileType::TreeHealthy;
         assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
 
@@ -142,7 +142,7 @@ mod building_tests {
         let mut world = World::new();
         world.game_state.set_advance_every_frame();
         let cell = world.map.get_ship_position().unwrap() + CellIndex::new(0, 0, 1);
-        let from_tile = TileType::FloorDirt;
+        let from_tile = TileType::Air;
         let to_tile = TileType::MachineAirCleaner;
         assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
 
@@ -196,7 +196,7 @@ mod building_tests {
         let mut world = World::new();
         world.game_state.set_advance_every_frame();
         let cell = world.map.get_ship_position().unwrap() + CellIndex::new(0, 0, 1);
-        let from_tile = TileType::FloorDirt;
+        let from_tile = TileType::Air;
         let to_tile = TileType::TreeHealthy;
         assert_eq!(world.map.get_cell(cell).tile_type, from_tile);
 

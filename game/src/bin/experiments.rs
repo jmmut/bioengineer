@@ -1,5 +1,5 @@
 use bioengineer::external::assets_macroquad::load_tileset;
-use bioengineer::external::backends::{drawer_factory, UiBackend};
+use bioengineer::external::backends::{drawer_factory, TILESET_PATH, UiBackend};
 use bioengineer::external::main_input_macroquad::InputMacroquad as InputSource;
 use logic::screen::drawer_trait::DrawerTrait;
 use logic::screen::gui::set_skin;
@@ -34,7 +34,7 @@ fn window_conf() -> Conf {
 }
 
 async fn factory() -> (Box<dyn DrawerTrait>, Box<InputSource>) {
-    let tileset = load_tileset("assets/image/tileset.png");
+    let tileset = load_tileset(TILESET_PATH);
     let drawer_name = std::env::args().last();
     let mut drawer = drawer_factory_from_name(drawer_name, tileset.await);
     set_skin(drawer.as_mut());

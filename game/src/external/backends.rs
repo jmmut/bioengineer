@@ -14,6 +14,8 @@ use logic::SceneState;
 use macroquad::texture::Texture2D;
 use std::str::FromStr;
 
+pub const TILESET_PATH: &'static str = "assets/image/tileset.png";
+
 #[derive(Debug, Copy, Clone)]
 pub enum UiBackend {
     Macroquad,
@@ -44,6 +46,7 @@ pub async fn factory(args: &CliArgs, textures: Vec<Texture2D>) -> Box<Option<Sce
         world,
     })))
 }
+
 pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
     let drawer = drawer_factory(args.ui, Vec::new());
     let input = Box::new(InputMacroquad);
@@ -55,7 +58,7 @@ pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
     Box::new(Some(SceneState::Introduction(IntroductionSceneState::new(
         drawer,
         input,
-        TextureLoader::new_from_image(&["assets/image/tileset.png"]),
+        TextureLoader::new_from_image(&[TILESET_PATH]),
         assets_macroquad::split_tileset,
         juquad_functions,
     ))))
