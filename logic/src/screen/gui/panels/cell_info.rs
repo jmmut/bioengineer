@@ -67,6 +67,7 @@ fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> 
         TileType::MachineDrill => "Drill machine",
         TileType::MachineSolarPanel => "Solar panel machine",
         TileType::MachineShip => "Spaceship",
+        TileType::MachineStorage => "Storage",
         TileType::TreeHealthy => "Tree (Healthy)",
         TileType::TreeSparse => "Tree (Sparse)",
         TileType::TreeDying => "Tree (Dying)",

@@ -1,6 +1,7 @@
 use crate::world::map::cell::DEFAULT_HEALTH;
 use crate::world::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
 use std::collections::HashSet;
+use crate::world::map::TileType::{TreeHealthy, WallRock};
 
 const AIR_LEVELS_FOR_ALLOWING_SOLAR: i32 = 20;
 
@@ -49,6 +50,7 @@ pub fn allowed_transformations_of_cell(
         MachineAirCleaner,
         // MachineDrill,
         Wire,
+        MachineStorage,
     ];
     if solar_allowed(cell_index, map) {
         machines.push(MachineSolarPanel);
@@ -72,11 +74,12 @@ pub fn allowed_transformations_of_cell(
                      // WallDirt,
                      // FloorDirt,
         ]),
-        Wire => machines_plus(vec![FloorRock, TreeHealthy]),
-        MachineAssembler => machines_plus(vec![WallRock, TreeHealthy]),
-        MachineAirCleaner => machines_plus(vec![WallRock, TreeHealthy]),
-        MachineDrill => machines_plus(vec![WallRock, TreeHealthy]),
-        MachineSolarPanel => machines_plus(vec![WallRock, TreeHealthy]),
+        Wire
+        | MachineAssembler
+        | MachineAirCleaner
+        | MachineDrill
+        | MachineSolarPanel
+        | MachineStorage => machines_plus(vec![WallRock, TreeHealthy]),
         MachineShip => vec![],
         // DirtyWaterSurface => vec![
         //     WallRock, FloorRock,

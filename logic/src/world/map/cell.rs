@@ -52,10 +52,12 @@ pub enum TileType {
     MachineDrill = 13,
     MachineSolarPanel = 21,
     MachineShip = 28,
+    MachineStorage = 0,
     TreeHealthy = 8,
     TreeSparse = 9,
     TreeDying = 10,
     TreeDead = 11,
+
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
@@ -150,6 +152,7 @@ pub fn is_walkable_horizontal(tile: TileType) -> bool {
         MachineDrill,
         MachineSolarPanel,
         MachineShip,
+        MachineStorage,
         TreeHealthy,
         TreeSparse,
         TreeDying,
@@ -212,6 +215,7 @@ pub fn is_networkable(tile: TileType) -> bool {
         MachineDrill,
         MachineSolarPanel,
         MachineShip,
+        MachineStorage,
     ]
     .contains(&tile)
 }
