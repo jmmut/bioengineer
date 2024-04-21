@@ -5,6 +5,7 @@ use crate::screen::gui::{GuiActions, FONT_SIZE};
 use crate::screen::main_scene_input::CellSelection;
 use crate::screen::gui::format_units::{Grams, Watts};
 use crate::screen::gui::panels::longest;
+use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{is_liquid_or_air, is_walkable_horizontal, Cell, CellIndex, TileType};
 use crate::world::networks::network::{POWER_PER_SOLAR_PANEL, STORAGE_PER_STORAGE_MACHINE};
