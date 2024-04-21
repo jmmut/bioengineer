@@ -257,7 +257,7 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
         checkbox.ui(self.egui_ui.as_mut().unwrap());
     }
 
-    fn ui_slider(&mut self, x: f32, y: f32, label: &str, range: Range<f32>, number: &mut f32) {
+    fn ui_slider(&mut self, _x: f32, _y: f32, _label: &str, _range: Range<f32>, _number: &mut f32) {
         todo!()
     }
 

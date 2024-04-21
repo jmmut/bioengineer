@@ -1,4 +1,4 @@
-use crate::screen::gui::format_units::{format_unit, Watts};
+use crate::screen::gui::format_units::{format_unit, format_watts, Grams, Liters, Watts};
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::robots::CellIndexDiff;
@@ -6,6 +6,7 @@ use std::collections::{HashSet, VecDeque};
 
 pub struct Network {
     pub nodes: Vec<Node>,
+    pub stored_resources: f64,
 }
 
 #[derive(Copy, Clone)]
@@ -14,14 +15,15 @@ pub struct Node {
     pub tile: TileType,
 }
 
-pub const POWER_PER_SOLAR_PANEL: f64 = 1000.0;
-pub const POWER_CONSUMED_PER_MACHINE: f64 = POWER_PER_SOLAR_PANEL;
+pub const POWER_PER_SOLAR_PANEL: Watts = 1000.0;
+pub const POWER_CONSUMED_PER_MACHINE: Watts = POWER_PER_SOLAR_PANEL;
 
-const AIR_CLEANED_PER_CLEANER_PER_UPDATE: f64 = 1.0;
+const AIR_CLEANED_PER_CLEANER_PER_UPDATE: Liters = 1.0;
 
-pub const STORAGE_PER_MACHINE: f64 = 1_000_000.0;
-pub const STORAGE_PER_STORAGE_MACHINE: f64 = 10_000_000.0;
-const _STORAGE_PER_WALL: f64 = 100_000_000.0;
+pub const SPACESHIP_INITIAL_STORAGE: Grams = 500_000.0;
+pub const MAX_STORAGE_PER_MACHINE: Grams = 1_000_000.0;
+pub const MAX_STORAGE_PER_STORAGE_MACHINE: Grams = 10_000_000.0;
+const _WALL_WEIGHT: Grams = 100_000_000.0;
 
 #[derive(PartialEq)]
 pub enum Replacement {
@@ -32,12 +34,20 @@ pub enum Replacement {
 }
 
 pub struct NetworkUpdate {
-    pub air_cleaned: f64,
+    pub air_cleaned: Liters,
 }
+
+// pub struct NetworkEffect {
+//     power: f64,
+//     storage: f64,
+// }
 
 impl Network {
     pub fn new() -> Self {
-        Network { nodes: Vec::new() }
+        Network {
+            nodes: Vec::new(),
+            stored_resources: 0.0,
+        }
     }
     pub fn update(&mut self) -> NetworkUpdate {
         let mut air_cleaners = 0;
@@ -63,7 +73,7 @@ impl Network {
 
     pub fn get_power_generated_str(&self) -> String {
         let power = self.get_power_generated();
-        Watts::format(power)
+        format_watts(power)
     }
 
     fn get_power_generated(&self) -> f64 {
@@ -74,7 +84,7 @@ impl Network {
 
     pub fn get_power_required_str(&self) -> String {
         let power = self.get_power_required();
-        Watts::format(power)
+        format_watts(power)
     }
 
     fn get_power_required(&self) -> f64 {
@@ -116,6 +126,15 @@ impl Network {
         format_unit(air_cleaned, "L/s")
     }
 
+    pub fn get_stored_resources(&self) -> Grams {
+        self.stored_resources
+    }
+
+    pub fn get_storage_capacity(&self) -> Grams {
+        let storage_count = self.count_tiles_of_type_in(&[TileType::MachineStorage]);
+        storage_count as f64 * MAX_STORAGE_PER_STORAGE_MACHINE
+            + (self.len() as i32 - storage_count) as f64 * MAX_STORAGE_PER_MACHINE
+    }
     #[allow(unused)]
     fn get(&mut self, cell_index: CellIndex) -> Option<&mut TileType> {
         for node in &mut self.nodes {
@@ -150,8 +169,8 @@ impl Network {
             }
         }
         return if let Option::Some(i) = index_to_change {
-            let should_remove = !is_networkable(new_machine);
-            if should_remove {
+            let replacement_is_really_a_removal = !is_networkable(new_machine);
+            if replacement_is_really_a_removal {
                 self.nodes.remove(i);
                 if self.is_connected() {
                     Replacement::Regular
@@ -206,6 +225,9 @@ impl Network {
 
     pub fn add(&mut self, node: Node) {
         self.nodes.push(node);
+        if node.tile == TileType::MachineShip {
+            self.stored_resources += SPACESHIP_INITIAL_STORAGE;
+        }
     }
 
     pub fn join(&mut self, other: Network) {
@@ -245,4 +267,23 @@ pub fn neighbours(a: CellIndex) -> [CellIndexDiff; 6] {
         a + CellIndexDiff::new(0, 0, 1),
         a + CellIndexDiff::new(0, 0, -1),
     ]
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_not_enough_storage_capacity() {
+        let mut network = Network::new();
+        network.add(Node {
+            position: CellIndex::new(0, 0, 0),
+            tile: TileType::MachineShip,
+        });
+        assert_eq!(network.get_stored_resources(), SPACESHIP_INITIAL_STORAGE);
+        assert_eq!(network.get_storage_capacity(), MAX_STORAGE_PER_MACHINE);
+
+        panic!("need to change the interface of Networks::add() to include the added resources from \
+         digging, and then see if current_capacity + new_node.capacity > current_storage + added_resources");
+    }
 }
