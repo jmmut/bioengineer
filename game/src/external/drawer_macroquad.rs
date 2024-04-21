@@ -1,8 +1,7 @@
-use std::ops::Range;
 use macroquad::color::Color;
 use macroquad::hash;
 use macroquad::input::{is_mouse_button_pressed, mouse_position, MouseButton};
-use macroquad::math::{Rect, RectOffset, Vec2, vec2};
+use macroquad::math::{vec2, Rect, RectOffset, Vec2};
 use macroquad::prelude::Texture2D;
 use macroquad::shapes::{draw_circle, draw_rectangle};
 use macroquad::text::{draw_text, measure_text};
@@ -13,6 +12,7 @@ use macroquad::texture::{
 use macroquad::ui::widgets::Texture;
 use macroquad::ui::{root_ui, widgets, Skin};
 use macroquad::window::{clear_background, screen_height, screen_width};
+use std::ops::Range;
 
 use logic::screen::assets;
 use logic::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
@@ -237,7 +237,7 @@ impl DrawerTrait for DrawerMacroquad {
         root_ui().checkbox(hash!(text), text, checked)
     }
 
-    fn ui_slider(&mut self, x: f32, y :f32, label: &str, range: Range<f32>, number: &mut f32) {
+    fn ui_slider(&mut self, x: f32, y: f32, label: &str, range: Range<f32>, number: &mut f32) {
         let id = hash!(x.abs() as i32, y.abs() as i32);
         widgets::Window::new(id, vec2(x, y), vec2(400., 60.))
             .titlebar(false)

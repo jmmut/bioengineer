@@ -4,10 +4,9 @@ pub mod game_finished;
 pub mod task_queue;
 pub mod top_bar;
 
-
 /// Use this to choose the longest line, for `measure_text(longest_line)` and compute the required
 /// width of a panel
-fn longest<'a, S: AsRef<str>>(strings: impl Iterator<Item=&'a S>, mut default: &'a S) -> &'a S {
+fn longest<'a, S: AsRef<str>>(strings: impl Iterator<Item = &'a S>, mut default: &'a S) -> &'a S {
     let mut max_len = default.as_ref().len();
     for string in strings {
         let candidate_len = string.as_ref().len();

@@ -1,10 +1,9 @@
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
-use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
-use crate::screen::gui::{GuiActions, FONT_SIZE};
-use crate::screen::main_scene_input::CellSelection;
 use crate::screen::gui::format_units::{Grams, Watts};
 use crate::screen::gui::panels::longest;
+use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
+use crate::screen::gui::{GuiActions, FONT_SIZE};
 use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{is_liquid_or_air, is_walkable_horizontal, Cell, CellIndex, TileType};
@@ -97,11 +96,20 @@ fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> 
             //     node.position.x, node.position.y, node.position.z
             // ));
             if cell.tile_type == TileType::MachineStorage {
-                description.push(format!("    +{} storage capacity", Grams::format(STORAGE_PER_STORAGE_MACHINE)));
+                description.push(format!(
+                    "    +{} storage capacity",
+                    Grams::format(STORAGE_PER_STORAGE_MACHINE)
+                ));
             } else if cell.tile_type == TileType::MachineSolarPanel {
-                description.push(format!("    +{} power", Watts::format(POWER_PER_SOLAR_PANEL)));
+                description.push(format!(
+                    "    +{} power",
+                    Watts::format(POWER_PER_SOLAR_PANEL)
+                ));
             } else if cell.tile_type == TileType::MachineAirCleaner {
-                description.push(format!("    -{} power", Watts::format(POWER_PER_SOLAR_PANEL)));
+                description.push(format!(
+                    "    -{} power",
+                    Watts::format(POWER_PER_SOLAR_PANEL)
+                ));
             } else if cell.tile_type == TileType::MachineShip {
                 description.push("    Able to construct other machines".to_string());
             }

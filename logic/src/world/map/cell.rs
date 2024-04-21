@@ -57,7 +57,6 @@ pub enum TileType {
     TreeSparse = 9,
     TreeDying = 10,
     TreeDead = 11,
-
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]

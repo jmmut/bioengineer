@@ -73,11 +73,7 @@ pub fn allowed_transformations_of_cell(
                      // WallDirt,
                      // FloorDirt,
         ]),
-        Wire
-        | MachineAssembler
-        | MachineAirCleaner
-        | MachineDrill
-        | MachineSolarPanel
+        Wire | MachineAssembler | MachineAirCleaner | MachineDrill | MachineSolarPanel
         | MachineStorage => machines_plus(vec![WallRock, TreeHealthy]),
         MachineShip => vec![],
         // DirtyWaterSurface => vec![

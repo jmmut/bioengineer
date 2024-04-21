@@ -14,7 +14,6 @@ pub struct Node {
     pub tile: TileType,
 }
 
-
 pub const POWER_PER_SOLAR_PANEL: f64 = 1000.0;
 pub const POWER_CONSUMED_PER_MACHINE: f64 = POWER_PER_SOLAR_PANEL;
 

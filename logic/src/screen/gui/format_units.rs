@@ -30,7 +30,6 @@ impl Grams {
     }
 }
 
-
 #[rustfmt::skip]
 pub fn format_unit(quantity: f64, unit_name: &str) -> String {
     let unsigned_quantity = quantity.abs().floor();

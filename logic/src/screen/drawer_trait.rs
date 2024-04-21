@@ -1,6 +1,6 @@
-use std::ops::Range;
 use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 use mq_basics::{Color, Texture2D, Vec2};
+use std::ops::Range;
 
 /// Trait to be implemented by a graphics library.
 ///
@@ -100,7 +100,7 @@ pub trait DrawerTrait {
     ///     unsafe {&mut minimum_lines},
     /// );
     /// ```
-    fn ui_slider(&mut self, x: f32, y :f32, label: &str, range: Range<f32>, number: &mut f32);
+    fn ui_slider(&mut self, x: f32, y: f32, label: &str, range: Range<f32>, number: &mut f32);
     fn ui_text(&mut self, text: &str);
     fn ui_measure_text(&mut self, text: &str, font_size: f32) -> Vec2;
     fn ui_same_line(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ());
