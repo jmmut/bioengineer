@@ -1,4 +1,4 @@
-use crate::screen::gui::format_units::format_unit;
+use crate::screen::gui::format_units::Liters;
 use crate::screen::gui::GuiActions;
 use mq_basics::now;
 
@@ -97,7 +97,7 @@ pub fn get_goal_air_cleaned() -> f64 {
 }
 
 pub fn get_goal_air_cleaned_str() -> String {
-    format_unit(get_goal_air_cleaned(), "L")
+    Liters::format(get_goal_air_cleaned())
 }
 
 #[cfg(test)]

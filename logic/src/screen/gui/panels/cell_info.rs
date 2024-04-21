@@ -3,6 +3,7 @@ use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::screen::gui::{GuiActions, FONT_SIZE};
 use crate::screen::main_scene_input::CellSelection;
+use crate::screen::gui::format_units::{Grams, Watts};
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{is_liquid_or_air, is_walkable_horizontal, Cell, CellIndex, TileType};
 use crate::world::networks::network::{POWER_PER_SOLAR_PANEL, STORAGE_PER_STORAGE_MACHINE};
@@ -96,7 +97,7 @@ fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> 
         }
     }
     if is_networkable(tile) {
-        description.push("  Networking:".to_string());
+        description.push("  Effect on network:".to_string());
         let option = networks.get(pos);
         if let Some(_node) = option {
             // description.push(format!(
@@ -104,13 +105,13 @@ fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> 
             //     node.position.x, node.position.y, node.position.z
             // ));
             if cell.tile_type == TileType::MachineStorage {
-                description.push(format!("    +{} storage capacity", STORAGE_PER_STORAGE_MACHINE.format()));
-            }
-            if cell.tile_type == TileType::MachineSolarPanel {
-                description.push(format!("    +{} power", POWER_PER_SOLAR_PANEL.format()));
-            }
-            if cell.tile_type == TileType::MachineAirCleaner {
-                description.push(format!("    -{} power", POWER_PER_SOLAR_PANEL.format()));
+                description.push(format!("    +{} storage capacity", Grams::format(STORAGE_PER_STORAGE_MACHINE)));
+            } else if cell.tile_type == TileType::MachineSolarPanel {
+                description.push(format!("    +{} power", Watts::format(POWER_PER_SOLAR_PANEL)));
+            } else if cell.tile_type == TileType::MachineAirCleaner {
+                description.push(format!("    -{} power", Watts::format(POWER_PER_SOLAR_PANEL)));
+            } else if cell.tile_type == TileType::MachineShip {
+                description.push("    Able to construct other machines".to_string());
             }
         }
     } else if !networks.is_adjacent_to_ship_network(pos) {

@@ -1,6 +1,6 @@
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::{DrawingState, TopBarShowing};
-use crate::screen::gui::format_units::format_unit;
+use crate::screen::gui::format_units::Liters;
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
 use crate::screen::main_scene_input::CellSelection;
 use crate::world::game_state::{get_goal_air_cleaned, get_goal_air_cleaned_str};
@@ -147,7 +147,7 @@ fn goals_text_lines(air_cleaned: f64, machines: i32, trees: usize) -> Vec<String
         }
     }
     let goal_air = get_goal_air_cleaned();
-    let air_cleaned_str = format_unit(air_cleaned, "L");
+    let air_cleaned_str = Liters::format(air_cleaned);
     let goal_air_str = get_goal_air_cleaned_str();
     let air_done = get_symbol_is_done(air_cleaned >= get_goal_air_cleaned());
     let machines_done = get_symbol_is_done(machines == 0);

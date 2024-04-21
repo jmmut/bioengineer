@@ -1,6 +1,6 @@
 pub mod network;
 
-use crate::screen::gui::format_units::format_unit;
+use crate::screen::gui::format_units::Liters;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::network::{Network, Node, Replacement};
@@ -187,7 +187,7 @@ impl Networks {
 
     pub fn get_total_air_cleaned_str(&self) -> String {
         let air_cleaned = self.get_total_air_cleaned();
-        format_unit(air_cleaned, "L")
+        Liters::format(air_cleaned)
     }
 
     pub fn reset_production(&mut self) {
