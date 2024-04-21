@@ -236,7 +236,11 @@ impl Map {
         let mut cells = Vec::new();
         for cell_index in CellCubeIterator::new(min_cell, max_cell) {
             let cell = self.get_cell(cell_index);
-            cells.push(if cell.tile_type == TileType::WallRock {-1 } else {cell.pressure});
+            cells.push(if cell.tile_type == TileType::WallRock {
+                -1
+            } else {
+                cell.pressure
+            });
         }
         cells
     }
@@ -279,13 +283,11 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
         let is_land = horizontal_distance_from_center < island_radius + enlargement_by_deepness;
         if is_land {
             // cell.pressure = VERTICAL_PRESSURE_DIFFERENCE; // Hack to make floors and machines quickly floodable
-            cell.tile_type =
-                if cell_index.y == 1 {
-                    TileType::Air
-                } else {
-                    TileType::WallRock
-                }
-            ;
+            cell.tile_type = if cell_index.y == 1 {
+                TileType::Air
+            } else {
+                TileType::WallRock
+            };
         } else {
             cell.tile_type = TileType::Air;
             use VERTICAL_PRESSURE_DIFFERENCE as PRESSURE;

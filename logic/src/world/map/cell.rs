@@ -172,7 +172,18 @@ pub fn is_floodable_from_above(tile: TileType) -> bool {
 }
 
 pub fn is_floodable_from_below(tile: TileType) -> bool {
-    ![Unset, WallDirt, WallRock, FloorDirt, FloorRock, TreeHealthy, TreeSparse, TreeDying, TreeDead].contains(&tile)
+    ![
+        Unset,
+        WallDirt,
+        WallRock,
+        FloorDirt,
+        FloorRock,
+        TreeHealthy,
+        TreeSparse,
+        TreeDying,
+        TreeDead,
+    ]
+    .contains(&tile)
 }
 
 /// Returns whether the tile image is tall enough that it would cover a robot behind this tile.

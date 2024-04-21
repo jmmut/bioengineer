@@ -1,5 +1,5 @@
 use bioengineer::external::assets_macroquad::load_tileset;
-use bioengineer::external::backends::{drawer_factory, TILESET_PATH, UiBackend};
+use bioengineer::external::backends::{drawer_factory, UiBackend, TILESET_PATH};
 use bioengineer::external::main_input_macroquad::InputMacroquad as InputSource;
 use logic::screen::drawer_trait::DrawerTrait;
 use logic::screen::gui::set_skin;

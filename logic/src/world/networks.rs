@@ -178,7 +178,7 @@ impl Networks {
         machines
     }
 
-    pub fn iter(&self) -> impl Iterator<Item=&Network> {
+    pub fn iter(&self) -> impl Iterator<Item = &Network> {
         std::iter::once(&self.ship_network).chain(self.unconnected_networks.iter())
     }
 

@@ -1,16 +1,18 @@
 #[cfg(test)]
 mod tests;
 
-use mq_basics::IVec3;
 use crate::common::profiling::ScopedProfiler;
 use crate::world::fluids::FluidStage::{Downwards, Upwards};
+use crate::world::map::cell::{
+    is_floodable_from_above, is_floodable_from_below, is_floodable_horizontal,
+};
 use crate::world::map::chunk::cell_iter::CellIterItem;
 use crate::world::map::ref_mut_iterator::RefMutIterator;
 use crate::world::map::{
     cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, is_walkable_horizontal, Cell,
     CellCubeIterator, CellIndex, Map,
 };
-use crate::world::map::cell::{is_floodable_from_above, is_floodable_from_below, is_floodable_horizontal};
+use mq_basics::IVec3;
 
 pub const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;
 
@@ -297,39 +299,39 @@ fn update_tile_type(map: &mut Map) {
     let mut iter = updated_map.iter_mut();
     while let Option::Some(CellIterItem { cell_index, cell }) = iter.next() {
         // if is_floodable_horizontal(cell.tile_type) {
-            // let nothing_above = {
-            //     let index_above = cell_index + CellIndex::new(0, 1, 0);
-            //     let option_above_cell = map.get_cell_optional(index_above);
-            //     if let Option::Some(above_cell) = option_above_cell {
-            //         (above_cell.pressure <= 0) && is_liquid_or_air(above_cell.tile_type)
-            //     } else {
-            //         false
-            //     }
-            // };
-            if cell.pressure < 0 {
-                panic!(
-                    "negative pressure! for cell {}, with pressure {}, next pressure {}.",
-                    cell_index, cell.pressure, cell.next_pressure
-                );
-            }
-            // let new_type = if cell.pressure <= 0 {
-            //     TileType::Air
-            // } else if cell.pressure <= VERTICAL_PRESSURE_DIFFERENCE {
-            //     // if pressure_above > 0 {
-            //     //     println!("above cell should be air!");
-            //     // }
-            //     TileType::DirtyWaterSurface
-            // } else {
-            //     TileType::DirtyWaterWall
-            // };
-            // // if cell_index == CellIndex::new(0, 1, 5) {
-            // //     println!(
-            // //         "cell with pressure {}, is {:?}, converted to {:?}",
-            // //         cell.pressure, cell.tile_type, new_type
-            // //     );
-            // // }
-            // cell.tile_type = new_type;
-            cell.renderable_pressure = cell.pressure;
+        // let nothing_above = {
+        //     let index_above = cell_index + CellIndex::new(0, 1, 0);
+        //     let option_above_cell = map.get_cell_optional(index_above);
+        //     if let Option::Some(above_cell) = option_above_cell {
+        //         (above_cell.pressure <= 0) && is_liquid_or_air(above_cell.tile_type)
+        //     } else {
+        //         false
+        //     }
+        // };
+        if cell.pressure < 0 {
+            panic!(
+                "negative pressure! for cell {}, with pressure {}, next pressure {}.",
+                cell_index, cell.pressure, cell.next_pressure
+            );
+        }
+        // let new_type = if cell.pressure <= 0 {
+        //     TileType::Air
+        // } else if cell.pressure <= VERTICAL_PRESSURE_DIFFERENCE {
+        //     // if pressure_above > 0 {
+        //     //     println!("above cell should be air!");
+        //     // }
+        //     TileType::DirtyWaterSurface
+        // } else {
+        //     TileType::DirtyWaterWall
+        // };
+        // // if cell_index == CellIndex::new(0, 1, 5) {
+        // //     println!(
+        // //         "cell with pressure {}, is {:?}, converted to {:?}",
+        // //         cell.pressure, cell.tile_type, new_type
+        // //     );
+        // // }
+        // cell.tile_type = new_type;
+        cell.renderable_pressure = cell.pressure;
         // }
     }
     *map = Map::new_from_iter(iter);
