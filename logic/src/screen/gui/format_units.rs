@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 const KILO: f64 = 1.0e3;
 const MEGA: f64 = 1.0e6;
 const GIGA: f64 = 1.0e9;
@@ -6,6 +8,137 @@ const PETA: f64 = 1.0e15;
 const EXA: f64 = 1.0e18;
 const ZETTA: f64 = 1.0e21;
 const YOTTA: f64 = 1.0e24;
+
+// UGH!!! I tried several ways to encode the unit string (e.g. "W") in the type, while
+// being able to use it like a float, but I didn't find any good to do so
+
+#[derive(PartialEq, PartialOrd)]
+pub struct Watts {
+    pub quantity: f64
+}
+impl Watts {
+    pub fn format(&self) -> String {
+        format_unit(self.quantity, "W")
+    }
+}
+impl From<f64> for Watts {
+    fn from(quantity: f64) -> Self {
+        Watts { quantity }
+    }
+}
+impl From<Watts> for f64 {
+    fn from(value: Watts) -> Self {
+        value.quantity
+    }
+}
+impl Deref for Watts {
+    type Target = f64;
+
+    fn deref(&self) -> &Self::Target {
+        &self.quantity
+    }
+}
+
+pub struct Liters {
+    pub quantity: f64
+}
+impl Liters {
+    pub fn format(&self) -> String {
+        format_unit(self.quantity, "L")
+    }
+}
+impl From<f64> for Liters {
+    fn from(quantity: f64) -> Self {
+        Self { quantity }
+    }
+}
+impl From<Liters> for f64 {
+    fn from(value: Liters) -> Self {
+        value.quantity
+    }
+}
+impl Deref for Liters {
+    type Target = f64;
+
+    fn deref(&self) -> &Self::Target {
+        &self.quantity
+    }
+}
+
+pub struct Grams {
+    pub quantity: f64
+}
+impl Grams {
+    pub fn format(&self) -> String {
+        format_unit(self.quantity, "g")
+    }
+}
+impl From<f64> for Grams {
+    fn from(quantity: f64) -> Self {
+        Grams { quantity }
+    }
+}
+impl From<Grams> for f64 {
+    fn from(value: Grams) -> Self {
+        value.quantity
+    }
+}
+impl Deref for Grams {
+    type Target = f64;
+
+    fn deref(&self) -> &Self::Target {
+        &self.quantity
+    }
+}
+
+
+// pub struct Unit {
+//     unit: &'static str,
+// }
+// impl Unit {
+//     pub fn format(quantity: f64)
+// }
+// pub const WATTS: Unit = Unit {unit: "W" };
+//
+// impl<T: Unit> Into<f64> for T {
+//     fn into(self) -> f64 {
+//         self.value()
+//     }
+// }
+
+// pub struct UnitBase(pub f64, std::iter::Iterator);
+// pub struct Watts(pub f64);
+// pub struct Liters(pub f64);
+// pub struct Grams(pub f64);
+// pub type Watts = f64;
+// pub type Liters = f64;
+// pub type Grams = f64;
+//
+// impl UnitBase {
+//     fn value(&self) -> f64 { self.0 }
+// }
+// impl Unit for Watts {
+//     fn format(&self) -> String {
+//         format_unit(self.value(), "W")
+//     }
+// }
+// impl Unit for Liters {
+//     fn format(&self) -> String {
+//         format_unit(self.0, "L")
+//     }
+//     fn value(&self) -> f64 { self.0 }
+// }
+// impl Unit for Grams {
+//     fn format(&self) -> String {
+//         format_unit(self.0, "g")
+//     }
+//     fn value(&self) -> f64 { self.0 }
+// }
+
+// impl Watts {
+//
+// }
+
 
 #[rustfmt::skip]
 pub fn format_unit(quantity: f64, unit_name: &str) -> String {

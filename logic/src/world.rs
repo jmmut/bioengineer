@@ -1,6 +1,6 @@
 pub mod fluids;
 pub mod game_state;
-mod gameplay_tests;
+pub mod gameplay_tests;
 pub mod map;
 pub mod networks;
 pub mod robots;

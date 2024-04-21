@@ -210,6 +210,10 @@ impl Networks {
     }
 
     pub fn get(&self, position: CellIndex) -> Option<Node> {
+        let node_opt = (&self.ship_network).get_node(position);
+        if node_opt.is_some() {
+            return node_opt;
+        }
         for network in &self.unconnected_networks {
             let node_opt = network.get_node(position);
             if node_opt.is_some() {

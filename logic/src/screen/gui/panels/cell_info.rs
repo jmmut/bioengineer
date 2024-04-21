@@ -5,6 +5,7 @@ use crate::screen::gui::{GuiActions, FONT_SIZE};
 use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{is_liquid_or_air, is_walkable_horizontal, Cell, CellIndex, TileType};
+use crate::world::networks::network::{POWER_PER_SOLAR_PANEL, STORAGE_PER_STORAGE_MACHINE};
 use crate::world::networks::Networks;
 use crate::world::World;
 
@@ -17,17 +18,18 @@ pub fn draw_cell_info(
     let highlighted_cells = drawing.highlighted_cells();
     if highlighted_cells.len() == 1 {
         let selected = highlighted_cells.iter().next().unwrap();
-        let panel_title = "Cell information";
-        let max_button_width = drawer.ui_measure_text(panel_title, FONT_SIZE).x;
-        let panel_margin = 10.0;
-        let big_margin_x = panel_margin + 2.0 * FONT_SIZE;
-        let panel_width = max_button_width + 2.0 * big_margin_x;
-        let line_height = FONT_SIZE * 1.5;
-        let panel_height = 10.0 * line_height;
         let cell = world.map.get_cell(*selected);
         let cell_description = cell_to_str(cell, *selected, &world.networks);
+        let panel_title = "Cell information".to_string();
+        let longest_line = longest(cell_description.iter(), &panel_title);
+        let max_button_width = drawer.ui_measure_text(longest_line.as_str(), FONT_SIZE).x;
+        let panel_margin = 10.0;
+        let big_margin_x = panel_margin + 1.0 * FONT_SIZE;
+        let panel_width = max_button_width + 2.0 * big_margin_x;
+        let line_height = FONT_SIZE * 1.5;
+        let panel_height = (cell_description.len() + 2).max(10) as f32 * line_height;
         let interaction = drawer.ui_named_group(
-            panel_title,
+            panel_title.as_str(),
             drawer.screen_width() - panel_width - panel_margin,
             panel_margin + TOP_BAR_HEIGHT,
             panel_width,
@@ -44,6 +46,16 @@ pub fn draw_cell_info(
     }
     gui_actions
 }
+
+fn longest<'a>(strings: impl Iterator<Item=&'a String>, mut default: &'a String) -> &'a String {
+    for string in strings {
+        if string.len() > default.len() {
+            default = string;
+        }
+    }
+    default
+}
+
 
 fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> {
     let tile = cell.tile_type;
@@ -67,7 +79,7 @@ fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> 
         TileType::MachineDrill => "Drill machine",
         TileType::MachineSolarPanel => "Solar panel machine",
         TileType::MachineShip => "Spaceship",
-        TileType::MachineStorage => "Storage",
+        TileType::MachineStorage => "Storage machine",
         TileType::TreeHealthy => "Tree (Healthy)",
         TileType::TreeSparse => "Tree (Sparse)",
         TileType::TreeDying => "Tree (Dying)",
@@ -78,23 +90,31 @@ fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> 
         description.push("Can't be deconstructed".to_string());
     }
     if is_liquid_or_air(tile) || is_walkable_horizontal(tile) || cell.pressure > 0 {
-        description.push(format!("- Liquid pressure: {} ", cell.pressure));
+        description.push(format!("  Liquid pressure: {} ", cell.pressure));
         if cell.pressure == 0 && tile != TileType::Air {
             // println!("wut");
         }
     }
     if is_networkable(tile) {
-        description.push("- Networking:".to_string());
+        description.push("  Networking:".to_string());
         let option = networks.get(pos);
-        if let Some(node) = option {
-            description.push(format!(
-                "  pos: ({} {} {})",
-                node.position.x, node.position.y, node.position.z
-            ));
+        if let Some(_node) = option {
+            // description.push(format!(
+            //     "  pos: ({} {} {})",
+            //     node.position.x, node.position.y, node.position.z
+            // ));
+            if cell.tile_type == TileType::MachineStorage {
+                description.push(format!("    +{} storage capacity", STORAGE_PER_STORAGE_MACHINE.format()));
+            }
+            if cell.tile_type == TileType::MachineSolarPanel {
+                description.push(format!("    +{} power", POWER_PER_SOLAR_PANEL.format()));
+            }
+            if cell.tile_type == TileType::MachineAirCleaner {
+                description.push(format!("    -{} power", POWER_PER_SOLAR_PANEL.format()));
+            }
         }
     } else if !networks.is_adjacent_to_ship_network(pos) {
-        description.push("- Networking:".to_string());
-        description.push("  Unreachable".to_string());
+        description.push("  Networking: unreachable".to_string());
     }
     // TODO: print if a machine is working or not?
     // TODO: print contents of wires?
