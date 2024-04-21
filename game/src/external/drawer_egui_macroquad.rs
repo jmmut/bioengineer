@@ -4,6 +4,7 @@ use miniquad as mq;
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::mem::swap;
+use std::ops::Range;
 
 use crate::external::drawer_macroquad::DrawerMacroquad;
 pub use egui;
@@ -254,6 +255,10 @@ impl<'a> DrawerTrait for DrawerEguiMacroquad<'a> {
     fn ui_checkbox(&mut self, checked: &mut bool, text: &str) {
         let checkbox = egui::Checkbox::new(checked, text);
         checkbox.ui(self.egui_ui.as_mut().unwrap());
+    }
+
+    fn ui_slider(&mut self, x: f32, y :f32, label: &str, range: Range<f32>, number: &mut f32) {
+        todo!()
     }
 
     fn ui_text(&mut self, text: &str) {

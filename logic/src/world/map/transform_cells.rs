@@ -96,7 +96,7 @@ pub fn allowed_transformations_of_cell(
         TreeDead => machines_plus(vec![WallRock]),
     };
     new_tiles.push(cell.tile_type);
-    if cell.tile_type != Air {
+    if cell.tile_type != Air && cell.tile_type != MachineShip {
         new_tiles.push(Air);
     }
     new_tiles

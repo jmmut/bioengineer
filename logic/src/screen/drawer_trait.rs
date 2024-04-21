@@ -1,3 +1,4 @@
+use std::ops::Range;
 use crate::world::map::cell::{TextureIndex, TextureIndexTrait};
 use mq_basics::{Color, Texture2D, Vec2};
 
@@ -87,6 +88,19 @@ pub trait DrawerTrait {
     fn ui_button(&mut self, text: &str) -> Interaction;
     fn ui_button_with_pos(&mut self, text: &str, x: f32, y: f32) -> Interaction;
     fn ui_checkbox(&mut self, checked: &mut bool, text: &str);
+
+    /// Example usage for experiments:
+    /// ```ignore
+    /// static mut minimum_lines: f32 = 10.0;
+    /// drawer.ui_slider(
+    ///     drawer.screen_width() * 0.5,
+    ///     drawer.screen_height() * 0.5,
+    ///     "minimum lines",
+    ///     0.0..20.0,
+    ///     unsafe {&mut minimum_lines},
+    /// );
+    /// ```
+    fn ui_slider(&mut self, x: f32, y :f32, label: &str, range: Range<f32>, number: &mut f32);
     fn ui_text(&mut self, text: &str);
     fn ui_measure_text(&mut self, text: &str, font_size: f32) -> Vec2;
     fn ui_same_line(&mut self, f: &mut dyn FnMut(&mut dyn DrawerTrait) -> ());

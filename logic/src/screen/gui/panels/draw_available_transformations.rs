@@ -8,6 +8,7 @@ use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
 use crate::world::{TransformationTask, World};
 use mq_basics::Rect;
+use crate::screen::gui::panels::longest;
 
 pub fn show_available_transformations(
     drawer: &mut dyn DrawerTrait,
@@ -73,12 +74,19 @@ pub fn show_available_transformations(
         );
         if let Some(hovered) = hovered_opt {
             if let Some(tooltip) = to_tooltip_str(hovered) {
+                let title = to_action_str(hovered);
+                let longest_line = longest(tooltip.iter(), &title);
+                let max_line_width = drawer.ui_measure_text(longest_line, FONT_SIZE).x;
+                let pad_width = panel_margin + 1.0 * FONT_SIZE;
+                let panel_width = max_line_width + 2.0 * pad_width;
+                let line_height = FONT_SIZE * 1.5;
+                let panel_height = (tooltip.len() + 2).max(10) as f32 * line_height;
                 drawer.ui_named_group(
-                    to_action_str(hovered),
+                    title,
                     panel.x + panel.w + panel_margin,
                     panel.y,
-                    panel.w,
-                    panel.h,
+                    panel_width,
+                    panel_height,
                     &mut |drawer| {
                         for line in &tooltip {
                             drawer.ui_text(line);

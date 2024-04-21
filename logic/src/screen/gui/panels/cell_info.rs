@@ -4,6 +4,7 @@ use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::screen::gui::{GuiActions, FONT_SIZE};
 use crate::screen::main_scene_input::CellSelection;
 use crate::screen::gui::format_units::{Grams, Watts};
+use crate::screen::gui::panels::longest;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{is_liquid_or_air, is_walkable_horizontal, Cell, CellIndex, TileType};
 use crate::world::networks::network::{POWER_PER_SOLAR_PANEL, STORAGE_PER_STORAGE_MACHINE};
@@ -23,12 +24,12 @@ pub fn draw_cell_info(
         let cell_description = cell_to_str(cell, *selected, &world.networks);
         let panel_title = "Cell information".to_string();
         let longest_line = longest(cell_description.iter(), &panel_title);
-        let max_button_width = drawer.ui_measure_text(longest_line.as_str(), FONT_SIZE).x;
+        let max_line_width = drawer.ui_measure_text(longest_line.as_str(), FONT_SIZE).x;
         let panel_margin = 10.0;
         let big_margin_x = panel_margin + 1.0 * FONT_SIZE;
-        let panel_width = max_button_width + 2.0 * big_margin_x;
+        let panel_width = max_line_width + 2.0 * big_margin_x;
         let line_height = FONT_SIZE * 1.5;
-        let panel_height = (cell_description.len() + 2).max(10) as f32 * line_height;
+        let panel_height = (cell_description.len() + 2).max(5) as f32 * line_height;
         let interaction = drawer.ui_named_group(
             panel_title.as_str(),
             drawer.screen_width() - panel_width - panel_margin,
@@ -47,16 +48,6 @@ pub fn draw_cell_info(
     }
     gui_actions
 }
-
-fn longest<'a>(strings: impl Iterator<Item=&'a String>, mut default: &'a String) -> &'a String {
-    for string in strings {
-        if string.len() > default.len() {
-            default = string;
-        }
-    }
-    default
-}
-
 
 fn cell_to_str(cell: &Cell, pos: CellIndex, networks: &Networks) -> Vec<String> {
     let tile = cell.tile_type;
