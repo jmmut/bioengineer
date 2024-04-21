@@ -2,6 +2,7 @@ use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::screen::gui::{GuiActions, FONT_SIZE};
+use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{is_liquid_or_air, is_walkable_horizontal, Cell, CellIndex, TileType};
 use crate::world::networks::Networks;
@@ -11,7 +12,7 @@ pub fn draw_cell_info(
     drawer: &mut dyn DrawerTrait,
     world: &World,
     drawing: &mut DrawingState,
-    gui_actions: GuiActions,
+    mut gui_actions: GuiActions,
 ) -> GuiActions {
     let highlighted_cells = drawing.highlighted_cells();
     if highlighted_cells.len() == 1 {
@@ -25,7 +26,7 @@ pub fn draw_cell_info(
         let panel_height = 10.0 * line_height;
         let cell = world.map.get_cell(*selected);
         let cell_description = cell_to_str(cell, *selected, &world.networks);
-        let _interaction = drawer.ui_named_group(
+        let interaction = drawer.ui_named_group(
             panel_title,
             drawer.screen_width() - panel_width - panel_margin,
             panel_margin + TOP_BAR_HEIGHT,
@@ -37,6 +38,9 @@ pub fn draw_cell_info(
                 }
             },
         );
+        if interaction.is_hovered_or_clicked() {
+            gui_actions.cell_selection = CellSelection::no_selection();
+        }
     }
     gui_actions
 }
