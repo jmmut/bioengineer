@@ -17,40 +17,7 @@ pub fn draw_robot_queue(
     let icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 1.5;
     let button_height = FONT_SIZE * 1.5;
     let group_height = icon_height + 2.0 * button_height;
-    let robot_window_height = icon_height + 1.0 * button_height;
     let mut go_to_robot = Option::None;
-    let mut robot_hovered = false;
-    let group_robot = drawer.ui_group(
-        // this 1.5 is a hack to fix that we can't use the texture positions in drawer_egui::ui_texture_with_pos
-        drawer.screen_width() - icon_width - 1.5 * margin,
-        drawer.screen_height() - robot_window_height - margin,
-        icon_width,
-        robot_window_height,
-        &mut |drawer| {
-            let show_robot = drawer.ui_button("Show");
-            let robot_texture_clicked =
-                drawer.ui_texture_with_pos(&ExtraTextures::ZoomedRobot, 0.0, button_height * 2.0);
-            robot_hovered = show_robot.is_hovered_or_clicked();
-            if show_robot.is_clicked() || robot_texture_clicked {
-                go_to_robot = Option::Some(world.robots.first().unwrap().position);
-            }
-        },
-    );
-    if group_robot.is_hovered_or_clicked() {
-        cell_selection = CellSelection::no_selection();
-    }
-
-    let draw_tooltip = |tooltip_enabled: bool, tooltip: &str, drawer| {
-        if tooltip_enabled {
-            draw_task_queue_tooltip(drawer, group_height, margin, tooltip);
-        }
-    };
-    let tooltip = "Move the camera to the robot";
-    draw_tooltip(
-        robot_hovered || group_robot.is_hovered_or_clicked(),
-        tooltip,
-        drawer,
-    );
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;
@@ -72,7 +39,7 @@ pub fn draw_robot_queue(
             ),
         };
         let group = drawer.ui_group(
-            drawer.screen_width() - icon_width * (2 + task_index) as f32 - margin,
+            drawer.screen_width() - icon_width * (1 + task_index) as f32 - margin,
             drawer.screen_height() - group_height - margin,
             icon_width,
             group_height,
