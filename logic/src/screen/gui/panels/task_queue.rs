@@ -39,7 +39,7 @@ pub fn draw_robot_queue(
             ),
         };
         let group = drawer.ui_group(
-            drawer.screen_width() - icon_width * (1 + task_index) as f32 - margin,
+            drawer.screen_width() - (icon_width + margin) * (1 + task_index) as f32,
             drawer.screen_height() - group_height - margin,
             icon_width,
             group_height,
