@@ -1,13 +1,43 @@
-//! Most of these ideas came from https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
+//! This executable allows running the game, change the code, and apply the change to the running
+//! process. This feature is called hot reloading. The basic idea is that this file (the entry
+//! point) initializes the objects of the game, and then updates them in the game loop, with
+//! the twist that each game loop iteration (or frame) is implemented in a dynamic library (.so),
+//! so we can recompile the library and reload it with `dlopen()`.
 //!
-//! See https://jmmut.github.io/2023/03/17/Hot-reloading-Rust-and-Macroquad.html for the specifics
-//! of hot-reloading macroquad.
+//! As we store the state as variables in the main function, we can reload the functions that
+//! transform the state each frame.
+//!
+//! This has some limitations because everything before the frame function (e.g. initialization)
+//! can not be hot-reloaded. If a struct is changed, it will crash the game because the struct
+//! that was initialized in `main()` doesn't match the struct that the frame function expects. Also,
+//! we do dependency injection for the graphics backend, which means we instantiate the concrete
+//! implementation in `main()`, so we can not hot-reload the code for those concrete implementations
+//! of the graphics (and input) interfaces. (We can not create the Macroquad backend in the dynamic
+//! library because Macroquad has some global variables that don't play nice with hot-reloading.)
+//!
+//! But this setup is still very useful to quickly iterate things like UI arrangement, game
+//! mechanics or small business rules. It's also great for debugging when you need to do several
+//! steps in-game to reach the reproduction point. You run the hot-reload-bioengineer in the
+//! debugger, prepare the reproduction point, setup breakpoints, analyse the issue with the
+//! debugger, change the code, rebuild and reload the lib, hit the breakpoint again, repeat if the
+//! bug is still there.
+//!
+//! In practice, to use this you have to run this binary: `cargo run --bin hot_reload_bioengineer`,
+//! and then after changing things in the "logic" crate, you do `cargo build --lib --package logic`.
+//! The program will auto-detect that the .so was updated on disk and will reload it. On my machine
+//! it takes ~0.5 seconds from starting the build of the library until I see the changes live, for
+//! simple changes.
+//!
+//! Most of these ideas about hot-reloading came from <https://fasterthanli.me/articles/so-you-want-to-live-reload-rust>
+//!
+//! See <https://jmmut.github.io/2023/03/17/Hot-reloading-Rust-and-Macroquad.html> for the specifics
+//! of hot-reloading Macroquad.
 
 use bioengineer::common::cli::CliArgs;
 use bioengineer::external::assets_macroquad::load_tileset;
 use clap::Parser;
 use juquad::fps::sleep_until_next_frame;
-use macroquad::input::{is_key_pressed};
+use macroquad::input::is_key_pressed;
 use macroquad::logging::info;
 use macroquad::window::next_frame;
 use macroquad::window::Conf;
