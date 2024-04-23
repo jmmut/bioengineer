@@ -7,7 +7,7 @@ use bioengineer::common::cli::CliArgs;
 use bioengineer::external::assets_macroquad::load_tileset;
 use clap::Parser;
 use juquad::fps::sleep_until_next_frame;
-use macroquad::input::{is_key_down, is_key_pressed};
+use macroquad::input::{is_key_pressed};
 use macroquad::logging::info;
 use macroquad::window::next_frame;
 use macroquad::window::Conf;
@@ -16,8 +16,11 @@ use std::ffi::{c_char, c_int, c_void, CString};
 use std::path::PathBuf;
 use std::sync::mpsc::Receiver;
 
-use bioengineer::external::backends::{factory, introduction_factory, TILESET_PATH};
-use logic::scene::State;
+use bioengineer::external::backends::{
+    drawer_factory, factory, introduction_factory, UiBackend, TILESET_PATH,
+};
+use logic::scene::GameLoopState;
+use logic::screen::gui::set_skin;
 use logic::world::map::chunk::chunks::cache::print_cache_stats;
 use logic::SceneState;
 use mq_basics::{now, KeyCode};
@@ -32,7 +35,8 @@ pub const RTLD_LAZY: c_int = 0x00001;
 
 type AnyError = Box<dyn std::error::Error>;
 
-pub type DrawFrameFunction = extern "C" fn(scene_wrapper: &mut Box<Option<SceneState>>) -> State;
+pub type DrawFrameFunction =
+    extern "C" fn(scene_wrapper: &mut Box<Option<SceneState>>) -> GameLoopState;
 
 #[link(name = "dl")]
 extern "C" {
@@ -43,14 +47,14 @@ extern "C" {
 
 #[macroquad::main(window_conf)]
 async fn main() -> Result<(), AnyError> {
-    let args = CliArgs::parse();
+    let mut args = CliArgs::parse();
     let (mut draw_frame, mut lib_handle) = load()?;
     let (_watcher, rx) = watch()?;
 
     let mut previous_time = now();
     let textures = {
         let mut scene = introduction_factory(&args).await;
-        while draw_frame(&mut scene) == State::ShouldContinue {
+        while draw_frame(&mut scene) == GameLoopState::ShouldContinue {
             if should_reload(&rx) {
                 info!("reloading lib");
                 (draw_frame, lib_handle) = reload(lib_handle)?;
@@ -63,7 +67,7 @@ async fn main() -> Result<(), AnyError> {
 
     {
         let mut scene = factory(&args, textures).await;
-        while draw_frame(&mut scene) == State::ShouldContinue {
+        while draw_frame(&mut scene) == GameLoopState::ShouldContinue {
             if should_reload(&rx) {
                 info!("reloading lib");
                 (draw_frame, lib_handle) = reload(lib_handle)?;
@@ -74,6 +78,12 @@ async fn main() -> Result<(), AnyError> {
                     .as_mut()
                     .unwrap()
                     .set_textures(load_tileset(TILESET_PATH).await);
+            }
+            if is_key_pressed(KeyCode::Q) {
+                swap_ui_backend(scene.as_mut().as_mut(), &mut args, UiBackend::Macroquad);
+            }
+            if is_key_pressed(KeyCode::E) {
+                swap_ui_backend(scene.as_mut().as_mut(), &mut args, UiBackend::Egui);
             }
             sleep_until_next_frame(&mut previous_time).await
         }
@@ -176,4 +186,17 @@ fn watch() -> Result<(RecommendedWatcher, Receiver<()>), AnyError> {
 
     watcher.watch(&base, RecursiveMode::Recursive).unwrap();
     Ok((watcher, rx))
+}
+
+fn swap_ui_backend(scene: Option<&mut SceneState>, args: &mut CliArgs, new_ui_backend: UiBackend) {
+    if let Some(SceneState::Main(main_scene)) = scene {
+        args.ui = new_ui_backend; // keep the latest chosen ui backend. Used when re-creating by calling to the full factory (KC::F)
+        let mut tmp_drawer = drawer_factory(new_ui_backend, Vec::new());
+        std::mem::swap(&mut tmp_drawer, &mut main_scene.screen.drawer);
+        main_scene
+            .screen
+            .drawer
+            .set_textures(tmp_drawer.take_textures());
+        set_skin(main_scene.screen.drawer.as_mut()); // normally Gui::new() will do this but we're not recreating that here
+    }
 }

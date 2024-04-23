@@ -1,5 +1,5 @@
 use crate::common::profiling::ScopedProfiler;
-use crate::scene::{Scene, State};
+use crate::scene::{GameLoopState, Scene};
 use crate::screen::Screen;
 use crate::world::World;
 
@@ -9,7 +9,7 @@ pub struct MainScene {
 }
 
 impl Scene for MainScene {
-    fn frame(&mut self) -> State {
+    fn frame(&mut self) -> GameLoopState {
         let _profiler =
             ScopedProfiler::new_named(self.world.game_state.profile, "whole toplevel frame");
         let gui_actions = self.screen.get_gui_actions(&self.world);

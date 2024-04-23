@@ -2,16 +2,12 @@
 mod tests;
 
 use crate::common::profiling::ScopedProfiler;
-use crate::world::fluids::FluidStage::{Downwards, Upwards};
 use crate::world::map::cell::{
     is_floodable_from_above, is_floodable_from_below, is_floodable_horizontal,
 };
 use crate::world::map::chunk::cell_iter::CellIterItem;
 use crate::world::map::ref_mut_iterator::RefMutIterator;
-use crate::world::map::{
-    cell::is_liquid, cell::is_liquid_or_air, cell::Pressure, is_walkable_horizontal, Cell,
-    CellCubeIterator, CellIndex, Map,
-};
+use crate::world::map::{cell::Pressure, Cell, CellCubeIterator, CellIndex, Map};
 use mq_basics::IVec3;
 
 pub const VERTICAL_PRESSURE_DIFFERENCE: i32 = 10;

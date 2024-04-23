@@ -7,7 +7,7 @@ pub mod robots;
 
 use std::collections::{HashSet, VecDeque};
 
-use crate::scene::State;
+use crate::scene::GameLoopState;
 use crate::screen::gui::format_units::format_age;
 use fluids::FluidMode;
 use fluids::Fluids;
@@ -96,7 +96,7 @@ impl World {
     }
 
     /// returns if the game should do another iteration
-    pub fn update(&mut self, gui_actions: GuiActions) -> State {
+    pub fn update(&mut self, gui_actions: GuiActions) -> GameLoopState {
         self.update_with_gui_actions(&gui_actions);
         self.advance_frame();
         gui_actions.should_continue()

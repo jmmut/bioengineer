@@ -10,6 +10,7 @@ pub trait MainSceneInputTrait {
 pub struct Input {
     pub quit: bool,
     pub regenerate_map: bool,
+    pub reload_ui_skin: bool,
     pub toggle_profiling: bool,
     pub toggle_fluids: bool,
     pub single_fluid: bool,

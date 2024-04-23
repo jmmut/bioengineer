@@ -17,7 +17,7 @@ use logic::screen::assets;
 use logic::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use logic::screen::drawer_trait::{DrawerTrait, Interaction};
 use logic::screen::drawing_state::DrawingState;
-use logic::screen::gui::{FONT_SIZE, MARGIN};
+use logic::screen::gui::MARGIN;
 use logic::world::map::cell::{TextureIndex, TextureIndexTrait};
 
 #[derive(Clone)]
@@ -41,7 +41,7 @@ impl DrawerTrait for DrawerMacroquad {
             textures,
             same_line: false,
         };
-        d._debug_draw_all_textures();
+        // d._debug_draw_all_textures();
         d
     }
 
@@ -337,7 +337,7 @@ impl DrawerTrait for DrawerMacroquad {
             window_titlebar_style,
             // window_style: button_style.clone(),
             margin: MARGIN,
-            title_height: FONT_SIZE * 2.0,
+            title_height: font_size * 2.0,
             label_style,
             ..root_ui().default_skin()
         };

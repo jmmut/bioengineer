@@ -5,7 +5,7 @@ use macroquad::window::Conf;
 use bioengineer::common::cli::CliArgs;
 use bioengineer::external::backends::{factory, introduction_factory};
 use juquad::fps::sleep_until_next_frame;
-use logic::scene::State;
+use logic::scene::GameLoopState;
 use logic::world::map::chunk::chunks::cache::print_cache_stats;
 use logic::{frame, SceneState};
 use mq_basics::now;
@@ -19,13 +19,13 @@ async fn main() {
     let args = CliArgs::parse();
     let mut scene = introduction_factory(&args).await;
     let mut previous_time = now();
-    while frame(&mut scene) == State::ShouldContinue {
+    while frame(&mut scene) == GameLoopState::ShouldContinue {
         sleep_until_next_frame(&mut previous_time).await
     }
     next_frame().await;
 
     let mut scene = factory(&args, scene.unwrap().take_textures()).await;
-    while frame(&mut scene) == State::ShouldContinue {
+    while frame(&mut scene) == GameLoopState::ShouldContinue {
         sleep_until_next_frame(&mut previous_time).await
     }
     if let SceneState::Main(main_scene) = scene.as_ref().as_ref().unwrap() {

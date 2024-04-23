@@ -4,7 +4,6 @@ use crate::screen::gui::format_units::format_unit;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::network::{Network, Node, Replacement};
-use std::slice::Iter;
 
 pub struct Networks {
     ship_position: CellIndex,

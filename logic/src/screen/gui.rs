@@ -48,6 +48,9 @@ impl Gui {
         drawing: &mut DrawingState, // TODO: make const by add top_bar_showing to GuiActions
     ) -> GuiActions {
         let mut gui_actions = GuiActions::default();
+        if input.reload_ui_skin {
+            set_skin(drawer);
+        }
 
         drawer.ui_run(&mut |drawer| {
             let unhandled_input = new_gui_from_input(input, drawer, drawing);

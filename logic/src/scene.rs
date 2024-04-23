@@ -2,12 +2,12 @@ pub mod introduction_scene;
 pub mod main_scene;
 
 pub trait Scene {
-    fn frame(&mut self) -> State;
+    fn frame(&mut self) -> GameLoopState;
 }
 
 #[derive(Eq, PartialEq)]
 #[repr(C)]
-pub enum State {
+pub enum GameLoopState {
     ShouldContinue,
     ShouldFinish,
 }

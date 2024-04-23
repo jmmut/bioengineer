@@ -7,7 +7,7 @@ use mq_basics::{Color, Image, KeyCode, MouseButton, Texture2D, Vec2};
 use std::f32::consts::PI;
 
 use crate::scene::introduction_scene::fire_particles::Particle;
-use crate::scene::{Scene, State};
+use crate::scene::{GameLoopState, Scene};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::{
     BACKGROUND_UI_COLOR_BUTTON, BACKGROUND_UI_COLOR_BUTTON_CLICKED,
@@ -156,7 +156,7 @@ impl IntroductionSceneState {
 }
 
 impl Scene for IntroductionScene {
-    fn frame(&mut self) -> State {
+    fn frame(&mut self) -> GameLoopState {
         self.state.frame = (self.state.frame + 1) % 100000000;
         let height = self.state.drawer.as_mut().unwrap().screen_height();
         let width = self.state.drawer.as_mut().unwrap().screen_width();
@@ -166,10 +166,10 @@ impl Scene for IntroductionScene {
         let (buttons, new_game_clicked) = self.ui_interact(height, width);
 
         if new_game_clicked {
-            State::ShouldFinish
+            GameLoopState::ShouldFinish
         } else {
             self.render(height, width, &buttons);
-            State::ShouldContinue
+            GameLoopState::ShouldContinue
         }
     }
 }

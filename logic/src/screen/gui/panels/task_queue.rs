@@ -17,7 +17,7 @@ pub fn draw_robot_queue(
     let icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 1.5;
     let button_height = FONT_SIZE * 1.5;
     let group_height = icon_height + 2.0 * button_height;
-    let mut go_to_robot = Option::None;
+    let go_to_robot = Option::None;
 
     let mut cancel_task = Option::None;
     let mut do_now_task = Option::None;

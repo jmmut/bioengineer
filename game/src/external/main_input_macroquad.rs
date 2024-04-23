@@ -19,6 +19,7 @@ impl MainSceneInputTrait for InputMacroquad {
         Input {
             quit: is_key_pressed(KeyCode::Escape),
             regenerate_map: is_key_pressed(KeyCode::M),
+            reload_ui_skin: is_key_pressed(KeyCode::U),
             toggle_profiling: is_key_pressed(KeyCode::P),
             toggle_fluids: is_key_pressed(KeyCode::Space),
             single_fluid: is_key_pressed(KeyCode::N),

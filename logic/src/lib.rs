@@ -9,7 +9,7 @@
 
 use crate::scene::introduction_scene::{IntroductionScene, IntroductionSceneState};
 use crate::scene::main_scene::MainScene;
-use crate::scene::{Scene, State};
+use crate::scene::{GameLoopState, Scene};
 use mq_basics::Texture2D;
 
 pub mod common {
@@ -39,7 +39,7 @@ impl SceneState {
     }
 }
 
-pub fn frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
+pub fn frame(scene_wrapper: &mut Box<Option<SceneState>>) -> GameLoopState {
     let wrapper = scene_wrapper.take().unwrap();
     match wrapper {
         SceneState::Introduction(scene_state) => {
@@ -57,6 +57,8 @@ pub fn frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
 }
 
 #[no_mangle]
-pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut Box<Option<SceneState>>) -> State {
+pub extern "C" fn hot_reload_draw_frame(
+    scene_wrapper: &mut Box<Option<SceneState>>,
+) -> GameLoopState {
     frame(scene_wrapper)
 }
