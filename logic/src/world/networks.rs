@@ -1,6 +1,6 @@
 pub mod network;
 
-use crate::screen::gui::format_units::format_liters;
+use crate::screen::gui::format_units::{format_liters, Grams};
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::network::{Network, Node, Replacement};
@@ -83,10 +83,7 @@ impl Networks {
                 self.re_add_network(network_to_split);
                 return replacement;
             }
-            Replacement::Regular => {
-                return replacement;
-            }
-            Replacement::Forbidden => {
+            Replacement::Regular | Replacement::Forbidden => {
                 return replacement;
             }
             Replacement::None => {}
@@ -158,10 +155,11 @@ impl Networks {
     }
 
     pub fn update(&mut self) {
-        self.air_cleaned += self.ship_network.update().air_cleaned;
-        for network in self.unconnected_networks.iter_mut() {
-            self.air_cleaned += network.update().air_cleaned;
+        let mut air_cleaned = 0.0;
+        for network in self.iter_mut() {
+            air_cleaned += network.update().air_cleaned;
         }
+        self.air_cleaned += air_cleaned;
     }
 
     pub fn len(&self) -> usize {
@@ -170,15 +168,18 @@ impl Networks {
 
     pub fn get_non_ship_machine_count(&self) -> i32 {
         let mut machines = 0;
-        machines += self.ship_network.len() as i32 - 1;
-        for network in &self.unconnected_networks {
+        for network in self.iter() {
             machines += network.len() as i32;
         }
-        machines
+        machines - 1
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &Network> {
         std::iter::once(&self.ship_network).chain(self.unconnected_networks.iter())
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Network> {
+        std::iter::once(&mut self.ship_network).chain(self.unconnected_networks.iter_mut())
     }
 
     pub fn get_total_air_cleaned(&self) -> f64 {
@@ -188,6 +189,18 @@ impl Networks {
     pub fn get_total_air_cleaned_str(&self) -> String {
         let air_cleaned = self.get_total_air_cleaned();
         format_liters(air_cleaned)
+    }
+    pub fn get_stored_resources(&self) -> Grams {
+        self.iter()
+            .map(|n| n.get_stored_resources())
+            .reduce(|a, b| a + b)
+            .unwrap_or(0.0)
+    }
+    pub fn get_storage_capacity(&self) -> Grams {
+        self.iter()
+            .map(|n| n.get_storage_capacity())
+            .reduce(|a, b| a + b)
+            .unwrap_or(0.0)
     }
 
     pub fn reset_production(&mut self) {
@@ -335,5 +348,28 @@ mod tests {
         assert_eq!(network.is_adjacent(adjacent), false);
         network.add(new_node(position, TileType::MachineDrill));
         assert_eq!(network.is_adjacent(adjacent), true);
+    }
+}
+
+#[cfg(test)]
+mod storage_tests {
+    use super::*;
+    use crate::world::networks::network::{MAX_STORAGE_PER_MACHINE, SPACESHIP_INITIAL_STORAGE};
+
+    #[test]
+    fn test_initial_storage_capacity() {
+        let networks = Networks::new(CellIndex::new(0, 0, 0));
+        assert_eq!(networks.get_stored_resources(), SPACESHIP_INITIAL_STORAGE);
+        assert_eq!(networks.get_storage_capacity(), MAX_STORAGE_PER_MACHINE);
+    }
+    #[test]
+    fn test_can_not_add_machine_without_resources() {
+        let mut networks = Networks::new(CellIndex::new(0, 0, 0));
+        assert_eq!(networks.add(CellIndex::new(0, 0, 1), TileType::Wire), true);
+        assert_eq!(networks.add(CellIndex::new(0, 0, 2), TileType::Wire), true);
+        assert_eq!(networks.add(CellIndex::new(0, 0, 3), TileType::Wire), true);
+        assert_eq!(networks.add(CellIndex::new(0, 0, 4), TileType::Wire), true);
+        assert_eq!(networks.add(CellIndex::new(0, 0, 5), TileType::Wire), true);
+        assert_eq!(networks.add(CellIndex::new(0, 0, 6), TileType::Wire), false);
     }
 }

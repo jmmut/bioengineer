@@ -4,6 +4,16 @@ use crate::world::map::{CellIndex, TileType};
 use crate::world::robots::CellIndexDiff;
 use std::collections::{HashSet, VecDeque};
 
+pub const POWER_PER_SOLAR_PANEL: Watts = 1000.0;
+pub const POWER_CONSUMED_PER_MACHINE: Watts = POWER_PER_SOLAR_PANEL;
+
+const AIR_CLEANED_PER_CLEANER_PER_UPDATE: Liters = 1.0;
+
+pub const SPACESHIP_INITIAL_STORAGE: Grams = 500_000.0;
+pub const MAX_STORAGE_PER_MACHINE: Grams = 1_000_000.0;
+pub const MAX_STORAGE_PER_STORAGE_MACHINE: Grams = 10_000_000.0;
+const _WALL_WEIGHT: Grams = 100_000_000.0;
+
 pub struct Network {
     pub nodes: Vec<Node>,
     pub stored_resources: f64,
@@ -14,16 +24,6 @@ pub struct Node {
     pub position: CellIndex,
     pub tile: TileType,
 }
-
-pub const POWER_PER_SOLAR_PANEL: Watts = 1000.0;
-pub const POWER_CONSUMED_PER_MACHINE: Watts = POWER_PER_SOLAR_PANEL;
-
-const AIR_CLEANED_PER_CLEANER_PER_UPDATE: Liters = 1.0;
-
-pub const SPACESHIP_INITIAL_STORAGE: Grams = 500_000.0;
-pub const MAX_STORAGE_PER_MACHINE: Grams = 1_000_000.0;
-pub const MAX_STORAGE_PER_STORAGE_MACHINE: Grams = 10_000_000.0;
-const _WALL_WEIGHT: Grams = 100_000_000.0;
 
 #[derive(PartialEq)]
 pub enum Replacement {
@@ -50,16 +50,16 @@ impl Network {
         }
     }
     pub fn update(&mut self) -> NetworkUpdate {
-        let mut air_cleaners = 0;
-        for node in &self.nodes {
-            match node.tile {
-                TileType::MachineAirCleaner => air_cleaners += 1,
-                TileType::MachineAssembler => {}
-                _ => {}
-            }
-        }
         NetworkUpdate {
             air_cleaned: if self.is_power_satisfied() {
+                let mut air_cleaners = 0;
+                for node in &self.nodes {
+                    match node.tile {
+                        TileType::MachineAirCleaner => air_cleaners += 1,
+                        TileType::MachineAssembler => {}
+                        _ => {}
+                    }
+                }
                 air_cleaners as f64 * AIR_CLEANED_PER_CLEANER_PER_UPDATE
             } else {
                 0.0
@@ -92,6 +92,7 @@ impl Network {
             TileType::MachineDrill,
             TileType::MachineAssembler,
             TileType::MachineAirCleaner,
+            TileType::MachineStorage,
         ]);
         let power = machines_count as f64 * POWER_CONSUMED_PER_MACHINE;
         power
@@ -243,6 +244,11 @@ impl Default for Network {
     }
 }
 
+impl Node {
+    pub fn new(position: CellIndex, tile: TileType) -> Self {
+        Self { position, tile }
+    }
+}
 pub fn is_adjacent(a: CellIndex, b: CellIndex) -> bool {
     let diff: CellIndexDiff = a - b;
     adjacent_positions().contains(&diff)
@@ -267,23 +273,4 @@ pub fn neighbours(a: CellIndex) -> [CellIndexDiff; 6] {
         a + CellIndexDiff::new(0, 0, 1),
         a + CellIndexDiff::new(0, 0, -1),
     ]
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_not_enough_storage_capacity() {
-        let mut network = Network::new();
-        network.add(Node {
-            position: CellIndex::new(0, 0, 0),
-            tile: TileType::MachineShip,
-        });
-        assert_eq!(network.get_stored_resources(), SPACESHIP_INITIAL_STORAGE);
-        assert_eq!(network.get_storage_capacity(), MAX_STORAGE_PER_MACHINE);
-
-        panic!("need to change the interface of Networks::add() to include the added resources from \
-         digging, and then see if current_capacity + new_node.capacity > current_storage + added_resources");
-    }
 }
