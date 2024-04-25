@@ -185,7 +185,10 @@ impl World {
                         let cell = self.map.get_cell_mut(pos_to_transform);
                         let mut cell_copy = cell.clone();
                         transformation.apply(&mut cell_copy);
-                        if self.networks.add(pos_to_transform, cell_copy.tile_type) {
+                        if self
+                            .networks
+                            .add(pos_to_transform, cell_copy.tile_type, cell.tile_type)
+                        {
                             *cell = cell_copy;
                             if ages(cell.tile_type) {
                                 // TODO: is_alive(). otherwise it doesn't make sense to have aging_tiles and life as separate variables

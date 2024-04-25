@@ -63,11 +63,13 @@ pub fn draw_networks(drawer: &dyn DrawerTrait, world: &World) {
     );
     for (network_id, network) in world.networks.iter().enumerate() {
         let text = format!(
-            "  Network #{} - Power generated: {}. Power required: {}. Air cleaning speed: {}",
+            "  Network #{} - Power generated: {}. Power required: {}. Air cleaning speed: {}. Storage: {}/{}",
             network_id + 1,
             network.get_power_generated_str(),
             network.get_power_required_str(),
             network.get_air_cleaned_speed_str(),
+            network.get_stored_resources_str(),
+            network.get_storage_capacity_str(),
         );
         let text_color = if network.is_power_satisfied() {
             TEXT_COLOR

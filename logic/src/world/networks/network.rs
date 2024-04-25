@@ -1,4 +1,6 @@
-use crate::screen::gui::format_units::{format_unit, format_watts, Grams, Liters, Watts};
+use crate::screen::gui::format_units::{
+    format_grams, format_unit, format_watts, Grams, Liters, Watts,
+};
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::robots::CellIndexDiff;
@@ -9,14 +11,15 @@ pub const POWER_CONSUMED_PER_MACHINE: Watts = POWER_PER_SOLAR_PANEL;
 
 const AIR_CLEANED_PER_CLEANER_PER_UPDATE: Liters = 1.0;
 
+pub const MATERIAL_NEEDED_FOR_A_MACHINE: Grams = 100_000.0;
 pub const SPACESHIP_INITIAL_STORAGE: Grams = 500_000.0;
 pub const MAX_STORAGE_PER_MACHINE: Grams = 1_000_000.0;
 pub const MAX_STORAGE_PER_STORAGE_MACHINE: Grams = 10_000_000.0;
-const _WALL_WEIGHT: Grams = 100_000_000.0;
+pub const WALL_WEIGHT: Grams = 10_000_000.0;
 
 pub struct Network {
     pub nodes: Vec<Node>,
-    pub stored_resources: f64,
+    pub stored_resources: Grams,
 }
 
 #[derive(Copy, Clone)]
@@ -131,10 +134,17 @@ impl Network {
         self.stored_resources
     }
 
+    pub fn get_stored_resources_str(&self) -> String {
+        format_grams(self.get_stored_resources())
+    }
+
     pub fn get_storage_capacity(&self) -> Grams {
         let storage_count = self.count_tiles_of_type_in(&[TileType::MachineStorage]);
         storage_count as f64 * MAX_STORAGE_PER_STORAGE_MACHINE
             + (self.len() as i32 - storage_count) as f64 * MAX_STORAGE_PER_MACHINE
+    }
+    pub fn get_storage_capacity_str(&self) -> String {
+        format_grams(self.get_storage_capacity())
     }
     #[allow(unused)]
     fn get(&mut self, cell_index: CellIndex) -> Option<&mut TileType> {
@@ -170,6 +180,8 @@ impl Network {
             }
         }
         return if let Option::Some(i) = index_to_change {
+            self.stored_resources += material_composition(self.nodes[i].tile);
+            self.stored_resources -= material_composition(new_machine);
             let replacement_is_really_a_removal = !is_networkable(new_machine);
             if replacement_is_really_a_removal {
                 self.nodes.remove(i);
@@ -228,12 +240,40 @@ impl Network {
         self.nodes.push(node);
         if node.tile == TileType::MachineShip {
             self.stored_resources += SPACESHIP_INITIAL_STORAGE;
+        } else {
+            self.stored_resources -= MATERIAL_NEEDED_FOR_A_MACHINE;
         }
     }
 
     pub fn join(&mut self, other: Network) {
         for node in other.nodes {
             self.add(node);
+        }
+    }
+}
+
+pub fn material_composition(tile: TileType) -> Grams {
+    match tile {
+        TileType::Unset => {
+            panic!("should not be asking the amount of material of an Unset tile")
+        }
+        TileType::WallRock | TileType::WallDirt => WALL_WEIGHT,
+        TileType::FloorRock | TileType::FloorDirt => {
+            panic!("floor is deprecated, should not be asking amount of material")
+        }
+        TileType::Stairs => {
+            panic!("stairs are deprecated, should not be asking amount of material")
+        }
+        TileType::Air => 0.0,
+        TileType::Wire
+        | TileType::MachineAssembler
+        | TileType::MachineAirCleaner
+        | TileType::MachineDrill
+        | TileType::MachineSolarPanel
+        | TileType::MachineShip
+        | TileType::MachineStorage => MATERIAL_NEEDED_FOR_A_MACHINE,
+        TileType::TreeHealthy | TileType::TreeSparse | TileType::TreeDying | TileType::TreeDead => {
+            MATERIAL_NEEDED_FOR_A_MACHINE
         }
     }
 }
