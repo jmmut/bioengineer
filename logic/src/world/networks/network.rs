@@ -1,10 +1,11 @@
+use std::collections::{HashSet, VecDeque};
+
 use crate::screen::gui::format_units::{
     format_grams, format_unit, format_watts, Grams, Liters, Watts,
 };
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::robots::CellIndexDiff;
-use std::collections::{HashSet, VecDeque};
 
 pub const POWER_PER_SOLAR_PANEL: Watts = 1000.0;
 pub const POWER_CONSUMED_PER_MACHINE: Watts = POWER_PER_SOLAR_PANEL;
@@ -28,7 +29,7 @@ pub struct Node {
     pub tile: TileType,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum Replacement {
     SplitNetwork,
     Regular,
@@ -180,6 +181,18 @@ impl Network {
             }
         }
         return if let Option::Some(i) = index_to_change {
+            // let old_material_regained = material_composition(self.nodes[i].tile);
+            // let new_material_spent = material_composition(new_machine);
+            // let future_storage =
+            //     self.get_stored_resources() + old_material_regained - new_material_spent;
+            // if future_storage
+            //     > self.get_storage_capacity() + storage_capacity(new_machine)
+            //         - storage_capacity(self.nodes[i].tile)
+            // {
+            //     return Replacement::Forbidden;
+            // } else if future_storage < 0.0 {
+            //     return Replacement::Forbidden;
+            // }
             self.stored_resources += material_composition(self.nodes[i].tile);
             self.stored_resources -= material_composition(new_machine);
             let replacement_is_really_a_removal = !is_networkable(new_machine);
@@ -241,7 +254,7 @@ impl Network {
         if node.tile == TileType::MachineShip {
             self.stored_resources += SPACESHIP_INITIAL_STORAGE;
         } else {
-            self.stored_resources -= MATERIAL_NEEDED_FOR_A_MACHINE;
+            self.stored_resources -= material_composition(node.tile);
         }
     }
 
@@ -274,6 +287,31 @@ pub fn material_composition(tile: TileType) -> Grams {
         | TileType::MachineStorage => MATERIAL_NEEDED_FOR_A_MACHINE,
         TileType::TreeHealthy | TileType::TreeSparse | TileType::TreeDying | TileType::TreeDead => {
             MATERIAL_NEEDED_FOR_A_MACHINE
+        }
+    }
+}
+pub fn storage_capacity(tile: TileType) -> Grams {
+    match tile {
+        TileType::Unset => {
+            panic!("should not be asking the amount of capacity of an Unset tile")
+        }
+        TileType::WallRock | TileType::WallDirt => WALL_WEIGHT,
+        TileType::FloorRock | TileType::FloorDirt => {
+            panic!("floor is deprecated, should not be asking amount of capacity")
+        }
+        TileType::Stairs => {
+            panic!("stairs are deprecated, should not be asking amount of capacity")
+        }
+        TileType::Air => 0.0,
+        TileType::Wire
+        | TileType::MachineAssembler
+        | TileType::MachineAirCleaner
+        | TileType::MachineDrill
+        | TileType::MachineSolarPanel
+        | TileType::MachineShip => MAX_STORAGE_PER_MACHINE,
+        TileType::MachineStorage => MAX_STORAGE_PER_STORAGE_MACHINE,
+        TileType::TreeHealthy | TileType::TreeSparse | TileType::TreeDying | TileType::TreeDead => {
+            0.0
         }
     }
 }
