@@ -181,20 +181,19 @@ impl Network {
             }
         }
         return if let Option::Some(i) = index_to_change {
-            // let old_material_regained = material_composition(self.nodes[i].tile);
-            // let new_material_spent = material_composition(new_machine);
-            // let future_storage =
-            //     self.get_stored_resources() + old_material_regained - new_material_spent;
-            // if future_storage
-            //     > self.get_storage_capacity() + storage_capacity(new_machine)
-            //         - storage_capacity(self.nodes[i].tile)
-            // {
-            //     return Replacement::Forbidden;
-            // } else if future_storage < 0.0 {
-            //     return Replacement::Forbidden;
-            // }
-            self.stored_resources += material_composition(self.nodes[i].tile);
-            self.stored_resources -= material_composition(new_machine);
+            let old_material_regained = material_composition(self.nodes[i].tile);
+            let new_material_spent = material_composition(new_machine);
+            let future_storage =
+                self.get_stored_resources() + old_material_regained - new_material_spent;
+            let future_capacity = self.get_storage_capacity() + storage_capacity(new_machine)
+                - storage_capacity(self.nodes[i].tile);
+            if future_storage > future_capacity {
+                return Replacement::Forbidden;
+            } else if future_storage < 0.0 {
+                return Replacement::Forbidden;
+            }
+            self.stored_resources += old_material_regained;
+            self.stored_resources -= new_material_spent;
             let replacement_is_really_a_removal = !is_networkable(new_machine);
             if replacement_is_really_a_removal {
                 self.nodes.remove(i);

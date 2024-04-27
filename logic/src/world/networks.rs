@@ -5,7 +5,7 @@ use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::network::{
     material_composition, storage_capacity, Network, Node, Replacement,
-    MATERIAL_NEEDED_FOR_A_MACHINE,
+    MATERIAL_NEEDED_FOR_A_MACHINE, SPACESHIP_INITIAL_STORAGE,
 };
 
 pub struct Networks {
@@ -51,8 +51,14 @@ impl Networks {
         }
         let old_material_regained = material_composition(old_tile);
         let new_material_spent = material_composition(new_machine);
-        let future_storage =
-            self.ship_network.get_stored_resources() + old_material_regained - new_material_spent;
+        let extra_storage_in_ship = if new_machine == TileType::MachineShip {
+            SPACESHIP_INITIAL_STORAGE
+        } else {
+            0.0
+        };
+        let future_storage = self.ship_network.get_stored_resources() + old_material_regained
+            - new_material_spent
+            + extra_storage_in_ship;
         if future_storage > self.ship_network.get_storage_capacity() + storage_capacity(new_machine)
         {
             return false;
@@ -92,7 +98,7 @@ impl Networks {
         if adjacent_networks.len() > 0 {
             self.join_networks_and_add_node(node, &adjacent_networks);
         } else {
-            self.add_new_network_with_node(node);
+            self.add_new_network_with_node(node, old_tile);
         };
         return true;
     }
@@ -174,10 +180,29 @@ impl Networks {
         network_kept.add(node)
     }
 
-    fn add_new_network_with_node(&mut self, node: Node) {
+    fn add_new_network_with_node(&mut self, node: Node, old_tile: TileType) -> bool {
+        let new_machine = node.tile;
         let mut network = Network::new();
+        network.stored_resources += MATERIAL_NEEDED_FOR_A_MACHINE; // otherwise we can't add an unconnected machine
+        let old_material_regained = material_composition(old_tile);
+        let new_material_spent = material_composition(new_machine);
+        let extra_storage_in_ship = if new_machine == TileType::MachineShip {
+            SPACESHIP_INITIAL_STORAGE
+        } else {
+            0.0
+        };
+        let future_storage = network.get_stored_resources() + old_material_regained
+            - new_material_spent
+            + extra_storage_in_ship;
+        if future_storage > network.get_storage_capacity() + storage_capacity(new_machine) {
+            return false;
+        } else if future_storage < 0.0 {
+            return false;
+        }
+        network.stored_resources += old_material_regained;
         network.add(node);
         self.unconnected_networks.push(network);
+        return true;
     }
 
     pub fn update(&mut self) {
@@ -270,6 +295,7 @@ impl Networks {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::world::map::TileType::{MachineStorage, WallRock};
     use crate::world::map::{CellIndex, TileType};
     use TileType::{Air, MachineAirCleaner, MachineAssembler};
 
@@ -295,19 +321,18 @@ mod tests {
     #[test]
     fn test_replace_machine() {
         let mut networks = Networks::new_default();
-        networks.add(CellIndex::new(0, 0, 10), MachineAssembler, Air);
-        networks.add(CellIndex::new(0, 0, 10), TileType::MachineDrill, Air);
-        assert_eq!(networks.len(), 2);
+        assert_eq!(
+            networks.add(CellIndex::new(0, 0, 1), MachineAssembler, Air),
+            true
+        );
+        assert_eq!(
+            networks.add(CellIndex::new(0, 0, 1), TileType::MachineDrill, Air),
+            true
+        );
+        assert_eq!(networks.len(), 1);
         assert_eq!(networks.get_non_ship_machine_count(), 1);
         assert_eq!(
-            networks
-                .unconnected_networks
-                .get(0)
-                .unwrap()
-                .nodes
-                .first()
-                .unwrap()
-                .tile,
+            networks.ship_network.nodes.last().unwrap().tile,
             TileType::MachineDrill
         );
     }
@@ -339,11 +364,24 @@ mod tests {
     #[test]
     fn test_split_network() {
         let mut networks = Networks::new_default();
-        networks.add(CellIndex::new(0, 0, 10), MachineAssembler, Air);
-        networks.add(CellIndex::new(0, 0, 11), MachineAssembler, Air);
-        networks.add(CellIndex::new(0, 0, 12), MachineAssembler, Air);
+        assert_eq!(
+            networks.add(CellIndex::new(0, 0, 10), MachineStorage, WallRock),
+            true
+        );
+        assert_eq!(
+            networks.add(CellIndex::new(0, 0, 11), MachineAssembler, Air),
+            true
+        );
+        assert_eq!(
+            networks.add(CellIndex::new(0, 0, 12), MachineAssembler, Air),
+            true
+        );
         assert_eq!(networks.len(), 2);
-        networks.add(CellIndex::new(0, 0, 11), TileType::WallRock, Air);
+        assert_eq!(networks.get_non_ship_machine_count(), 3);
+        assert_eq!(
+            networks.add(CellIndex::new(0, 0, 11), TileType::Air, Air),
+            true
+        );
         assert_eq!(networks.len(), 3);
     }
 
