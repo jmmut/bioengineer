@@ -157,11 +157,23 @@ impl Network {
 
     pub fn get_storage_capacity(&self) -> Grams {
         let storage_count = self.count_tiles_of_type_in(&[TileType::MachineStorage]);
+        let ships = self.count_tiles_of_type_in(&[TileType::MachineShip]);
         storage_count as f64 * MAX_STORAGE_PER_STORAGE_MACHINE
-            + (self.len() as i32 - storage_count) as f64 * MAX_STORAGE_PER_MACHINE
+            + ships as f64 * SPACESHIP_INITIAL_STORAGE
+            + (self.len() as i32 - storage_count - ships) as f64 * MAX_STORAGE_PER_MACHINE
     }
     pub fn get_storage_capacity_str(&self) -> String {
         format_grams(self.get_storage_capacity())
+    }
+    pub fn try_add_resources(&mut self, resources: Grams) -> Grams {
+        self.stored_resources += resources;
+        let overflow = self.stored_resources - self.get_storage_capacity();
+        if overflow > 0.0 {
+            self.stored_resources -= overflow;
+            return overflow;
+        } else {
+            return 0.0;
+        }
     }
     #[allow(unused)]
     fn get(&mut self, cell_index: CellIndex) -> Option<&mut TileType> {
@@ -231,11 +243,13 @@ impl Network {
     ) -> (Grams, Grams, Grams, Grams) {
         let old_material_regained = material_composition(old_tile);
         let new_material_spent = material_composition(new_machine);
-        let extra_storage_in_ship = if new_machine == TileType::MachineShip {
-            SPACESHIP_INITIAL_STORAGE
-        } else {
+        let extra_storage_in_ship =
+            // if new_machine == TileType::MachineShip {
+            // SPACESHIP_INITIAL_STORAGE
+        // } else {
             0.0
-        };
+        // }
+        ;
         let future_storage = network.get_stored_resources() + old_material_regained
             - new_material_spent
             + extra_storage_in_ship;
@@ -288,11 +302,7 @@ impl Network {
 
     pub fn add(&mut self, node: Node) {
         self.nodes.push(node);
-        if node.tile == TileType::MachineShip {
-            self.stored_resources += SPACESHIP_INITIAL_STORAGE;
-        } else {
-            self.stored_resources -= material_composition(node.tile);
-        }
+        self.stored_resources -= material_composition(node.tile);
     }
 
     pub fn try_add(&mut self, node: Node, old_tile: TileType) -> Addition {
@@ -304,11 +314,7 @@ impl Network {
             Addition::NotEnoughStorage
         } else {
             self.nodes.push(node);
-            if node.tile == TileType::MachineShip {
-                self.stored_resources += SPACESHIP_INITIAL_STORAGE;
-            } else {
-                self.stored_resources -= new_material_spent;
-            }
+            self.stored_resources -= new_material_spent;
             self.stored_resources += old_material_regained;
             Addition::Ok
         }
