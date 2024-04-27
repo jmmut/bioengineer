@@ -18,12 +18,13 @@ pub const MAX_STORAGE_PER_MACHINE: Grams = 1_000_000.0;
 pub const MAX_STORAGE_PER_STORAGE_MACHINE: Grams = 10_000_000.0;
 pub const WALL_WEIGHT: Grams = 10_000_000.0;
 
+#[derive(Debug)]
 pub struct Network {
     pub nodes: Vec<Node>,
     pub stored_resources: Grams,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Node {
     pub position: CellIndex,
     pub tile: TileType,
@@ -31,10 +32,19 @@ pub struct Node {
 
 #[derive(PartialEq, Debug)]
 pub enum Replacement {
+    Ok,
     SplitNetwork,
-    Regular,
     Forbidden,
+    NotEnoughMaterial,
+    NotEnoughStorage,
     None,
+}
+
+#[derive(PartialEq, Debug)]
+pub enum Addition {
+    Ok,
+    NotEnoughMaterial,
+    NotEnoughStorage,
 }
 
 pub struct NetworkUpdate {
@@ -51,6 +61,12 @@ impl Network {
         Network {
             nodes: Vec::new(),
             stored_resources: 0.0,
+        }
+    }
+    pub fn new_with_storage(initial_storage: Grams) -> Self {
+        Network {
+            nodes: Vec::new(),
+            stored_resources: initial_storage,
         }
     }
     pub fn update(&mut self) -> NetworkUpdate {
@@ -181,16 +197,13 @@ impl Network {
             }
         }
         return if let Option::Some(i) = index_to_change {
-            let old_material_regained = material_composition(self.nodes[i].tile);
-            let new_material_spent = material_composition(new_machine);
-            let future_storage =
-                self.get_stored_resources() + old_material_regained - new_material_spent;
-            let future_capacity = self.get_storage_capacity() + storage_capacity(new_machine)
-                - storage_capacity(self.nodes[i].tile);
+            let old_tile = self.nodes[i].tile;
+            let (old_material_regained, new_material_spent, future_storage, future_capacity) =
+                Self::predict_storage(new_machine, old_tile, self);
             if future_storage > future_capacity {
-                return Replacement::Forbidden;
+                return Replacement::NotEnoughStorage;
             } else if future_storage < 0.0 {
-                return Replacement::Forbidden;
+                return Replacement::NotEnoughMaterial;
             }
             self.stored_resources += old_material_regained;
             self.stored_resources -= new_material_spent;
@@ -198,17 +211,42 @@ impl Network {
             if replacement_is_really_a_removal {
                 self.nodes.remove(i);
                 if self.is_connected() {
-                    Replacement::Regular
+                    Replacement::Ok
                 } else {
                     Replacement::SplitNetwork
                 }
             } else {
                 self.nodes.get_mut(i).unwrap().tile = new_machine;
-                Replacement::Regular
+                Replacement::Ok
             }
         } else {
             Replacement::None
         };
+    }
+
+    pub fn predict_storage(
+        new_machine: TileType,
+        old_tile: TileType,
+        network: &Network,
+    ) -> (Grams, Grams, Grams, Grams) {
+        let old_material_regained = material_composition(old_tile);
+        let new_material_spent = material_composition(new_machine);
+        let extra_storage_in_ship = if new_machine == TileType::MachineShip {
+            SPACESHIP_INITIAL_STORAGE
+        } else {
+            0.0
+        };
+        let future_storage = network.get_stored_resources() + old_material_regained
+            - new_material_spent
+            + extra_storage_in_ship;
+        let future_capacity = network.get_storage_capacity() + storage_capacity(new_machine)
+            - storage_capacity(old_tile);
+        (
+            old_material_regained,
+            new_material_spent,
+            future_storage,
+            future_capacity,
+        )
     }
 
     pub fn is_adjacent(&self, cell_index: CellIndex) -> bool {
@@ -257,9 +295,37 @@ impl Network {
         }
     }
 
+    pub fn try_add(&mut self, node: Node, old_tile: TileType) -> Addition {
+        let (old_material_regained, new_material_spent, future_storage, future_capacity) =
+            Self::predict_storage(node.tile, old_tile, self);
+        if future_storage < 0.0 {
+            Addition::NotEnoughMaterial
+        } else if future_storage > future_capacity {
+            Addition::NotEnoughStorage
+        } else {
+            self.nodes.push(node);
+            if node.tile == TileType::MachineShip {
+                self.stored_resources += SPACESHIP_INITIAL_STORAGE;
+            } else {
+                self.stored_resources -= new_material_spent;
+            }
+            self.stored_resources += old_material_regained;
+            Addition::Ok
+        }
+    }
+    pub fn add_or_panic(&mut self, node: Node, old_tile: TileType) {
+        let addition = self.try_add(node, old_tile);
+        if addition != Addition::Ok {
+            panic!(
+                "failed to add node to network ({:?}). Node: {:?}, old_tile: {:?}, Network: {:?}",
+                addition, node, old_tile, &self
+            );
+        }
+    }
+
     pub fn join(&mut self, other: Network) {
         for node in other.nodes {
-            self.add(node);
+            self.add_or_panic(node, TileType::Air);
         }
     }
 }
@@ -294,7 +360,7 @@ pub fn storage_capacity(tile: TileType) -> Grams {
         TileType::Unset => {
             panic!("should not be asking the amount of capacity of an Unset tile")
         }
-        TileType::WallRock | TileType::WallDirt => WALL_WEIGHT,
+        TileType::WallRock | TileType::WallDirt => 0.0,
         TileType::FloorRock | TileType::FloorDirt => {
             panic!("floor is deprecated, should not be asking amount of capacity")
         }

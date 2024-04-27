@@ -1,11 +1,9 @@
 pub mod network;
 
 use crate::screen::gui::format_units::{format_liters, Grams};
-use crate::world::map::cell::is_networkable;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::network::{
-    material_composition, storage_capacity, Network, Node, Replacement,
-    MATERIAL_NEEDED_FOR_A_MACHINE, SPACESHIP_INITIAL_STORAGE,
+    Addition, Network, Node, Replacement, MATERIAL_NEEDED_FOR_A_MACHINE,
 };
 
 pub struct Networks {
@@ -18,10 +16,13 @@ pub struct Networks {
 impl Networks {
     pub fn new(ship_position: CellIndex) -> Self {
         let mut network = Network::new();
-        network.add(Node {
-            position: ship_position,
-            tile: TileType::MachineShip,
-        });
+        network.add_or_panic(
+            Node {
+                position: ship_position,
+                tile: TileType::MachineShip,
+            },
+            TileType::Air,
+        );
         Networks {
             ship_position,
             ship_network: network,
@@ -41,53 +42,35 @@ impl Networks {
         old_tile: TileType,
     ) -> bool {
         match self.replace_if_present(cell_index, new_machine) {
-            Replacement::SplitNetwork | Replacement::Regular => {
+            Replacement::SplitNetwork | Replacement::Ok => {
                 return true;
             }
-            Replacement::Forbidden => {
+            Replacement::Forbidden
+            | Replacement::NotEnoughMaterial
+            | Replacement::NotEnoughStorage => {
                 return false;
             }
             Replacement::None => {} // continue with addition
         }
-        let old_material_regained = material_composition(old_tile);
-        let new_material_spent = material_composition(new_machine);
-        let extra_storage_in_ship = if new_machine == TileType::MachineShip {
-            SPACESHIP_INITIAL_STORAGE
-        } else {
-            0.0
-        };
-        let future_storage = self.ship_network.get_stored_resources() + old_material_regained
-            - new_material_spent
-            + extra_storage_in_ship;
-        if future_storage > self.ship_network.get_storage_capacity() + storage_capacity(new_machine)
-        {
-            return false;
-        } else if future_storage < 0.0 {
-            return false;
-        }
+
         let node = Node {
             position: cell_index,
             tile: new_machine,
         };
         if self.ship_network.is_adjacent(cell_index) {
-            if !is_networkable(new_machine) {
-                self.ship_network.stored_resources -= new_material_spent;
-                return true;
-            }
-            self.ship_network.stored_resources += old_material_regained;
-            if self.ship_network.get_stored_resources() >= MATERIAL_NEEDED_FOR_A_MACHINE {
-                self.ship_network.add(node);
-                let adjacent_networks = self.get_adjacent_networks(cell_index);
-                for i_network in adjacent_networks.iter().rev() {
-                    let joining_network = self.unconnected_networks.remove(*i_network);
-                    for unconnected_nodes in joining_network.nodes {
-                        self.ship_network.add(unconnected_nodes);
+            let addition = self.ship_network.try_add(node, old_tile);
+            let was_added = match addition {
+                Addition::Ok => {
+                    let adjacent_networks = self.get_adjacent_networks(cell_index);
+                    for i_network in adjacent_networks.iter().rev() {
+                        let joining_network = self.unconnected_networks.remove(*i_network);
+                        self.re_add_network(joining_network);
                     }
+                    true
                 }
-                return true;
-            } else {
-                return false;
-            }
+                Addition::NotEnoughMaterial | Addition::NotEnoughStorage => false,
+            };
+            return was_added;
         }
         if cell_index == self.ship_position {
             self.ship_network.add(node);
@@ -96,9 +79,10 @@ impl Networks {
         // not connected to ship_network
         let adjacent_networks = self.get_adjacent_networks(cell_index);
         if adjacent_networks.len() > 0 {
-            self.join_networks_and_add_node(node, &adjacent_networks);
+            self.join_networks_and_add_node(node, old_tile, &adjacent_networks);
         } else {
-            self.add_new_network_with_node(node, old_tile);
+            let addition = self.add_new_network_with_node(node, old_tile);
+            return addition == Addition::Ok;
         };
         return true;
     }
@@ -113,7 +97,10 @@ impl Networks {
                 self.re_add_network(network_to_split);
                 return replacement;
             }
-            Replacement::Regular | Replacement::Forbidden => {
+            Replacement::Ok
+            | Replacement::Forbidden
+            | Replacement::NotEnoughStorage
+            | Replacement::NotEnoughMaterial => {
                 return replacement;
             }
             Replacement::None => {}
@@ -125,14 +112,16 @@ impl Networks {
                     self.split_network(i);
                     return replacement;
                 }
-                Replacement::Regular => {
+                Replacement::Ok => {
                     if self.unconnected_networks.get(i).unwrap().len() == 0 {
                         self.unconnected_networks.remove(i);
                         // TODO: can this happen?
                     }
                     return replacement;
                 }
-                Replacement::Forbidden => {
+                Replacement::Forbidden
+                | Replacement::NotEnoughStorage
+                | Replacement::NotEnoughMaterial => {
                     return replacement;
                 }
                 Replacement::None => {}
@@ -165,7 +154,12 @@ impl Networks {
         self.ship_network.is_adjacent(cell_index)
     }
 
-    fn join_networks_and_add_node(&mut self, node: Node, to_be_merged: &[usize]) {
+    fn join_networks_and_add_node(
+        &mut self,
+        node: Node,
+        old_tile: TileType,
+        to_be_merged: &[usize],
+    ) {
         assert!(to_be_merged.len() > 0);
         let to_be_removed = &to_be_merged[1..];
         let kept = to_be_merged[0];
@@ -174,35 +168,19 @@ impl Networks {
             networks_to_be_merged.push(self.unconnected_networks.remove(*i));
         }
         let network_kept = self.unconnected_networks.get_mut(kept).unwrap();
+        network_kept.add_or_panic(node, old_tile);
         while let Option::Some(network_to_be_merged) = networks_to_be_merged.pop() {
             network_kept.join(network_to_be_merged);
         }
-        network_kept.add(node)
     }
 
-    fn add_new_network_with_node(&mut self, node: Node, old_tile: TileType) -> bool {
-        let new_machine = node.tile;
-        let mut network = Network::new();
-        network.stored_resources += MATERIAL_NEEDED_FOR_A_MACHINE; // otherwise we can't add an unconnected machine
-        let old_material_regained = material_composition(old_tile);
-        let new_material_spent = material_composition(new_machine);
-        let extra_storage_in_ship = if new_machine == TileType::MachineShip {
-            SPACESHIP_INITIAL_STORAGE
-        } else {
-            0.0
-        };
-        let future_storage = network.get_stored_resources() + old_material_regained
-            - new_material_spent
-            + extra_storage_in_ship;
-        if future_storage > network.get_storage_capacity() + storage_capacity(new_machine) {
-            return false;
-        } else if future_storage < 0.0 {
-            return false;
+    fn add_new_network_with_node(&mut self, node: Node, old_tile: TileType) -> Addition {
+        let mut network = Network::new_with_storage(MATERIAL_NEEDED_FOR_A_MACHINE); // otherwise we can't add an unconnected machine
+        let addition = network.try_add(node, old_tile);
+        if addition == Addition::Ok {
+            self.unconnected_networks.push(network);
         }
-        network.stored_resources += old_material_regained;
-        network.add(node);
-        self.unconnected_networks.push(network);
-        return true;
+        addition
     }
 
     pub fn update(&mut self) {
@@ -302,12 +280,12 @@ mod tests {
     #[test]
     fn test_join_networks() {
         let mut networks = Networks::new_default();
-        networks.add(CellIndex::new(0, 0, 10), MachineAssembler, Air);
-        networks.add(CellIndex::new(0, 0, 12), MachineAssembler, Air);
-        assert_eq!(networks.len(), 3);
-        networks.add(CellIndex::new(0, 0, 11), MachineAssembler, Air);
+        networks.add(CellIndex::new(0, 0, 1), MachineAssembler, Air);
+        networks.add(CellIndex::new(0, 0, 3), MachineAssembler, Air);
         assert_eq!(networks.len(), 2);
-        assert_eq!(networks.unconnected_networks.get(0).unwrap().nodes.len(), 3);
+        networks.add(CellIndex::new(0, 0, 2), MachineAssembler, Air);
+        assert_eq!(networks.len(), 1);
+        assert_eq!(networks.get_non_ship_machine_count(), 3);
     }
 
     #[test]
@@ -475,7 +453,7 @@ mod storage_tests {
 
     #[test]
     fn test_adding_storage_without_capacity_is_allowed() {
-        let mut networks = Networks::new(CellIndex::new(0, 0, 0));
+        let mut networks = Networks::new_default();
         assert_eq!(
             networks.add(CellIndex::new(0, 0, 1), MachineStorage, WallRock),
             true
