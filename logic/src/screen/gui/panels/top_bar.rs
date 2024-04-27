@@ -153,6 +153,9 @@ fn goals_text_lines(air_cleaned: f64, machines: i32, trees: usize) -> Vec<String
     let machines_done = get_symbol_is_done(machines == 0);
     let trees_goal = LIFE_COUNT_REQUIRED_FOR_WINNING;
     let trees_done = get_symbol_is_done(trees == LIFE_COUNT_REQUIRED_FOR_WINNING);
+    let progress_bar_air = progress_bar(air_cleaned, goal_air);
+    let progress_bar_machines = progress_bar((4.0 - (machines as f64 + 1.0).log10()).max(0.0), 4.0);
+    let progress_bar_trees = progress_bar(trees as f64, trees_goal as f64);
 
     // TODO: draw progress bars
     format!(
@@ -160,13 +163,28 @@ fn goals_text_lines(air_cleaned: f64, machines: i32, trees: usize) -> Vec<String
 to put life on it.
 
 You have to:
-- Clean {goal_air} liters of air (or more): {air_cleaned_str}/{goal_air_str} {air_done}
-- Have no machines: {machines}/0 {machines_done}
-- Keep {trees_goal} trees alive (or more): {trees}/{trees_goal} {trees_done}"#,
+{progress_bar_air} Clean {goal_air} liters of air (or more): {air_cleaned_str}/{goal_air_str} {air_done}
+{progress_bar_machines} Have no machines: {machines}/0 {machines_done}
+{progress_bar_trees} Keep {trees_goal} trees alive (or more): {trees}/{trees_goal} {trees_done}"#,
     )
     .split("\n")
     .map(|s| s.to_string())
     .collect()
+}
+
+fn progress_bar(progress: f64, goal: f64) -> &'static str {
+    let ratio = progress / goal;
+    if ratio < 0.25 {
+        "...."
+    } else if ratio < 0.5 {
+        "|..."
+    } else if ratio < 0.75 {
+        "||.."
+    } else if ratio < 1.0 {
+        "|||."
+    } else {
+        "||||"
+    }
 }
 
 fn maybe_draw_help(
