@@ -55,10 +55,10 @@ pub fn show_available_transformations(
                     let text = to_action_str(transformation.new_tile_type);
                     match drawer.ui_button(text) {
                         Interaction::Clicked | Interaction::Pressing => {
-                            let transformation_task = TransformationTask {
-                                to_transform: highlighted_cells.clone(),
-                                transformation: transformation.clone(),
-                            };
+                            let transformation_task = TransformationTask::new(
+                                highlighted_cells.clone(),
+                                transformation.clone(),
+                            );
                             transformation_clicked = Option::Some(transformation_task);
                         }
                         Interaction::Hovered => {

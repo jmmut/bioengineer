@@ -431,10 +431,10 @@ mod tests {
         fn test_move_robot_basic_task() {
             let initial_pos = CellIndex::new(0, 0, 0);
             let cell_index_to_transform = CellIndex::new(0, 0, 10);
-            let tasks = VecDeque::from([Task::Transform(TransformationTask {
-                to_transform: HashSet::from([cell_index_to_transform]),
-                transformation: Transformation::to(TileType::MachineAssembler),
-            })]);
+            let tasks = VecDeque::from([Task::Transform(TransformationTask::new(
+                HashSet::from([cell_index_to_transform]),
+                Transformation::to(TileType::MachineAssembler),
+            ))]);
             let map = Map::_new_from_tiles(
                 Cell::new(TileType::FloorDirt),
                 vec![
@@ -467,10 +467,10 @@ mod tests {
             let initial_pos = CellIndex::new(0, 0, 0);
             let closest_target = CellIndex::new(-1, 0, 2);
             let farthest_target = CellIndex::new(2, 0, 2);
-            let transformation_task = TransformationTask {
-                to_transform: HashSet::from([farthest_target, closest_target]),
-                transformation: Transformation::to(TileType::Stairs),
-            };
+            let transformation_task = TransformationTask::new(
+                HashSet::from([farthest_target, closest_target]),
+                Transformation::to(TileType::Stairs),
+            );
             let mut iter = order_by_closest_target(&transformation_task, initial_pos);
             assert_eq!(iter.next().unwrap(), closest_target);
             assert_eq!(iter.next().unwrap(), farthest_target);

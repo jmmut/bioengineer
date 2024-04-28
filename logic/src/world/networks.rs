@@ -1,6 +1,7 @@
 pub mod network;
 
 use crate::screen::gui::format_units::{format_liters, Grams};
+use crate::world::map::transform_cells::TransformationResult;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::network::{
     Addition, Network, Node, Replacement, MATERIAL_NEEDED_FOR_A_MACHINE, SPACESHIP_INITIAL_STORAGE,
@@ -43,6 +44,14 @@ impl Networks {
     ) -> bool {
         self.add_with_storage(cell_index, new_machine, old_tile, &mut 0.0)
     }
+    pub fn add_with_reason(
+        &mut self,
+        cell_index: CellIndex,
+        new_machine: TileType,
+        old_tile: TileType,
+    ) -> TransformationResult {
+        self.add_with_storage_with_reason(cell_index, new_machine, old_tile, &mut 0.0)
+    }
 
     pub fn add_with_storage(
         &mut self,
@@ -51,14 +60,25 @@ impl Networks {
         old_tile: TileType,
         storage: &mut Grams,
     ) -> bool {
-        match self.replace_if_present_with_storage(cell_index, new_machine, storage) {
-            Replacement::SplitNetwork | Replacement::Ok => {
-                return true;
-            }
-            Replacement::Forbidden
+        self.add_with_storage_with_reason(cell_index, new_machine, old_tile, storage)
+            == TransformationResult::Ok
+    }
+
+    pub fn add_with_storage_with_reason(
+        &mut self,
+        cell_index: CellIndex,
+        new_machine: TileType,
+        old_tile: TileType,
+        storage: &mut Grams,
+    ) -> TransformationResult {
+        let replacement = self.replace_if_present_with_storage(cell_index, new_machine, storage);
+        match replacement {
+            Replacement::SplitNetwork
+            | Replacement::Ok
+            | Replacement::Forbidden
             | Replacement::NotEnoughMaterial
             | Replacement::NotEnoughStorage => {
-                return false;
+                return replacement.into();
             }
             Replacement::None => {} // continue with addition
         }
@@ -69,7 +89,7 @@ impl Networks {
         };
         if self.ship_network.is_adjacent(cell_index) {
             let addition = self.ship_network.try_add(node, old_tile);
-            let was_added = match addition {
+            match addition {
                 Addition::Ok => {
                     let adjacent_networks = self.get_adjacent_networks(cell_index);
                     for i_network in adjacent_networks.iter().rev() {
@@ -77,16 +97,15 @@ impl Networks {
                         self.re_add_network(joining_network);
                     }
                     *storage = self.ship_network.try_add_resources(*storage);
-                    true
                 }
-                Addition::NotEnoughMaterial | Addition::NotEnoughStorage => false,
+                Addition::NotEnoughMaterial | Addition::NotEnoughStorage => {}
             };
-            return was_added;
+            return addition.into();
         }
         if cell_index == self.ship_position {
             self.ship_network.add(node);
             *storage = self.ship_network.try_add_resources(*storage);
-            return true;
+            return TransformationResult::Ok;
         }
         // not connected to ship_network
         let adjacent_networks = self.get_adjacent_networks(cell_index);
@@ -94,9 +113,9 @@ impl Networks {
             self.join_networks_and_add_node(node, old_tile, &adjacent_networks, storage);
         } else {
             let addition = self.add_new_network_with_node(node, old_tile, storage);
-            return addition == Addition::Ok;
+            return addition.into();
         };
-        return true;
+        return TransformationResult::Ok;
     }
 
     #[cfg(test)]

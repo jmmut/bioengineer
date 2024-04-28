@@ -108,10 +108,10 @@ mod building_tests {
         to_tile: TileType,
     ) -> GuiActions {
         let mut gui_actions = GuiActions::default();
-        gui_actions.selected_cell_transformation = Some(TransformationTask {
-            to_transform: HashSet::from_iter(cell.into_iter()),
-            transformation: Transformation::to(to_tile),
-        });
+        gui_actions.selected_cell_transformation = Some(TransformationTask::new(
+            HashSet::from_iter(cell.into_iter()),
+            Transformation::to(to_tile),
+        ));
         gui_actions
     }
 

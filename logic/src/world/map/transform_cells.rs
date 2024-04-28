@@ -1,5 +1,6 @@
 use crate::world::map::cell::DEFAULT_HEALTH;
 use crate::world::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
+use crate::world::networks::network::{Addition, Replacement};
 use crate::world::robots::DOWN;
 use std::collections::HashSet;
 
@@ -8,6 +9,17 @@ const AIR_LEVELS_FOR_ALLOWING_SOLAR: i32 = 20;
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub struct Transformation {
     pub new_tile_type: TileType,
+}
+
+#[derive(PartialEq, Eq, Hash, Copy, Clone)]
+pub enum TransformationResult {
+    Ok,
+    NotEnoughMaterial,
+    NotEnoughStorage,
+    AboveWouldCollapse,
+    NoSturdyBase,
+    OutOfShipReach,
+    CanNotDeconstructShip,
 }
 
 pub fn allowed_transformations(cells: &HashSet<CellIndex>, map: &Map) -> Vec<Transformation> {
@@ -196,6 +208,28 @@ impl Transformation {
             cell.health = DEFAULT_HEALTH;
         }
         cell.tile_type = self.new_tile_type;
+    }
+}
+
+impl From<Addition> for TransformationResult {
+    fn from(addition: Addition) -> Self {
+        match addition {
+            Addition::Ok => TransformationResult::Ok,
+            Addition::NotEnoughMaterial => TransformationResult::NotEnoughMaterial,
+            Addition::NotEnoughStorage => TransformationResult::NotEnoughStorage,
+        }
+    }
+}
+impl From<Replacement> for TransformationResult {
+    fn from(replacement: Replacement) -> Self {
+        match replacement {
+            Replacement::Ok | Replacement::SplitNetwork | Replacement::None => {
+                TransformationResult::Ok
+            }
+            Replacement::NotEnoughMaterial => TransformationResult::NotEnoughMaterial,
+            Replacement::NotEnoughStorage => TransformationResult::NotEnoughStorage,
+            Replacement::Forbidden => TransformationResult::CanNotDeconstructShip,
+        }
     }
 }
 
