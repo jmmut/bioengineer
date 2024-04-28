@@ -304,6 +304,9 @@ impl Network {
         self.nodes.push(node);
         self.stored_resources -= material_composition(node.tile);
     }
+    pub fn add_no_spend(&mut self, node: Node) {
+        self.nodes.push(node);
+    }
 
     pub fn try_add(&mut self, node: Node, old_tile: TileType) -> Addition {
         let (old_material_regained, new_material_spent, future_storage, future_capacity) =
@@ -331,7 +334,7 @@ impl Network {
 
     pub fn join(&mut self, other: Network) {
         for node in other.nodes {
-            self.add_or_panic(node, TileType::Air);
+            self.add_no_spend(node);
         }
     }
 }

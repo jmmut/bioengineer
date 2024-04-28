@@ -99,6 +99,7 @@ impl Networks {
         return true;
     }
 
+    #[cfg(test)]
     fn replace_if_present(&mut self, cell_index: CellIndex, new_machine: TileType) -> Replacement {
         self.replace_if_present_with_storage(cell_index, new_machine, &mut 0.0)
     }
@@ -152,10 +153,10 @@ impl Networks {
     }
 
     fn re_add_network(&mut self, network_to_split: Network) {
-        let mut storage_to_redistribute = network_to_split.stored_resources;
+        let storage_to_redistribute = network_to_split.stored_resources;
         let mut storage_per_node = storage_to_redistribute;
         for node in network_to_split.nodes {
-            storage_per_node += MATERIAL_NEEDED_FOR_A_MACHINE;
+            storage_per_node += MATERIAL_NEEDED_FOR_A_MACHINE; // assumes the network already paid for this
             if !self.add_with_storage(
                 node.position,
                 node.tile,
@@ -201,6 +202,7 @@ impl Networks {
             networks_to_be_merged.push(self.unconnected_networks.remove(*i));
         }
         let network_kept = self.unconnected_networks.get_mut(kept).unwrap();
+        *storage = network_kept.try_add_resources(*storage);
         network_kept.add_or_panic(node, old_tile);
         while let Option::Some(network_to_be_merged) = networks_to_be_merged.pop() {
             network_kept.join(network_to_be_merged);
@@ -488,9 +490,7 @@ mod tests {
 mod storage_tests {
     use super::*;
     use crate::world::map::TileType::WallRock;
-    use crate::world::networks::network::{
-        MAX_STORAGE_PER_MACHINE, SPACESHIP_INITIAL_STORAGE, WALL_WEIGHT,
-    };
+    use crate::world::networks::network::{SPACESHIP_INITIAL_STORAGE, WALL_WEIGHT};
     use TileType::{Air, MachineStorage, Wire};
 
     #[test]
