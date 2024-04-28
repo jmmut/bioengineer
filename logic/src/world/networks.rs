@@ -292,8 +292,7 @@ impl Networks {
     }
 
     pub fn clear(&mut self) {
-        self.unconnected_networks.clear();
-        self.reset_production();
+        *self = Self::new(self.ship_position)
     }
 
     pub fn get(&self, position: CellIndex) -> Option<Node> {
