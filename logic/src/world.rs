@@ -166,7 +166,7 @@ impl World {
     }
 
     fn advance_construction_task_queue(&mut self) {
-        if let Some(task) = self.task_queue.pop_front() {
+        if let Some(task) = self.task_queue.pop_back() {
             match task {
                 Task::Transform(TransformationTask {
                     to_transform,
@@ -204,7 +204,7 @@ impl World {
                     }
                     if remaining.len() > 0 {
                         self.task_queue
-                            .push_front(Task::Transform(TransformationTask {
+                            .push_back(Task::Transform(TransformationTask {
                                 to_transform: remaining,
                                 transformation,
                             }));
