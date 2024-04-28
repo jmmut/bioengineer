@@ -163,11 +163,11 @@ impl Networks {
                 TileType::Air,
                 &mut storage_per_node,
             ) {
-                panic!("Can not split network");
+                println!("Bug: Can not split network");
             }
         }
         if storage_per_node > 0.0 {
-            panic!("not enough capacity");
+            println!("Bug: not enough capacity");
         }
     }
 
