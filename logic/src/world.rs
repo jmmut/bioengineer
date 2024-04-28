@@ -22,7 +22,7 @@ use robots::Robot;
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::{DEFAULT_ADVANCING_FLUIDS, DEFAULT_PROFILE_ENABLED};
 use crate::world::map::cell::{ages, is_sturdy, transition_aging_tile};
-use crate::world::map::transform_cells::{above_is, below_is, column_above_is};
+use crate::world::map::transform_cells::{above_is, below, below_is, column_above_is};
 use crate::world::map::{Cell, TileType};
 use crate::world::robots::{DOWN, UP};
 
@@ -278,8 +278,7 @@ fn building_on_top_of_non_sturdy_cells(
     pos_to_transform: CellIndex,
     map: &Map,
 ) -> bool {
-    !is_sturdy(map.get_cell(pos_to_transform + DOWN).tile_type)
-        && transformation.new_tile_type != TileType::Air
+    !below(is_sturdy, pos_to_transform, map) && transformation.new_tile_type != TileType::Air
 }
 
 fn transition_goal_state(

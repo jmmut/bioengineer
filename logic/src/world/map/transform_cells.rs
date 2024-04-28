@@ -92,6 +92,9 @@ pub fn allowed_transformations_of_cell(
         TreeDying => machines_plus(vec![WallRock]),
         TreeDead => machines_plus(vec![WallRock]),
     };
+    if below_is(WallRock, *cell_index, map) {
+        new_tiles.push(TreeHealthy);
+    }
     new_tiles.push(cell.tile_type);
     if cell.tile_type != Air && cell.tile_type != MachineShip {
         new_tiles.push(Air);
@@ -136,12 +139,16 @@ pub fn above_is(expected_tile: TileType, cell_index: CellIndex, map: &Map) -> bo
 }
 
 pub fn below_is(expected_tile: TileType, cell_index: CellIndex, map: &Map) -> bool {
+    below(|tile| tile == expected_tile, cell_index, map)
+}
+
+pub fn below(predicate: impl Fn(TileType) -> bool, cell_index: CellIndex, map: &Map) -> bool {
     let neighbour = cell_index + DOWN;
     return if neighbour.y < map.min_cell.y {
         println!("Bug: peeking below the map limits");
         true
     } else {
-        map.get_cell(neighbour).tile_type == expected_tile
+        predicate(map.get_cell(neighbour).tile_type)
     };
 }
 
