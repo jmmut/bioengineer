@@ -21,8 +21,10 @@ use robots::Robot;
 
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::{DEFAULT_ADVANCING_FLUIDS, DEFAULT_PROFILE_ENABLED};
-use crate::world::map::cell::{ages, transition_aging_tile};
+use crate::world::map::cell::{ages, is_sturdy, transition_aging_tile};
+use crate::world::map::transform_cells::{above_is, below_is, column_above_is};
 use crate::world::map::{Cell, TileType};
+use crate::world::robots::{DOWN, UP};
 
 type AgeInMinutes = i64;
 
@@ -178,6 +180,18 @@ impl World {
                         }
                     }
                     for pos_to_transform in adjacent {
+                        if cells_above_would_collapse(transformation, pos_to_transform, &self.map) {
+                            remaining.insert(pos_to_transform);
+                            continue;
+                        }
+                        if building_on_top_of_non_sturdy_cells(
+                            transformation,
+                            pos_to_transform,
+                            &self.map,
+                        ) {
+                            remaining.insert(pos_to_transform);
+                            continue;
+                        }
                         let cell = self.map.get_cell_mut(pos_to_transform);
                         let mut cell_copy = cell.clone();
                         transformation.apply(&mut cell_copy);
@@ -250,6 +264,22 @@ impl World {
     pub fn get_age_str(&self) -> String {
         format_age(self.age_in_minutes)
     }
+}
+
+fn cells_above_would_collapse(
+    transformation: Transformation,
+    pos_to_transform: CellIndex,
+    map: &Map,
+) -> bool {
+    !above_is(TileType::Air, pos_to_transform, map) && !is_sturdy(transformation.new_tile_type)
+}
+fn building_on_top_of_non_sturdy_cells(
+    transformation: Transformation,
+    pos_to_transform: CellIndex,
+    map: &Map,
+) -> bool {
+    !is_sturdy(map.get_cell(pos_to_transform + DOWN).tile_type)
+        && transformation.new_tile_type != TileType::Air
 }
 
 fn transition_goal_state(

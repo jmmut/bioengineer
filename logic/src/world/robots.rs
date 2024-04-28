@@ -11,6 +11,9 @@ pub struct Robot {
 }
 pub type CellIndexDiff = CellIndex;
 
+pub const UP: CellIndexDiff = CellIndexDiff::new(0, 1, 0);
+pub const DOWN: CellIndexDiff = CellIndexDiff::new(0, -1, 0);
+
 pub fn move_robot_to_tasks(
     current_pos: CellIndex,
     tasks: &VecDeque<Task>,

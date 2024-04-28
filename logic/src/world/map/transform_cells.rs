@@ -1,5 +1,6 @@
 use crate::world::map::cell::DEFAULT_HEALTH;
 use crate::world::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
+use crate::world::robots::DOWN;
 use std::collections::HashSet;
 
 const AIR_LEVELS_FOR_ALLOWING_SOLAR: i32 = 20;
@@ -102,7 +103,7 @@ pub fn allowed_transformations_of_cell(
 }
 
 fn solar_allowed(cell_index: &CellIndex, map: &Map) -> bool {
-    above_is(
+    column_above_is(
         TileType::Air,
         AIR_LEVELS_FOR_ALLOWING_SOLAR,
         *cell_index,
@@ -110,11 +111,17 @@ fn solar_allowed(cell_index: &CellIndex, map: &Map) -> bool {
     )
 }
 
-fn above_is(expected_tile: TileType, levels: i32, mut cell_index: CellIndex, map: &Map) -> bool {
-    let max_height = Map::default_max_cell().y;
+pub fn column_above_is(
+    expected_tile: TileType,
+    levels: i32,
+    mut cell_index: CellIndex,
+    map: &Map,
+) -> bool {
+    let max_height = map.max_cell.y;
     for _ in 0..levels {
         cell_index.y += 1;
         if cell_index.y > max_height {
+            println!("Bug: peeking above the map limits");
             return true;
         }
         if map.get_cell(cell_index).tile_type != expected_tile {
@@ -122,6 +129,20 @@ fn above_is(expected_tile: TileType, levels: i32, mut cell_index: CellIndex, map
         }
     }
     true
+}
+
+pub fn above_is(expected_tile: TileType, cell_index: CellIndex, map: &Map) -> bool {
+    column_above_is(expected_tile, 1, cell_index, map)
+}
+
+pub fn below_is(expected_tile: TileType, cell_index: CellIndex, map: &Map) -> bool {
+    let neighbour = cell_index + DOWN;
+    return if neighbour.y < map.min_cell.y {
+        println!("Bug: peeking below the map limits");
+        true
+    } else {
+        map.get_cell(neighbour).tile_type == expected_tile
+    };
 }
 
 pub fn set_intersection<T: Eq + Copy>(transformations_per_cell: Vec<Vec<T>>) -> Vec<T> {

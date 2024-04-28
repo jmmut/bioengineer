@@ -22,7 +22,7 @@ use mq_basics::{now, IVec3};
 use opensimplex_noise_rs::OpenSimplexNoise;
 use std::cmp::Ordering;
 
-/// The axis are isometric:
+/// The axes are isometric:
 /// - x: right towards camera
 /// - y: up
 /// - z: left towards camera

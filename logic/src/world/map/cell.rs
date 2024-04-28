@@ -219,6 +219,11 @@ pub fn is_networkable(tile: TileType) -> bool {
     .contains(&tile)
 }
 
+/// Other things can be built on top. E.g. not trees, not air.
+pub fn is_sturdy(tile: TileType) -> bool {
+    is_networkable(tile) || tile == WallRock
+}
+
 pub fn ages(tile: TileType) -> bool {
     [TreeHealthy, TreeSparse, TreeDying].contains(&tile)
 }
