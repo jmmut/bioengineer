@@ -7,6 +7,23 @@ const EXA: f64 = 1.0e18;
 const ZETTA: f64 = 1.0e21;
 const YOTTA: f64 = 1.0e24;
 
+// UGH!!! I tried several ways to encode the unit string (e.g. "W") in the type, while
+// being able to use it like a float, but I didn't find any good to do so
+
+pub fn format_watts(quantity: f64) -> String {
+    format_unit(quantity, "W")
+}
+pub fn format_liters(quantity: f64) -> String {
+    format_unit(quantity, "L")
+}
+pub fn format_grams(quantity: f64) -> String {
+    format_unit(quantity, "g")
+}
+
+pub type Watts = f64;
+pub type Liters = f64;
+pub type Grams = f64;
+
 #[rustfmt::skip]
 pub fn format_unit(quantity: f64, unit_name: &str) -> String {
     let unsigned_quantity = quantity.abs().floor();

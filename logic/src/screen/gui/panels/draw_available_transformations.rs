@@ -1,6 +1,7 @@
 use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::gui_actions::GuiActions;
+use crate::screen::gui::panels::longest;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
 use crate::screen::gui::FONT_SIZE;
 use crate::screen::main_scene_input::CellSelection;
@@ -73,12 +74,19 @@ pub fn show_available_transformations(
         );
         if let Some(hovered) = hovered_opt {
             if let Some(tooltip) = to_tooltip_str(hovered) {
+                let title = to_action_str(hovered);
+                let longest_line = longest(tooltip.iter(), &title);
+                let max_line_width = drawer.ui_measure_text(longest_line, FONT_SIZE).x;
+                let pad_width = panel_margin + 1.0 * FONT_SIZE;
+                let panel_width = max_line_width + 2.0 * pad_width;
+                let line_height = FONT_SIZE * 1.5;
+                let panel_height = (tooltip.len() + 2).max(10) as f32 * line_height;
                 drawer.ui_named_group(
-                    to_action_str(hovered),
+                    title,
                     panel.x + panel.w + panel_margin,
                     panel.y,
-                    panel.w,
-                    panel.h,
+                    panel_width,
+                    panel_height,
                     &mut |drawer| {
                         for line in &tooltip {
                             drawer.ui_text(line);
@@ -122,6 +130,7 @@ pub fn to_action_str(tile: TileType) -> &'static str {
         TileType::MachineDrill => "Build drill",
         TileType::MachineSolarPanel => "Build solar panel",
         TileType::MachineShip => "Build space ship",
+        TileType::MachineStorage => "Build storage",
         // TileType::DirtyWaterSurface => "Dirty water surface",
         // TileType::CleanWaterSurface => "Clean water surface",
         // TileType::DirtyWaterWall => "Dirty water wall",
@@ -165,6 +174,14 @@ fn to_tooltip_str(tile: TileType) -> Option<Vec<&'static str>> {
             "  underground",
         ]),
         TileType::MachineShip => None,
+        TileType::MachineStorage => Some(vec![
+            "- Increases storage capacity",
+            "  by 9.9 tonnes (9.9 Mg)",
+            "",
+            "- Increases available material",
+            "  for construction by the",
+            "  same amount",
+        ]),
         // TileType::DirtyWaterSurface => None,
         // TileType::CleanWaterSurface => None,
         // TileType::DirtyWaterWall => None,

@@ -49,6 +49,7 @@ pub fn allowed_transformations_of_cell(
         MachineAirCleaner,
         // MachineDrill,
         Wire,
+        MachineStorage,
     ];
     if solar_allowed(cell_index, map) {
         machines.push(MachineSolarPanel);
@@ -72,11 +73,8 @@ pub fn allowed_transformations_of_cell(
                      // WallDirt,
                      // FloorDirt,
         ]),
-        Wire => machines_plus(vec![FloorRock, TreeHealthy]),
-        MachineAssembler => machines_plus(vec![WallRock, TreeHealthy]),
-        MachineAirCleaner => machines_plus(vec![WallRock, TreeHealthy]),
-        MachineDrill => machines_plus(vec![WallRock, TreeHealthy]),
-        MachineSolarPanel => machines_plus(vec![WallRock, TreeHealthy]),
+        Wire | MachineAssembler | MachineAirCleaner | MachineDrill | MachineSolarPanel
+        | MachineStorage => machines_plus(vec![WallRock, TreeHealthy]),
         MachineShip => vec![],
         // DirtyWaterSurface => vec![
         //     WallRock, FloorRock,
@@ -94,7 +92,7 @@ pub fn allowed_transformations_of_cell(
         TreeDead => machines_plus(vec![WallRock]),
     };
     new_tiles.push(cell.tile_type);
-    if cell.tile_type != Air {
+    if cell.tile_type != Air && cell.tile_type != MachineShip {
         new_tiles.push(Air);
     }
     new_tiles

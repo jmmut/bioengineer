@@ -41,7 +41,11 @@ mod game_goal_state_transition_tests {
     #[test]
     fn test_dismantling() {
         let mut networks = Networks::new_default();
-        networks.add(CellIndex::default(), TileType::MachineAirCleaner);
+        networks.add(
+            CellIndex::default(),
+            TileType::MachineAirCleaner,
+            TileType::Air,
+        );
         networks.set_production(get_goal_air_cleaned());
         let mut current_goal = GameGoalState::ReachedProduction;
 
