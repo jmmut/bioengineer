@@ -13,17 +13,16 @@ pub fn draw_robot_queue(
 ) -> GuiActions {
     let mut cell_selection = gui_actions.cell_selection;
     let margin = MARGIN;
-    let icon_width = PIXELS_PER_TILE_WIDTH as f32 * 1.5;
-    let icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 1.5;
+    let icon_width = PIXELS_PER_TILE_WIDTH as f32 * 1.0;
+    let icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
     let button_height = FONT_SIZE * 1.5;
-    let group_height = icon_height + 2.0 * button_height;
+    let group_width = icon_width + 3.5 * margin; // for some reason the button has a left margin bigger than MARGIN
+    let group_height = icon_height + button_height + 3.0 * margin;
     let go_to_robot = Option::None;
 
     let mut cancel_task = Option::None;
-    let mut do_now_task = Option::None;
     for (task_index, task) in world.task_queue.iter().enumerate() {
         let mut cancel_hovered = false;
-        let mut do_now_hovered = false;
         let (task_tile, task_description) = match task {
             Task::Transform(transform) => (
                 TextureIndex::from(transform.transformation.new_tile_type),
@@ -39,9 +38,9 @@ pub fn draw_robot_queue(
             ),
         };
         let group = drawer.ui_group(
-            drawer.screen_width() - (icon_width + margin) * (1 + task_index) as f32,
+            drawer.screen_width() - (group_width + margin) * (1 + task_index) as f32,
             drawer.screen_height() - group_height - margin,
-            icon_width,
+            group_width,
             group_height,
             &mut |drawer| {
                 let cancel = drawer.ui_button("Cancel");
@@ -50,11 +49,6 @@ pub fn draw_robot_queue(
                     cancel_task = Option::Some(task_index);
                 }
 
-                let do_now = drawer.ui_button("Do now");
-                do_now_hovered = do_now.is_hovered();
-                if do_now.is_clicked() {
-                    do_now_task = Option::Some(task_index);
-                }
                 drawer.ui_texture(task_tile);
             },
         );
@@ -65,15 +59,7 @@ pub fn draw_robot_queue(
         if cancel_hovered {
             draw_task_queue_tooltip(drawer, group_height, margin, "Stop doing this task");
         }
-        if do_now_hovered {
-            draw_task_queue_tooltip(
-                drawer,
-                group_height,
-                margin,
-                "Pause other tasks and do this task now",
-            );
-        }
-        if !cancel_hovered && !do_now_hovered {
+        if !cancel_hovered {
             if group.is_hovered_or_clicked() {
                 draw_task_queue_tooltip(drawer, group_height, margin, &task_description);
             }
@@ -84,7 +70,6 @@ pub fn draw_robot_queue(
     GuiActions {
         go_to_robot,
         cancel_task,
-        do_now_task,
         cell_selection,
         ..gui_actions
     }

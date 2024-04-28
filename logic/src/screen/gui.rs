@@ -90,7 +90,6 @@ fn new_gui_from_input(
         selected_cell_transformation: Option::None,
         go_to_robot: Option::None,
         cancel_task: Option::None,
-        do_now_task: Option::None,
         next_game_goal_state: Option::None,
         regenerate_map: input.regenerate_map,
         toggle_profiling: input.toggle_profiling,
