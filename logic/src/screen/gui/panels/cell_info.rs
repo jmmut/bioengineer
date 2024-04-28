@@ -3,7 +3,7 @@ use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::format_units::{format_grams, format_watts};
 use crate::screen::gui::panels::longest;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
-use crate::screen::gui::{GuiActions, FONT_SIZE};
+use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
 use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::cell::is_networkable;
 use crate::world::map::{is_liquid_or_air, is_walkable_horizontal, Cell, CellIndex, TileType};
@@ -25,7 +25,7 @@ pub fn draw_cell_info(
         let panel_title = "Cell information".to_string();
         let longest_line = longest(cell_description.iter(), &panel_title);
         let max_line_width = drawer.ui_measure_text(longest_line.as_str(), FONT_SIZE).x;
-        let panel_margin = 10.0;
+        let panel_margin = MARGIN;
         let big_margin_x = panel_margin + 1.0 * FONT_SIZE;
         let panel_width = max_line_width + 2.0 * big_margin_x;
         let line_height = FONT_SIZE * 1.5;

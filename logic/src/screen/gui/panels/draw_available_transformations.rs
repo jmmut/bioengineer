@@ -3,7 +3,7 @@ use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::screen::gui::panels::longest;
 use crate::screen::gui::panels::top_bar::TOP_BAR_HEIGHT;
-use crate::screen::gui::FONT_SIZE;
+use crate::screen::gui::{FONT_SIZE, MARGIN};
 use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::transform_cells::allowed_transformations;
 use crate::world::map::TileType;
@@ -27,7 +27,7 @@ pub fn show_available_transformations(
         let line_height = FONT_SIZE * 1.5;
         let panel_title = "Available actions";
         let mut max_button_width = drawer.ui_measure_text(panel_title, FONT_SIZE).x;
-        let panel_margin = 10.0;
+        let panel_margin = MARGIN;
         let big_margin_x = panel_margin + 2.0 * FONT_SIZE;
         let panel_height = 3.0 * line_height + transformations.len() as f32 * 1.2 * line_height;
         let panel_width = max_button_width + 2.0 * big_margin_x;

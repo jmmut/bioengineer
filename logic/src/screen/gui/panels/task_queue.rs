@@ -1,10 +1,13 @@
+use std::collections::HashSet;
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::gui::panels::draw_available_transformations::to_action_str;
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
+use crate::screen::gui::panels::longest;
 use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::cell::{ExtraTextures, TextureIndex};
 use crate::world::{Task, World};
+use crate::world::map::transform_cells::TransformationResult;
 
 pub fn draw_robot_queue(
     drawer: &mut dyn DrawerTrait,
@@ -26,15 +29,20 @@ pub fn draw_robot_queue(
         let (task_tile, task_description) = match task {
             Task::Transform(transform) => (
                 TextureIndex::from(transform.transformation.new_tile_type),
-                format!(
-                    "Task: {} ({})",
-                    to_action_str(transform.transformation.new_tile_type),
-                    transform.to_transform.len()
-                ),
+                {
+                    let mut description = vec![
+                    format!(
+                        "Task: {} ({})",
+                        to_action_str(transform.transformation.new_tile_type),
+                        transform.to_transform.len(),
+                    )];
+                    description.append(&mut format_reasons(&transform.blocked_because));
+                    description
+                },
             ),
             Task::Movement(_) => (
                 TextureIndex::from(ExtraTextures::Movement),
-                "Task: Move".to_owned(),
+                vec!["Task: Move".to_owned()],
             ),
         };
         let group = drawer.ui_group(
@@ -57,11 +65,11 @@ pub fn draw_robot_queue(
         }
 
         if cancel_hovered {
-            draw_task_queue_tooltip(drawer, group_height, margin, "Stop doing this task");
+            draw_task_queue_tooltip(drawer, group_height, margin, &vec!["Stop doing this task".to_string()]);
         }
         if !cancel_hovered {
             if group.is_hovered_or_clicked() {
-                draw_task_queue_tooltip(drawer, group_height, margin, &task_description);
+                draw_task_queue_tooltip(drawer, group_height, margin, task_description.as_slice().as_ref());
             }
             // TODO: on group.is_clicked, highlight cells
         }
@@ -75,19 +83,46 @@ pub fn draw_robot_queue(
     }
 }
 
+fn format_reasons(reasons: &Option<HashSet<TransformationResult>>) -> Vec<String> {
+    if let Some(reasons) = reasons {
+        let mut message = vec!["Blocked because:".to_string()];
+        for transformation_result in reasons {
+            let reason_line = match transformation_result {
+                TransformationResult::Ok => { "  should not be printed" }
+                TransformationResult::NotEnoughMaterial => { "  Not enough resources" }
+                TransformationResult::NotEnoughStorage => { "  Not enough storage capacity" }
+                TransformationResult::AboveWouldCollapse => { "  Cells above would collapse" }
+                TransformationResult::NoSturdyBase => { "  Cells below can not support it" }
+                TransformationResult::OutOfShipReach => { "  The spaceship network can't reach" }
+                TransformationResult::CanNotDeconstructShip => { "  You're not allowed to remove the spaceship" }
+            }.to_string();
+            message.push(reason_line);
+        }
+        message
+    } else {
+        Vec::new()
+    }
+}
+
 fn draw_task_queue_tooltip(
     drawer: &mut dyn DrawerTrait,
     group_height: f32,
     margin: f32,
-    tooltip: &str,
+    tooltip: &[String],
 ) {
-    let tooltip_height = FONT_SIZE * 2.5;
-    let tooltip_width = drawer.ui_measure_text(tooltip, FONT_SIZE).x + 4.0 * MARGIN;
+    let tooltip_height = FONT_SIZE * 1.25 * tooltip.len() as f32 + MARGIN * 2.0;
+    let empty = "".to_string();
+    let longest_line = longest(tooltip.iter(), &empty);
+    let max_line_width = drawer.ui_measure_text(longest_line.as_str(), FONT_SIZE).x;
+    let tooltip_width = max_line_width + 4.0 * MARGIN;
     drawer.ui_group(
         drawer.screen_width() - margin - tooltip_width,
         drawer.screen_height() - group_height - margin - tooltip_height - margin,
         tooltip_width,
         tooltip_height,
-        &mut |drawer| drawer.ui_text(tooltip),
+        &mut |drawer|
+                for line in tooltip {
+                    drawer.ui_text(&line);
+                }
     );
 }
