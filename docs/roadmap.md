@@ -29,7 +29,7 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 - [x] compile for linux, wasm, windows and mac
 - UI
   - [x] highlight and count cells when clicking a queued task
-  - [ ] count cells while selecting (I want to build X tiles)
+  - [x] count cells while selecting (I want to build X tiles)
   - [x] bigger robot icon for the queue
   - [x] loading screen
   - [x] minimal friction to explain that solar panels can not be build underground
@@ -40,7 +40,7 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 # Bugs
 
 - [ ] touchpad scroll is too sensitive
-- [ ] tile transparency also makes floor transparent
+- [-] tile transparency also makes floor transparent. Solved: remove floors
 - [ ] dirt can be converted to rock. is this wrong?
 - [ ] macroquad forces all windows except 1 to be inactive and darker
 - [ ] egui draws textures with the wrong alpha. I suspect egui can use the textures loaded
