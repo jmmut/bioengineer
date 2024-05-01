@@ -301,11 +301,15 @@ impl Network {
     }
 
     pub fn add(&mut self, node: Node) {
-        self.nodes.push(node);
+        if is_networkable(node.tile) {
+            self.nodes.push(node);
+        }
         self.stored_resources -= material_composition(node.tile);
     }
     pub fn add_no_spend(&mut self, node: Node) {
-        self.nodes.push(node);
+        if is_networkable(node.tile) {
+            self.nodes.push(node);
+        }
     }
 
     pub fn try_add(&mut self, node: Node, old_tile: TileType) -> Addition {
@@ -316,7 +320,9 @@ impl Network {
         } else if future_storage > future_capacity {
             Addition::NotEnoughStorage
         } else {
-            self.nodes.push(node);
+            if is_networkable(node.tile) {
+                self.nodes.push(node);
+            }
             self.stored_resources -= new_material_spent;
             self.stored_resources += old_material_regained;
             Addition::Ok
