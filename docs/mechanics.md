@@ -16,7 +16,7 @@ of energy, so all cleaners will stop.
 
 Building a machine has a cost of 100 Kg, and each wall of rock weights 10 000 Kg.
 
-You start with 1 000 Kg, so you can build 2 machines on the surface. You could dig and build a machine
+You start with 400 Kg, so you can build 4 machines on the surface. You could dig and build a machine
 underground, but you have nowhere to put the dirt and rock you dug, because the machine network
 can store 1 000 Kg per machine, except for the storage machine, which can store 9 900 Kg.
 

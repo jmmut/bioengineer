@@ -75,7 +75,7 @@ pub fn allowed_transformations_of_cell(
         Unset => {
             panic!("can not transform an UNSET cell!")
         }
-        WallRock => machines_plus(vec![TreeHealthy]),
+        WallRock => machines_plus(vec![]),
         WallDirt => machines_plus(vec![TreeHealthy]),
         FloorRock => machines_plus(vec![TreeHealthy]),
         FloorDirt => machines_plus(vec![FloorRock, TreeHealthy]),
@@ -87,7 +87,7 @@ pub fn allowed_transformations_of_cell(
                      // FloorDirt,
         ]),
         Wire | MachineAssembler | MachineAirCleaner | MachineDrill | MachineSolarPanel
-        | MachineStorage => machines_plus(vec![WallRock, TreeHealthy]),
+        | MachineStorage => machines_plus(vec![WallRock]),
         MachineShip => vec![],
         // DirtyWaterSurface => vec![
         //     WallRock, FloorRock,
@@ -199,10 +199,11 @@ impl Transformation {
     }
 
     pub fn apply(&self, cell: &mut Cell) {
-        if is_liquid(cell.tile_type) {
-            if self.new_tile_type == TileType::Air {
-                cell.pressure = 0;
-            }
+        if is_liquid(cell.tile_type) && self.new_tile_type == TileType::Air
+            || self.new_tile_type == TileType::WallRock
+        {
+            cell.pressure = 0;
+            cell.renderable_pressure = 0;
         }
         if self.new_tile_type == TileType::TreeHealthy {
             cell.health = DEFAULT_HEALTH;
