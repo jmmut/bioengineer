@@ -58,6 +58,12 @@ impl DrawingState {
         )
     }
 
+    pub fn set_highlighted_cells(&mut self, cells: HashSet<CellIndex>) {
+        self.highlighted_cells_consolidated = cells;
+        self.highlighted_cells_in_progress.clear();
+        self.highlighted_cells_in_progress_type = CellSelectionType::Add;
+    }
+
     pub fn apply_input(&mut self, gui_actions: &GuiActions) {
         self.maybe_change_height_rel(gui_actions.change_height_rel, gui_actions.go_to_robot);
         self.maybe_move_map_horizontally(

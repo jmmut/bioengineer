@@ -18,7 +18,7 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
   - [ ] cleaning soil
 - [/] water simulation capable of flooding your base
   - [x] communicating vessels
-  - [ ] floodable floor
+  - [/] floodable floor
 - [ ] putting life
   - [ ] put plants
   - [ ] put animals
@@ -28,14 +28,14 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 
 - [x] compile for linux, wasm, windows and mac
 - UI
-  - [/] highlight and count cells when clicking a queued task
+  - [x] highlight and count cells when clicking a queued task
   - [ ] count cells while selecting (I want to build X tiles)
   - [x] bigger robot icon for the queue
   - [x] loading screen
   - [x] minimal friction to explain that solar panels can not be build underground
   - [x] remove from selection
 - mechanics
-  - [ ] build dumpster that creates columns of stairs to dump dug rock
+  - [x] build dumpster that creates columns of ~stairs to dump~ dug rock
 
 # Bugs
 

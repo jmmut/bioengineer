@@ -1,5 +1,6 @@
 use crate::screen::assets::{PIXELS_PER_TILE_HEIGHT, PIXELS_PER_TILE_WIDTH};
 use crate::screen::drawer_trait::DrawerTrait;
+use crate::screen::drawing_state::DrawingState;
 use crate::screen::gui::panels::draw_available_transformations::to_action_str;
 use crate::screen::gui::panels::longest;
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
@@ -13,6 +14,7 @@ pub fn draw_robot_queue(
     drawer: &mut dyn DrawerTrait,
     world: &World,
     gui_actions: GuiActions,
+    drawing: &mut DrawingState,
 ) -> GuiActions {
     let mut cell_selection = gui_actions.cell_selection;
     let margin = MARGIN;
@@ -70,17 +72,21 @@ pub fn draw_robot_queue(
                 margin,
                 &vec!["Stop doing this task".to_string()],
             );
+        } else if group.is_hovered_or_clicked() {
+            draw_task_queue_tooltip(
+                drawer,
+                group_height,
+                margin,
+                task_description.as_slice().as_ref(),
+            );
         }
-        if !cancel_hovered {
-            if group.is_hovered_or_clicked() {
-                draw_task_queue_tooltip(
-                    drawer,
-                    group_height,
-                    margin,
-                    task_description.as_slice().as_ref(),
-                );
+        if group.is_clicked() {
+            match task {
+                Task::Transform(t) => {
+                    drawing.set_highlighted_cells(t.to_transform.clone());
+                }
+                Task::Movement(_) => {}
             }
-            // TODO: on group.is_clicked, highlight cells
         }
     }
 

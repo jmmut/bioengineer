@@ -58,7 +58,7 @@ impl Gui {
             let unhandled_input =
                 show_available_transformations(drawer, world, unhandled_input, drawing);
 
-            let unhandled_input = draw_robot_queue(drawer, world, unhandled_input);
+            let unhandled_input = draw_robot_queue(drawer, world, unhandled_input, drawing);
             let unhandled_input = draw_top_bar(drawer, world, drawing, unhandled_input);
             let unhandled_input = draw_cell_info(drawer, world, drawing, unhandled_input);
             gui_actions = unhandled_input
