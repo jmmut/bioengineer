@@ -48,6 +48,6 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
       when it's not. I might be very wrong on this.
 - [ ] after clicking some transformation, the map gets a cell selected, while
       in the macroquad UI the cell that got the transformation keeps the selection.
-- [ ] removing several cells that may split the network creates a broken state
+- [x] removing several cells that may split the network creates a broken state
 - [ ] flooded machines still work
 - [ ] storage machines work without power

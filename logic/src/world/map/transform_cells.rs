@@ -20,6 +20,7 @@ pub enum TransformationResult {
     NoSturdyBase,
     OutOfShipReach,
     CanNotDeconstructShip,
+    SplitNetwork,
 }
 
 pub fn allowed_transformations(cells: &HashSet<CellIndex>, map: &Map) -> Vec<Transformation> {
@@ -224,12 +225,11 @@ impl From<Addition> for TransformationResult {
 impl From<Replacement> for TransformationResult {
     fn from(replacement: Replacement) -> Self {
         match replacement {
-            Replacement::Ok | Replacement::SplitNetwork | Replacement::None => {
-                TransformationResult::Ok
-            }
+            Replacement::Ok | Replacement::None => TransformationResult::Ok,
             Replacement::NotEnoughMaterial => TransformationResult::NotEnoughMaterial,
             Replacement::NotEnoughStorage => TransformationResult::NotEnoughStorage,
             Replacement::Forbidden => TransformationResult::CanNotDeconstructShip,
+            Replacement::SplitNetwork => TransformationResult::SplitNetwork,
         }
     }
 }

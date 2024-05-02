@@ -113,6 +113,7 @@ fn format_reasons(reasons: &Option<HashSet<TransformationResult>>) -> Vec<String
                 TransformationResult::CanNotDeconstructShip => {
                     "  You're not allowed to remove the spaceship"
                 }
+                TransformationResult::SplitNetwork => "  The machine network should not be split",
             }
             .to_string();
             reasons_lines.push(reason_line);

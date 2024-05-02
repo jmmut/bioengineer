@@ -219,20 +219,19 @@ impl Network {
             } else if future_storage < 0.0 {
                 return Replacement::NotEnoughMaterial;
             }
-            self.stored_resources += old_material_regained;
-            self.stored_resources -= new_material_spent;
             let replacement_is_really_a_removal = !is_networkable(new_machine);
             if replacement_is_really_a_removal {
-                self.nodes.remove(i);
-                if self.is_connected() {
-                    Replacement::Ok
-                } else {
-                    Replacement::SplitNetwork
+                let removed = self.nodes.swap_remove(i);
+                if !self.is_connected() {
+                    self.nodes.push(removed);
+                    return Replacement::SplitNetwork;
                 }
             } else {
                 self.nodes.get_mut(i).unwrap().tile = new_machine;
-                Replacement::Ok
             }
+            self.stored_resources += old_material_regained;
+            self.stored_resources -= new_material_spent;
+            Replacement::Ok
         } else {
             Replacement::None
         };
