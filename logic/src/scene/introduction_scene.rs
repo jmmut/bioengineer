@@ -1,9 +1,9 @@
 use juquad::texture_loader::TextureLoader;
 use juquad::widgets::anchor::Anchor;
 use juquad::widgets::button::{Button, InteractionStyle, RenderButton, Style};
-use juquad::widgets::text::{DrawText, MeasureText};
+use juquad::widgets::text::{DrawText, MeasureText, TextRect};
 use mq_basics::color::DARKGRAY;
-use mq_basics::{Color, Image, KeyCode, MouseButton, Texture2D, Vec2};
+use mq_basics::{color, now, Color, Image, KeyCode, MouseButton, Seconds, Texture2D, Vec2};
 use std::f32::consts::PI;
 
 use crate::scene::introduction_scene::fire_particles::Particle;
@@ -55,6 +55,8 @@ pub struct IntroductionSceneState {
     pub loader: TextureLoader<Image>,
     pub textures_ready: bool,
     pub juquad_functions: JuquadFunctions,
+    pub previous_frame_start_time: Seconds,
+    pub current_frame_start_time: Seconds,
 }
 
 #[derive(Copy, Clone)]
@@ -106,6 +108,8 @@ impl IntroductionSceneState {
             loader,
             textures_ready: false,
             juquad_functions,
+            previous_frame_start_time: now(),
+            current_frame_start_time: now(),
         }
     }
     fn reset(&mut self) {
@@ -158,29 +162,33 @@ impl IntroductionSceneState {
 impl Scene for IntroductionScene {
     fn frame(&mut self) -> GameLoopState {
         self.state.frame = (self.state.frame + 1) % 100000000;
+        self.update_fps();
         let height = self.state.drawer.as_mut().unwrap().screen_height();
         let width = self.state.drawer.as_mut().unwrap().screen_width();
 
         self.state.try_load_textures();
 
-        let (buttons, new_game_clicked) = self.ui_interact(height, width);
+        let (buttons, texts, new_game_clicked) = self.ui_interact(height, width);
 
         if new_game_clicked {
             GameLoopState::ShouldFinish
         } else {
-            self.render(height, width, &buttons);
+            self.render(height, width, &buttons, &texts);
             GameLoopState::ShouldContinue
         }
     }
 }
 
 impl IntroductionScene {
-    fn ui_interact(&mut self, height: f32, width: f32) -> (Vec<Button>, bool) {
+    fn ui_interact(&mut self, height: f32, width: f32) -> (Vec<Button>, Vec<TextRect>, bool) {
         if self.input().is_key_pressed(KeyCode::R) {
             self.state.reset();
         }
-        if self.input().is_key_pressed(KeyCode::F3) {
-            println!("FPS: {}", get_fps())
+        let mut texts = Vec::new();
+        if self.input().is_key_down(KeyCode::F3) {
+            let fps = self.get_fps();
+            println!("FPS: {}", fps);
+            texts.push(self.new_text(format!("FPS: {:.1}", fps), Anchor::top_left(0.0, 0.0)));
         }
         let mut buttons = Vec::new();
         if self.state.ship_pos.y < height * 0.5 {
@@ -189,16 +197,7 @@ impl IntroductionScene {
             self.state.show_new_game_button = true;
         }
         let new_game_clicked = if self.state.show_new_game_button {
-            // juquad::Button is incompatible with hot reloading. Will need drawer_juquad :DrawerTrait
-            let mut button = Button::new_generic(
-                "New Game",
-                Anchor::center(0.5 * width, 0.8 * height),
-                FONT_SIZE,
-                self.state.juquad_functions.measure_text,
-                self.state.juquad_functions.draw_text,
-                self.state.juquad_functions.render_button,
-                self.state.input.as_ref().unwrap().as_ref().clone(),
-            );
+            let mut button = self.new_button("New Game", Anchor::center(0.5 * width, 0.8 * height));
             let interaction = button.interact().is_clicked();
             buttons.push(button);
             interaction
@@ -224,11 +223,35 @@ impl IntroductionScene {
         }
         (
             buttons,
+            texts,
             new_game_clicked || self.input().is_key_pressed(KeyCode::Escape),
         )
     }
 
-    fn render(&mut self, height: f32, width: f32, buttons: &Vec<Button>) {
+    fn new_text(&mut self, text: String, position_pixels: Anchor) -> TextRect {
+        TextRect::new_generic(
+            &text,
+            position_pixels,
+            FONT_SIZE,
+            self.state.juquad_functions.measure_text,
+            self.state.juquad_functions.draw_text,
+        )
+    }
+
+    fn new_button(&mut self, text: &str, position: Anchor) -> Button {
+        let button = Button::new_generic(
+            text,
+            position,
+            FONT_SIZE,
+            self.state.juquad_functions.measure_text,
+            self.state.juquad_functions.draw_text,
+            self.state.juquad_functions.render_button,
+            self.state.input.as_ref().unwrap().as_ref().clone(),
+        );
+        button
+    }
+
+    fn render(&mut self, height: f32, width: f32, buttons: &Vec<Button>, texts: &Vec<TextRect>) {
         self.state.drawer.as_mut().unwrap().clear_background(BLACK);
 
         let rand = next_rand(self.state.frame);
@@ -248,6 +271,9 @@ impl IntroductionScene {
                 WHITE,
                 PI,
             );
+            for text in texts {
+                text.render_text(color::WHITE);
+            }
             for button in buttons {
                 button.render(&STYLE);
             }
@@ -403,6 +429,20 @@ impl IntroductionScene {
         }
         return false;
     }
+
+    fn update_fps(&mut self) {
+        self.state.previous_frame_start_time = self.state.current_frame_start_time;
+        self.state.current_frame_start_time = now();
+    }
+
+    fn get_fps(&self) -> f64 {
+        let frame_time = self.state.current_frame_start_time - self.state.previous_frame_start_time;
+        if frame_time != 0.0 {
+            1.0 / frame_time
+        } else {
+            0.0
+        }
+    }
 }
 
 fn fire_color(particle: &Particle, _rand: f32) -> Color {
@@ -423,9 +463,6 @@ fn fire_color(particle: &Particle, _rand: f32) -> Color {
     )
 }
 
-fn get_fps() -> f32 {
-    todo!()
-}
 #[cfg(test)]
 mod tests {
     use super::*;

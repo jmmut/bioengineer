@@ -8,9 +8,13 @@ use std::ops::Range;
 /// immediate mode UI.
 ///
 /// The purpose of this class is to decouple the project from the graphics library.
-/// Hopefully, if I ever need to swap the graphics library (currently macroquad), classes like
-/// this one will be the only places to change.
-/// I'm not sure this will actually help, but we'll see.
+/// This has actually allowed integrating egui and be able to swap it at runtime.
+/// However, both APIs are quite different and request callbacks in different places, so this
+/// interface requires the ugly parts of both APIs. For example, the egui implementation requires
+/// all ui code to be run in a callback (see ui_run), so the interface has to require it even though
+/// the macroquad implementation doesn't require it.
+///
+/// I'll probably end up just implementing my own UI based on https://github.com/jmmut/juquad.
 pub trait DrawerTrait {
     fn new(textures: Vec<Texture2D>) -> Self
     where
