@@ -365,7 +365,7 @@ pub fn material_composition(tile: TileType) -> Grams {
         | TileType::MachineShip
         | TileType::MachineStorage => MATERIAL_NEEDED_FOR_A_MACHINE,
         TileType::TreeHealthy | TileType::TreeSparse | TileType::TreeDying | TileType::TreeDead => {
-            MATERIAL_NEEDED_FOR_A_MACHINE
+            0.0
         }
     }
 }
