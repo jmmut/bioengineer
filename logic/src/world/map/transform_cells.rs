@@ -12,8 +12,7 @@ pub struct Transformation {
 }
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone)]
-pub enum TransformationResult {
-    Ok,
+pub enum TransformationFailure {
     NotEnoughMaterial,
     NotEnoughStorage,
     AboveWouldCollapse,
@@ -223,23 +222,23 @@ impl Transformation {
     }
 }
 
-impl From<Addition> for TransformationResult {
+impl From<Addition> for Option<TransformationFailure> {
     fn from(addition: Addition) -> Self {
         match addition {
-            Addition::Ok => TransformationResult::Ok,
-            Addition::NotEnoughMaterial => TransformationResult::NotEnoughMaterial,
-            Addition::NotEnoughStorage => TransformationResult::NotEnoughStorage,
+            Addition::Ok => None,
+            Addition::NotEnoughMaterial => Some(TransformationFailure::NotEnoughMaterial),
+            Addition::NotEnoughStorage => Some(TransformationFailure::NotEnoughStorage),
         }
     }
 }
-impl From<Replacement> for TransformationResult {
+impl From<Replacement> for Option<TransformationFailure> {
     fn from(replacement: Replacement) -> Self {
         match replacement {
-            Replacement::Ok | Replacement::None => TransformationResult::Ok,
-            Replacement::NotEnoughMaterial => TransformationResult::NotEnoughMaterial,
-            Replacement::NotEnoughStorage => TransformationResult::NotEnoughStorage,
-            Replacement::Forbidden => TransformationResult::CanNotDeconstructShip,
-            Replacement::SplitNetwork => TransformationResult::SplitNetwork,
+            Replacement::Ok | Replacement::None => None,
+            Replacement::NotEnoughMaterial => Some(TransformationFailure::NotEnoughMaterial),
+            Replacement::NotEnoughStorage => Some(TransformationFailure::NotEnoughStorage),
+            Replacement::Forbidden => Some(TransformationFailure::CanNotDeconstructShip),
+            Replacement::SplitNetwork => Some(TransformationFailure::SplitNetwork),
         }
     }
 }

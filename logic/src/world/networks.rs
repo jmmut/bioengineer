@@ -2,7 +2,7 @@ pub mod network;
 
 use crate::screen::gui::format_units::{format_liters, Grams};
 use crate::world::map::cell::is_networkable;
-use crate::world::map::transform_cells::TransformationResult;
+use crate::world::map::transform_cells::TransformationFailure;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::network::{
     Addition, Network, Node, Replacement, MATERIAL_NEEDED_FOR_A_MACHINE, SPACESHIP_INITIAL_STORAGE,
@@ -50,7 +50,7 @@ impl Networks {
         cell_index: CellIndex,
         new_machine: TileType,
         old_tile: TileType,
-    ) -> TransformationResult {
+    ) -> Option<TransformationFailure> {
         self.add_with_storage_with_reason(cell_index, new_machine, old_tile, &mut 0.0)
     }
 
@@ -62,7 +62,7 @@ impl Networks {
         storage: &mut Grams,
     ) -> bool {
         self.add_with_storage_with_reason(cell_index, new_machine, old_tile, storage)
-            == TransformationResult::Ok
+            .is_none()
     }
 
     pub fn add_with_storage_with_reason(
@@ -71,7 +71,7 @@ impl Networks {
         new_machine: TileType,
         old_tile: TileType,
         storage: &mut Grams,
-    ) -> TransformationResult {
+    ) -> Option<TransformationFailure> {
         let replacement = self.replace_if_present_with_storage(cell_index, new_machine);
         match replacement {
             Replacement::SplitNetwork
@@ -106,7 +106,7 @@ impl Networks {
         if cell_index == self.ship_position {
             self.ship_network.add(node);
             *storage = self.ship_network.try_add_resources(*storage);
-            return TransformationResult::Ok;
+            return None;
         }
         // not connected to ship_network
         let adjacent_networks = self.get_adjacent_networks(cell_index);
@@ -117,10 +117,10 @@ impl Networks {
                 let addition = self.add_new_network_with_node(node, old_tile, storage);
                 return addition.into();
             } else {
-                return TransformationResult::Ok;
+                return None;
             }
         };
-        return TransformationResult::Ok;
+        return None;
     }
 
     #[cfg(test)]

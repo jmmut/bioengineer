@@ -1,5 +1,5 @@
 use crate::world::map::cell::{is_sturdy, is_tree};
-use crate::world::map::transform_cells::{above, above_is, below, below_is, TransformationResult};
+use crate::world::map::transform_cells::{above, above_is, below, below_is, TransformationFailure};
 use crate::world::map::{CellIndex, Map, TileType};
 
 pub struct TransformationRules<'a> {
@@ -16,15 +16,15 @@ impl<'a> TransformationRules<'a> {
             map,
         }
     }
-    pub fn is_forbidden(&self) -> Option<TransformationResult> {
+    pub fn is_forbidden(&self) -> Option<TransformationFailure> {
         if self.cells_above_would_collapse() {
-            Some(TransformationResult::AboveWouldCollapse)
+            Some(TransformationFailure::AboveWouldCollapse)
         } else if self.building_on_top_of_non_sturdy_cells() {
-            Some(TransformationResult::NoSturdyBase)
+            Some(TransformationFailure::NoSturdyBase)
         } else if self.planting_tree_on_non_soil() {
-            Some(TransformationResult::NoSturdyBase)
+            Some(TransformationFailure::NoSturdyBase)
         } else if self.occluding_solar_panel() {
-            Some(TransformationResult::WouldOccludeSolarPanel)
+            Some(TransformationFailure::WouldOccludeSolarPanel)
         } else {
             None
         }

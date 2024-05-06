@@ -23,7 +23,7 @@ use robots::Robot;
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::{DEFAULT_ADVANCING_FLUIDS, DEFAULT_PROFILE_ENABLED};
 use crate::world::map::cell::{ages, transition_aging_tile};
-use crate::world::map::transform_cells::TransformationResult;
+use crate::world::map::transform_cells::TransformationFailure;
 use crate::world::map::{Cell, TileType};
 
 type AgeInMinutes = i64;
@@ -53,7 +53,7 @@ pub enum Task {
 pub struct TransformationTask {
     pub to_transform: HashSet<CellIndex>,
     pub transformation: Transformation,
-    pub blocked_because: Option<HashSet<TransformationResult>>,
+    pub blocked_because: Option<HashSet<TransformationFailure>>,
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -196,7 +196,7 @@ impl World {
             if self.networks.is_adjacent_to_ship_network(pos_to_transform) {
                 adjacent.push(pos_to_transform);
             } else {
-                add_reason(pos_to_transform, TransformationResult::OutOfShipReach);
+                add_reason(pos_to_transform, TransformationFailure::OutOfShipReach);
             }
         }
         for pos_to_transform in adjacent {
@@ -225,14 +225,14 @@ impl World {
         &mut self,
         transformation: Transformation,
         pos_to_transform: CellIndex,
-    ) -> Option<TransformationResult> {
+    ) -> Option<TransformationFailure> {
         let cell = self.map.get_cell_mut(pos_to_transform);
         let mut cell_copy = cell.clone();
         transformation.apply(&mut cell_copy);
         let was_transformed =
             self.networks
                 .add_with_reason(pos_to_transform, cell_copy.tile_type, cell.tile_type);
-        if was_transformed == TransformationResult::Ok {
+        if was_transformed == None {
             *cell = cell_copy;
             if ages(cell.tile_type) {
                 // TODO: is_alive(). otherwise it doesn't make sense to have aging_tiles and life as separate variables
@@ -242,10 +242,8 @@ impl World {
                 self.aging_tiles.remove(&pos_to_transform);
                 self.life.remove(&pos_to_transform);
             }
-            None
-        } else {
-            Some(was_transformed)
         }
+        was_transformed
     }
 
     fn age_tiles(&mut self) {
@@ -333,7 +331,7 @@ impl TransformationTask {
     pub fn new_with_reason(
         to_transform: HashSet<CellIndex>,
         transformation: Transformation,
-        blocked_because: Option<HashSet<TransformationResult>>,
+        blocked_because: Option<HashSet<TransformationFailure>>,
     ) -> Self {
         Self {
             to_transform,

@@ -6,7 +6,7 @@ use crate::screen::gui::panels::longest;
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
 use crate::screen::main_scene_input::CellSelection;
 use crate::world::map::cell::{ExtraTextures, TextureIndex};
-use crate::world::map::transform_cells::TransformationResult;
+use crate::world::map::transform_cells::TransformationFailure;
 use crate::world::{Task, World};
 use std::collections::HashSet;
 
@@ -100,23 +100,22 @@ pub fn draw_robot_queue(
     }
 }
 
-fn format_reasons(reasons: &Option<HashSet<TransformationResult>>) -> Vec<String> {
+fn format_reasons(reasons: &Option<HashSet<TransformationFailure>>) -> Vec<String> {
     if let Some(reasons) = reasons {
         let mut message = vec!["Blocked because:".to_string()];
         let mut reasons_lines = Vec::new();
         for transformation_result in reasons {
             let reason_line = match transformation_result {
-                TransformationResult::Ok => "  should not be printed",
-                TransformationResult::NotEnoughMaterial => "  Not enough resources (You can build storage machines underground to dig out resources)",
-                TransformationResult::NotEnoughStorage => "  Not enough storage capacity",
-                TransformationResult::AboveWouldCollapse => "  Cells above would collapse",
-                TransformationResult::NoSturdyBase => "  Cells below can not support it",
-                TransformationResult::WouldOccludeSolarPanel => "  Would occlude solar panel",
-                TransformationResult::OutOfShipReach => "  The spaceship network can't reach",
-                TransformationResult::CanNotDeconstructShip => {
+                TransformationFailure::NotEnoughMaterial => "  Not enough resources (You can build storage machines underground to dig out resources)",
+                TransformationFailure::NotEnoughStorage => "  Not enough storage capacity",
+                TransformationFailure::AboveWouldCollapse => "  Cells above would collapse",
+                TransformationFailure::NoSturdyBase => "  Cells below can not support it",
+                TransformationFailure::WouldOccludeSolarPanel => "  Would occlude solar panel",
+                TransformationFailure::OutOfShipReach => "  The spaceship network can't reach",
+                TransformationFailure::CanNotDeconstructShip => {
                     "  You're not allowed to remove the spaceship"
                 }
-                TransformationResult::SplitNetwork => "  The machine network should not be split",
+                TransformationFailure::SplitNetwork => "  The machine network should not be split",
             }
             .to_string();
             reasons_lines.push(reason_line);
