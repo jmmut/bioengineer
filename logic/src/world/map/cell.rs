@@ -224,6 +224,10 @@ pub fn is_sturdy(tile: TileType) -> bool {
     is_networkable(tile) || tile == WallRock
 }
 
+pub fn is_tree(tile: TileType) -> bool {
+    [TreeHealthy, TreeSparse, TreeDying, TreeDead].contains(&tile)
+}
+
 pub fn ages(tile: TileType) -> bool {
     [TreeHealthy, TreeSparse, TreeDying].contains(&tile)
 }

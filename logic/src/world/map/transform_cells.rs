@@ -1,7 +1,7 @@
 use crate::world::map::cell::DEFAULT_HEALTH;
 use crate::world::map::{cell::is_liquid, Cell, CellIndex, Map, TileType};
 use crate::world::networks::network::{Addition, Replacement};
-use crate::world::robots::DOWN;
+use crate::world::robots::{DOWN, UP};
 use std::collections::HashSet;
 
 const AIR_LEVELS_FOR_ALLOWING_SOLAR: i32 = 20;
@@ -139,7 +139,8 @@ pub fn column_above_is(
             println!("Bug: peeking above the map limits");
             return true;
         }
-        if map.get_cell(cell_index).tile_type != expected_tile {
+        let actual_tile = map.get_cell(cell_index).tile_type;
+        if actual_tile != expected_tile {
             return false;
         }
     }
@@ -148,6 +149,16 @@ pub fn column_above_is(
 
 pub fn above_is(expected_tile: TileType, cell_index: CellIndex, map: &Map) -> bool {
     column_above_is(expected_tile, 1, cell_index, map)
+}
+
+pub fn above(predicate: impl Fn(TileType) -> bool, cell_index: CellIndex, map: &Map) -> bool {
+    let neighbour = cell_index + UP;
+    return if neighbour.y > map.max_cell.y {
+        println!("Bug: peeking above the map limits");
+        true
+    } else {
+        predicate(map.get_cell(neighbour).tile_type)
+    };
 }
 
 pub fn below_is(expected_tile: TileType, cell_index: CellIndex, map: &Map) -> bool {

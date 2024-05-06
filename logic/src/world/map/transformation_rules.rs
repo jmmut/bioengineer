@@ -1,5 +1,5 @@
-use crate::world::map::cell::is_sturdy;
-use crate::world::map::transform_cells::{above_is, below, below_is};
+use crate::world::map::cell::{is_sturdy, is_tree};
+use crate::world::map::transform_cells::{above, above_is, below, below_is};
 use crate::world::map::{CellIndex, Map, TileType};
 
 pub struct TransformationRules<'a> {
@@ -19,6 +19,8 @@ impl<'a> TransformationRules<'a> {
     pub fn cells_above_would_collapse(&self) -> bool {
         !is_sturdy(self.new_tile_type)
             && !above_is(TileType::Air, self.position_to_transform, self.map)
+            || self.new_tile_type != TileType::WallRock
+                && above(is_tree, self.position_to_transform, self.map)
     }
     pub fn building_on_top_of_non_sturdy_cells(&self) -> bool {
         self.new_tile_type != TileType::Air
