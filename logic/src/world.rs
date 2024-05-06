@@ -202,14 +202,31 @@ impl World {
             }
         }
         for pos_to_transform in adjacent {
+            let cells_above_would_collapse = || {
+                !is_sturdy(transformation.new_tile_type)
+                    && !above_is(TileType::Air, pos_to_transform, &self.map)
+            };
+            let building_on_top_of_non_sturdy_cells = || {
+                transformation.new_tile_type != TileType::Air
+                    && !below(is_sturdy, pos_to_transform, &self.map)
+            };
+            let planting_tree_on_non_soil = || {
+                transformation.new_tile_type == TileType::TreeHealthy
+                    && !below_is(TileType::WallRock, pos_to_transform, &self.map)
+            };
+            let occluding_solar_panel = || {
+                transformation.new_tile_type != TileType::Air
+                    && below_is(TileType::MachineSolarPanel, pos_to_transform, &self.map)
+            };
             let mut add_reason_on_position = |reason| add_reason(pos_to_transform, reason);
-            if self.cells_above_would_collapse(transformation, pos_to_transform) {
+
+            if cells_above_would_collapse() {
                 add_reason_on_position(TransformationResult::AboveWouldCollapse);
-            } else if self.building_on_top_of_non_sturdy_cells(transformation, pos_to_transform) {
+            } else if building_on_top_of_non_sturdy_cells() {
                 add_reason_on_position(TransformationResult::NoSturdyBase);
-            } else if self.planting_tree_on_non_soil(transformation, pos_to_transform) {
+            } else if planting_tree_on_non_soil() {
                 add_reason_on_position(TransformationResult::NoSturdyBase);
-            } else if self.occluding_solar_panel(transformation, pos_to_transform) {
+            } else if occluding_solar_panel() {
                 add_reason_on_position(TransformationResult::WouldOccludeSolarPanel);
             } else {
                 let was_transformed = self.try_update_network(transformation, pos_to_transform);
@@ -252,39 +269,6 @@ impl World {
             }
         }
         was_transformed
-    }
-
-    fn occluding_solar_panel(
-        &mut self,
-        transformation: Transformation,
-        pos_to_transform: CellIndex,
-    ) -> bool {
-        transformation.new_tile_type != TileType::Air
-            && below_is(TileType::MachineSolarPanel, pos_to_transform, &self.map)
-    }
-    fn cells_above_would_collapse(
-        &self,
-        transformation: Transformation,
-        pos_to_transform: CellIndex,
-    ) -> bool {
-        !is_sturdy(transformation.new_tile_type)
-            && !above_is(TileType::Air, pos_to_transform, &self.map)
-    }
-    fn building_on_top_of_non_sturdy_cells(
-        &self,
-        transformation: Transformation,
-        pos_to_transform: CellIndex,
-    ) -> bool {
-        transformation.new_tile_type != TileType::Air
-            && !below(is_sturdy, pos_to_transform, &self.map)
-    }
-    fn planting_tree_on_non_soil(
-        &mut self,
-        transformation: Transformation,
-        pos_to_transform: CellIndex,
-    ) -> bool {
-        transformation.new_tile_type == TileType::TreeHealthy
-            && !below_is(TileType::WallRock, pos_to_transform, &self.map)
     }
 
     fn age_tiles(&mut self) {
