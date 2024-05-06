@@ -51,3 +51,4 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
 - [x] removing several cells that may split the network creates a broken state
 - [ ] flooded machines still work
 - [ ] storage machines work without power
+- [ ] you can not build trees on top of machines, but you can swap the rock under the tree with a machine

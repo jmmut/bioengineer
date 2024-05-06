@@ -20,9 +20,10 @@ pub fn draw_robot_queue(
     let margin = MARGIN;
     let icon_width = PIXELS_PER_TILE_WIDTH as f32 * 1.0;
     let icon_height = PIXELS_PER_TILE_HEIGHT as f32 * 1.0;
+    let title_height = FONT_SIZE * 1.25;
     let button_height = FONT_SIZE * 1.5;
     let group_width = icon_width + 3.5 * margin; // for some reason the button has a left margin bigger than MARGIN
-    let group_height = icon_height + button_height + 3.0 * margin;
+    let group_height = title_height + button_height + icon_height + 3.0 * margin;
     let go_to_robot = Option::None;
 
     let mut cancel_task = Option::None;
@@ -46,7 +47,8 @@ pub fn draw_robot_queue(
                 vec!["Task: Move".to_owned()],
             ),
         };
-        let group = drawer.ui_group(
+        let group = drawer.ui_named_group(
+            "Blocked task",
             drawer.screen_width() - (group_width + margin) * (1 + task_index) as f32,
             drawer.screen_height() - group_height - margin,
             group_width,
@@ -105,7 +107,7 @@ fn format_reasons(reasons: &Option<HashSet<TransformationResult>>) -> Vec<String
         for transformation_result in reasons {
             let reason_line = match transformation_result {
                 TransformationResult::Ok => "  should not be printed",
-                TransformationResult::NotEnoughMaterial => "  Not enough resources",
+                TransformationResult::NotEnoughMaterial => "  Not enough resources (You can build storage machines underground to dig out resources)",
                 TransformationResult::NotEnoughStorage => "  Not enough storage capacity",
                 TransformationResult::AboveWouldCollapse => "  Cells above would collapse",
                 TransformationResult::NoSturdyBase => "  Cells below can not support it",
