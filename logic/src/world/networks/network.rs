@@ -12,9 +12,9 @@ pub const POWER_CONSUMED_PER_MACHINE: Watts = POWER_PER_SOLAR_PANEL;
 
 const AIR_CLEANED_PER_CLEANER_PER_UPDATE: Liters = 1.0;
 
-pub const MATERIAL_NEEDED_FOR_A_MACHINE: Grams = 100_000.0;
-pub const MAX_STORAGE_PER_SPACESHIP: Grams = 1_000_000.0;
-pub const SPACESHIP_INITIAL_STORAGE: Grams = 500_000.0;
+pub const MATERIAL_NEEDED_FOR_A_MACHINE: Grams = 1_000_000.0;
+pub const MAX_STORAGE_PER_SPACESHIP: Grams = 5.0 * MATERIAL_NEEDED_FOR_A_MACHINE;
+pub const SPACESHIP_INITIAL_STORAGE: Grams = 5.0 * MATERIAL_NEEDED_FOR_A_MACHINE;
 // pub const MAX_STORAGE_PER_MACHINE: Grams = 1_000_000.0;
 pub const MAX_STORAGE_PER_MACHINE: Grams = 0.0;
 pub const MAX_STORAGE_PER_STORAGE_MACHINE: Grams = 10_000_000.0;
@@ -244,11 +244,12 @@ impl Network {
     ) -> (Grams, Grams, Grams, Grams) {
         let old_material_regained = material_composition(old_tile);
         let new_material_spent = material_composition(new_machine);
-        let extra_storage_in_ship = if new_machine == TileType::MachineShip {
-            SPACESHIP_INITIAL_STORAGE
-        } else {
+        let extra_storage_in_ship =// if new_machine == TileType::MachineShip { // The ship storage is added when creating a network
+            // SPACESHIP_INITIAL_STORAGE
+        // } else {
             0.0
-        };
+        // }
+    ;
         let future_storage = network.get_stored_resources() + old_material_regained
             - new_material_spent
             + extra_storage_in_ship;

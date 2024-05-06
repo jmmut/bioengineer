@@ -10,7 +10,7 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
   - [x] tooltip when hovering over build buttons, explaining cost and purpose
   - [x] timer to grade game runs
 - [/] automated resource production
-  - [ ] show machine status (producing X units per time unit, consuming, etc.)
+  - [ ] show machine status (producing X units per time unit, consuming, animated in the map, etc.)
   - [x] show global production
 - [/] terraforming mechanics
   - [ ] cleaning water
@@ -23,6 +23,7 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
   - [x] put plants
   - [ ] put animals
   - [ ] put other life ??
+- [ ] Story dialogs
 
 # Nice to haves
 
@@ -36,6 +37,7 @@ Or `git tag -n  | grep -E "^[^.]+\.[^.]+\.0"` for the big features only.
   - [x] remove from selection
 - mechanics
   - [x] build dumpster that creates columns of ~stairs to dump~ dug rock
+  - [ ] allow building rock in the air and make it fall
 
 # Bugs
 
