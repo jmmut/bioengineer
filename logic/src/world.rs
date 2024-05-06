@@ -14,6 +14,7 @@ use fluids::Fluids;
 use game_state::get_goal_air_cleaned;
 use game_state::GameState;
 use map::transform_cells::Transformation;
+use map::transformation_rules::TransformationRules;
 use map::CellIndex;
 use map::Map;
 use networks::Networks;
@@ -21,8 +22,8 @@ use robots::Robot;
 
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::{DEFAULT_ADVANCING_FLUIDS, DEFAULT_PROFILE_ENABLED};
-use crate::world::map::cell::{ages, is_sturdy, transition_aging_tile};
-use crate::world::map::transform_cells::{above_is, below, below_is, TransformationResult};
+use crate::world::map::cell::{ages, transition_aging_tile};
+use crate::world::map::transform_cells::TransformationResult;
 use crate::world::map::{Cell, TileType};
 
 type AgeInMinutes = i64;
@@ -166,12 +167,8 @@ impl World {
     fn advance_construction_task_queue(&mut self) {
         if let Some(task) = self.task_queue.pop_back() {
             match task {
-                Task::Transform(TransformationTask {
-                    to_transform,
-                    transformation,
-                    ..
-                }) => {
-                    if let Some(remaining_task) = self.try_build(to_transform, transformation) {
+                Task::Transform(task) => {
+                    if let Some(remaining_task) = self.try_build(task) {
                         self.task_queue.push_back(remaining_task);
                     }
                 }
@@ -180,13 +177,14 @@ impl World {
         }
     }
 
-    /// returns a pending task for whatever left from the given transformation,
+    /// returns a pending task for whatever is left from the given transformation,
     /// or None if the transformation was finished
-    fn try_build(
-        &mut self,
-        to_transform: HashSet<CellIndex>,
-        transformation: Transformation,
-    ) -> Option<Task> {
+    fn try_build(&mut self, task: TransformationTask) -> Option<Task> {
+        let TransformationTask {
+            to_transform,
+            transformation,
+            ..
+        } = task;
         let mut remaining = HashSet::new();
         let mut reasons = HashSet::new();
         let mut adjacent = Vec::<CellIndex>::new();
@@ -202,31 +200,17 @@ impl World {
             }
         }
         for pos_to_transform in adjacent {
-            let cells_above_would_collapse = || {
-                !is_sturdy(transformation.new_tile_type)
-                    && !above_is(TileType::Air, pos_to_transform, &self.map)
-            };
-            let building_on_top_of_non_sturdy_cells = || {
-                transformation.new_tile_type != TileType::Air
-                    && !below(is_sturdy, pos_to_transform, &self.map)
-            };
-            let planting_tree_on_non_soil = || {
-                transformation.new_tile_type == TileType::TreeHealthy
-                    && !below_is(TileType::WallRock, pos_to_transform, &self.map)
-            };
-            let occluding_solar_panel = || {
-                transformation.new_tile_type != TileType::Air
-                    && below_is(TileType::MachineSolarPanel, pos_to_transform, &self.map)
-            };
             let mut add_reason_on_position = |reason| add_reason(pos_to_transform, reason);
+            let rules =
+                TransformationRules::new(pos_to_transform, transformation.new_tile_type, &self.map);
 
-            if cells_above_would_collapse() {
+            if rules.cells_above_would_collapse() {
                 add_reason_on_position(TransformationResult::AboveWouldCollapse);
-            } else if building_on_top_of_non_sturdy_cells() {
+            } else if rules.building_on_top_of_non_sturdy_cells() {
                 add_reason_on_position(TransformationResult::NoSturdyBase);
-            } else if planting_tree_on_non_soil() {
+            } else if rules.planting_tree_on_non_soil() {
                 add_reason_on_position(TransformationResult::NoSturdyBase);
-            } else if occluding_solar_panel() {
+            } else if rules.occluding_solar_panel() {
                 add_reason_on_position(TransformationResult::WouldOccludeSolarPanel);
             } else {
                 let was_transformed = self.try_update_network(transformation, pos_to_transform);

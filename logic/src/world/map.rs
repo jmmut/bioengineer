@@ -5,6 +5,7 @@ pub mod chunk;
 mod map_iterator;
 pub mod ref_mut_iterator;
 pub mod transform_cells;
+pub mod transformation_rules;
 
 use crate::common::trunc::trunc_towards_neg_inf;
 use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
