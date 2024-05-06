@@ -82,6 +82,9 @@ impl CellSelection {
             selection_type: CellSelectionType::Exclusive,
         }
     }
+    pub fn is_something_being_selected(&self) -> bool {
+        self.state == CellSelectionState::Started || self.state == CellSelectionState::InProgress
+    }
 }
 
 #[derive(PartialEq, Copy, Clone, Debug)]

@@ -19,13 +19,9 @@ pub fn draw_top_bar(
     let mut goals = Interaction::None;
     let mut help = Interaction::None;
     let mut cell_selection = gui_actions.cell_selection;
-    let mut maybe_ignore_cell_selection = |interaction: Interaction| {
-        if interaction.is_hovered_or_clicked() {
-            cell_selection = CellSelection::no_selection();
-        }
-    };
 
-    let panel_interaction = drawer.ui_group(
+    let mut interactions = Vec::new();
+    interactions.push(drawer.ui_group(
         0.0,
         0.0,
         drawer.screen_width(),
@@ -36,10 +32,19 @@ pub fn draw_top_bar(
                 help = drawer.ui_button("Help");
             });
         },
-    );
-    maybe_ignore_cell_selection(panel_interaction);
-    maybe_ignore_cell_selection(maybe_draw_goals(drawer, drawing, world, goals));
-    maybe_ignore_cell_selection(maybe_draw_help(drawer, drawing, help));
+    ));
+    interactions.push(maybe_draw_goals(drawer, drawing, world, goals));
+    interactions.push(maybe_draw_help(drawer, drawing, help));
+
+    for interaction in &interactions {
+        if interaction.is_hovered_or_clicked() {
+            cell_selection = CellSelection::no_selection();
+        }
+    }
+    if cell_selection.is_something_being_selected() {
+        drawing.top_bar_showing = TopBarShowing::None
+    }
+
     GuiActions {
         cell_selection,
         ..gui_actions
@@ -53,7 +58,7 @@ fn maybe_draw_goals(
     goals: Interaction,
 ) -> Interaction {
     if goals.is_clicked() {
-        toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Goals.clone());
+        toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Goals);
     }
     return if drawing.top_bar_showing == TopBarShowing::Goals {
         let text_lines = goals_text_lines(
@@ -193,7 +198,7 @@ fn maybe_draw_help(
     help: Interaction,
 ) -> Interaction {
     if help.is_clicked() {
-        toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Help.clone());
+        toggle_showing_or_none(&mut drawing.top_bar_showing, TopBarShowing::Help);
     }
     return if drawing.top_bar_showing == TopBarShowing::Help {
         draw_pop_up(drawer, drawing, "Help", &help_text_lines(), |_| {})
