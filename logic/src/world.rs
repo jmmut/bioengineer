@@ -180,7 +180,7 @@ impl World {
         }
     }
 
-    /// returns a pending task for whatever left from the given transformation, 
+    /// returns a pending task for whatever left from the given transformation,
     /// or None if the transformation was finished
     fn try_build(
         &mut self,
@@ -190,48 +190,31 @@ impl World {
         let mut remaining = HashSet::new();
         let mut reasons = HashSet::new();
         let mut adjacent = Vec::<CellIndex>::new();
+        let mut add_reason = |position, reason| {
+            remaining.insert(position);
+            reasons.insert(reason);
+        };
         for pos_to_transform in to_transform {
             if self.networks.is_adjacent_to_ship_network(pos_to_transform) {
                 adjacent.push(pos_to_transform);
             } else {
-                remaining.insert(pos_to_transform);
-                reasons.insert(TransformationResult::OutOfShipReach);
+                add_reason(pos_to_transform, TransformationResult::OutOfShipReach);
             }
         }
         for pos_to_transform in adjacent {
-            let mut add_reason = |reason| {
-                remaining.insert(pos_to_transform);
-                reasons.insert(reason);
-            };
+            let mut add_reason_on_position = |reason| add_reason(pos_to_transform, reason);
             if self.cells_above_would_collapse(transformation, pos_to_transform) {
-                add_reason(TransformationResult::AboveWouldCollapse);
+                add_reason_on_position(TransformationResult::AboveWouldCollapse);
             } else if self.building_on_top_of_non_sturdy_cells(transformation, pos_to_transform) {
-                add_reason(TransformationResult::NoSturdyBase);
+                add_reason_on_position(TransformationResult::NoSturdyBase);
             } else if self.planting_tree_on_non_soil(transformation, pos_to_transform) {
-                add_reason(TransformationResult::NoSturdyBase);
+                add_reason_on_position(TransformationResult::NoSturdyBase);
             } else if self.occluding_solar_panel(transformation, pos_to_transform) {
-                add_reason(TransformationResult::WouldOccludeSolarPanel);
+                add_reason_on_position(TransformationResult::WouldOccludeSolarPanel);
             } else {
-                let cell = self.map.get_cell_mut(pos_to_transform);
-                let mut cell_copy = cell.clone();
-                transformation.apply(&mut cell_copy);
-                let was_transformed = self.networks.add_with_reason(
-                    pos_to_transform,
-                    cell_copy.tile_type,
-                    cell.tile_type,
-                );
-                if was_transformed == TransformationResult::Ok {
-                    *cell = cell_copy;
-                    if ages(cell.tile_type) {
-                        // TODO: is_alive(). otherwise it doesn't make sense to have aging_tiles and life as separate variables
-                        self.aging_tiles.insert(pos_to_transform);
-                        self.life.insert(pos_to_transform);
-                    } else {
-                        self.aging_tiles.remove(&pos_to_transform);
-                        self.life.remove(&pos_to_transform);
-                    }
-                } else {
-                    add_reason(was_transformed);
+                let was_transformed = self.try_update_network(transformation, pos_to_transform);
+                if was_transformed != TransformationResult::Ok {
+                    add_reason_on_position(was_transformed);
                 }
             }
         }
@@ -244,6 +227,31 @@ impl World {
         } else {
             None
         }
+    }
+
+    fn try_update_network(
+        &mut self,
+        transformation: Transformation,
+        pos_to_transform: CellIndex,
+    ) -> TransformationResult {
+        let cell = self.map.get_cell_mut(pos_to_transform);
+        let mut cell_copy = cell.clone();
+        transformation.apply(&mut cell_copy);
+        let was_transformed =
+            self.networks
+                .add_with_reason(pos_to_transform, cell_copy.tile_type, cell.tile_type);
+        if was_transformed == TransformationResult::Ok {
+            *cell = cell_copy;
+            if ages(cell.tile_type) {
+                // TODO: is_alive(). otherwise it doesn't make sense to have aging_tiles and life as separate variables
+                self.aging_tiles.insert(pos_to_transform);
+                self.life.insert(pos_to_transform);
+            } else {
+                self.aging_tiles.remove(&pos_to_transform);
+                self.life.remove(&pos_to_transform);
+            }
+        }
+        was_transformed
     }
 
     fn occluding_solar_panel(
