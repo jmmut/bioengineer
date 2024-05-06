@@ -22,7 +22,7 @@ use robots::Robot;
 use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::{DEFAULT_ADVANCING_FLUIDS, DEFAULT_PROFILE_ENABLED};
 use crate::world::map::cell::{ages, is_sturdy, transition_aging_tile};
-use crate::world::map::transform_cells::{above_is, below, TransformationResult};
+use crate::world::map::transform_cells::{above_is, below, below_is, TransformationResult};
 use crate::world::map::{Cell, TileType};
 
 type AgeInMinutes = i64;
@@ -171,68 +171,112 @@ impl World {
                     transformation,
                     ..
                 }) => {
-                    let mut remaining = HashSet::new();
-                    let mut reasons = HashSet::new();
-                    let mut adjacent = Vec::<CellIndex>::new();
-                    for pos_to_transform in to_transform {
-                        if self.networks.is_adjacent_to_ship_network(pos_to_transform) {
-                            adjacent.push(pos_to_transform);
-                        } else {
-                            remaining.insert(pos_to_transform);
-                            reasons.insert(TransformationResult::OutOfShipReach);
-                        }
-                    }
-                    for pos_to_transform in adjacent {
-                        if cells_above_would_collapse(transformation, pos_to_transform, &self.map) {
-                            remaining.insert(pos_to_transform);
-                            reasons.insert(TransformationResult::AboveWouldCollapse);
-                            continue;
-                        }
-                        if building_on_top_of_non_sturdy_cells(
-                            transformation,
-                            pos_to_transform,
-                            &self.map,
-                        ) {
-                            remaining.insert(pos_to_transform);
-                            reasons.insert(TransformationResult::NoSturdyBase);
-                            continue;
-                        }
-                        let cell = self.map.get_cell_mut(pos_to_transform);
-                        let mut cell_copy = cell.clone();
-                        transformation.apply(&mut cell_copy);
-                        let was_transformed = self.networks.add_with_reason(
-                            pos_to_transform,
-                            cell_copy.tile_type,
-                            cell.tile_type,
-                        );
-                        if was_transformed == TransformationResult::Ok {
-                            *cell = cell_copy;
-                            if ages(cell.tile_type) {
-                                // TODO: is_alive(). otherwise it doesn't make sense to have aging_tiles and life as separate variables
-                                self.aging_tiles.insert(pos_to_transform);
-                                self.life.insert(pos_to_transform);
-                            } else {
-                                self.aging_tiles.remove(&pos_to_transform);
-                                self.life.remove(&pos_to_transform);
-                            }
-                        } else {
-                            remaining.insert(pos_to_transform);
-                            reasons.insert(was_transformed);
-                        }
-                    }
-                    if remaining.len() > 0 {
-                        self.task_queue.push_back(Task::Transform(
-                            TransformationTask::new_with_reason(
-                                remaining,
-                                transformation,
-                                Some(reasons),
-                            ),
-                        ));
+                    if let Some(remaining_task) = self.try_build(to_transform, transformation) {
+                        self.task_queue.push_back(remaining_task);
                     }
                 }
                 Task::Movement(_) => {}
             }
         }
+    }
+
+    /// returns a pending task for whatever left from the given transformation, 
+    /// or None if the transformation was finished
+    fn try_build(
+        &mut self,
+        to_transform: HashSet<CellIndex>,
+        transformation: Transformation,
+    ) -> Option<Task> {
+        let mut remaining = HashSet::new();
+        let mut reasons = HashSet::new();
+        let mut adjacent = Vec::<CellIndex>::new();
+        for pos_to_transform in to_transform {
+            if self.networks.is_adjacent_to_ship_network(pos_to_transform) {
+                adjacent.push(pos_to_transform);
+            } else {
+                remaining.insert(pos_to_transform);
+                reasons.insert(TransformationResult::OutOfShipReach);
+            }
+        }
+        for pos_to_transform in adjacent {
+            let mut add_reason = |reason| {
+                remaining.insert(pos_to_transform);
+                reasons.insert(reason);
+            };
+            if self.cells_above_would_collapse(transformation, pos_to_transform) {
+                add_reason(TransformationResult::AboveWouldCollapse);
+            } else if self.building_on_top_of_non_sturdy_cells(transformation, pos_to_transform) {
+                add_reason(TransformationResult::NoSturdyBase);
+            } else if self.planting_tree_on_non_soil(transformation, pos_to_transform) {
+                add_reason(TransformationResult::NoSturdyBase);
+            } else if self.occluding_solar_panel(transformation, pos_to_transform) {
+                add_reason(TransformationResult::WouldOccludeSolarPanel);
+            } else {
+                let cell = self.map.get_cell_mut(pos_to_transform);
+                let mut cell_copy = cell.clone();
+                transformation.apply(&mut cell_copy);
+                let was_transformed = self.networks.add_with_reason(
+                    pos_to_transform,
+                    cell_copy.tile_type,
+                    cell.tile_type,
+                );
+                if was_transformed == TransformationResult::Ok {
+                    *cell = cell_copy;
+                    if ages(cell.tile_type) {
+                        // TODO: is_alive(). otherwise it doesn't make sense to have aging_tiles and life as separate variables
+                        self.aging_tiles.insert(pos_to_transform);
+                        self.life.insert(pos_to_transform);
+                    } else {
+                        self.aging_tiles.remove(&pos_to_transform);
+                        self.life.remove(&pos_to_transform);
+                    }
+                } else {
+                    add_reason(was_transformed);
+                }
+            }
+        }
+        if remaining.len() > 0 {
+            Some(Task::Transform(TransformationTask::new_with_reason(
+                remaining,
+                transformation,
+                Some(reasons),
+            )))
+        } else {
+            None
+        }
+    }
+
+    fn occluding_solar_panel(
+        &mut self,
+        transformation: Transformation,
+        pos_to_transform: CellIndex,
+    ) -> bool {
+        transformation.new_tile_type != TileType::Air
+            && below_is(TileType::MachineSolarPanel, pos_to_transform, &self.map)
+    }
+    fn cells_above_would_collapse(
+        &self,
+        transformation: Transformation,
+        pos_to_transform: CellIndex,
+    ) -> bool {
+        !is_sturdy(transformation.new_tile_type)
+            && !above_is(TileType::Air, pos_to_transform, &self.map)
+    }
+    fn building_on_top_of_non_sturdy_cells(
+        &self,
+        transformation: Transformation,
+        pos_to_transform: CellIndex,
+    ) -> bool {
+        transformation.new_tile_type != TileType::Air
+            && !below(is_sturdy, pos_to_transform, &self.map)
+    }
+    fn planting_tree_on_non_soil(
+        &mut self,
+        transformation: Transformation,
+        pos_to_transform: CellIndex,
+    ) -> bool {
+        transformation.new_tile_type == TileType::TreeHealthy
+            && !below_is(TileType::WallRock, pos_to_transform, &self.map)
     }
 
     fn age_tiles(&mut self) {
@@ -274,21 +318,6 @@ impl World {
     pub fn get_age_str(&self) -> String {
         format_age(self.age_in_minutes)
     }
-}
-
-fn cells_above_would_collapse(
-    transformation: Transformation,
-    pos_to_transform: CellIndex,
-    map: &Map,
-) -> bool {
-    !above_is(TileType::Air, pos_to_transform, map) && !is_sturdy(transformation.new_tile_type)
-}
-fn building_on_top_of_non_sturdy_cells(
-    transformation: Transformation,
-    pos_to_transform: CellIndex,
-    map: &Map,
-) -> bool {
-    !below(is_sturdy, pos_to_transform, map) && transformation.new_tile_type != TileType::Air
 }
 
 fn transition_goal_state(

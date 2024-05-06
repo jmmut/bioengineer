@@ -111,6 +111,7 @@ fn format_reasons(reasons: &Option<HashSet<TransformationResult>>) -> Vec<String
                 TransformationResult::NotEnoughStorage => "  Not enough storage capacity",
                 TransformationResult::AboveWouldCollapse => "  Cells above would collapse",
                 TransformationResult::NoSturdyBase => "  Cells below can not support it",
+                TransformationResult::WouldOccludeSolarPanel => "  Would occlude solar panel",
                 TransformationResult::OutOfShipReach => "  The spaceship network can't reach",
                 TransformationResult::CanNotDeconstructShip => {
                     "  You're not allowed to remove the spaceship"

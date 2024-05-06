@@ -18,6 +18,7 @@ pub enum TransformationResult {
     NotEnoughStorage,
     AboveWouldCollapse,
     NoSturdyBase,
+    WouldOccludeSolarPanel,
     OutOfShipReach,
     CanNotDeconstructShip,
     SplitNetwork,
@@ -76,7 +77,7 @@ pub fn allowed_transformations_of_cell(
         Unset => {
             panic!("can not transform an UNSET cell!")
         }
-        WallRock => machines_plus(vec![]),
+        WallRock => machines_plus(vec![TreeHealthy]),
         WallDirt => machines_plus(vec![TreeHealthy]),
         FloorRock => machines_plus(vec![TreeHealthy]),
         FloorDirt => machines_plus(vec![FloorRock, TreeHealthy]),
@@ -84,12 +85,13 @@ pub fn allowed_transformations_of_cell(
         Air => machines_plus(vec![
             // DirtyWaterSurface, DirtyWaterWall,
             WallRock, // FloorRock,
-                     // WallDirt,
-                     // FloorDirt,
+            // WallDirt,
+            // FloorDirt,
+            TreeHealthy,
         ]),
         Wire | MachineAssembler | MachineAirCleaner | MachineDrill | MachineSolarPanel
-        | MachineStorage => machines_plus(vec![WallRock]),
-        MachineShip => vec![],
+        | MachineStorage => machines_plus(vec![WallRock, TreeHealthy]),
+        MachineShip => machines_plus(vec![WallRock, TreeHealthy]),
         // DirtyWaterSurface => vec![
         //     WallRock, FloorRock,
         //     // Air
@@ -105,9 +107,6 @@ pub fn allowed_transformations_of_cell(
         TreeDying => machines_plus(vec![WallRock]),
         TreeDead => machines_plus(vec![WallRock]),
     };
-    if below_is(WallRock, *cell_index, map) {
-        new_tiles.push(TreeHealthy);
-    }
     new_tiles.push(cell.tile_type);
     if cell.tile_type != Air && cell.tile_type != MachineShip {
         new_tiles.push(Air);
