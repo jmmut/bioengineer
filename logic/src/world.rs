@@ -200,23 +200,13 @@ impl World {
             }
         }
         for pos_to_transform in adjacent {
-            let mut add_reason_on_position = |reason| add_reason(pos_to_transform, reason);
             let rules =
                 TransformationRules::new(pos_to_transform, transformation.new_tile_type, &self.map);
 
-            if rules.cells_above_would_collapse() {
-                add_reason_on_position(TransformationResult::AboveWouldCollapse);
-            } else if rules.building_on_top_of_non_sturdy_cells() {
-                add_reason_on_position(TransformationResult::NoSturdyBase);
-            } else if rules.planting_tree_on_non_soil() {
-                add_reason_on_position(TransformationResult::NoSturdyBase);
-            } else if rules.occluding_solar_panel() {
-                add_reason_on_position(TransformationResult::WouldOccludeSolarPanel);
-            } else {
-                let was_transformed = self.try_update_network(transformation, pos_to_transform);
-                if was_transformed != TransformationResult::Ok {
-                    add_reason_on_position(was_transformed);
-                }
+            if let Some(reason) = rules.is_forbidden() {
+                add_reason(pos_to_transform, reason);
+            } else if let Some(reason) = self.try_update_network(transformation, pos_to_transform) {
+                add_reason(pos_to_transform, reason);
             }
         }
         if remaining.len() > 0 {
@@ -230,11 +220,12 @@ impl World {
         }
     }
 
+    /// returns Some(reason) if the update failed, or None if it was ok
     fn try_update_network(
         &mut self,
         transformation: Transformation,
         pos_to_transform: CellIndex,
-    ) -> TransformationResult {
+    ) -> Option<TransformationResult> {
         let cell = self.map.get_cell_mut(pos_to_transform);
         let mut cell_copy = cell.clone();
         transformation.apply(&mut cell_copy);
@@ -251,8 +242,10 @@ impl World {
                 self.aging_tiles.remove(&pos_to_transform);
                 self.life.remove(&pos_to_transform);
             }
+            None
+        } else {
+            Some(was_transformed)
         }
-        was_transformed
     }
 
     fn age_tiles(&mut self) {
