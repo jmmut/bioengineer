@@ -1,6 +1,7 @@
 pub mod network;
 
 use crate::screen::gui::format_units::{format_liters, Grams};
+use crate::world::map::cell::is_networkable;
 use crate::world::map::transform_cells::TransformationResult;
 use crate::world::map::{CellIndex, TileType};
 use crate::world::networks::network::{
@@ -112,8 +113,12 @@ impl Networks {
         if adjacent_networks.len() > 0 {
             self.join_networks_and_add_node(node, old_tile, &adjacent_networks, storage);
         } else {
-            let addition = self.add_new_network_with_node(node, old_tile, storage);
-            return addition.into();
+            if is_networkable(node.tile) {
+                let addition = self.add_new_network_with_node(node, old_tile, storage);
+                return addition.into();
+            } else {
+                return TransformationResult::Ok;
+            }
         };
         return TransformationResult::Ok;
     }
