@@ -42,9 +42,9 @@ loop, but doesn't contain the `frame()` function.
 
 The `logic` crate is a library whose main function `frame()` is for running a single frame. Each
 frame has roughly 3 stages: take input (mouse and keyboard), update the world, render the world. The
-trick that allows hot reloading this whole crate is that the frame function takes all the state by
-mutable references. This whole crate is also independent of the graphics backend (which can be swapped on the fly)
-thanks to the [`Drawer` interface](logic/src/screen/drawer_trait.rs).
+trick that allows hot reloading is that the frame function takes all the state by mutable
+references. This whole crate is also independent of the graphics backend (which can be swapped on
+the fly) thanks to the [`Drawer` interface](logic/src/screen/drawer_trait.rs).
 
 The `mq_basics` is just some aliases and definitions to make hot reloading possible and clear
 without hiding everything behind dynamic interfaces.
