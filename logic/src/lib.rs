@@ -24,6 +24,25 @@ pub enum SceneState {
     Introduction(IntroductionScene),
     Main(MainScene),
 }
+
+pub fn frame(scene_wrapper: &mut Box<SceneState>) -> GameLoopState {
+    scene_wrapper.frame()
+}
+
+#[no_mangle]
+pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut Box<SceneState>) -> GameLoopState {
+    frame(scene_wrapper)
+}
+
+impl Scene for SceneState {
+    fn frame(&mut self) -> GameLoopState {
+        match self {
+            SceneState::Introduction(intro_scene) => intro_scene.frame(),
+            SceneState::Main(main_scene) => main_scene.frame(),
+        }
+    }
+}
+
 impl SceneState {
     pub fn take_textures(self) -> Vec<Texture2D> {
         match self {
@@ -37,23 +56,4 @@ impl SceneState {
             SceneState::Main(state) => state.screen.drawer.set_textures(textures),
         }
     }
-}
-
-pub fn frame(scene_wrapper: &mut Box<SceneState>) -> GameLoopState {
-    let wrapper = scene_wrapper.as_mut();
-    match wrapper {
-        SceneState::Introduction(intro_scene) => {
-            let output_state = intro_scene.frame();
-            output_state
-        }
-        SceneState::Main(main_scene) => {
-            let output_state = main_scene.frame();
-            output_state
-        }
-    }
-}
-
-#[no_mangle]
-pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut Box<SceneState>) -> GameLoopState {
-    frame(scene_wrapper)
 }
