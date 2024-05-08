@@ -7,7 +7,7 @@
 //! external effects, so it's possible to provide mocked implementations of them for integration
 //! tests. See [crate::world::gameplay_tests].
 
-use crate::scene::introduction_scene::{IntroductionScene, IntroductionSceneState};
+use crate::scene::introduction_scene::IntroductionScene;
 use crate::scene::main_scene::MainScene;
 use crate::scene::{GameLoopState, Scene};
 use mq_basics::Texture2D;
@@ -21,7 +21,7 @@ pub mod screen;
 pub mod world;
 
 pub enum SceneState {
-    Introduction(IntroductionSceneState),
+    Introduction(IntroductionScene),
     Main(MainScene),
 }
 impl SceneState {
@@ -42,9 +42,8 @@ impl SceneState {
 pub fn frame(scene_wrapper: &mut Box<SceneState>) -> GameLoopState {
     let wrapper = scene_wrapper.as_mut();
     match wrapper {
-        SceneState::Introduction(scene_state) => {
-            let mut scene = IntroductionScene { state: scene_state };
-            let output_state = scene.frame();
+        SceneState::Introduction(intro_scene) => {
+            let output_state = intro_scene.frame();
             output_state
         }
         SceneState::Main(main_scene) => {

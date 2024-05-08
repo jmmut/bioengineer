@@ -5,7 +5,7 @@ use crate::external::drawer_macroquad::DrawerMacroquad;
 use crate::external::main_input_macroquad::InputMacroquad as InputSource;
 use juquad::input::input_macroquad::InputMacroquad;
 use juquad::texture_loader::TextureLoader;
-use logic::scene::introduction_scene::{IntroductionSceneState, JuquadFunctions};
+use logic::scene::introduction_scene::{IntroductionScene, JuquadFunctions};
 use logic::scene::main_scene::MainScene;
 use logic::screen::drawer_trait::DrawerTrait;
 use logic::screen::Screen;
@@ -55,7 +55,7 @@ pub async fn introduction_factory(args: &CliArgs) -> Box<SceneState> {
         draw_text: macroquad::prelude::draw_text,
         render_button: juquad::widgets::button::render_button,
     };
-    Box::new(SceneState::Introduction(IntroductionSceneState::new(
+    Box::new(SceneState::Introduction(IntroductionScene::new(
         drawer,
         input,
         TextureLoader::new_from_image(&[TILESET_PATH]),
