@@ -65,8 +65,7 @@ pub const RTLD_LAZY: c_int = 0x00001;
 
 type AnyError = Box<dyn std::error::Error>;
 
-pub type DrawFrameFunction =
-    extern "C" fn(scene_wrapper: &mut Box<Option<SceneState>>) -> GameLoopState;
+pub type DrawFrameFunction = extern "C" fn(scene_wrapper: &mut Box<SceneState>) -> GameLoopState;
 
 #[link(name = "dl")]
 extern "C" {
@@ -92,7 +91,7 @@ async fn main() -> Result<(), AnyError> {
             sleep_until_next_frame(&mut previous_time).await
         }
         next_frame().await;
-        scene.unwrap().take_textures()
+        scene.take_textures()
     };
 
     {
@@ -105,19 +104,17 @@ async fn main() -> Result<(), AnyError> {
             if is_key_pressed(KeyCode::T) {
                 scene
                     .as_mut()
-                    .as_mut()
-                    .unwrap()
                     .set_textures(load_tileset(TILESET_PATH).await);
             }
             if is_key_pressed(KeyCode::Q) {
-                swap_ui_backend(scene.as_mut().as_mut(), &mut args, UiBackend::Macroquad);
+                swap_ui_backend(scene.as_mut(), &mut args, UiBackend::Macroquad);
             }
             if is_key_pressed(KeyCode::E) {
-                swap_ui_backend(scene.as_mut().as_mut(), &mut args, UiBackend::Egui);
+                swap_ui_backend(scene.as_mut(), &mut args, UiBackend::Egui);
             }
             sleep_until_next_frame(&mut previous_time).await
         }
-        if let Some(SceneState::Main(main_scene)) = *scene {
+        if let SceneState::Main(main_scene) = *scene {
             print_cache_stats(main_scene.world.game_state.profile)
         }
     }
@@ -218,8 +215,8 @@ fn watch() -> Result<(RecommendedWatcher, Receiver<()>), AnyError> {
     Ok((watcher, rx))
 }
 
-fn swap_ui_backend(scene: Option<&mut SceneState>, args: &mut CliArgs, new_ui_backend: UiBackend) {
-    if let Some(SceneState::Main(main_scene)) = scene {
+fn swap_ui_backend(scene: &mut SceneState, args: &mut CliArgs, new_ui_backend: UiBackend) {
+    if let SceneState::Main(main_scene) = scene {
         args.ui = new_ui_backend; // keep the latest chosen ui backend. Used when re-creating by calling to the full factory (KC::F)
         let mut tmp_drawer = drawer_factory(new_ui_backend, Vec::new());
         std::mem::swap(&mut tmp_drawer, &mut main_scene.screen.drawer);

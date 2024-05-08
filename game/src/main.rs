@@ -24,11 +24,11 @@ async fn main() {
     }
     next_frame().await;
 
-    let mut scene = factory(&args, scene.unwrap().take_textures()).await;
+    let mut scene = factory(&args, scene.take_textures()).await;
     while frame(&mut scene) == GameLoopState::ShouldContinue {
         sleep_until_next_frame(&mut previous_time).await
     }
-    if let SceneState::Main(main_scene) = scene.as_ref().as_ref().unwrap() {
+    if let SceneState::Main(main_scene) = scene.as_ref() {
         print_cache_stats(main_scene.world.game_state.profile);
     }
 }

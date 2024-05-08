@@ -43,8 +43,17 @@ loop, but doesn't contain the `frame()` function.
 The `logic` crate is a library whose main function `frame()` is for running a single frame. Each
 frame has roughly 3 stages: take input (mouse and keyboard), update the world, render the world. The
 trick that allows hot reloading is that the frame function takes all the state by mutable
-references. This whole crate is also independent of the graphics backend (which can be swapped on
-the fly) thanks to the [`Drawer` interface](logic/src/screen/drawer_trait.rs).
+references.
+
+Sadly, the Macroquad functions use a global variable for its context, so no code that uses Macroquad
+functions directly can be hot-swapped, because the global variable will be compiled inside the
+dynamic library, breaking the idea of keeping all the state in the main function, out of the
+library. This would prevent hot-reloading code that, for example, defines and uses some arrangement
+of buttons. The only thing I could think of is making
+a [`Drawer` interface](logic/src/screen/drawer_trait.rs), and make the frame function take the
+interface, whose concrete implementation is defined in `main()`. This also has the benefit that the
+graphics backends can be swapped on the fly. At the moment, Macroquad's UI and egui's UI are
+supported, but I'll probably remove egui because it's harder to tune.
 
 The `mq_basics` is just some aliases and definitions to make hot reloading possible and clear
 without hiding everything behind dynamic interfaces.

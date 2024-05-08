@@ -36,18 +36,18 @@ impl FromStr for UiBackend {
     }
 }
 
-pub async fn factory(args: &CliArgs, textures: Vec<Texture2D>) -> Box<Option<SceneState>> {
+pub async fn factory(args: &CliArgs, textures: Vec<Texture2D>) -> Box<SceneState> {
     println!("Running Bioengineer version {}", GIT_VERSION);
     let drawer = drawer_factory(args.ui, textures);
     let input_source = Box::new(InputSource::new());
     let world = World::new_with_options(args.profile, args.fluids);
-    Box::new(Some(SceneState::Main(MainScene {
+    Box::new(SceneState::Main(MainScene {
         screen: Screen::new(drawer, input_source),
         world,
-    })))
+    }))
 }
 
-pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
+pub async fn introduction_factory(args: &CliArgs) -> Box<SceneState> {
     let drawer = drawer_factory(args.ui, Vec::new());
     let input = Box::new(InputMacroquad);
     let juquad_functions = JuquadFunctions {
@@ -55,13 +55,13 @@ pub async fn introduction_factory(args: &CliArgs) -> Box<Option<SceneState>> {
         draw_text: macroquad::prelude::draw_text,
         render_button: juquad::widgets::button::render_button,
     };
-    Box::new(Some(SceneState::Introduction(IntroductionSceneState::new(
+    Box::new(SceneState::Introduction(IntroductionSceneState::new(
         drawer,
         input,
         TextureLoader::new_from_image(&[TILESET_PATH]),
         assets_macroquad::split_tileset,
         juquad_functions,
-    ))))
+    )))
 }
 
 pub fn drawer_factory(drawer_type: UiBackend, textures: Vec<Texture2D>) -> Box<dyn DrawerTrait> {

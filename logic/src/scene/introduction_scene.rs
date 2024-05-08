@@ -66,8 +66,8 @@ pub struct JuquadFunctions {
     pub render_button: RenderButton,
 }
 
-pub struct IntroductionScene {
-    pub state: IntroductionSceneState,
+pub struct IntroductionScene<'a> {
+    pub state: &'a mut IntroductionSceneState,
 }
 
 impl IntroductionSceneState {
@@ -159,7 +159,7 @@ impl IntroductionSceneState {
     }
 }
 
-impl Scene for IntroductionScene {
+impl<'a> Scene for IntroductionScene<'a> {
     fn frame(&mut self) -> GameLoopState {
         self.state.frame = (self.state.frame + 1) % 100000000;
         self.update_fps();
@@ -179,7 +179,7 @@ impl Scene for IntroductionScene {
     }
 }
 
-impl IntroductionScene {
+impl<'a> IntroductionScene<'a> {
     fn ui_interact(&mut self, height: f32, width: f32) -> (Vec<Button>, Vec<TextRect>, bool) {
         if self.input().is_key_pressed(KeyCode::R) {
             self.state.reset();

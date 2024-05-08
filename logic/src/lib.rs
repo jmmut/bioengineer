@@ -39,26 +39,22 @@ impl SceneState {
     }
 }
 
-pub fn frame(scene_wrapper: &mut Box<Option<SceneState>>) -> GameLoopState {
-    let wrapper = scene_wrapper.take().unwrap();
+pub fn frame(scene_wrapper: &mut Box<SceneState>) -> GameLoopState {
+    let wrapper = scene_wrapper.as_mut();
     match wrapper {
         SceneState::Introduction(scene_state) => {
             let mut scene = IntroductionScene { state: scene_state };
             let output_state = scene.frame();
-            scene_wrapper.replace(SceneState::Introduction(scene.state));
             output_state
         }
-        SceneState::Main(mut main_scene) => {
+        SceneState::Main(main_scene) => {
             let output_state = main_scene.frame();
-            scene_wrapper.replace(SceneState::Main(main_scene));
             output_state
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn hot_reload_draw_frame(
-    scene_wrapper: &mut Box<Option<SceneState>>,
-) -> GameLoopState {
+pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut Box<SceneState>) -> GameLoopState {
     frame(scene_wrapper)
 }
