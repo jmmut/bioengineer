@@ -33,7 +33,7 @@
 //! See <https://jmmut.github.io/2023/03/17/Hot-reloading-Rust-and-Macroquad.html> for the specifics
 //! of hot-reloading Macroquad.
 
-use bioengineer::common::cli::CliArgs;
+use bioengineer::common::cli::{CliArgs, UiBackend};
 use bioengineer::external::assets_macroquad::load_tileset;
 use clap::Parser;
 use juquad::fps::sleep_until_next_frame;
@@ -47,7 +47,7 @@ use std::path::PathBuf;
 use std::sync::mpsc::Receiver;
 
 use bioengineer::external::backends::{
-    drawer_factory, factory, introduction_factory, UiBackend, TILESET_PATH,
+    create_introduction_scene, create_main_scene, drawer_factory, TILESET_PATH,
 };
 use logic::scene::GameLoopState;
 use logic::screen::gui::set_skin;
@@ -82,7 +82,7 @@ async fn main() -> Result<(), AnyError> {
 
     let mut previous_time = now();
     let textures = {
-        let mut scene = introduction_factory(&args).await;
+        let mut scene = create_introduction_scene(&args).await;
         while draw_frame(&mut scene) == GameLoopState::ShouldContinue {
             if should_reload(&rx) {
                 info!("reloading lib");
@@ -95,7 +95,7 @@ async fn main() -> Result<(), AnyError> {
     };
 
     {
-        let mut scene = factory(&args, textures).await;
+        let mut scene = create_main_scene(&args, textures).await;
         while draw_frame(&mut scene) == GameLoopState::ShouldContinue {
             if should_reload(&rx) {
                 info!("reloading lib");

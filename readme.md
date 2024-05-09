@@ -33,12 +33,15 @@ system libraries.
 
 ## Architecture of the game
 
+![game architecture diagram](docs/architecture.png)
+
 The code is split in 3 crates: `game`, `logic` and `mq_basics`. The main reason to do this is to
 support hot reloading.
 
 The entry point is the `game` crate. It's basically the `main() {while frame() {}}` function and
-secondary programs like hot_reload_bioengineer, with the initialization of the scenes and the game
-loop, but doesn't contain the `frame()` function.
+secondary programs like hot_reload_bioengineer. with the initialization of the scenes and the game
+loop, but doesn't contain the `frame()` function. If you are starting to look at this repo, you
+should start looking at `game/src/main.rs`.
 
 The `logic` crate is a library whose main function `frame()` is for running a single frame. Each
 frame has roughly 3 stages: take input (mouse and keyboard), update the world, render the world. The

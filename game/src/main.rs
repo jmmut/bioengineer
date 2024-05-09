@@ -3,28 +3,28 @@ use macroquad::window::next_frame;
 use macroquad::window::Conf;
 
 use bioengineer::common::cli::CliArgs;
-use bioengineer::external::backends::{factory, introduction_factory};
+use bioengineer::external::backends::{create_introduction_scene, create_main_scene};
 use juquad::fps::sleep_until_next_frame;
 use logic::scene::GameLoopState;
 use logic::world::map::chunk::chunks::cache::print_cache_stats;
 use logic::{frame, SceneState};
 use mq_basics::now;
 
-const DEFAULT_WINDOW_WIDTH: i32 = 1365;
-const DEFAULT_WINDOW_HEIGHT: i32 = 768;
+const DEFAULT_WINDOW_WIDTH: i32 = 1200;
+const DEFAULT_WINDOW_HEIGHT: i32 = 675;
 const DEFAULT_WINDOW_TITLE: &str = "Bioengineer";
 
 #[macroquad::main(window_conf)]
 async fn main() {
     let args = CliArgs::parse();
-    let mut scene = introduction_factory(&args).await;
+    let mut scene = create_introduction_scene(&args).await;
     let mut previous_time = now();
     while frame(&mut scene) == GameLoopState::ShouldContinue {
         sleep_until_next_frame(&mut previous_time).await
     }
     next_frame().await;
 
-    let mut scene = factory(&args, scene.take_textures()).await;
+    let mut scene = create_main_scene(&args, scene.take_textures()).await;
     while frame(&mut scene) == GameLoopState::ShouldContinue {
         sleep_until_next_frame(&mut previous_time).await
     }

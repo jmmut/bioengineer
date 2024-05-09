@@ -1,5 +1,6 @@
+use bioengineer::common::cli::UiBackend;
 use bioengineer::external::assets_macroquad::load_tileset;
-use bioengineer::external::backends::{drawer_factory, UiBackend, TILESET_PATH};
+use bioengineer::external::backends::{drawer_factory, TILESET_PATH};
 use bioengineer::external::main_input_macroquad::InputMacroquad as InputSource;
 use logic::screen::drawer_trait::DrawerTrait;
 use logic::screen::gui::set_skin;
@@ -47,10 +48,7 @@ fn drawer_factory_from_name(
     textures: Vec<Texture2D>,
 ) -> Box<dyn DrawerTrait> {
     let drawer_type_res = UiBackend::from_str(&drawer_type_name.unwrap_or("egui".to_string()));
-    let drawer_type = match drawer_type_res {
-        Ok(t) => t,
-        Err(_) => UiBackend::Egui,
-    };
+    let drawer_type = drawer_type_res.unwrap_or(UiBackend::Egui);
     drawer_factory(drawer_type, textures)
 }
 

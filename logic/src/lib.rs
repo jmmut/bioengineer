@@ -29,6 +29,8 @@ pub fn frame(scene_wrapper: &mut Box<SceneState>) -> GameLoopState {
     scene_wrapper.frame()
 }
 
+/// scene_wrapper has to be a box because a Rust enum can not be passed through a Foreign Function
+/// Interface (aka, C dynamic library API)
 #[no_mangle]
 pub extern "C" fn hot_reload_draw_frame(scene_wrapper: &mut Box<SceneState>) -> GameLoopState {
     frame(scene_wrapper)

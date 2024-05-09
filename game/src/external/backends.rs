@@ -1,4 +1,4 @@
-use crate::common::cli::{CliArgs, GIT_VERSION};
+use crate::common::cli::{CliArgs, UiBackend, GIT_VERSION};
 use crate::external::assets_macroquad;
 use crate::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use crate::external::drawer_macroquad::DrawerMacroquad;
@@ -12,31 +12,10 @@ use logic::screen::Screen;
 use logic::world::World;
 use logic::SceneState;
 use macroquad::texture::Texture2D;
-use std::str::FromStr;
 
 pub const TILESET_PATH: &'static str = "assets/image/tileset.png";
 
-#[derive(Debug, Copy, Clone)]
-pub enum UiBackend {
-    Macroquad,
-    Egui,
-}
-
-impl FromStr for UiBackend {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        return if s == "mq" || s == "macroquad" {
-            Ok(UiBackend::Macroquad)
-        } else if s == "egui" {
-            Ok(UiBackend::Egui)
-        } else {
-            Err(format!("error: unknown UiBackend {s}"))
-        };
-    }
-}
-
-pub async fn factory(args: &CliArgs, textures: Vec<Texture2D>) -> Box<SceneState> {
+pub async fn create_main_scene(args: &CliArgs, textures: Vec<Texture2D>) -> Box<SceneState> {
     println!("Running Bioengineer version {}", GIT_VERSION);
     let drawer = drawer_factory(args.ui, textures);
     let input_source = Box::new(InputSource::new());
@@ -47,7 +26,7 @@ pub async fn factory(args: &CliArgs, textures: Vec<Texture2D>) -> Box<SceneState
     }))
 }
 
-pub async fn introduction_factory(args: &CliArgs) -> Box<SceneState> {
+pub async fn create_introduction_scene(args: &CliArgs) -> Box<SceneState> {
     let drawer = drawer_factory(args.ui, Vec::new());
     let input = Box::new(InputMacroquad);
     let juquad_functions = JuquadFunctions {
