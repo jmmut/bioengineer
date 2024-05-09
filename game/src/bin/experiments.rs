@@ -11,8 +11,8 @@ use macroquad::texture::Texture2D;
 use macroquad::window::{next_frame, Conf};
 use std::str::FromStr;
 
-const DEFAULT_WINDOW_WIDTH: i32 = 1365;
-const DEFAULT_WINDOW_HEIGHT: i32 = 768;
+const DEFAULT_WINDOW_WIDTH: i32 = 1200;
+const DEFAULT_WINDOW_HEIGHT: i32 = 675;
 const DEFAULT_WINDOW_TITLE: &str = "Bioengineer Experiments";
 
 #[macroquad::main(window_conf)]

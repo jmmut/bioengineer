@@ -12,7 +12,8 @@ pub fn draw_game_finished(
     gui_actions: GuiActions,
 ) -> GuiActions {
     let mut cell_selection = gui_actions.cell_selection;
-    let next_game_goal_state = if let Finished(age) = world.goal_state {
+    let mut next_game_goal_state = gui_actions.next_game_goal_state;
+    if let Finished(age) = world.goal_state {
         cell_selection = CellSelection::no_selection();
         let panel_title = "You won!";
         let time_spent = format!("Time spent: {}", format_age(age));
@@ -29,7 +30,6 @@ pub fn draw_game_finished(
             panel_width,
             height_per_line * 7.0,
         );
-        let mut new_state = None;
         drawer.ui_named_group(
             panel_title,
             panel.x,
@@ -39,15 +39,11 @@ pub fn draw_game_finished(
             &mut |drawer| {
                 drawer.ui_text(&time_spent);
                 if drawer.ui_button("Continue").is_clicked() {
-                    new_state = Some(PostFinished)
+                    next_game_goal_state = Some(PostFinished)
                 }
             },
         );
-        new_state
-
         // TODO: add restarted state
-    } else {
-        None
     };
     GuiActions {
         cell_selection,

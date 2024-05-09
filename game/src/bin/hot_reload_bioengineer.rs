@@ -55,8 +55,8 @@ use logic::world::map::chunk::chunks::cache::print_cache_stats;
 use logic::SceneState;
 use mq_basics::{now, KeyCode};
 
-const DEFAULT_WINDOW_WIDTH: i32 = 1365;
-const DEFAULT_WINDOW_HEIGHT: i32 = 768;
+const DEFAULT_WINDOW_WIDTH: i32 = 1200;
+const DEFAULT_WINDOW_HEIGHT: i32 = 675;
 const DEFAULT_WINDOW_TITLE: &str = "Hot Reload Bioengineer";
 
 // had to look that one up in `dlfcn.h`

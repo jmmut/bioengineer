@@ -72,14 +72,14 @@ fn maybe_draw_goals(
     };
 }
 
-fn draw_pop_up<F: FnMut(&mut dyn DrawerTrait) -> ()>(
+pub fn draw_pop_up<F: FnMut(&mut dyn DrawerTrait) -> ()>(
     drawer: &mut dyn DrawerTrait,
     drawing: &mut DrawingState,
     pop_up_name: &str,
     text: &Vec<String>,
     mut draw_extra_widgets: F,
 ) -> Interaction {
-    let center = Vec2::new(drawer.screen_width() / 2.0, drawer.screen_height() / 2.0);
+    let center = Vec2::new(drawer.screen_width() * 0.5, drawer.screen_height() * 0.5);
     let title_height = FONT_SIZE * 2.0;
     let button_text = "Continue";
     let button_size = measure_button(drawer, button_text);
@@ -90,8 +90,8 @@ fn draw_pop_up<F: FnMut(&mut dyn DrawerTrait) -> ()>(
     );
     drawer.ui_named_group(
         pop_up_name,
-        center.x - panel_size.x / 2.0,
-        center.y - panel_size.y / 2.0,
+        center.x - panel_size.x * 0.5,
+        center.y - panel_size.y * 0.5,
         panel_size.x,
         panel_size.y,
         &mut |drawer| {
@@ -99,7 +99,7 @@ fn draw_pop_up<F: FnMut(&mut dyn DrawerTrait) -> ()>(
                 drawer.ui_text(&line);
             }
             draw_extra_widgets(drawer);
-            let button_pos_x = panel_size.x / 2.0 - button_size.x / 2.0;
+            let button_pos_x = panel_size.x * 0.5 - button_size.x * 0.5;
             let button_pos_y = title_height + text_size.y;
             if drawer
                 .ui_button_with_pos(button_text, button_pos_x, button_pos_y)
@@ -128,7 +128,7 @@ fn measure_longest_width(drawer: &mut dyn DrawerTrait, text: &Vec<String>) -> f3
     max_width
 }
 
-fn measure_button(drawer: &mut dyn DrawerTrait, button_text: &str) -> Vec2 {
+pub fn measure_button(drawer: &mut dyn DrawerTrait, button_text: &str) -> Vec2 {
     let button_size = drawer.ui_measure_text(&button_text, FONT_SIZE);
     // let button_size = Vec2::new(button_size.x / button_text.len() as f32 * (button_text.len() + 6) as f32, button_size.y * 2.0);
     let button_size = Vec2::new(button_size.x + MARGIN * 4.0, button_size.y + MARGIN);

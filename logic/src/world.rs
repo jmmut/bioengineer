@@ -58,6 +58,7 @@ pub struct TransformationTask {
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum GameGoalState {
+    InitialDialog,
     Started,
     ReachedProduction,
     Finished(AgeInMinutes),
@@ -86,7 +87,7 @@ impl World {
             aging_tiles: HashSet::new(),
             life: HashSet::new(),
             game_state,
-            goal_state: GameGoalState::Started,
+            goal_state: GameGoalState::InitialDialog,
             age_in_minutes: 0,
         };
         world.set_profile(profile);
@@ -260,19 +261,17 @@ impl World {
         if gui_actions.reset_quantities {
             self.networks.reset_production();
             self.age_in_minutes = 0;
-            self.goal_state = GameGoalState::Started;
+            self.goal_state = GameGoalState::InitialDialog;
         }
-        match self.goal_state {
-            GameGoalState::Finished(_) | GameGoalState::PostFinished => {
-                self.goal_state = gui_actions.next_game_goal_state.unwrap_or(self.goal_state);
-            }
-            _ => transition_goal_state(
-                &mut self.goal_state,
-                &self.networks,
-                self.life.len(),
-                self.age_in_minutes,
-            ),
+        if let Some(new_state) = gui_actions.next_game_goal_state {
+            self.goal_state = new_state;
         }
+        transition_goal_state(
+            &mut self.goal_state,
+            &self.networks,
+            self.life.len(),
+            self.age_in_minutes,
+        );
     }
 
     fn advance_frame(&mut self) {

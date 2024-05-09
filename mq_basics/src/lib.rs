@@ -7,8 +7,8 @@
 
 pub use macroquad::miniquad::Texture;
 pub use macroquad::prelude::{
-    load_image, Color, FilterMode, IVec2, IVec3, Image, KeyCode, MouseButton, Rect, Texture2D,
-    Vec2, Vec3,
+    load_image, Color, FilterMode, IVec2, IVec3, Image, KeyCode, MouseButton, Rect, TextDimensions,
+    Texture2D, Vec2, Vec3,
 };
 pub mod color {
     pub use macroquad::color::*;

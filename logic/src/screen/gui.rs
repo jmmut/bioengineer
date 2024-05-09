@@ -8,6 +8,7 @@ use mq_basics::Color;
 use crate::screen::coords::cell_pixel::{clicked_cell, pixel_to_subcell_offset};
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::DrawingState;
+use crate::screen::gui::panels::initial_dialog::draw_initial_dialog;
 use crate::screen::gui::panels::top_bar::draw_top_bar;
 use crate::screen::gui::panels::{
     cell_info::draw_cell_info, draw_available_transformations::show_available_transformations,
@@ -52,19 +53,26 @@ impl Gui {
             set_skin(drawer);
         }
 
-        drawer.ui_run(&mut |drawer| {
-            let unhandled_input = new_gui_from_input(input, drawer, drawing);
-            let unhandled_input = draw_game_finished(drawer, world, unhandled_input);
-            let unhandled_input =
-                show_available_transformations(drawer, world, unhandled_input, drawing);
-
-            let unhandled_input = draw_robot_queue(drawer, world, unhandled_input, drawing);
-            let unhandled_input = draw_top_bar(drawer, world, drawing, unhandled_input);
-            let unhandled_input = draw_cell_info(drawer, world, drawing, unhandled_input);
-            gui_actions = unhandled_input
-        });
+        drawer.ui_run(&mut |drawer| gui_actions = filter_input(input, world, drawing, drawer));
         gui_actions
     }
+}
+
+fn filter_input(
+    input: Input,
+    world: &World,
+    drawing: &mut DrawingState,
+    drawer: &mut dyn DrawerTrait,
+) -> GuiActions {
+    let unhandled_input = new_gui_from_input(input, drawer, drawing);
+    let unhandled_input = draw_initial_dialog(drawer, world, unhandled_input);
+    let unhandled_input = draw_game_finished(drawer, world, unhandled_input);
+    let unhandled_input = show_available_transformations(drawer, world, unhandled_input, drawing);
+
+    let unhandled_input = draw_robot_queue(drawer, world, unhandled_input, drawing);
+    let unhandled_input = draw_top_bar(drawer, world, drawing, unhandled_input);
+    let unhandled_input = draw_cell_info(drawer, world, drawing, unhandled_input);
+    unhandled_input
 }
 
 pub fn set_skin(drawer: &mut dyn DrawerTrait) {
