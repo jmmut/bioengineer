@@ -170,7 +170,7 @@ impl Networks {
     fn re_add_network(&mut self, network_to_split: Network) {
         let storage_to_redistribute = network_to_split.stored_resources;
         let mut storage_per_node = storage_to_redistribute;
-        for node in network_to_split.nodes {
+        for node in network_to_split.nodes() {
             storage_per_node += MATERIAL_NEEDED_FOR_A_MACHINE; // assumes the network already paid for this
             if !self.add_with_storage(
                 node.position,
@@ -399,18 +399,13 @@ mod tests {
     #[test]
     fn test_replace_machine() {
         let mut networks = Networks::new_default();
-        assert_eq!(
-            networks.add(CellIndex::new(0, 0, 1), MachineAssembler, Air),
-            true
-        );
-        assert_eq!(
-            networks.add(CellIndex::new(0, 0, 1), TileType::MachineDrill, Air),
-            true
-        );
+        let pos = CellIndex::new(0, 0, 1);
+        assert_eq!(networks.add(pos, MachineAssembler, Air), true);
+        assert_eq!(networks.add(pos, TileType::MachineDrill, Air), true);
         assert_eq!(networks.len(), 1);
         assert_eq!(networks.get_non_ship_machine_count(), 1);
         assert_eq!(
-            networks.ship_network.nodes.last().unwrap().tile,
+            networks.ship_network.get_node(pos).unwrap().tile,
             TileType::MachineDrill
         );
     }

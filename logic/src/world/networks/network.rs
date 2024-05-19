@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use crate::screen::gui::format_units::{
     format_grams, format_unit, format_watts, Grams, Liters, Watts,
@@ -20,9 +20,12 @@ pub const MAX_STORAGE_PER_MACHINE: Grams = 0.0;
 pub const MAX_STORAGE_PER_STORAGE_MACHINE: Grams = 10_000_000.0;
 pub const WALL_WEIGHT: Grams = 10_000_000.0;
 
+// pub type Nodes = Vec<Node>;
+pub type Nodes = HashMap<CellIndex, TileType>;
+
 #[derive(Debug)]
 pub struct Network {
-    pub nodes: Vec<Node>,
+    pub nodes: Nodes,
     pub stored_resources: Grams,
 }
 
@@ -61,13 +64,13 @@ pub struct NetworkUpdate {
 impl Network {
     pub fn new() -> Self {
         Network {
-            nodes: Vec::new(),
+            nodes: Nodes::new(),
             stored_resources: 0.0,
         }
     }
     pub fn new_with_storage(initial_storage: Grams) -> Self {
         Network {
-            nodes: Vec::new(),
+            nodes: Nodes::new(),
             stored_resources: initial_storage,
         }
     }
@@ -75,7 +78,7 @@ impl Network {
         NetworkUpdate {
             air_cleaned: if self.is_power_satisfied() {
                 let mut air_cleaners = 0;
-                for node in &self.nodes {
+                for node in self.nodes() {
                     match node.tile {
                         TileType::MachineAirCleaner => air_cleaners += 1,
                         TileType::MachineAssembler => {}
@@ -89,6 +92,9 @@ impl Network {
         }
     }
 
+    pub fn nodes(&self) -> impl Iterator<Item = Node> + '_ {
+        self.nodes.iter().map(|(pos, tile)| Node::new(*pos, *tile))
+    }
     pub fn len(&self) -> usize {
         self.nodes.len()
     }
@@ -126,7 +132,7 @@ impl Network {
 
     fn count_tiles_of_type_in(&self, tiles: &[TileType]) -> i32 {
         let mut count = 0;
-        for node in &self.nodes {
+        for node in self.nodes() {
             if tiles.contains(&node.tile) {
                 count += 1;
             }
@@ -179,20 +185,24 @@ impl Network {
     }
     #[allow(unused)]
     fn get(&mut self, cell_index: CellIndex) -> Option<&mut TileType> {
-        for node in &mut self.nodes {
-            if node.position == cell_index {
-                return Option::Some(&mut node.tile);
-            }
-        }
-        Option::None
+        self.nodes.get_mut(&cell_index)
+        // for node in &mut self.nodes() {
+        //     if node.position == cell_index {
+        //         return Option::Some(&mut node.tile);
+        //     }
+        // }
+        // Option::None
     }
     pub fn get_node(&self, cell_index: CellIndex) -> Option<Node> {
-        for node in &self.nodes {
-            if node.position == cell_index {
-                return Some(*node);
-            }
-        }
-        None
+        self.nodes
+            .get(&cell_index)
+            .map(|tile| Node::new(cell_index, *tile))
+        // for node in self.nodes() {
+        //     if node.position == cell_index {
+        //         return Some(node);
+        //     }
+        // }
+        // None
     }
 
     pub fn replace_if_present(
@@ -200,18 +210,11 @@ impl Network {
         cell_index: CellIndex,
         new_machine: TileType,
     ) -> Replacement {
-        let mut index_to_change = Option::None;
-        for (i, node) in self.nodes.iter().enumerate() {
-            if node.position == cell_index {
-                if node.tile == TileType::MachineShip {
-                    return Replacement::Forbidden;
-                }
-                index_to_change = Option::Some(i);
-                break;
+        return if let Option::Some(node) = self.get_node(cell_index) {
+            let old_tile = node.tile;
+            if old_tile == TileType::MachineShip {
+                return Replacement::Forbidden;
             }
-        }
-        return if let Option::Some(i) = index_to_change {
-            let old_tile = self.nodes[i].tile;
             let (old_material_regained, new_material_spent, future_storage, future_capacity) =
                 Self::predict_storage(new_machine, old_tile, self);
             if future_storage > future_capacity {
@@ -221,13 +224,13 @@ impl Network {
             }
             let replacement_is_really_a_removal = !is_networkable(new_machine);
             if replacement_is_really_a_removal {
-                let removed = self.nodes.swap_remove(i);
+                let removed = self.nodes.remove(&cell_index).unwrap();
                 if !self.is_connected() {
-                    self.nodes.push(removed);
+                    self.nodes.insert(cell_index, removed);
                     return Replacement::SplitNetwork;
                 }
             } else {
-                self.nodes.get_mut(i).unwrap().tile = new_machine;
+                *self.nodes.get_mut(&cell_index).unwrap() = new_machine;
             }
             self.stored_resources += old_material_regained;
             self.stored_resources -= new_material_spent;
@@ -264,8 +267,8 @@ impl Network {
     }
 
     pub fn is_adjacent(&self, cell_index: CellIndex) -> bool {
-        for node in &self.nodes {
-            if is_adjacent(node.position, cell_index) {
+        for neighbour in neighbours(cell_index) {
+            if self.get_node(neighbour).is_some() {
                 return true;
             }
         }
@@ -278,18 +281,17 @@ impl Network {
         }
         let mut reachable = HashSet::new();
         let mut queue = VecDeque::new();
-        let first_position = self.nodes.first().unwrap().position;
-        queue.push_back(first_position);
-        reachable.insert(first_position);
+        let first_position = self.nodes.iter().next().unwrap().0;
+        queue.push_back(*first_position);
+        reachable.insert(*first_position);
         while let Some(position) = queue.pop_front() {
-            let max_neighbours = adjacent_positions().len();
+            let neighbours = neighbours(position);
+            let max_neighbours = neighbours.len();
             let mut neighbours_found = 0;
-            for other_node in &self.nodes {
-                if !reachable.contains(&other_node.position)
-                    && is_adjacent(position, other_node.position)
-                {
-                    queue.push_back(other_node.position);
-                    reachable.insert(other_node.position);
+            for neighbour in neighbours {
+                if self.get_node(neighbour).is_some() && !reachable.contains(&neighbour) {
+                    queue.push_back(neighbour);
+                    reachable.insert(neighbour);
                     neighbours_found += 1;
                     if neighbours_found == max_neighbours {
                         break;
@@ -302,14 +304,17 @@ impl Network {
 
     pub fn add(&mut self, node: Node) {
         if is_networkable(node.tile) {
-            self.nodes.push(node);
+            self.add_node(node);
         }
         self.stored_resources -= material_composition(node.tile);
     }
     pub fn add_no_spend(&mut self, node: Node) {
         if is_networkable(node.tile) {
-            self.nodes.push(node);
+            self.add_node(node);
         }
+    }
+    fn add_node(&mut self, node: Node) {
+        self.nodes.insert(node.position, node.tile);
     }
 
     pub fn try_add(&mut self, node: Node, old_tile: TileType) -> Addition {
@@ -321,7 +326,7 @@ impl Network {
             Addition::NotEnoughStorage
         } else {
             if is_networkable(node.tile) {
-                self.nodes.push(node);
+                self.add_node(node);
             }
             self.stored_resources -= new_material_spent;
             self.stored_resources += old_material_regained;
@@ -339,11 +344,11 @@ impl Network {
     }
 
     pub fn only_add(&mut self, node: Node) {
-        self.nodes.push(node);
+        self.add_node(node)
     }
 
     pub fn join(&mut self, other: Network) {
-        for node in other.nodes {
+        for node in other.nodes() {
             self.add_no_spend(node);
         }
     }
@@ -447,7 +452,7 @@ mod tests {
         let mut network = Network::new();
         let cube_side = 6;
         let start = -cube_side / 2;
-        let end = start + cube_side-1;
+        let end = start + cube_side - 1;
         let start_cell = CellIndex::new(start, start, start);
         let end_cell = CellIndex::new(end, end, end);
         let iter = CellCubeIterator::new(start_cell, end_cell);
@@ -460,9 +465,7 @@ mod tests {
         let start = std::time::Instant::now();
 
         for cell_index in iter {
-            let replacement = network.replace_if_present(
-                cell_index, TileType::Air
-            );
+            let replacement = network.replace_if_present(cell_index, TileType::Air);
             if replacement == Replacement::Ok {
                 removed += 1;
             }
