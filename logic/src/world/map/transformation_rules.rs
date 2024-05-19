@@ -1,5 +1,7 @@
 use crate::world::map::cell::{is_sturdy, is_tree};
-use crate::world::map::transform_cells::{above, above_is, below, below_is, TransformationFailure};
+use crate::world::map::transform_cells::{
+    above, above_is, below, below_is, solar_allowed, TransformationFailure,
+};
 use crate::world::map::{CellIndex, Map, TileType};
 
 pub struct TransformationRules<'a> {
@@ -25,6 +27,8 @@ impl<'a> TransformationRules<'a> {
             Some(TransformationFailure::NoSturdyBase)
         } else if self.occluding_solar_panel() {
             Some(TransformationFailure::WouldOccludeSolarPanel)
+        } else if self.occluded_solar_panel() {
+            Some(TransformationFailure::OccludedSolarPanel)
         } else {
             None
         }
@@ -51,5 +55,9 @@ impl<'a> TransformationRules<'a> {
                 self.position_to_transform,
                 self.map,
             )
+    }
+    pub fn occluded_solar_panel(&self) -> bool {
+        self.new_tile_type == TileType::MachineSolarPanel
+            && !solar_allowed(&self.position_to_transform, self.map)
     }
 }

@@ -12,6 +12,7 @@ use std::collections::HashSet;
 pub type TilePosition = IVec2;
 pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
+pub const DEFAULT_RENDER_DEPTH: i32 = 10;
 
 #[derive(Clone)]
 pub struct DrawingState {
@@ -40,11 +41,11 @@ impl DrawingState {
     }
     pub fn new_centered(ship_pos: CellIndex) -> Self {
         DrawingState {
-            min_cell: ship_pos + CellIndex::new(-10, -2, -10),
+            min_cell: ship_pos + CellIndex::new(-10, -DEFAULT_RENDER_DEPTH, -10),
             max_cell: ship_pos + CellIndex::new(9, 0, 9),
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
-            zoom: 2.0,
+            zoom: 1.0,
             top_bar_showing: TopBarShowing::None,
             highlighted_cells_in_progress: HashSet::new(),
             highlighted_cells_consolidated: HashSet::new(),
@@ -77,7 +78,12 @@ impl DrawingState {
         self.update_zoom(gui_actions.zoom_change);
     }
 
-    fn update_zoom(&mut self, zoom_change: ZoomChange) {
+    pub fn re_center(&mut self, cell_index: CellIndex) {
+        self.change_height_to(cell_index.y);
+        self.maybe_move_map_horizontally_to(cell_index.x, cell_index.z);
+    }
+
+    pub fn update_zoom(&mut self, zoom_change: ZoomChange) {
         match zoom_change {
             ZoomChange::ZoomIn => {
                 if self.zoom >= 1.0 {

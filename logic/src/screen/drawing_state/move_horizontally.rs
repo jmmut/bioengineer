@@ -4,6 +4,14 @@ use crate::screen::drawing_state::{DrawingState, SubCellIndex};
 use crate::world::map::{CellIndex, Map};
 
 impl DrawingState {
+    pub fn maybe_move_map_horizontally_to(&mut self, x: i32, z: i32) {
+        let center = CellIndex::new(
+            (self.max_cell.x + self.min_cell.x) / 2,
+            0,
+            (self.max_cell.z + self.min_cell.z) / 2,
+        );
+        self.move_map_horizontally_rel(CellIndex::new(x, 0, z) - center, SubCellIndex::default());
+    }
     pub fn maybe_move_map_horizontally(
         &mut self,
         diff: SubCellIndex,
@@ -18,8 +26,8 @@ impl DrawingState {
                 0,
                 (self.max_cell.z + self.min_cell.z) / 2,
             );
-            let cell_diff = center - robot_pos;
-            self.move_map_horizontally_to(cell_diff, SubCellIndex::default());
+            let cell_diff = robot_pos - center;
+            self.move_map_horizontally_rel(cell_diff, SubCellIndex::default());
         }
     }
 
@@ -27,10 +35,10 @@ impl DrawingState {
         let (truncated_cell_diff, truncated_subcell_diff) =
             truncate_cell_offset(extra_subcell_diff + self.subcell_diff);
 
-        self.move_map_horizontally_to(truncated_cell_diff, truncated_subcell_diff);
+        self.move_map_horizontally_rel(-truncated_cell_diff, truncated_subcell_diff);
     }
 
-    fn move_map_horizontally_to(
+    fn move_map_horizontally_rel(
         &mut self,
         truncated_cell_diff: CellIndex,
         truncated_subcell_diff: SubCellIndex,
@@ -44,10 +52,10 @@ impl DrawingState {
         let min_cell = &mut self.min_cell;
         let max_cell = &mut self.max_cell;
 
-        max_cell.x -= truncated_cell_diff.x;
-        min_cell.x -= truncated_cell_diff.x;
-        max_cell.z -= truncated_cell_diff.z;
-        min_cell.z -= truncated_cell_diff.z;
+        max_cell.x += truncated_cell_diff.x;
+        min_cell.x += truncated_cell_diff.x;
+        max_cell.z += truncated_cell_diff.z;
+        min_cell.z += truncated_cell_diff.z;
         if move_inside_range_min_equals(
             &mut min_cell.x,
             &mut max_cell.x,

@@ -86,6 +86,9 @@ pub fn draw_robot_queue(
             match task {
                 Task::Transform(t) => {
                     drawing.set_highlighted_cells(t.to_transform.clone());
+                    if let Some(pos) = t.to_transform.iter().next() {
+                        drawing.re_center(*pos)
+                    }
                 }
                 Task::Movement(_) => {}
             }
@@ -110,7 +113,8 @@ fn format_reasons(reasons: &Option<HashSet<TransformationFailure>>) -> Vec<Strin
                 TransformationFailure::NotEnoughStorage => "  Not enough storage capacity",
                 TransformationFailure::AboveWouldCollapse => "  Cells above would collapse",
                 TransformationFailure::NoSturdyBase => "  Cells below can not support it",
-                TransformationFailure::WouldOccludeSolarPanel => "  Would occlude solar panel",
+                TransformationFailure::WouldOccludeSolarPanel => "  Would occlude solar panel below",
+                TransformationFailure::OccludedSolarPanel => "  Solar panels should have nothing above",
                 TransformationFailure::OutOfShipReach => "  The spaceship network can't reach",
                 TransformationFailure::CanNotDeconstructShip => {
                     "  You're not allowed to remove the spaceship"

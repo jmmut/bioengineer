@@ -2,10 +2,11 @@ use crate::screen::drawing_state::DrawingState;
 use crate::world::map::{CellIndex, Map};
 
 impl DrawingState {
+    pub fn change_height_to(&mut self, y: i32) {
+        self.maybe_change_height_rel(y - self.max_cell.y, None);
+    }
     pub fn maybe_change_height_rel(&mut self, y: i32, go_to_robot: Option<CellIndex>) {
-        if y != 0 {
-            self.change_height_rel(y);
-        }
+        self.change_height_rel(y);
         if let Option::Some(robot_pos) = go_to_robot {
             let level_diff = robot_pos.y - self.max_cell.y;
             self.change_height_rel(level_diff);
@@ -13,18 +14,16 @@ impl DrawingState {
     }
 
     fn change_height_rel(&mut self, y: i32) {
-        if y != 0 {
-            let min_cell = &mut self.min_cell;
-            let max_cell = &mut self.max_cell;
-            max_cell.y += y;
-            min_cell.y += y;
-            move_inside_range(
-                &mut min_cell.y,
-                &mut max_cell.y,
-                Map::default_min_cell().y,
-                Map::default_max_cell().y,
-            );
-        }
+        let min_cell = &mut self.min_cell;
+        let max_cell = &mut self.max_cell;
+        max_cell.y += y;
+        min_cell.y += y;
+        move_inside_range(
+            &mut min_cell.y,
+            &mut max_cell.y,
+            Map::default_min_cell().y,
+            Map::default_max_cell().y,
+        );
     }
 }
 

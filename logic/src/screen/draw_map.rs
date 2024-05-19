@@ -18,9 +18,13 @@ const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);
 pub fn draw_map(drawer: &dyn DrawerTrait, world: &World, drawing: &DrawingState) {
     let min_cell = &drawing.min_cell;
     let max_cell = &drawing.max_cell;
-    let fog = grey(0.5, 0.7);
+    let mut fog = grey(0.5, 1.0 / (max_cell.y - min_cell.y) as f32);
+    // let fog = grey(0.5, 0.7);
     for i_y in min_cell.y..=max_cell.y {
         // draw fog on lower levels, without affecting the top level textures
+        if i_y == max_cell.y {
+            fog.a += 0.4;
+        }
         drawer.draw_rectangle(0.0, 0.0, drawer.screen_width(), drawer.screen_height(), fog);
         for i_z in min_cell.z..=max_cell.z {
             for i_x in min_cell.x..=max_cell.x {
@@ -65,13 +69,14 @@ fn draw_cell(
         cell.pressure,
     );
     let mut color = if depth < 0 {
+        // things above the top layer
         if is_networkable(tile_type) {
             grey(0.25, 0.125)
         } else {
             grey(0.0, 0.0)
         }
     } else {
-        let fog = 1.0 - 0.2 * depth.abs() as f32;
+        let fog = 1.0;
         Color::new(fog, fog, fog, opacity)
     };
     if drawing.highlighted_cells().contains(&cell_index) {

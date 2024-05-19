@@ -2,7 +2,7 @@ use crate::screen::drawer_trait::{DrawerTrait, Interaction};
 use crate::screen::drawing_state::{DrawingState, TopBarShowing};
 use crate::screen::gui::format_units::format_liters;
 use crate::screen::gui::{GuiActions, FONT_SIZE, MARGIN};
-use crate::screen::main_scene_input::CellSelection;
+use crate::screen::main_scene_input::{CellSelection, ZoomChange};
 use crate::world::game_state::{get_goal_air_cleaned, get_goal_air_cleaned_str};
 use crate::world::{World, LIFE_COUNT_REQUIRED_FOR_WINNING};
 use mq_basics::Vec2;
@@ -30,6 +30,25 @@ pub fn draw_top_bar(
             drawer.ui_same_line(&mut |drawer: &mut dyn DrawerTrait| {
                 goals = drawer.ui_button("Goals");
                 help = drawer.ui_button("Help");
+                drawer.ui_text(&format!(
+                    "    Render depth: {}",
+                    drawing.max_cell.y - drawing.min_cell.y
+                ));
+                if drawer.ui_button("+").is_clicked() {
+                    drawing.min_cell.y = (drawing.min_cell.y - 1).max(drawing.max_cell.y - 15);
+                    drawing.maybe_change_height_rel(0, None);
+                }
+                if drawer.ui_button("-").is_clicked() {
+                    drawing.min_cell.y = (drawing.min_cell.y + 1).min(drawing.max_cell.y - 2);
+                    drawing.maybe_change_height_rel(0, None);
+                }
+                drawer.ui_text(&format!("    Zoom: {:.0}%", (drawing.zoom * 100.0).round()));
+                if drawer.ui_button("+").is_clicked() {
+                    drawing.update_zoom(ZoomChange::ZoomIn)
+                }
+                if drawer.ui_button("-").is_clicked() {
+                    drawing.update_zoom(ZoomChange::ZoomOut)
+                }
             });
         },
     ));

@@ -18,6 +18,7 @@ pub enum TransformationFailure {
     AboveWouldCollapse,
     NoSturdyBase,
     WouldOccludeSolarPanel,
+    OccludedSolarPanel,
     OutOfShipReach,
     CanNotDeconstructShip,
     SplitNetwork,
@@ -53,8 +54,8 @@ fn remove_identity_if_only_one_type(
 
 pub fn allowed_transformations_of_cell(
     cell: &Cell,
-    cell_index: &CellIndex,
-    map: &Map,
+    _cell_index: &CellIndex,
+    _map: &Map,
 ) -> Vec<Transformation> {
     use TileType::*;
 
@@ -65,9 +66,9 @@ pub fn allowed_transformations_of_cell(
         Wire,
         MachineStorage,
     ];
-    if solar_allowed(cell_index, map) {
-        machines.push(MachineSolarPanel);
-    }
+    // if solar_allowed(cell_index, map) {
+    machines.push(MachineSolarPanel);
+    // }
     let machines_plus = |mut tiles: Vec<TileType>| -> Vec<TileType> {
         machines.append(&mut tiles);
         machines
@@ -107,7 +108,7 @@ pub fn allowed_transformations_of_cell(
         TreeDead => machines_plus(vec![WallRock]),
     };
     new_tiles.push(cell.tile_type);
-    if cell.tile_type != Air && cell.tile_type != MachineShip {
+    if cell.tile_type != Air {
         new_tiles.push(Air);
     }
     new_tiles
@@ -116,7 +117,7 @@ pub fn allowed_transformations_of_cell(
         .collect()
 }
 
-fn solar_allowed(cell_index: &CellIndex, map: &Map) -> bool {
+pub fn solar_allowed(cell_index: &CellIndex, map: &Map) -> bool {
     column_above_is(
         TileType::Air,
         AIR_LEVELS_FOR_ALLOWING_SOLAR,
