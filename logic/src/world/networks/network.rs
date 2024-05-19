@@ -338,6 +338,10 @@ impl Network {
         }
     }
 
+    pub fn only_add(&mut self, node: Node) {
+        self.nodes.push(node);
+    }
+
     pub fn join(&mut self, other: Network) {
         for node in other.nodes {
             self.add_no_spend(node);
@@ -431,4 +435,45 @@ pub fn neighbours(a: CellIndex) -> [CellIndexDiff; 6] {
         a + CellIndexDiff::new(0, 0, 1),
         a + CellIndexDiff::new(0, 0, -1),
     ]
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::world::map::CellCubeIterator;
+
+    #[test]
+    fn benchmark_is_connected() {
+        let mut network = Network::new();
+        let cube_side = 6;
+        let start = -cube_side / 2;
+        let end = start + cube_side-1;
+        let start_cell = CellIndex::new(start, start, start);
+        let end_cell = CellIndex::new(end, end, end);
+        let iter = CellCubeIterator::new(start_cell, end_cell);
+        for cell_index in iter {
+            network.only_add(Node::new(cell_index, TileType::MachineStorage));
+        }
+        let iter = CellCubeIterator::new(start_cell, end_cell);
+        let mut removed = 0;
+        let mut replacements = 0;
+        let start = std::time::Instant::now();
+
+        for cell_index in iter {
+            let replacement = network.replace_if_present(
+                cell_index, TileType::Air
+            );
+            if replacement == Replacement::Ok {
+                removed += 1;
+            }
+            replacements += 1;
+        }
+        let elapsed = start.elapsed();
+        println!(
+            "elapsed removing {}/{} cells: {} µs",
+            removed,
+            replacements,
+            elapsed.as_micros()
+        );
+    }
 }

@@ -7,3 +7,5 @@ members = [
     "mq_basics", # code from dependencies required for the game logic
 ]
 
+[profile.release]
+debug = true # useful when profiling. probably better to disable otherwise
