@@ -1,4 +1,4 @@
-use crate::world::map::cell::{is_sturdy, is_tree};
+use crate::world::map::cell::{is_soil, is_sturdy, is_tree};
 use crate::world::map::transform_cells::{
     above, above_is, below, below_is, solar_allowed, TransformationFailure,
 };
@@ -46,8 +46,9 @@ impl<'a> TransformationRules<'a> {
     }
     pub fn planting_tree_on_non_soil(&self) -> bool {
         self.new_tile_type == TileType::TreeHealthy
-            && !below_is(TileType::WallRock, self.position_to_transform, self.map)
+            && !below(is_soil, self.position_to_transform, self.map)
     }
+
     pub fn occluding_solar_panel(&self) -> bool {
         self.new_tile_type != TileType::Air
             && below_is(

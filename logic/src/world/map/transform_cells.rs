@@ -78,7 +78,7 @@ pub fn allowed_transformations_of_cell(
             panic!("can not transform an UNSET cell!")
         }
         WallRock => machines_plus(vec![TreeHealthy]),
-        WallDirt => machines_plus(vec![TreeHealthy]),
+        WallDirt => machines_plus(vec![TreeHealthy, WallRock]),
         FloorRock => machines_plus(vec![TreeHealthy]),
         FloorDirt => machines_plus(vec![FloorRock, TreeHealthy]),
         Stairs => machines_plus(vec![FloorRock, TreeHealthy]),

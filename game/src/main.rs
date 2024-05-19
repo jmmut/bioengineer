@@ -5,7 +5,6 @@ use macroquad::window::Conf;
 use bioengineer::common::cli::CliArgs;
 use bioengineer::external::backends::{create_introduction_scene, create_main_scene};
 use juquad::fps::sleep_until_next_frame;
-use logic::scene::GameLoopState;
 use logic::world::map::chunk::chunks::cache::print_cache_stats;
 use logic::{frame, SceneState};
 use mq_basics::now;
