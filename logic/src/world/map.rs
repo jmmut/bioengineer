@@ -215,7 +215,7 @@ impl Map {
     fn regenerate_with_simplex_noise(&mut self) {
         // if not provided, default seed is equal to 0
         let noise_generator = OpenSimplexNoise::new(Some(now() as i64));
-        let scale = 0.2;
+        let scale = 0.12;
         let mut min = 0.0;
         let mut max = 0.0;
         for (chunk_index, chunk) in &mut self.chunks {
