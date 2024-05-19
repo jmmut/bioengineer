@@ -83,7 +83,7 @@ async fn main() -> Result<(), AnyError> {
     let mut previous_time = now();
     let textures = {
         let mut scene = create_introduction_scene(&args).await;
-        while draw_frame(&mut scene) == GameLoopState::ShouldContinue {
+        while draw_frame(&mut scene).should_continue() {
             if should_reload(&rx) {
                 info!("reloading lib");
                 (draw_frame, lib_handle) = reload(lib_handle)?;
@@ -96,7 +96,7 @@ async fn main() -> Result<(), AnyError> {
 
     {
         let mut scene = create_main_scene(&args, textures).await;
-        while draw_frame(&mut scene) == GameLoopState::ShouldContinue {
+        while draw_frame(&mut scene).should_continue() {
             if should_reload(&rx) {
                 info!("reloading lib");
                 (draw_frame, lib_handle) = reload(lib_handle)?;

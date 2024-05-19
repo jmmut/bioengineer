@@ -14,7 +14,7 @@ impl Scene for MainScene {
             ScopedProfiler::new_named(self.world.game_state.profile, "whole toplevel frame");
         let gui_actions = self.screen.get_gui_actions(&self.world);
         let should_continue = self.world.update(gui_actions);
-        self.screen.draw(&self.world);
+        self.screen.draw(&self.world, should_continue);
         should_continue
     }
 }

@@ -19,13 +19,13 @@ async fn main() {
     let args = CliArgs::parse();
     let mut scene = create_introduction_scene(&args).await;
     let mut previous_time = now();
-    while frame(&mut scene) == GameLoopState::ShouldContinue {
+    while frame(&mut scene).should_continue() {
         sleep_until_next_frame(&mut previous_time).await
     }
     next_frame().await;
 
     let mut scene = create_main_scene(&args, scene.take_textures()).await;
-    while frame(&mut scene) == GameLoopState::ShouldContinue {
+    while frame(&mut scene).should_continue() {
         sleep_until_next_frame(&mut previous_time).await
     }
     if let SceneState::Main(main_scene) = scene.as_ref() {

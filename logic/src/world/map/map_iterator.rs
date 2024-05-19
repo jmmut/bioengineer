@@ -2,7 +2,7 @@ use crate::world::map::chunk::cell_iter::CellIterItem;
 use crate::world::map::chunk::chunks::Chunks;
 use crate::world::map::chunk::{chunks, CellIter};
 use crate::world::map::ref_mut_iterator::RefMutIterator;
-use crate::world::map::CellIndex;
+use crate::world::map::{CellIndex, MapType};
 
 /*
 /// Note that this iterator needs a &Map. That is, iterate a map by reference:
@@ -68,6 +68,7 @@ pub struct MutMapIterator {
     pub min_cell: CellIndex,
     pub max_cell: CellIndex,
     pub ship_position: Option<CellIndex>,
+    pub map_type: MapType,
 }
 
 impl MutMapIterator {
@@ -76,6 +77,7 @@ impl MutMapIterator {
         min_cell: CellIndex,
         max_cell: CellIndex,
         ship_position: Option<CellIndex>,
+        map_type: MapType,
     ) -> Self {
         let mut chunk_iterator = chunks.into_iter();
         let optional_chunk = chunk_iterator.next();
@@ -89,6 +91,7 @@ impl MutMapIterator {
             min_cell,
             max_cell,
             ship_position,
+            map_type,
         }
     }
 

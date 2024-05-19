@@ -9,6 +9,7 @@ use logic::scene::introduction_scene::{IntroductionScene, JuquadFunctions};
 use logic::scene::main_scene::MainScene;
 use logic::screen::drawer_trait::DrawerTrait;
 use logic::screen::Screen;
+use logic::world::map::MapType;
 use logic::world::World;
 use logic::SceneState;
 use macroquad::texture::Texture2D;
@@ -19,9 +20,13 @@ pub async fn create_main_scene(args: &CliArgs, textures: Vec<Texture2D>) -> Box<
     println!("Running Bioengineer version {}", GIT_VERSION);
     let drawer = drawer_factory(args.ui, textures);
     let input_source = Box::new(InputSource::new());
-    let world = World::new_with_options(args.profile, args.fluids);
+    let world = World::new_with_options(args.profile, args.fluids, MapType::Simplex);
     Box::new(SceneState::Main(MainScene {
-        screen: Screen::new(drawer, input_source),
+        screen: Screen::new(
+            drawer,
+            input_source,
+            world.map.get_ship_position().unwrap_or_default(),
+        ),
         world,
     }))
 }

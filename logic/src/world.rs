@@ -24,7 +24,7 @@ use crate::screen::gui::gui_actions::GuiActions;
 use crate::world::game_state::{DEFAULT_ADVANCING_FLUIDS, DEFAULT_PROFILE_ENABLED};
 use crate::world::map::cell::{ages, transition_aging_tile};
 use crate::world::map::transform_cells::TransformationFailure;
-use crate::world::map::{Cell, TileType};
+use crate::world::map::{Cell, MapType, TileType, DEFAULT_MAP_TYPE};
 
 type AgeInMinutes = i64;
 
@@ -68,13 +68,16 @@ pub enum GameGoalState {
 impl World {
     #[allow(unused)]
     pub fn new() -> Self {
-        Self::new_with_options(DEFAULT_PROFILE_ENABLED, DEFAULT_ADVANCING_FLUIDS)
+        Self::new_with_options(
+            DEFAULT_PROFILE_ENABLED,
+            DEFAULT_ADVANCING_FLUIDS,
+            DEFAULT_MAP_TYPE,
+        )
     }
 
-    pub fn new_with_options(profile: bool, fluids: bool) -> Self {
+    pub fn new_with_options(profile: bool, fluids: bool, map_type: MapType) -> Self {
         let game_state = GameState::new(fluids);
-        let mut map = Map::new();
-        map.regenerate();
+        let map = Map::new_generated(map_type);
         let ship_position = map.get_ship_position();
         let fluids = Fluids::new(FluidMode::InStages);
         let robots = Self::reset_robots(ship_position);
@@ -101,12 +104,12 @@ impl World {
 
     /// returns if the game should do another iteration
     pub fn update(&mut self, gui_actions: GuiActions) -> GameLoopState {
-        self.update_with_gui_actions(&gui_actions);
+        let should_continue = self.update_with_gui_actions(&gui_actions);
         self.advance_frame();
-        gui_actions.should_continue()
+        should_continue
     }
 
-    pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) {
+    pub fn update_with_gui_actions(&mut self, gui_actions: &GuiActions) -> GameLoopState {
         if gui_actions.toggle_profiling {
             self.set_profile(!self.game_state.profile);
         }
@@ -119,17 +122,21 @@ impl World {
             self.fluids.advance(&mut self.map);
         }
 
-        if gui_actions.regenerate_map {
+        let should_continue = if gui_actions.regenerate_map {
             self.map.regenerate();
             self.networks.clear();
             self.robots = Self::reset_robots(self.map.get_ship_position());
             self.task_queue.clear();
-        }
+            GameLoopState::ShouldRepositionCamera
+        } else {
+            gui_actions.should_continue()
+        };
         self.networks.update();
         if self.game_state.should_age_this_frame() {
             self.age_tiles();
         }
         self.update_goal_state(gui_actions);
+        should_continue
     }
 
     fn reset_robots(ship_position: Option<CellIndex>) -> Vec<Robot> {

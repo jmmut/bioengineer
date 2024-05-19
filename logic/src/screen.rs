@@ -1,4 +1,6 @@
+use crate::scene::GameLoopState;
 use crate::screen::main_scene_input::MainSceneInputTrait;
+use crate::world::map::CellIndex;
 use crate::world::World;
 use drawer_trait::DrawerTrait;
 use drawing_state::DrawingState;
@@ -29,9 +31,10 @@ impl Screen {
     pub fn new(
         mut drawer: Box<dyn DrawerTrait>,
         input_source: Box<dyn MainSceneInputTrait>,
+        center_position: CellIndex,
     ) -> Self {
         let gui = Gui::new(drawer.as_mut());
-        let drawing_state = DrawingState::new();
+        let drawing_state = DrawingState::new_centered(center_position);
         Screen {
             drawer,
             input_source,
@@ -49,7 +52,11 @@ impl Screen {
         gui_actions
     }
 
-    pub fn draw(&mut self, world: &World) {
+    pub fn draw(&mut self, world: &World, game_loop_state: GameLoopState) {
+        if game_loop_state == GameLoopState::ShouldRepositionCamera {
+            self.drawing_state =
+                DrawingState::new_centered(world.map.get_ship_position().unwrap_or_default())
+        }
         draw(self.drawer.as_mut(), world, &self.drawing_state);
     }
 }

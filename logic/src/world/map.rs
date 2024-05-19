@@ -9,6 +9,7 @@ pub mod transformation_rules;
 
 use crate::common::trunc::trunc_towards_neg_inf;
 use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
+use crate::world::robots::DOWN;
 pub use cell::{
     is_covering, is_liquid_or_air, is_walkable_horizontal, is_walkable_vertical, Cell, Pressure,
     TileType,
@@ -31,6 +32,7 @@ pub type CellIndex = IVec3;
 pub type PressureAndType = (Pressure, TileType);
 
 const MAP_SIZE: i32 = 64;
+pub const DEFAULT_MAP_TYPE: MapType = MapType::Island;
 
 #[derive(Clone)]
 pub struct Map {
@@ -38,11 +40,25 @@ pub struct Map {
     min_cell: CellIndex,
     max_cell: CellIndex,
     ship_position: Option<CellIndex>,
+    map_type: MapType,
+}
+
+#[derive(Copy, Clone)]
+pub enum MapType {
+    Island,
+    Simplex,
 }
 
 impl Map {
     pub fn new() -> Self {
         Self::new_for_cube(Self::default_min_cell(), Self::default_max_cell())
+    }
+
+    pub fn new_generated(map_type: MapType) -> Self {
+        let mut map = Self::new();
+        map.map_type = map_type;
+        map.regenerate();
+        map
     }
 
     pub fn new_for_cube(min_cell: CellIndex, max_cell: CellIndex) -> Self {
@@ -57,6 +73,7 @@ impl Map {
             min_cell,
             max_cell,
             ship_position,
+            map_type: DEFAULT_MAP_TYPE,
         }
     }
 
@@ -111,6 +128,7 @@ impl Map {
             min_cell,
             max_cell,
             ship_position,
+            map_type: DEFAULT_MAP_TYPE,
         };
         for (cell_index, tile) in tiles {
             map.get_cell_mut(cell_index).tile_type = tile;
@@ -124,6 +142,7 @@ impl Map {
             min_cell: mut_map_iter.min_cell,
             max_cell: mut_map_iter.max_cell,
             ship_position: mut_map_iter.ship_position,
+            map_type: mut_map_iter.map_type,
         }
     }
 
@@ -175,13 +194,7 @@ impl Map {
     }
 
     pub fn regenerate(&mut self) {
-        #[allow(unused)]
-        enum MapType {
-            Island,
-            Simplex,
-        }
-        let map_type = MapType::Island;
-        match map_type {
+        match self.map_type {
             MapType::Island => self.regenerate_island(),
             MapType::Simplex => self.regenerate_with_simplex_noise(),
         };
@@ -202,7 +215,7 @@ impl Map {
     fn regenerate_with_simplex_noise(&mut self) {
         // if not provided, default seed is equal to 0
         let noise_generator = OpenSimplexNoise::new(Some(now() as i64));
-        let scale = 0.08;
+        let scale = 0.2;
         let mut min = 0.0;
         let mut max = 0.0;
         for (chunk_index, chunk) in &mut self.chunks {
@@ -216,17 +229,38 @@ impl Map {
                 if value < min {
                     min = value
                 }
-                let tile = choose_tile(value, cell_index);
                 let cell = chunk.get_cell_mut(cell_index);
-                if is_liquid_or_air(tile) {
-                    use VERTICAL_PRESSURE_DIFFERENCE as PRESSURE;
-                    cell.pressure = i32::max(0, PRESSURE - PRESSURE * cell_index.y);
-                    // cell.pressure = if tile == TileType::Air { 0 } else {40};
-                }
-                cell.tile_type = tile
+                choose_tile_simplex(value, cell_index, cell);
             }
         }
+        let mut ship_pos = None;
+        for x in -5..15 {
+            ship_pos = self.land_ship(x, 0);
+            if ship_pos.is_some() {
+                break;
+            }
+        }
+        if let Some(pos) = ship_pos {
+            self.get_cell_mut(pos).tile_type = TileType::MachineShip;
+            self.ship_position = Some(pos);
+        } else {
+            panic!("couldn't land ship");
+        }
         println!("simplex range used: [{}, {}]", min, max);
+    }
+    pub fn land_ship(&self, x: i32, z: i32) -> Option<CellIndex> {
+        let mut ship_pos = CellIndex::new(x, self.max_cell.y, z);
+        let mut below = ship_pos + DOWN;
+        let mut below_cell = self.get_cell(below);
+        while below_cell.tile_type == TileType::Air {
+            if below_cell.pressure > 0 {
+                return None;
+            }
+            ship_pos = below;
+            below += DOWN;
+            below_cell = self.get_cell(below);
+        }
+        Some(ship_pos)
     }
 
     pub fn get_ship_position(&self) -> Option<CellIndex> {
@@ -265,16 +299,14 @@ impl Map {
             self.min_cell,
             self.max_cell,
             self.ship_position,
+            self.map_type,
         )
     }
 }
 
 fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
-    cell.pressure = 0;
-    cell.can_flow_out = false;
-    cell.next_pressure = 0;
-    if cell_index.y > 1 {
-        cell.tile_type = TileType::Air;
+    cell.tile_type = if cell_index.y > 1 {
+        TileType::Air
     } else {
         let horizontal_distance_from_center =
             f32::sqrt((cell_index.x * cell_index.x + cell_index.z * cell_index.z) as f32);
@@ -283,28 +315,43 @@ fn choose_tile_in_island_map(cell_index: CellIndex, cell: &mut Cell) {
         let enlargement_by_deepness = -cell_index.y as f32 / steepness;
         let is_land = horizontal_distance_from_center < island_radius + enlargement_by_deepness;
         if is_land {
-            // cell.pressure = VERTICAL_PRESSURE_DIFFERENCE; // Hack to make floors and machines quickly floodable
-            cell.tile_type = if cell_index.y == 1 {
+            if cell_index.y == 1 {
                 TileType::Air
             } else {
                 TileType::WallRock
-            };
+            }
         } else {
-            cell.tile_type = TileType::Air;
+            TileType::Air
+        }
+    };
+    define_pressure(cell.tile_type, cell_index, cell);
+}
+
+fn choose_tile_simplex(value: f64, cell_index: CellIndex, cell: &mut Cell) {
+    use TileType::*;
+    let terrain_height = trunc_towards_neg_inf((value * 0.5 * MAP_SIZE as f64) as i32, 2);
+    let tile_type = match cell_index.y.cmp(&terrain_height) {
+        Ordering::Less => WallRock,
+        Ordering::Equal => WallDirt,
+        Ordering::Greater => {
             use VERTICAL_PRESSURE_DIFFERENCE as PRESSURE;
             cell.pressure = i32::max(0, PRESSURE - PRESSURE * cell_index.y);
             cell.renderable_pressure = cell.pressure;
+            Air
         }
-    }
+    };
+    cell.tile_type = tile_type;
+    define_pressure(cell.tile_type, cell_index, cell);
 }
 
-fn choose_tile(value: f64, cell_index: CellIndex) -> TileType {
-    use TileType::*;
-    let terrain_height = trunc_towards_neg_inf((value * 0.5 * MAP_SIZE as f64) as i32, 2);
-    match cell_index.y.cmp(&terrain_height) {
-        Ordering::Less => WallRock,
-        Ordering::Equal => FloorDirt,
-        Ordering::Greater => Air,
+fn define_pressure(tile_type: TileType, cell_index: CellIndex, cell: &mut Cell) {
+    cell.pressure = 0;
+    cell.can_flow_out = false;
+    cell.next_pressure = 0;
+    if tile_type == TileType::Air {
+        use VERTICAL_PRESSURE_DIFFERENCE as PRESSURE;
+        cell.pressure = i32::max(0, PRESSURE - PRESSURE * cell_index.y);
+        cell.renderable_pressure = cell.pressure;
     }
 }
 

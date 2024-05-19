@@ -221,7 +221,7 @@ pub fn is_networkable(tile: TileType) -> bool {
 
 /// Other things can be built on top. E.g. not trees, not air.
 pub fn is_sturdy(tile: TileType) -> bool {
-    is_networkable(tile) || tile == WallRock
+    is_networkable(tile) || tile == WallRock || tile == WallDirt
 }
 
 pub fn is_tree(tile: TileType) -> bool {
