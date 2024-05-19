@@ -97,7 +97,7 @@ mod building_tests {
     use crate::world::map::cell::DEFAULT_HEALTH;
     use crate::world::map::transform_cells::Transformation;
     use crate::world::map::{CellIndex, TileType};
-    use crate::world::{TransformationTask, World};
+    use crate::world::{GameGoalState, TransformationTask, World};
     use std::collections::HashSet;
 
     fn gui_action_transform_tile(cell: CellIndex, to_tile: TileType) -> GuiActions {
@@ -198,6 +198,7 @@ mod building_tests {
     #[test]
     fn test_trees_degrade() {
         let mut world = World::new();
+        world.goal_state = GameGoalState::Started;
         world.game_state.set_advance_every_frame();
         let cell = world.map.get_ship_position().unwrap() + CellIndex::new(0, 0, 1);
         let from_tile = TileType::Air;
