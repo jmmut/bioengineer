@@ -53,6 +53,28 @@ impl MainSceneInputSource {
             diff.y = current_pos.y - self.previous_wheel_click_pos.y;
 
             self.previous_wheel_click_pos = current_pos;
+        } else {
+            let speed_x = 10.0;
+            let speed_y = 5.0;
+            if self.input_source.is_key_down(KeyCode::Q) {
+                diff.x += speed_x;
+                diff.y += speed_y;
+            }
+            if self.input_source.is_key_down(KeyCode::D) {
+                diff.x += -speed_x;
+                diff.y += -speed_y;
+            }
+            if self.input_source.is_key_down(KeyCode::A) {
+                diff.x += speed_x;
+                diff.y += -speed_y;
+            }
+            if self.input_source.is_key_down(KeyCode::E) {
+                diff.x += -speed_x;
+                diff.y += speed_y;
+            }
+            if self.is_shift_down() {
+                diff *= 2.0;
+            }
         }
         diff
     }
@@ -140,52 +162,58 @@ impl MainSceneInputSource {
 
     fn get_changed_height(&mut self) -> i32 {
         let total_diff = self.get_changed_height_with_wheel() + self.get_vertical_arrow_pressed();
-        if total_diff > 0 {
+        let mut change_height_rel = if total_diff > 0 {
             1
         } else if total_diff < 0 {
             -1
         } else {
             0
+        };
+        if self.is_shift_down() {
+            change_height_rel *= 3;
         }
+        change_height_rel
     }
 
     fn get_changed_height_with_wheel(&mut self) -> i32 {
-        return if self.input_source.is_key_down(KeyCode::LeftShift)
-            || self.input_source.is_key_down(KeyCode::RightShift)
-        {
+        return if self.is_control_down() || self.is_super_down() {
             // this is zoom, not height change
             0
         } else {
-            self.get_mouse_wheel_height_diff()
+            self.get_mouse_wheel_diff()
         };
     }
 
-    fn get_mouse_wheel_height_diff(&mut self) -> i32 {
+    fn get_mouse_wheel_diff(&mut self) -> i32 {
         let mouse = self.input_source.mouse_wheel();
         if mouse.x != 0.0 || mouse.y != 0.0 {
             // TODO how can I log in the js console_log? try info!()
             // eprintln!("mouse wheel: {}, {}", mouse_x, mouse_y);
         }
-        let change_height_rel = if mouse.y > 0.0 {
+        let scroll = if mouse.y > 0.0 {
             1
         } else if mouse.y < 0.0 {
             -1
         } else {
             0
         };
-        change_height_rel
+        scroll
     }
 
     fn get_vertical_arrow_pressed(&mut self) -> i32 {
-        (if self.input_source.is_key_pressed(KeyCode::Up) {
+        (if self.input_source.is_key_pressed(KeyCode::Up)
+            || self.input_source.is_key_pressed(KeyCode::W)
+        {
             1
         } else {
             0
-        } + if self.input_source.is_key_pressed(KeyCode::Down) {
+        }) + if self.input_source.is_key_pressed(KeyCode::Down)
+            || self.input_source.is_key_pressed(KeyCode::S)
+        {
             -1
         } else {
             0
-        })
+        }
     }
 
     fn get_cell_selection_type(&self) -> CellSelectionType {
@@ -218,6 +246,15 @@ impl MainSceneInputSource {
     fn is_control_down(&self) -> bool {
         self.input_source.is_key_down(KeyCode::LeftControl)
             || self.input_source.is_key_down(KeyCode::RightControl)
+    }
+    fn is_super_down(&self) -> bool {
+        self.input_source.is_key_down(KeyCode::LeftSuper)
+            || self.input_source.is_key_down(KeyCode::RightSuper)
+    }
+
+    fn is_shift_down(&self) -> bool {
+        self.input_source.is_key_down(KeyCode::LeftShift)
+            || self.input_source.is_key_down(KeyCode::RightShift)
     }
 
     fn get_cell_selection(&mut self) -> PixelCellSelection {
@@ -268,10 +305,8 @@ impl MainSceneInputSource {
     }
 
     fn get_zoom(&mut self) -> ZoomChange {
-        if self.input_source.is_key_down(KeyCode::LeftShift)
-            || self.input_source.is_key_down(KeyCode::RightShift)
-        {
-            let wheel_diff = self.get_mouse_wheel_height_diff();
+        if self.is_control_down() || self.is_super_down() {
+            let wheel_diff = self.get_mouse_wheel_diff();
             let change = match wheel_diff {
                 1 => ZoomChange::ZoomIn,
                 -1 => ZoomChange::ZoomOut,

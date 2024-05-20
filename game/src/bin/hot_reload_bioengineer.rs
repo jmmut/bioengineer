@@ -106,10 +106,10 @@ async fn main() -> Result<(), AnyError> {
                     .as_mut()
                     .set_textures(load_tileset(TILESET_PATH).await);
             }
-            if is_key_pressed(KeyCode::Q) {
+            if is_key_pressed(KeyCode::LeftControl) && is_key_pressed(KeyCode::Q) {
                 swap_ui_backend(scene.as_mut(), &mut args, UiBackend::Macroquad);
             }
-            if is_key_pressed(KeyCode::E) {
+            if is_key_pressed(KeyCode::LeftControl) && is_key_pressed(KeyCode::E) {
                 swap_ui_backend(scene.as_mut(), &mut args, UiBackend::Egui);
             }
             sleep_until_next_frame(&mut previous_time).await
