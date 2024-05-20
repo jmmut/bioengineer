@@ -9,7 +9,7 @@ edition = "2021"
 crate-type = ["cdylib", "lib"]
 
 [dependencies]
-juquad = { git = "https://github.com/jmmut/juquad.git", tag = "0.4.2" }
-#juquad = {path = "../../juquad" }
+#juquad = { git = "https://github.com/jmmut/juquad.git", tag = "0.4.2" }
+juquad = {path = "../../juquad" }
 mq_basics = {path = "../mq_basics"}
 opensimplex_noise_rs = "=0.3.0"

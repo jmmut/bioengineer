@@ -1,5 +1,5 @@
 use crate::scene::GameLoopState;
-use crate::screen::main_scene_input::MainSceneInputTrait;
+use crate::screen::main_scene_input_source::MainSceneInputSource;
 use crate::world::map::CellIndex;
 use crate::world::World;
 use drawer_trait::DrawerTrait;
@@ -17,12 +17,13 @@ pub mod gui;
 pub mod hud;
 pub mod input_trait;
 pub mod main_scene_input;
+pub mod main_scene_input_source;
 
 pub const GREY: Color = Color::new(0.5, 0.5, 0.5, 1.0);
 
 pub struct Screen {
     pub drawer: Box<dyn DrawerTrait>,
-    input_source: Box<dyn MainSceneInputTrait>,
+    input_source: MainSceneInputSource,
     gui: Gui,
     drawing_state: DrawingState,
 }
@@ -30,7 +31,7 @@ pub struct Screen {
 impl Screen {
     pub fn new(
         mut drawer: Box<dyn DrawerTrait>,
-        input_source: Box<dyn MainSceneInputTrait>,
+        input_source: MainSceneInputSource,
         center_position: CellIndex,
     ) -> Self {
         let gui = Gui::new(drawer.as_mut());

@@ -3,6 +3,7 @@ pub mod gui_actions;
 mod panels;
 
 pub use gui_actions::GuiActions;
+use juquad::PixelPosition;
 use mq_basics::Color;
 
 use crate::screen::coords::cell_pixel::{clicked_cell, pixel_to_subcell_offset};
@@ -15,7 +16,7 @@ use crate::screen::gui::panels::{
     game_finished::draw_game_finished, task_queue::draw_robot_queue,
 };
 use crate::screen::main_scene_input::{
-    CellIndexSelection, CellSelection, Input, PixelCellSelection, PixelPosition,
+    CellIndexSelection, CellSelection, Input, PixelCellSelection,
 };
 use crate::world::map::CellIndex;
 use crate::world::World;

@@ -6,11 +6,11 @@ use crate::screen::coords::truncate::assert_in_range_0_1;
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::screen::drawing_state::{DrawingState, SubCellIndex, SubTilePosition};
 use crate::screen::gui::{FONT_SIZE, TEXT_COLOR};
-use crate::screen::main_scene_input::PixelPosition;
 use crate::world::fluids::VERTICAL_PRESSURE_DIFFERENCE;
 use crate::world::map::cell::{is_networkable, ExtraTextures, TextureIndexTrait};
 use crate::world::map::{Cell, CellIndex, Pressure, TileType};
 use crate::world::World;
+use juquad::PixelPosition;
 use mq_basics::Color;
 
 const SELECTION_COLOR: Color = Color::new(0.7, 0.8, 1.0, 1.0);

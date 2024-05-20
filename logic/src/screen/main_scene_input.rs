@@ -1,10 +1,5 @@
 use crate::world::map::CellIndex;
-
-pub type PixelPosition = mq_basics::Vec2;
-
-pub trait MainSceneInputTrait {
-    fn get_input(&mut self) -> Input;
-}
+use juquad::PixelPosition;
 
 #[derive(Copy, Clone)]
 pub struct Input {
@@ -41,6 +36,33 @@ pub struct CellSelection {
     pub state: CellSelectionState,
     pub selection: Option<CellIndexSelection>,
     pub selection_type: CellSelectionType,
+}
+
+#[derive(PartialEq, Copy, Clone, Debug)]
+pub enum CellSelectionState {
+    None,
+    Started,
+    InProgress,
+    Finished,
+}
+
+#[derive(PartialEq, Copy, Clone, Debug)]
+pub enum CellSelectionType {
+    Exclusive,
+    Add,
+    Remove,
+}
+
+#[derive(Default, Debug, Copy, Clone)]
+pub struct PixelSelection {
+    pub start: PixelPosition,
+    pub end: PixelPosition,
+}
+
+#[derive(Default, Debug, Copy, Clone)]
+pub struct CellIndexSelection {
+    pub start: CellIndex,
+    pub end: CellIndex,
 }
 
 impl PixelCellSelection {
@@ -85,31 +107,4 @@ impl CellSelection {
     pub fn is_something_being_selected(&self) -> bool {
         self.state == CellSelectionState::Started || self.state == CellSelectionState::InProgress
     }
-}
-
-#[derive(PartialEq, Copy, Clone, Debug)]
-pub enum CellSelectionState {
-    None,
-    Started,
-    InProgress,
-    Finished,
-}
-
-#[derive(PartialEq, Copy, Clone, Debug)]
-pub enum CellSelectionType {
-    Exclusive,
-    Add,
-    Remove,
-}
-
-#[derive(Default, Debug, Copy, Clone)]
-pub struct PixelSelection {
-    pub start: PixelPosition,
-    pub end: PixelPosition,
-}
-
-#[derive(Default, Debug, Copy, Clone)]
-pub struct CellIndexSelection {
-    pub start: CellIndex,
-    pub end: CellIndex,
 }

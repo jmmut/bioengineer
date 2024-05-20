@@ -2,12 +2,12 @@ use crate::common::cli::{CliArgs, UiBackend, GIT_VERSION};
 use crate::external::assets_macroquad;
 use crate::external::drawer_egui_macroquad::DrawerEguiMacroquad;
 use crate::external::drawer_macroquad::DrawerMacroquad;
-use crate::external::main_input_macroquad::InputMacroquad as InputSource;
 use juquad::input::input_macroquad::InputMacroquad;
 use juquad::texture_loader::TextureLoader;
 use logic::scene::introduction_scene::{IntroductionScene, JuquadFunctions};
 use logic::scene::main_scene::MainScene;
 use logic::screen::drawer_trait::DrawerTrait;
+use logic::screen::main_scene_input_source::MainSceneInputSource;
 use logic::screen::Screen;
 use logic::world::map::MapType;
 use logic::world::World;
@@ -19,7 +19,7 @@ pub const TILESET_PATH: &'static str = "assets/image/tileset.png";
 pub async fn create_main_scene(args: &CliArgs, textures: Vec<Texture2D>) -> Box<SceneState> {
     println!("Running Bioengineer version {}", GIT_VERSION);
     let drawer = drawer_factory(args.ui, textures);
-    let input_source = Box::new(InputSource::new());
+    let input_source = MainSceneInputSource::new(Box::new(InputMacroquad));
     let world = World::new_with_options(args.profile, args.fluids, MapType::Simplex);
     Box::new(SceneState::Main(MainScene {
         screen: Screen::new(

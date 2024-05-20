@@ -7,8 +7,8 @@ use crate::screen::coords::tile_pixel::{
 use crate::screen::coords::truncate::truncate_cell_offset;
 use crate::screen::draw_map::hitbox_offset;
 use crate::screen::drawing_state::{DrawingState, SubCellIndex, SubTilePosition};
-use crate::screen::main_scene_input::PixelPosition;
 use crate::world::map::CellIndex;
+use juquad::PixelPosition;
 
 pub fn clicked_cell(click: PixelPosition, screen_width: f32, drawing: &DrawingState) -> CellIndex {
     let moved_selected = click + hitbox_offset();
