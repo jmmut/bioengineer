@@ -33,7 +33,7 @@ impl DrawingState {
 
     fn move_map_horizontally(&mut self, extra_subcell_diff: SubCellIndex) {
         let (truncated_cell_diff, truncated_subcell_diff) =
-            truncate_cell_offset(extra_subcell_diff + self.subcell_diff);
+            truncate_cell_offset(self.subcell_diff - extra_subcell_diff);
 
         self.move_map_horizontally_rel(-truncated_cell_diff, truncated_subcell_diff);
     }
@@ -103,5 +103,73 @@ fn move_inside_range_min_equals(
         true
     } else {
         false
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::screen::drawing_state::{DEFAULT_RENDER_DEPTH, DEFAULT_RENDER_HALF_SIDE};
+
+    #[test]
+    fn test_move_center_even_x_greater() {
+        let x_diff = 6.0;
+        let z_diff = 4.0;
+        move_and_re_center(x_diff, z_diff);
+    }
+
+    #[test]
+    fn test_move_center_even_z_greater() {
+        let x_diff = 4.0;
+        let z_diff = 6.0;
+        move_and_re_center(x_diff, z_diff);
+    }
+
+    #[test]
+    fn test_move_center_odd_x_greater() {
+        let x_diff = 6.0;
+        let z_diff = 5.0;
+        move_and_re_center(x_diff, z_diff);
+    }
+
+    #[test]
+    fn test_move_center_negative() {
+        let x_diff = -4.0;
+        let z_diff = -4.0;
+        move_and_re_center(x_diff, z_diff);
+    }
+
+    #[test]
+    fn test_move_center_x_negative() {
+        let x_diff = -4.0;
+        let z_diff = 4.0;
+        move_and_re_center(x_diff, z_diff);
+    }
+
+    #[test]
+    fn test_move_center_z_negative() {
+        let x_diff = 4.0;
+        let z_diff = -4.0;
+        move_and_re_center(x_diff, z_diff);
+    }
+
+    fn move_and_re_center(x_diff: f32, z_diff: f32) {
+        let mut drawing = DrawingState::new_centered(CellIndex::new(0, 0, 0));
+        drawing.move_map_horizontally(SubCellIndex::new(x_diff, 0.0, z_diff));
+        let side = DEFAULT_RENDER_HALF_SIDE;
+        let min_at_0 = CellIndex::new(-side, -DEFAULT_RENDER_DEPTH, -side);
+        let max_at_0 = CellIndex::new(side - 1, 0, side - 1);
+        assert_eq!(
+            drawing.min_cell,
+            min_at_0 + CellIndex::new(x_diff as i32, 0, z_diff as i32)
+        );
+        assert_eq!(
+            drawing.max_cell,
+            max_at_0 + CellIndex::new(x_diff as i32, 0, z_diff as i32)
+        );
+
+        drawing.re_center(CellIndex::new(0, 0, 0));
+        assert_eq!(drawing.min_cell, min_at_0);
+        assert_eq!(drawing.max_cell, max_at_0);
     }
 }

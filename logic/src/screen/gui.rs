@@ -50,11 +50,13 @@ impl Gui {
         drawing: &mut DrawingState, // TODO: make const by add top_bar_showing to GuiActions
     ) -> GuiActions {
         let mut gui_actions = GuiActions::default();
+        drawer.ui_run(&mut |drawer| gui_actions = filter_input(input, world, drawing, drawer));
         if input.reload_ui_skin {
             set_skin(drawer);
         }
-
-        drawer.ui_run(&mut |drawer| gui_actions = filter_input(input, world, drawing, drawer));
+        if input.go_to_ship {
+            drawing.re_center(world.map.get_ship_position().unwrap());
+        }
         gui_actions
     }
 }

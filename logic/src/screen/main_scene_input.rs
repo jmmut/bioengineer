@@ -15,6 +15,7 @@ pub struct Input {
     pub robot_movement: Option<PixelPosition>,
     pub reset_quantities: bool,
     pub zoom_change: ZoomChange,
+    pub go_to_ship: bool,
 }
 
 #[derive(Copy, Clone)]

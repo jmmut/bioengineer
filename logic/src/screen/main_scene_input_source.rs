@@ -27,7 +27,7 @@ impl MainSceneInputSource {
             regenerate_map: self.input_source.is_key_pressed(KeyCode::M),
             reload_ui_skin: self.input_source.is_key_pressed(KeyCode::U),
             toggle_profiling: self.input_source.is_key_pressed(KeyCode::P),
-            toggle_fluids: self.input_source.is_key_pressed(KeyCode::Space),
+            toggle_fluids: self.input_source.is_key_pressed(KeyCode::L),
             single_fluid: self.input_source.is_key_pressed(KeyCode::N),
             change_height_rel: self.get_changed_height(),
             move_map_horizontally: self.get_horizontal_move(),
@@ -35,6 +35,7 @@ impl MainSceneInputSource {
             robot_movement: self.get_robot_movement(),
             reset_quantities: self.input_source.is_key_pressed(KeyCode::R),
             zoom_change: self.get_zoom(),
+            go_to_ship: self.input_source.is_key_down(KeyCode::G),
         }
     }
 }
@@ -49,28 +50,28 @@ impl MainSceneInputSource {
             self.previous_wheel_click_pos = self.input_source.mouse_position()
         } else if self.input_source.is_mouse_button_down(MouseButton::Middle) {
             let current_pos = self.input_source.mouse_position();
-            diff.x = current_pos.x - self.previous_wheel_click_pos.x;
-            diff.y = current_pos.y - self.previous_wheel_click_pos.y;
+            diff.x = self.previous_wheel_click_pos.x - current_pos.x;
+            diff.y = self.previous_wheel_click_pos.y - current_pos.y;
 
             self.previous_wheel_click_pos = current_pos;
         } else {
             let speed_x = 10.0;
             let speed_y = 5.0;
             if self.input_source.is_key_down(KeyCode::Q) {
-                diff.x += speed_x;
-                diff.y += speed_y;
+                diff.x += -speed_x;
+                diff.y += -speed_y;
             }
             if self.input_source.is_key_down(KeyCode::D) {
-                diff.x += -speed_x;
-                diff.y += -speed_y;
+                diff.x += speed_x;
+                diff.y += speed_y;
             }
             if self.input_source.is_key_down(KeyCode::A) {
-                diff.x += speed_x;
-                diff.y += -speed_y;
-            }
-            if self.input_source.is_key_down(KeyCode::E) {
                 diff.x += -speed_x;
                 diff.y += speed_y;
+            }
+            if self.input_source.is_key_down(KeyCode::E) {
+                diff.x += speed_x;
+                diff.y += -speed_y;
             }
             if self.is_shift_down() {
                 diff *= 2.0;

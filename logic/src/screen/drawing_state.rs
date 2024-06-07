@@ -12,7 +12,9 @@ use std::collections::HashSet;
 pub type TilePosition = IVec2;
 pub type SubTilePosition = Vec2;
 pub type SubCellIndex = Vec3;
+
 pub const DEFAULT_RENDER_DEPTH: i32 = 10;
+pub const DEFAULT_RENDER_HALF_SIDE: i32 = 10;
 
 #[derive(Clone)]
 pub struct DrawingState {
@@ -40,9 +42,10 @@ impl DrawingState {
         Self::new_centered(CellIndex::new(0, 1, 0))
     }
     pub fn new_centered(ship_pos: CellIndex) -> Self {
+        let side = DEFAULT_RENDER_HALF_SIDE;
         DrawingState {
-            min_cell: ship_pos + CellIndex::new(-10, -DEFAULT_RENDER_DEPTH, -10),
-            max_cell: ship_pos + CellIndex::new(9, 0, 9),
+            min_cell: ship_pos + CellIndex::new(-side, -DEFAULT_RENDER_DEPTH, -side),
+            max_cell: ship_pos + CellIndex::new(side - 1, 0, side - 1),
             subtile_offset: SubTilePosition::new(0.0, 0.0),
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
             zoom: 1.0,

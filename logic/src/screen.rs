@@ -15,7 +15,6 @@ pub mod drawer_trait;
 pub mod drawing_state;
 pub mod gui;
 pub mod hud;
-pub mod input_trait;
 pub mod main_scene_input;
 pub mod main_scene_input_source;
 
