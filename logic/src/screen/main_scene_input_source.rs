@@ -45,10 +45,10 @@ impl MainSceneInputSource {
         let mut diff = PixelPosition::new(0.0, 0.0);
         if self
             .input_source
-            .is_mouse_button_pressed(MouseButton::Middle)
+            .is_mouse_button_pressed(MouseButton::Right)
         {
             self.previous_wheel_click_pos = self.input_source.mouse_position()
-        } else if self.input_source.is_mouse_button_down(MouseButton::Middle) {
+        } else if self.input_source.is_mouse_button_down(MouseButton::Right) {
             let current_pos = self.input_source.mouse_position();
             diff.x = self.previous_wheel_click_pos.x - current_pos.x;
             diff.y = self.previous_wheel_click_pos.y - current_pos.y;

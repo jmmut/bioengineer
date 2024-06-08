@@ -233,7 +233,7 @@ fn help_text_lines() -> Vec<String> {
   - CTRL (or CMD) + left click (opt. drag): add cells to the selection
   - CTRL (or CMD) + right click (opt. drag): remove cells from the selection
 - arrow UP and DOWN, or W and S, or mouse wheel up and down: change height layer
-- mouse wheel click and drag: move the map horizontally
+- right click and drag: move the map horizontally
 - Q and D: move the map horizontally to top left or to bottom down (Z axis in 3D)
 - A and E: move the map horizontally to bottom left or to top right (X axis 3D)
 - SHIFT + {W,A,S,D,Q,E}: faster move
