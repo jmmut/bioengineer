@@ -6,9 +6,9 @@ use crate::world::map::{CellIndex, Map};
 impl DrawingState {
     pub fn maybe_move_map_horizontally_to(&mut self, x: i32, z: i32) {
         let center = CellIndex::new(
-            (self.max_cell.x + self.min_cell.x) / 2,
+            (self.max_cell.x + self.min_cell.x + 1) / 2,
             0,
-            (self.max_cell.z + self.min_cell.z) / 2,
+            (self.max_cell.z + self.min_cell.z + 1) / 2,
         );
         self.move_map_horizontally_rel(CellIndex::new(x, 0, z) - center, SubCellIndex::default());
     }
@@ -140,6 +140,27 @@ mod tests {
     }
 
     #[test]
+    fn test_move_center_negative_x_greater() {
+        let x_diff = -2.0;
+        let z_diff = -4.0;
+        move_and_re_center(x_diff, z_diff);
+    }
+
+    #[test]
+    fn test_move_center_negative_z_greater() {
+        let x_diff = -4.0;
+        let z_diff = -2.0;
+        move_and_re_center(x_diff, z_diff);
+    }
+
+    #[test]
+    fn test_move_center_negative_odd_x_greater() {
+        let x_diff = -6.0;
+        let z_diff = -5.0;
+        move_and_re_center(x_diff, z_diff);
+    }
+
+    #[test]
     fn test_move_center_x_negative() {
         let x_diff = -4.0;
         let z_diff = 4.0;
@@ -155,10 +176,11 @@ mod tests {
 
     fn move_and_re_center(x_diff: f32, z_diff: f32) {
         let mut drawing = DrawingState::new_centered(CellIndex::new(0, 0, 0));
-        drawing.move_map_horizontally(SubCellIndex::new(x_diff, 0.0, z_diff));
         let side = DEFAULT_RENDER_HALF_SIDE;
         let min_at_0 = CellIndex::new(-side, -DEFAULT_RENDER_DEPTH, -side);
         let max_at_0 = CellIndex::new(side - 1, 0, side - 1);
+
+        drawing.move_map_horizontally(SubCellIndex::new(x_diff, 0.0, z_diff));
         assert_eq!(
             drawing.min_cell,
             min_at_0 + CellIndex::new(x_diff as i32, 0, z_diff as i32)

@@ -228,6 +228,7 @@ fn maybe_draw_help(
 
 fn help_text_lines() -> Vec<String> {
     let text = r#"Controls
+    
 - click (optionally drag): select cells
   - CTRL (or CMD) + left click (opt. drag): add cells to the selection
   - CTRL (or CMD) + right click (opt. drag): remove cells from the selection
