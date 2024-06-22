@@ -56,7 +56,7 @@ impl DrawingState {
     pub fn highlighted_cells(&self) -> &CellIndexSet {
         &self.cell_index_set
     }
-    pub fn highlighted_cells_merged(&self) -> HashSet<CellIndex> {
+    pub fn highlighted_cells_merged(&self) -> &HashSet<CellIndex> {
         self.cell_index_set.highlighted_cells()
     }
 

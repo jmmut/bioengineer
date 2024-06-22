@@ -40,15 +40,8 @@ impl DrawingState {
         } else {
             self.highlight_start_height = Some(start.y);
         }
-        highlight_cells(
-            start,
-            end,
-            shown_cube,
-            selection_type,
-            &mut self.cell_index_set.highlighted_cells_in_progress,
-            &mut self.cell_index_set.highlighted_cells_consolidated,
-        );
-        self.cell_index_set.highlighted_cells_in_progress_type = selection_type;
+        self.cell_index_set
+            .highlight_cells(start, end, shown_cube, selection_type);
     }
 
     fn finish_selection(&mut self) {
@@ -78,6 +71,7 @@ pub struct CellIndexSet {
     highlighted_cells_in_progress: HashSet<CellIndex>,
     highlighted_cells_consolidated: HashSet<CellIndex>,
     highlighted_cells_in_progress_type: CellSelectionType,
+    merged_cached: HashSet<CellIndex>,
 }
 
 impl CellIndexSet {
@@ -86,46 +80,53 @@ impl CellIndexSet {
             highlighted_cells_in_progress: HashSet::new(),
             highlighted_cells_consolidated: HashSet::new(),
             highlighted_cells_in_progress_type: CellSelectionType::Exclusive,
+            merged_cached: HashSet::new(),
         }
+    }
+    pub fn highlight_cells(
+        &mut self,
+        start: CellIndex,
+        end: CellIndex,
+        shown_cube: Envelope,
+        selection_type: CellSelectionType,
+    ) {
+        highlight_cells(
+            start,
+            end,
+            shown_cube,
+            selection_type,
+            &mut self.highlighted_cells_in_progress,
+            &mut self.highlighted_cells_consolidated,
+        );
+        self.highlighted_cells_in_progress_type = selection_type;
+        self.merged_cached = self.merge_consolidated_and_in_progress();
+    }
+
+    fn merged(&self) -> &HashSet<CellIndex> {
+        &self.merged_cached
     }
     pub fn contains(&self, cell_index: &CellIndex) -> bool {
-        if self.highlighted_cells_consolidated.contains(cell_index) {
-            true
-        } else {
-            self.highlighted_cells_in_progress.contains(cell_index)
-        }
+        self.merged().contains(cell_index)
     }
     pub fn len(&self) -> usize {
-        match self.highlighted_cells_in_progress_type {
-            CellSelectionType::Exclusive => self.highlighted_cells_in_progress.len(),
-            CellSelectionType::Add => {
-                let merged = self.merge_consolidated_and_in_progress();
-                merged.len()
-            }
-            CellSelectionType::Remove => {
-                let merged = self.merge_consolidated_and_in_progress();
-                merged.len()
-            }
-        }
+        self.merged().len()
     }
     pub fn first(&self) -> Option<CellIndex> {
-        if let Some(cell_index) = self.highlighted_cells_consolidated.iter().next() {
-            Some(cell_index.clone())
-        } else {
-            self.highlighted_cells_in_progress.iter().next().cloned()
-        }
+        self.merged().iter().next().cloned()
     }
     pub fn set_highlighted_cells(&mut self, cells: HashSet<CellIndex>) {
         self.highlighted_cells_consolidated = cells;
         self.highlighted_cells_in_progress.clear();
         self.highlighted_cells_in_progress_type = CellSelectionType::Add;
+        self.merged_cached = self.merge_consolidated_and_in_progress();
     }
     fn finish_selection(&mut self) {
         self.highlighted_cells_consolidated = self.merge_consolidated_and_in_progress();
         self.highlighted_cells_in_progress.clear();
+        self.merged_cached = self.merge_consolidated_and_in_progress();
     }
-    pub fn highlighted_cells(&self) -> HashSet<CellIndex> {
-        self.merge_consolidated_and_in_progress()
+    pub fn highlighted_cells(&self) -> &HashSet<CellIndex> {
+        self.merged()
     }
     pub fn merge_consolidated_and_in_progress(&self) -> HashSet<CellIndex> {
         merge_consolidated_and_in_progress(
@@ -216,7 +217,7 @@ mod tests {
 
         drawing.maybe_select_cells(t.small_end, t.big_end, Started, Exclusive);
         assert_eq!(
-            drawing.highlighted_cells_merged(),
+            *drawing.highlighted_cells_merged(),
             HashSet::from([t.small_end, t.big_end])
         );
     }
