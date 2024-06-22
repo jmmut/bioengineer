@@ -19,9 +19,9 @@ pub fn draw_cell_info(
 ) -> GuiActions {
     let highlighted_cells = drawing.highlighted_cells();
     if highlighted_cells.len() == 1 {
-        let selected = highlighted_cells.iter().next().unwrap();
-        let cell = world.map.get_cell(*selected);
-        let cell_description = cell_to_str(cell, *selected, &world.networks);
+        let selected = highlighted_cells.first().unwrap();
+        let cell = world.map.get_cell(selected);
+        let cell_description = cell_to_str(cell, selected, &world.networks);
         let panel_title = "Cell information".to_string();
         let longest_line = longest(cell_description.iter(), &panel_title);
         let max_line_width = drawer.ui_measure_text(longest_line.as_str(), FONT_SIZE).x;

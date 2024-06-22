@@ -20,7 +20,8 @@ pub fn show_available_transformations(
     let mut cell_selection = unhandled_input.cell_selection;
     let highlighted_cells = drawing.highlighted_cells();
     if highlighted_cells.len() > 0 {
-        let mut transformations = allowed_transformations(&highlighted_cells, &world.map);
+        let mut transformations =
+            allowed_transformations(&highlighted_cells.highlighted_cells(), &world.map);
         transformations.sort_by(|t_1, t_2| {
             to_action_str(t_1.new_tile_type).cmp(to_action_str(t_2.new_tile_type))
         });
@@ -58,7 +59,7 @@ pub fn show_available_transformations(
                     match drawer.ui_button(text) {
                         Interaction::Clicked | Interaction::Pressing => {
                             let transformation_task = TransformationTask::new(
-                                highlighted_cells.clone(),
+                                highlighted_cells.highlighted_cells().clone(),
                                 transformation.clone(),
                             );
                             transformation_clicked = Option::Some(transformation_task);

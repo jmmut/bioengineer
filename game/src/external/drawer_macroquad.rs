@@ -21,7 +21,7 @@ use logic::screen::drawing_state::DrawingState;
 use logic::screen::gui::MARGIN;
 use logic::world::map::cell::{TextureIndex, TextureIndexTrait};
 
-#[derive(Clone)]
+// #[derive(Clone)]
 pub struct DrawerMacroquad {
     pub drawing: DrawingState,
     pub textures: Vec<Texture2D>,

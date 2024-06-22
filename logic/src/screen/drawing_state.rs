@@ -2,9 +2,9 @@ pub mod change_height;
 pub mod highlight_cells;
 pub mod move_horizontally;
 
-use crate::screen::drawing_state::highlight_cells::merge_consolidated_and_in_progress;
+use crate::screen::drawing_state::highlight_cells::CellIndexSet;
 use crate::screen::gui::GuiActions;
-use crate::screen::main_scene_input::{CellSelectionType, ZoomChange};
+use crate::screen::main_scene_input::ZoomChange;
 use crate::world::map::CellIndex;
 use mq_basics::{IVec2, Vec2, Vec3};
 use std::collections::HashSet;
@@ -16,7 +16,7 @@ pub type SubCellIndex = Vec3;
 pub const DEFAULT_RENDER_DEPTH: i32 = 10;
 pub const DEFAULT_RENDER_HALF_SIDE: i32 = 10;
 
-#[derive(Clone)]
+// #[derive(Clone)]
 pub struct DrawingState {
     pub min_cell: CellIndex,
     pub max_cell: CellIndex,
@@ -24,9 +24,7 @@ pub struct DrawingState {
     pub subcell_diff: SubCellIndex,
     pub top_bar_showing: TopBarShowing,
     pub zoom: f32,
-    highlighted_cells_in_progress: HashSet<CellIndex>,
-    highlighted_cells_consolidated: HashSet<CellIndex>,
-    highlighted_cells_in_progress_type: CellSelectionType,
+    cell_index_set: CellIndexSet,
     highlight_start_height: Option<i32>,
 }
 
@@ -50,25 +48,20 @@ impl DrawingState {
             subcell_diff: SubCellIndex::new(0.0, 0.0, 0.0),
             zoom: 1.0,
             top_bar_showing: TopBarShowing::None,
-            highlighted_cells_in_progress: HashSet::new(),
-            highlighted_cells_consolidated: HashSet::new(),
-            highlighted_cells_in_progress_type: CellSelectionType::Exclusive,
+            cell_index_set: CellIndexSet::new(),
             highlight_start_height: None,
         }
     }
 
-    pub fn highlighted_cells(&self) -> HashSet<CellIndex> {
-        merge_consolidated_and_in_progress(
-            &self.highlighted_cells_consolidated,
-            &self.highlighted_cells_in_progress,
-            self.highlighted_cells_in_progress_type,
-        )
+    pub fn highlighted_cells(&self) -> &CellIndexSet {
+        &self.cell_index_set
+    }
+    pub fn highlighted_cells_merged(&self) -> HashSet<CellIndex> {
+        self.cell_index_set.highlighted_cells()
     }
 
     pub fn set_highlighted_cells(&mut self, cells: HashSet<CellIndex>) {
-        self.highlighted_cells_consolidated = cells;
-        self.highlighted_cells_in_progress.clear();
-        self.highlighted_cells_in_progress_type = CellSelectionType::Add;
+        self.cell_index_set.set_highlighted_cells(cells)
     }
 
     pub fn apply_input(&mut self, gui_actions: &GuiActions) {

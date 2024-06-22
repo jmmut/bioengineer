@@ -28,7 +28,7 @@ cargo run -r
 
 That should work in Mac and Linux, and I think Windows too. If this doesn't work, refer
 to [the macroquad documentation](https://github.com/not-fl3/macroquad/#linux) or
-to [the github actions in this repo](.github/workflows/build.yml). You might need to install some
+to [the github actions in this repo](.github/workflows/build.yml) to see how the CI compiles for each platform. You might need to install some
 system libraries.
 
 ## Architecture of the game
